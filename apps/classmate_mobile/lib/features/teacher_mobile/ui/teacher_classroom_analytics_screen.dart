@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
@@ -52,8 +53,8 @@ class _TeacherClassroomAnalyticsScreenState
 
   Color _gradeColor(int? pct, ColorScheme cs) {
     if (pct == null) return cs.onSurfaceVariant;
-    if (pct >= 80) return const Color(0xFF22C55E);
-    if (pct >= 60) return const Color(0xFFF59E0B);
+    if (pct >= 80) return CmTokens.of(context).good;
+    if (pct >= 60) return CmTokens.of(context).warn;
     return cs.error;
   }
 
@@ -62,6 +63,7 @@ class _TeacherClassroomAnalyticsScreenState
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final tk = CmTokens.of(context);
 
     final totalStudents = (_data['totalStudents'] ?? 0) as int;
     final totalAssignments = (_data['totalAssignments'] ?? 0) as int;
@@ -72,24 +74,23 @@ class _TeacherClassroomAnalyticsScreenState
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-              decoration: BoxDecoration(
-              ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
               child: Row(
                 children: [
                   IconButton(
                     tooltip: l.a11yBack,
                     onPressed: () { if (context.canPop()) context.pop(); },
                     icon: const Icon(Icons.arrow_back_rounded),
-                    style: IconButton.styleFrom(backgroundColor: cs.surface, padding: const EdgeInsets.all(8)),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 4),
+                  const CmIconTile(icon: Icons.insights_rounded, size: 40),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(AppLocalizations.of(context)!.teacherAnalyticsTitle, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                        Text(AppLocalizations.of(context)!.teacherAnalyticsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
                         Text(widget.subject.isNotEmpty ? widget.subject : widget.courseName,
                             style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                       ],
@@ -102,23 +103,20 @@ class _TeacherClassroomAnalyticsScreenState
               child: _loading
                   ? const Center(child: CmLoading())
                   : _error != null
-                      ? Center(child: Padding(
-                          padding: const EdgeInsets.all(32),
+                      ? Center(
                           child: Column(mainAxisSize: MainAxisSize.min, children: [
-                            Icon(Icons.error_outline_rounded, size: 48, color: cs.error),
-                            const SizedBox(height: 16),
-                            Text(_error!, textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
-                            const SizedBox(height: 20),
-                            FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(AppLocalizations.of(context)!.retry)),
+                            CmEmptyState(icon: Icons.error_outline_rounded, title: l.commonError, message: _error),
+                            FilledButton.icon(onPressed: _load, icon: const Icon(Icons.refresh_rounded), label: Text(l.retry)),
                           ]),
-                        ))
+                        )
                       : CmRefreshIndicator(
                           onRefresh: _load,
                           child: ListView(
-                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                             children: [
                               // Top metrics
-                              Row(
+                              IntrinsicHeight(child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Expanded(child: _StatCard(label: AppLocalizations.of(context)!.teacherStudentsLabel, value: '$totalStudents', icon: Icons.group_rounded, color: cs.primary)),
                                   const SizedBox(width: 10),
@@ -127,20 +125,23 @@ class _TeacherClassroomAnalyticsScreenState
                                     value: attRate != null ? '$attRate%' : '—',
                                     icon: Icons.fact_check_rounded,
                                     color: attRate == null ? cs.onSurfaceVariant
-                                        : attRate >= 90 ? const Color(0xFF22C55E)
-                                        : attRate >= 75 ? const Color(0xFFF59E0B)
+                                        : attRate >= 90 ? tk.good
+                                        : attRate >= 75 ? tk.warn
                                         : cs.error,
                                   )),
                                   const SizedBox(width: 10),
                                   Expanded(child: _StatCard(label: AppLocalizations.of(context)!.navAssignments, value: '$totalAssignments', icon: Icons.assignment_rounded, color: cs.secondary)),
                                 ],
-                              ),
-                              const SizedBox(height: 20),
+                              )),
+                              const SizedBox(height: 16),
 
                               // Assessments with grade distribution
                               if (gradeStats.isNotEmpty) ...[
-                                Text(AppLocalizations.of(context)!.teacherGradeReports, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: cs.onSurfaceVariant)),
-                                const SizedBox(height: 10),
+                                CmSectionHeader(
+                                  label: AppLocalizations.of(context)!.teacherGradeReports,
+                                  icon: Icons.bar_chart_rounded,
+                                  count: gradeStats.length,
+                                ),
                                 ...gradeStats.map((stat) {
                                   final s = Map<String, dynamic>.from(stat is Map ? stat : {});
                                   final title = (s['title'] ?? '').toString();
@@ -159,11 +160,9 @@ class _TeacherClassroomAnalyticsScreenState
 
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 12),
-                                    child: LiquidGlassCard(
+                                    child: CmCard(
+                                      radius: CmTokens.radiusXl,
                                       padding: const EdgeInsets.all(16),
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: cs.surfaceContainerLow,
-                                      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -173,21 +172,33 @@ class _TeacherClassroomAnalyticsScreenState
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+                                                    Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
                                                     if (dateLabel.isNotEmpty)
                                                       Text(dateLabel, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                                                   ],
                                                 ),
                                               ),
-                                              Column(
-                                                crossAxisAlignment: CrossAxisAlignment.end,
-                                                children: [
-                                                  Text(
-                                                    avg != null ? '$avg%' : '—',
-                                                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: _gradeColor(avg, cs)),
-                                                  ),
-                                                  Text(AppLocalizations.of(context)!.teacherAvgLabel, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
-                                                ],
+                                              Container(
+                                                constraints: const BoxConstraints(minWidth: 64),
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  color: _gradeColor(avg, cs).withValues(alpha: cs.brightness == Brightness.dark ? 0.2 : 0.12),
+                                                  borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+                                                ),
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      avg != null ? '$avg%' : '—',
+                                                      style: TextStyle(
+                                                        fontSize: 20,
+                                                        fontWeight: FontWeight.w900,
+                                                        color: _gradeColor(avg, cs),
+                                                        fontFeatures: const [FontFeature.tabularFigures()],
+                                                      ),
+                                                    ),
+                                                    Text(AppLocalizations.of(context)!.teacherAvgLabel, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
+                                                  ],
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -200,13 +211,10 @@ class _TeacherClassroomAnalyticsScreenState
                                                 Text(AppLocalizations.of(context)!.teacherGradedFraction(graded, total), style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
                                                 if (below60 > 0) ...[
                                                   const SizedBox(width: 8),
-                                                  Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                                    decoration: BoxDecoration(
-                                                      color: cs.errorContainer,
-                                                      borderRadius: BorderRadius.circular(6),
-                                                    ),
-                                                    child: Text(AppLocalizations.of(context)!.teacherBelow60(below60), style: TextStyle(fontSize: 11, color: cs.onErrorContainer, fontWeight: FontWeight.w700)),
+                                                  CmPill(
+                                                    icon: Icons.warning_amber_rounded,
+                                                    label: AppLocalizations.of(context)!.teacherBelow60(below60),
+                                                    color: cs.error,
                                                   ),
                                                 ],
                                               ],
@@ -215,9 +223,9 @@ class _TeacherClassroomAnalyticsScreenState
                                             _DistributionBar(
                                               buckets: [
                                                 _Bucket('0–39', (dist['0-39'] ?? 0) as int, cs.error),
-                                                _Bucket('40–59', (dist['40-59'] ?? 0) as int, const Color(0xFFF59E0B)),
-                                                _Bucket('60–79', (dist['60-79'] ?? 0) as int, const Color(0xFF60A5FA)),
-                                                _Bucket('80–100', (dist['80-100'] ?? 0) as int, const Color(0xFF22C55E)),
+                                                _Bucket('40–59', (dist['40-59'] ?? 0) as int, tk.warn),
+                                                _Bucket('60–79', (dist['60-79'] ?? 0) as int, cs.primary),
+                                                _Bucket('80–100', (dist['80-100'] ?? 0) as int, tk.good),
                                               ],
                                               maxValue: maxBucket == 0 ? 1 : maxBucket,
                                             ),
@@ -229,17 +237,7 @@ class _TeacherClassroomAnalyticsScreenState
                                   );
                                 }),
                               ] else ...[
-                                LiquidGlassCard(
-                                  padding: const EdgeInsets.all(16),
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: cs.surfaceContainerLow,
-                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                                  child: Row(children: [
-                                    Icon(Icons.bar_chart_rounded, color: cs.onSurfaceVariant),
-                                    const SizedBox(width: 12),
-                                    Text(AppLocalizations.of(context)!.teacherNoAssessmentsYet, style: TextStyle(color: cs.onSurfaceVariant)),
-                                  ]),
-                                ),
+                                CmEmptyState(icon: Icons.bar_chart_rounded, title: AppLocalizations.of(context)!.teacherNoAssessmentsYet),
                               ],
                             ],
                           ),
@@ -262,19 +260,24 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return LiquidGlassCard(
+    return CmCard(
       padding: const EdgeInsets.all(12),
-      borderRadius: BorderRadius.circular(16),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: color),
-          const SizedBox(height: 8),
-          Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: color)),
+          CmIconTile(icon: icon, color: color, size: 32),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 22,
+              color: color,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label, style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: cs.onSurfaceVariant)),
         ],
       ),
     );
@@ -315,7 +318,7 @@ class _DistributionBar extends StatelessWidget {
                   height: barH,
                   decoration: BoxDecoration(
                     color: b.color.withValues(alpha: b.count > 0 ? 0.85 : 0.2),
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
                 const SizedBox(height: 4),

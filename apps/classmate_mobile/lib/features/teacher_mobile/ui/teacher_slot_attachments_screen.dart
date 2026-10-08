@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
@@ -158,38 +159,25 @@ class _TeacherSlotAttachmentsScreenState
       body: _loading
           ? const Center(child: CmLoading())
           : _error != null
-              ? Padding(
-                  padding: const EdgeInsets.all(20),
+              ? Center(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(_error!, style: TextStyle(color: cs.error)),
-                      const SizedBox(height: 12),
+                      CmEmptyState(
+                        icon: Icons.error_outline_rounded,
+                        title: AppLocalizations.of(context)!.commonError,
+                        message: _error,
+                      ),
                       FilledButton(onPressed: _load, child: Text(AppLocalizations.of(context)!.commonRetry)),
                     ],
                   ),
                 )
               : _attached.isEmpty
                   ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(28),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.attach_file_rounded, size: 44, color: cs.onSurfaceVariant),
-                            const SizedBox(height: 12),
-                            Text(
-                              AppLocalizations.of(context)!.teacherSlotAttachmentsScreenEmptyTitle,
-                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              AppLocalizations.of(context)!.teacherSlotAttachmentsScreenEmptyBody,
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                            ),
-                          ],
-                        ),
+                      child: CmEmptyState(
+                        icon: Icons.attach_file_rounded,
+                        title: AppLocalizations.of(context)!.teacherSlotAttachmentsScreenEmptyTitle,
+                        message: AppLocalizations.of(context)!.teacherSlotAttachmentsScreenEmptyBody,
                       ),
                     )
                   : ListView.separated(
@@ -242,43 +230,37 @@ class _AttachedMaterialTile extends StatelessWidget {
     final title = (material['title'] ?? AppLocalizations.of(context)!.teacherSlotAttachmentsScreenMaterialFallback).toString();
     final desc = (material['description'] ?? '').toString().trim();
     final mime = (material['mime'] ?? '').toString();
-    return CmPress(
+    return CmCard(
       onTap: onOpen,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-          boxShadow: CmTokens.of(context).shadowSm,
-        ),
-        child: Row(
-          children: [
-            Icon(_iconFor(mime), size: 28, color: cs.primary),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
-                  if (desc.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(desc,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-                  ],
+      padding: const EdgeInsets.fromLTRB(12, 10, 6, 10),
+      child: Row(
+        children: [
+          CmIconTile(icon: _iconFor(mime), color: cs.tertiary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                if (desc.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(desc,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                 ],
-              ),
+              ],
             ),
-            IconButton(
-              tooltip: AppLocalizations.of(context)!.teacherSlotDetachTooltip,
-              icon: const Icon(Icons.close_rounded),
-              onPressed: onDetach,
-            ),
-          ],
-        ),
-      ),);
+          ),
+          CmIconAction(
+            icon: Icons.close_rounded,
+            tooltip: AppLocalizations.of(context)!.teacherSlotDetachTooltip,
+            onPressed: onDetach,
+            color: cs.onSurfaceVariant,
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -421,29 +403,24 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
                           itemBuilder: (_, i) {
                             // First item: Create new material shortcut.
                             if (i == 0) {
-                              return CmPress(
-                                onTap: _createNew,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                                  decoration: BoxDecoration(
-                                    color: cs.primaryContainer,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: cs.primary.withValues(alpha: 0.4)),
-                                  ),
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 4),
+                                child: CmCard(
+                                  tint: cs.primary,
+                                  onTap: _createNew,
+                                  padding: const EdgeInsets.all(10),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.add_rounded, color: cs.onPrimaryContainer),
-                                      const SizedBox(width: 10),
+                                      const CmIconTile(icon: Icons.add_rounded, size: 38, filled: true),
+                                      const SizedBox(width: 12),
                                       Text(
                                         AppLocalizations.of(context)!.teacherSlotAttachmentsScreenCreateNew,
-                                        style: theme.textTheme.bodyLarge?.copyWith(
-                                          fontWeight: FontWeight.w800,
-                                          color: cs.onPrimaryContainer,
-                                        ),
+                                        style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
                                       ),
                                     ],
                                   ),
-                                ),);
+                                ),
+                              );
                             }
                             final m = filtered[i - 1];
                             final id = (m['id'] ?? '').toString();
@@ -453,17 +430,17 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
                             return CmPress(
                               onTap: attached ? null : () => Navigator.pop(context, id),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
                                   color: attached
-                                      ? cs.surfaceContainerHighest.withValues(alpha: 0.4)
+                                      ? cs.surfaceContainerHigh.withValues(alpha: 0.5)
                                       : cs.surfaceContainerLow,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+                                  borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+                                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.description_rounded, color: cs.primary),
+                                    CmIconTile(icon: Icons.description_rounded, size: 38, color: attached ? cs.onSurfaceVariant : cs.tertiary),
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
@@ -483,7 +460,7 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
                                       ),
                                     ),
                                     if (attached)
-                                      Icon(Icons.check_circle_rounded, size: 18, color: cs.primary),
+                                      Icon(Icons.check_circle_rounded, size: 20, color: CmTokens.of(context).good),
                                   ],
                                 ),
                               ),);

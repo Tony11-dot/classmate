@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/semester_select_field.dart';
@@ -153,7 +153,6 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -174,26 +173,16 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
       body: _loading
           ? const Center(child: CmLoading())
           : _error != null
-              ? Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(_error!)))
+              ? Center(child: CmEmptyState(icon: Icons.error_outline_rounded, title: l.commonError, message: _error))
               : CmRefreshIndicator(
                   onRefresh: _reloadAverages,
                   child: _averages.isEmpty
                       ? ListView(children: [
-                          const SizedBox(height: 80),
-                          Icon(Icons.functions_rounded, size: 56, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
-                          const SizedBox(height: 12),
-                          Center(
-                            child: Text(l.averagesEmptyTitle,
-                                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
-                          ),
-                          const SizedBox(height: 6),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
-                            child: Text(
-                              l.averagesEmptyBody,
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                            ),
+                          const SizedBox(height: 40),
+                          CmEmptyState(
+                            icon: Icons.functions_rounded,
+                            title: l.averagesEmptyTitle,
+                            message: l.averagesEmptyBody,
                           ),
                         ])
                       : ListView.builder(
@@ -215,37 +204,45 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: LiquidGlassCard(
-        borderRadius: BorderRadius.circular(16),
-        padding: const EdgeInsets.all(14),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () => _openPreview(a),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(a.title,
-                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+      child: CmCard(
+        onTap: () => _openPreview(a),
+        padding: const EdgeInsets.fromLTRB(12, 12, 6, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CmIconTile(icon: Icons.functions_rounded),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(a.title,
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, height: 1.2)),
+                      const SizedBox(height: 2),
+                      Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+                    ],
                   ),
-                  IconButton(
-                    tooltip: l.a11yEdit,
-                    icon: const Icon(Icons.edit_rounded, size: 20),
-                    onPressed: () => _openEditor(existing: a),
-                  ),
-                  IconButton(
-                    tooltip: l.a11yDelete,
-                    icon: Icon(Icons.delete_outline_rounded, size: 20, color: cs.error),
-                    onPressed: () => _delete(a),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 2),
-              Text(subtitle, style: theme.textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant)),
-              const SizedBox(height: 10),
-              Wrap(
+                ),
+                CmIconAction(
+                  icon: Icons.edit_rounded,
+                  tooltip: l.a11yEdit,
+                  onPressed: () => _openEditor(existing: a),
+                ),
+                CmIconAction(
+                  icon: Icons.delete_outline_rounded,
+                  tooltip: l.a11yDelete,
+                  onPressed: () => _delete(a),
+                  color: cs.error,
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 56),
+              child: Wrap(
                 spacing: 6,
                 runSpacing: 6,
                 children: [
@@ -253,28 +250,19 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
                     _formatChip(i + 1, a.variants[i].total),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _formatChip(int index, int total) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
     final ok = total == 100;
-    final color = ok ? CmTokens.of(context).good : cs.error;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        AppLocalizations.of(context)!.averagesFormatChip(index, total),
-        style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700, color: color),
-      ),
+    return CmPill(
+      icon: ok ? Icons.check_circle_rounded : Icons.error_outline_rounded,
+      label: AppLocalizations.of(context)!.averagesFormatChip(index, total),
+      color: ok ? CmTokens.of(context).good : Theme.of(context).colorScheme.error,
     );
   }
 }
@@ -366,12 +354,13 @@ class _ComputePreviewSheetState extends ConsumerState<_ComputePreviewSheet> {
                         : ListView.separated(
                             padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
                             itemCount: _rows.length,
-                            separatorBuilder: (_, _) => Divider(height: 1, color: cs.outlineVariant),
+                            separatorBuilder: (_, _) => Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.5)),
                             itemBuilder: (_, i) {
                               final r = _rows[i];
                               return ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: Text(r.name),
+                                leading: CmMonogram(name: r.name, radius: 18),
+                                title: Text(r.name, style: const TextStyle(fontWeight: FontWeight.w700)),
                                 subtitle: r.formatUsed != null
                                     ? Text(l.averagesFormatN(r.formatUsed! + 1),
                                         style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant))
@@ -379,8 +368,9 @@ class _ComputePreviewSheetState extends ConsumerState<_ComputePreviewSheet> {
                                 trailing: Text(
                                   r.value == null ? '—' : r.value!.toStringAsFixed(1),
                                   style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: r.value == null ? cs.onSurfaceVariant : cs.onSurface,
+                                    fontWeight: FontWeight.w900,
+                                    color: r.value == null ? cs.onSurfaceVariant : cs.primary,
+                                    fontFeatures: const [FontFeature.tabularFigures()],
                                   ),
                                 ),
                               );
@@ -742,8 +732,7 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: LiquidGlassCard(
-        borderRadius: BorderRadius.circular(16),
+      child: CmCard(
         padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -781,12 +770,10 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
                   label: Text(l.averagesAddGrade),
                 ),
                 const Spacer(),
-                Text(
-                  l.averagesTotal(total),
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: totalColor,
-                  ),
+                CmPill(
+                  icon: ok ? Icons.check_circle_rounded : Icons.error_outline_rounded,
+                  label: l.averagesTotal(total),
+                  color: totalColor,
                 ),
               ],
             ),

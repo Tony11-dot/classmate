@@ -68,8 +68,8 @@ Update this file in the same commit as each screen's redesign.
 | Materials list | ✅ |
 | Exams, Assignments | ✅ |
 | Assignment detail, Exam grades | ✅ |
-| Student profile, Student grade detail, Averages, Analytics | 🎨 |
-| Slot attachments | 🎨 |
+| Student profile, Student grade detail, Averages, Analytics | ✅ |
+| Slot attachments | ✅ |
 | Classroom add assignment / meeting / material | ✅ |
 | Attendance history, Cohorts | ✅ |
 
@@ -97,10 +97,9 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. 🎨 teacher student profile / grade detail / averages / analytics, slot attachments
-2. 🎨 admin settings screens, students hub, reports etc.
-3. 🎨 student solutions / bagrut home / certificates list / materials / notes, support, forgot password, parent notifications
-4. Onboarding (low priority)
+1. 🎨 admin settings screens, students hub, reports etc.
+2. 🎨 student solutions / bagrut home / certificates list / materials / notes, support, forgot password, parent notifications
+3. Onboarding (low priority)
 
 ## Known open items (not redesign)
 - Secretary student create/delete UI not wired
