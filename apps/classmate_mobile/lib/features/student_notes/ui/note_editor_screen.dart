@@ -134,7 +134,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
               IconButton(
                 tooltip: l.commonDelete,
                 onPressed: _deleteNote,
-                icon: const Icon(Icons.delete_outline_rounded),
+                icon: Icon(Icons.delete_outline_rounded, color: theme.colorScheme.error),
               ),
             if (_canEdit)
               IconButton(
@@ -161,16 +161,23 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                   readOnly: !_canEdit,
                   textInputAction: TextInputAction.next,
                   style: theme.textTheme.headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.w800),
+                      ?.copyWith(fontWeight: FontWeight.w900, height: 1.2),
                   decoration: InputDecoration(filled: false, 
                     hintText: l.notesTitleHint,
                     border: InputBorder.none,
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Divider(
+                  height: 1,
+                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                ),
+              ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
                   child: TextField(
                     controller: _bodyCtl,
                     readOnly: !_canEdit,
@@ -178,7 +185,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
                     expands: true,
                     textAlignVertical: TextAlignVertical.top,
                     keyboardType: TextInputType.multiline,
-                    style: theme.textTheme.bodyLarge,
+                    style: theme.textTheme.bodyLarge?.copyWith(height: 1.55),
                     decoration: InputDecoration(filled: false, 
                       hintText: _canEdit ? l.notesBodyHint : null,
                       border: InputBorder.none,
