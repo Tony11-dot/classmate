@@ -81,7 +81,8 @@ Update this file in the same commit as each screen's redesign.
 | Students hub | 🎨 |
 | Settings | ✅ |
 | Edit user | ✅ |
-| School settings, Import users, Export | 🎨 |
+| Import users | ✅ |
+| School settings, Export | 🎨 |
 | Grade scales, Subject detail | ✅ |
 | Reports | ✅ |
 | Periods | ✅ (not previewed: private data provider) |

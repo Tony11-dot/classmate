@@ -11,6 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_press.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
@@ -414,6 +416,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
             child: Row(children: [
               Expanded(
                 child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
                   onPressed: _saving ? null : _addRow,
                   icon: const Icon(Icons.add_rounded),
                   label: Text(l.adminImportUsersScreenAddRow),
@@ -422,6 +425,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
               const SizedBox(width: 10),
               Expanded(
                 child: FilledButton.icon(
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
                   onPressed: _saving ? null : _submit,
                   icon: _saving
                       ? const CmLoading(size: 16)
@@ -448,10 +452,20 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
         Text(l.adminImportUsersScreenGridIntro, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5)),
         const SizedBox(height: 8),
         Wrap(spacing: 8, runSpacing: 8, children: [
-          ActionChip(
-            avatar: const Icon(Icons.content_paste_rounded, size: 18),
-            label: Text(l.adminAddManyPasteNames),
-            onPressed: _saving ? null : _pasteNames,
+          CmPress(
+            onTap: _saving ? null : _pasteNames,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.2 : 0.1),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.content_paste_rounded, size: 18, color: cs.primary),
+                const SizedBox(width: 6),
+                Text(l.adminAddManyPasteNames, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: cs.primary)),
+              ]),
+            ),
           ),
           // Set role for ALL rows.
           PopupMenuButton<String>(
@@ -476,11 +490,10 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
   }
 
   Widget _toolChip(ColorScheme cs, IconData icon, String label) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
     decoration: BoxDecoration(
       color: cs.surfaceContainerHigh,
-      borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      borderRadius: BorderRadius.circular(999),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       Icon(icon, size: 18, color: cs.onSurfaceVariant),
@@ -556,12 +569,23 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     final l = AppLocalizations.of(context)!;
     final row = _rows[i];
     final isStudent = row.role == 'STUDENT';
-    return Card(
-      margin: const EdgeInsets.only(bottom: 10),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 10, 8, 12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: CmCard(
+        padding: const EdgeInsets.fromLTRB(12, 10, 4, 12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
+            Container(
+              width: 30,
+              height: 30,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Text('${i + 1}', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: cs.primary)),
+            ),
+            const SizedBox(width: 10),
             Expanded(
               child: LiquidGlassDropdown<String>(
                 label: l.adminImportUsersScreenRole,
@@ -573,20 +597,21 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
                 }),
               ),
             ),
-            IconButton(
-              icon: Icon(Icons.close_rounded, color: cs.onSurfaceVariant),
+            CmIconAction(
+              icon: Icons.close_rounded,
               tooltip: l.a11yClose,
               onPressed: _rows.length <= 1 ? null : () => _removeRow(i),
+              color: cs.onSurfaceVariant,
             ),
           ]),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _cellField(row.name, capitalize: true, label: l.adminImportUsersScreenFullName, onChanged: (_) => setState(() {})),
           const SizedBox(height: 8),
           _usernameField(row, label: l.adminImportUsersScreenUsername, hint: l.adminImportUsersScreenUsernameHint),
           if (isStudent) ...[
             const SizedBox(height: 8),
             Row(children: [
-              SizedBox(width: 90, child: _gradeField(row, label: l.adminImportUsersScreenGrade)),
+              SizedBox(width: 112, child: _gradeField(row, label: l.adminImportUsersScreenGrade)),
               const SizedBox(width: 8),
               Expanded(child: _parentField(row, label: l.adminAddManyParentLabel)),
             ]),
@@ -886,6 +911,7 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
         _hintCard(cs),
         const SizedBox(height: 16),
         FilledButton.icon(
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
           onPressed: _loading ? null : _pick,
           icon: const Icon(Icons.upload_file_rounded),
           label: Text(_fileName == null ? l.adminImportUsersScreenChooseCsv : l.adminImportUsersScreenChooseDifferentFile),
@@ -899,8 +925,12 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: cs.errorContainer, borderRadius: BorderRadius.circular(12)),
-            child: Text(_error!, style: TextStyle(color: cs.onErrorContainer)),
+            decoration: BoxDecoration(color: cs.errorContainer, borderRadius: BorderRadius.circular(CmTokens.radiusMd)),
+            child: Row(children: [
+              Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
+              const SizedBox(width: 10),
+              Expanded(child: Text(_error!, style: TextStyle(color: cs.onErrorContainer))),
+            ]),
           ),
         ],
         if (_preview != null) _previewBlock(cs),
@@ -910,17 +940,11 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
 
   Widget _hintCard(ColorScheme cs) {
     final l = AppLocalizations.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-        boxShadow: CmTokens.of(context).shadowSm,
-      ),
+    return CmCard(
+      padding: const EdgeInsets.all(14),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(l.adminImportUsersScreenRecognisedColumns, style: const TextStyle(fontWeight: FontWeight.w700)),
-        const SizedBox(height: 6),
+        CmFormSectionHeader(icon: Icons.view_column_rounded, title: l.adminImportUsersScreenRecognisedColumns),
+        const SizedBox(height: 10),
         Text(
           l.adminImportUsersScreenRecognisedColumnsBody,
           style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, height: 1.45),
@@ -941,7 +965,7 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
       Text(l.adminImportUsersScreenDetectedRows(count is int ? count : int.tryParse('$count') ?? rows.length), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
       const SizedBox(height: 8),
       Wrap(spacing: 6, runSpacing: 6, children: [
-        for (final f in fields) Chip(label: Text(f), visualDensity: VisualDensity.compact),
+        for (final f in fields) CmPill(icon: Icons.check_rounded, label: f, color: cs.primary),
       ]),
       if (fields.isEmpty)
         Padding(
@@ -957,6 +981,7 @@ class _CsvTabState extends ConsumerState<_CsvTab> {
       SizedBox(
         width: double.infinity,
         child: FilledButton.icon(
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
           onPressed: (rows.isEmpty || fields.isEmpty) ? null : () => widget.onLoadToGrid(rows),
           icon: const Icon(Icons.edit_note_rounded),
           label: Text(l.adminImportUsersScreenReviewEditInGrid),
@@ -981,16 +1006,24 @@ Widget _resultView(BuildContext context, Map<String, dynamic> r) {
   final errors = (r['errors'] as List?) ?? const [];
   return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
     const SizedBox(height: 12),
-    Container(
+    CmCard(
+      tint: failed != 0 ? CmTokens.of(context).warn : CmTokens.of(context).good,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: cs.primaryContainer, borderRadius: BorderRadius.circular(12)),
-      child: Text(
+      child: Row(children: [
+        CmIconTile(
+          icon: failed != 0 ? Icons.warning_amber_rounded : Icons.check_circle_rounded,
+          color: failed != 0 ? CmTokens.of(context).warn : CmTokens.of(context).good,
+          filled: true,
+        ),
+        const SizedBox(width: 12),
+        Expanded(child: Text(
         l.adminImportUsersScreenResultSummary(
           createdCount is int ? createdCount : int.tryParse('$createdCount') ?? 0,
           links is int ? links : int.tryParse('$links') ?? 0,
         ) + (failed != 0 ? l.adminImportUsersScreenResultFailedSuffix(failed is int ? failed : int.tryParse('$failed') ?? 0) : ''),
-        style: TextStyle(fontWeight: FontWeight.w700, color: cs.onPrimaryContainer),
-      ),
+        style: const TextStyle(fontWeight: FontWeight.w800),
+      )),
+      ]),
     ),
     if (errors.isNotEmpty) ...[
       const SizedBox(height: 12),
@@ -1007,15 +1040,18 @@ Widget _resultView(BuildContext context, Map<String, dynamic> r) {
       const SizedBox(height: 6),
       ...created.map((c) {
         final m = Map<String, dynamic>.from(c as Map);
-        return Container(
-          margin: const EdgeInsets.only(bottom: 6),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: cs.surfaceContainerLow, borderRadius: BorderRadius.circular(10)),
-          child: Row(children: [
-            Expanded(child: Text('${m['name'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w600))),
-            SelectableText('${m['username']}  ·  ${m['tempPassword']}',
-                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-          ]),
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: CmCard(
+            padding: const EdgeInsets.all(10),
+            child: Row(children: [
+              CmMonogram(name: '${m['name'] ?? ''}', radius: 16),
+              const SizedBox(width: 10),
+              Expanded(child: Text('${m['name'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700))),
+              SelectableText('${m['username']}  ·  ${m['tempPassword']}',
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w600, fontFeatures: const [FontFeature.tabularFigures()])),
+            ]),
+          ),
         );
       }),
     ],
