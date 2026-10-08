@@ -32,7 +32,7 @@ Update this file in the same commit as each screen's redesign.
 | NOVA home / NOVA chat | ✅ / ✅ (empty state) |
 | Solutions home | ✅ |
 | Solutions books / pages / questions / subject | 🎨 / 🎨 / 🎨 / ➖ (wraps Solutions home) |
-| Bagrut home | 🎨 |
+| Bagrut home | ✅ |
 | Bagrut exams list / exam | ✅ / ✅ |
 | Certificates home / list | ✅ / 🎨 |
 | Student materials | 🎨 |

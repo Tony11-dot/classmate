@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
-import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/util/subject_color.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../domain/bagrut_subjects.dart';
 import 'bagrut_exams_screen.dart';
 
@@ -25,7 +26,6 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
-    final cs = Theme.of(context).colorScheme;
 
     final subjects = kBagrutSubjects.where((s) {
       final q = _query.trim().toLowerCase();
@@ -49,6 +49,10 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
               ),
             ),
           ),
+          if (subjects.isEmpty)
+            SliverToBoxAdapter(
+              child: CmEmptyState(icon: Icons.search_off_rounded, title: l.bagrutSearchHint),
+            ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverGrid(
@@ -62,49 +66,32 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
                 childCount: subjects.length,
                 (context, i) {
                 final s = subjects[i];
-                return Material(
-                  color: cs.surfaceContainerLow,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(CmTokens.radiusLg),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.3), width: 0.8),
+                final tone = subjectColorOrFallback(null, s.en);
+                return CmCard(
+                  tint: tone,
+                  padding: const EdgeInsets.all(14),
+                  // Root navigator → full-screen (covers the shell top bar);
+                  // Cupertino route → back chevron + edge-swipe to leave.
+                  onTap: () => Navigator.of(context, rootNavigator: true).push(
+                    CupertinoPageRoute<void>(
+                      builder: (_) => BagrutExamsScreen(subjectKey: s.key),
+                    ),
                   ),
-                  elevation: 1,
-                  shadowColor: Colors.black.withValues(alpha: 0.12),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(CmTokens.radiusLg),
-                    // Root navigator → full-screen (covers the shell top bar);
-                    // Cupertino route → back chevron + edge-swipe to leave.
-                    onTap: () => Navigator.of(context, rootNavigator: true).push(
-                      CupertinoPageRoute<void>(
-                        builder: (_) => BagrutExamsScreen(subjectKey: s.key),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            width: 46,
-                            height: 46,
-                            decoration: BoxDecoration(
-                              color: cs.primaryContainer,
-                              borderRadius: BorderRadius.circular(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CmIconTile(icon: s.icon, color: tone, size: 44, filled: true),
+                      Text(
+                        s.title(locale),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              height: 1.2,
                             ),
-                            child: Icon(s.icon, color: cs.onPrimaryContainer),
-                          ),
-                          Text(
-                            s.title(locale),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                ),
-                          ),
-                        ],
                       ),
-                    ),
+                    ],
                   ),
                 );
                 },
