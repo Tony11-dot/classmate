@@ -2,7 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_press.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/admin_repository.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
@@ -143,17 +146,13 @@ class _AdminBellScheduleScreenState
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
                 children: [
                   // ── Info card ──────────────────────────────────────────────
-                  Container(
+                  CmCard(
+                    tint: cs.primary,
                     padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: cs.primaryContainer.withValues(alpha: 0.35),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: cs.primary.withValues(alpha: 0.25)),
-                    ),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline_rounded, size: 18, color: cs.primary),
-                        const SizedBox(width: 10),
+                        const CmIconTile(icon: Icons.notifications_active_rounded, size: 40),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             l.adminSchoolBellInfo,
@@ -207,17 +206,11 @@ class _PeriodRow extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final hasTime = times.start.isNotEmpty && times.end.isNotEmpty;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: hasTime
-              ? cs.outlineVariant.withValues(alpha: 0.5)
-              : cs.error.withValues(alpha: 0.3),
-        ),
-      ),
+    final warn = CmTokens.of(context).warn;
+    final duration = hasTime ? _duration(times.start, times.end) : '';
+
+    return CmCard(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
       child: Row(
         children: [
           // Period badge
@@ -225,8 +218,8 @@ class _PeriodRow extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: hasTime ? cs.primaryContainer : cs.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(12),
+              color: hasTime ? cs.primary : warn.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.14),
+              borderRadius: BorderRadius.circular(13),
             ),
             child: Center(
               child: Text(
@@ -234,12 +227,12 @@ class _PeriodRow extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 15,
-                  color: hasTime ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+                  color: hasTime ? cs.onPrimary : warn,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
 
           // Start time
           Expanded(
@@ -250,15 +243,8 @@ class _PeriodRow extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              '→',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: cs.onSurfaceVariant,
-              ),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            child: Icon(Icons.arrow_forward_rounded, size: 16, color: cs.onSurfaceVariant),
           ),
 
           // End time
@@ -271,13 +257,13 @@ class _PeriodRow extends StatelessWidget {
           ),
 
           // Duration label
-          if (hasTime) ...[
+          if (duration.isNotEmpty) ...[
             const SizedBox(width: 8),
             Text(
-              _duration(times.start, times.end),
-              style: theme.textTheme.labelSmall?.copyWith(
+              duration,
+              style: theme.textTheme.labelMedium?.copyWith(
                 color: cs.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],
@@ -314,16 +300,19 @@ class _TimePicker extends StatelessWidget {
     final theme = Theme.of(context);
     final hasTime = time.isNotEmpty;
 
-    return GestureDetector(
+    final warn = CmTokens.of(context).warn;
+    final dark = cs.brightness == Brightness.dark;
+
+    return CmPress(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         decoration: BoxDecoration(
-          border: Border.all(
-            color: hasTime ? cs.outlineVariant : cs.error.withValues(alpha: 0.5),
-          ),
-          borderRadius: BorderRadius.circular(10),
-          color: hasTime ? cs.surface : cs.errorContainer.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          color: hasTime
+              ? (dark ? cs.surfaceContainerHigh : cs.surface)
+              : warn.withValues(alpha: dark ? 0.16 : 0.08),
+          border: hasTime ? null : Border.all(color: warn.withValues(alpha: 0.45)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -340,7 +329,8 @@ class _TimePicker extends StatelessWidget {
               style: TextStyle(
                 fontWeight: FontWeight.w800,
                 fontSize: 16,
-                color: hasTime ? cs.onSurface : cs.error,
+                fontFeatures: const [FontFeature.tabularFigures()],
+                color: hasTime ? cs.onSurface : warn,
               ),
             ),
           ],

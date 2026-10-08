@@ -5,7 +5,8 @@ import 'package:intl/intl.dart';
 
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/glass/liquid_glass_card.dart';
+import '../../../core/theme/cm_tokens.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../ui/widgets/cm_loading.dart';
@@ -124,28 +125,22 @@ class _TeacherAttendanceHistoryScreenState
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
         children: [
           // ── Filter bar ──────────────────────────────────────────────────
-          LiquidGlassCard(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          CmCard(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
             child: Row(
               children: [
-                Icon(Icons.filter_list_rounded, size: 18, color: cs.primary),
-                const SizedBox(width: 8),
+                const CmIconTile(icon: Icons.event_note_rounded, size: 40),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     l.teacherAttendanceFrom(fromLabel),
-                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
-                FilledButton.tonal(
+                FilledButton.tonalIcon(
                   onPressed: _pickFrom,
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                  ),
-                  child: Text(l.teacherAttendanceChangeDate),
+                  icon: const Icon(Icons.edit_calendar_rounded, size: 16),
+                  label: Text(l.teacherAttendanceChangeDate),
                 ),
               ],
             ),
@@ -166,28 +161,16 @@ class _TeacherAttendanceHistoryScreenState
           if (_loading)
             const Center(child: Padding(padding: EdgeInsets.all(40), child: CmLoading()))
           else if (_error != null)
-            LiquidGlassCard(
-              color: cs.errorContainer,
-              child: Text(_error!, style: theme.textTheme.bodyMedium),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: cs.errorContainer,
+                borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+              ),
+              child: Text(_error!, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onErrorContainer)),
             )
           else if (visible.isEmpty)
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 60),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.fact_check_outlined, size: 52, color: cs.outlineVariant),
-                    const SizedBox(height: 14),
-                    Text(
-                      l.teacherAttendanceNoSessions,
-                      style: theme.textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            )
+            CmEmptyState(icon: Icons.fact_check_outlined, title: l.teacherAttendanceNoSessions)
           else
             ...visible.map((s) => _SessionCard(
               session: s,
@@ -219,166 +202,178 @@ class _SessionCard extends StatelessWidget {
     // session-detail screen + admin dashboard; only Absent lowers it).
     final attendancePct = total > 0 ? (session.presentCount + session.lateCount) / total : 0.0;
 
+    final tokens = CmTokens.of(context);
+    final rateColor = attendancePct >= 0.85
+        ? tokens.good
+        : attendancePct >= 0.7
+            ? tokens.warn
+            : cs.error;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: GestureDetector(
+      child: CmCard(
         onTap: onTap,
-        child: LiquidGlassCard(
-          padding: EdgeInsets.zero,
-          borderRadius: BorderRadius.circular(18),
-          child: IntrinsicHeight(
-            child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Color stripe
-              Container(
-                width: 5,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(18),
-                    bottomLeft: Radius.circular(18),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _DateStub(date: dateObj, color: color),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Row(
+                      Expanded(
+                        child: Text(
+                          session.courseName,
+                          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      CmPill(label: periodLabel, color: color),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    '$dayLabel  ·  $gradeLabel${session.cohortName}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  if (total > 0) ...[
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            children: [
+                              _StatChip(label: '${session.presentCount}', icon: Icons.check_circle_rounded, color: tokens.good),
+                              _StatChip(label: '${session.absentCount}', icon: Icons.cancel_rounded, color: cs.error),
+                              if (session.lateCount > 0)
+                                _StatChip(label: '${session.lateCount}', icon: Icons.schedule_rounded, color: tokens.warn),
+                            ],
+                          ),
+                        ),
+                        _RateRing(value: attendancePct, color: rateColor),
+                      ],
+                    ),
+                  ],
+                  if ((session.classNote ?? '').trim().isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: cs.brightness == Brightness.dark ? cs.surfaceContainerHigh : cs.surface,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
                         children: [
+                          Icon(Icons.notes_rounded, size: 14, color: cs.onSurfaceVariant),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              session.courseName,
-                              style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: color,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: color.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: color.withValues(alpha: 0.4)),
-                            ),
-                            child: Text(
-                              periodLabel,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: color,
+                              session.classNote!.trim(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$dayLabel  ·  $gradeLabel${session.cohortName}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                      if (total > 0) ...[
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            _StatChip(
-                              label: '${session.presentCount}',
-                              icon: Icons.check_circle_rounded,
-                              color: const Color(0xFF22C55E),
-                            ),
-                            const SizedBox(width: 6),
-                            _StatChip(
-                              label: '${session.absentCount}',
-                              icon: Icons.cancel_rounded,
-                              color: cs.error,
-                            ),
-                            if (session.lateCount > 0) ...[
-                              const SizedBox(width: 6),
-                              _StatChip(
-                                label: '${session.lateCount}',
-                                icon: Icons.schedule_rounded,
-                                color: const Color(0xFFF59E0B),
-                              ),
-                            ],
-                            const Spacer(),
-                            // Attendance rate bar
-                            SizedBox(
-                              width: 56,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    '${(attendancePct * 100).round()}%',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w800,
-                                      color: attendancePct >= 0.85
-                                          ? const Color(0xFF22C55E)
-                                          : attendancePct >= 0.7
-                                              ? const Color(0xFFF59E0B)
-                                              : cs.error,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 3),
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(4),
-                                    child: LinearProgressIndicator(
-                                      value: attendancePct,
-                                      minHeight: 5,
-                                      backgroundColor: cs.outlineVariant,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        attendancePct >= 0.85
-                                            ? const Color(0xFF22C55E)
-                                            : attendancePct >= 0.7
-                                                ? const Color(0xFFF59E0B)
-                                                : cs.error,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                      if ((session.classNote ?? '').trim().isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Icon(Icons.notes_rounded, size: 12, color: cs.onSurfaceVariant),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                session.classNote!.trim(),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: cs.onSurfaceVariant,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
+                    ),
+                  ],
+                ],
               ),
-              const Padding(
-                padding: EdgeInsetsDirectional.only(end: 12),
-                child: Icon(Icons.chevron_right_rounded, size: 20),
-              ),
-            ],
-          ),
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 4, top: 2),
+              child: Icon(Icons.chevron_right_rounded, size: 20, color: cs.onSurfaceVariant),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+/// Day-of-month badge tinted by the session's subject colour.
+class _DateStub extends StatelessWidget {
+  const _DateStub({required this.date, required this.color});
+
+  final DateTime? date;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final dark = cs.brightness == Brightness.dark;
+    final t = Theme.of(context).textTheme;
+    return Container(
+      width: 50,
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: dark ? 0.22 : 0.14),
+        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+      ),
+      child: Column(
+        children: [
+          Text(
+            date == null ? '—' : DateFormat('EEE').format(date!).toUpperCase(),
+            style: t.labelSmall?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w800),
+          ),
+          Text(
+            date == null ? '' : '${date!.day}',
+            style: t.titleLarge?.copyWith(fontWeight: FontWeight.w900, height: 1.1),
+          ),
+          Text(
+            date == null ? '' : DateFormat('MMM').format(date!),
+            style: t.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Attendance rate as a small ring with the percentage inside.
+class _RateRing extends StatelessWidget {
+  const _RateRing({required this.value, required this.color});
+
+  final double value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: 42,
+      height: 42,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox.expand(
+            child: CircularProgressIndicator(
+              value: value,
+              strokeWidth: 4,
+              strokeCap: StrokeCap.round,
+              backgroundColor: cs.outlineVariant.withValues(alpha: 0.4),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+            ),
+          ),
+          Text(
+            '${(value * 100).round()}%',
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                  fontSize: 10,
+                ),
+          ),
+        ],
       ),
     );
   }
@@ -391,17 +386,5 @@ class _StatChip extends StatelessWidget {
   final Color color;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 13, color: color),
-        const SizedBox(width: 3),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => CmPill(label: label, icon: icon, color: color);
 }

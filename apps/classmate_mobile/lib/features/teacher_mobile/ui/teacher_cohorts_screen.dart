@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/auth_controller.dart';
+import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/grade_multi_select_field.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/student_multi_select_sheet.dart';
@@ -41,14 +43,12 @@ class TeacherCohortsScreen extends ConsumerWidget {
         )),
         data: (cohorts) {
           if (cohorts.isEmpty) {
-            return Center(child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(l.teacherCohortsScreenEmpty,
-                  textAlign: TextAlign.center, style: TextStyle(color: cs.onSurfaceVariant)),
-            ));
+            return Center(
+              child: CmEmptyState(icon: Icons.groups_rounded, title: l.teacherCohortsScreenEmpty),
+            );
           }
           return ListView(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 100),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
             children: [for (final c in cohorts) _CohortTile(cohort: c)],
           );
         },
@@ -153,43 +153,73 @@ class _CohortTile extends ConsumerWidget {
     final count = (cohort['studentCount'] as num?)?.toInt() ?? 0;
     final repo = ref.read(teacherMobileRepositoryProvider);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      clipBehavior: Clip.antiAlias,
-      child: ExpansionTile(
-        // Drop the default top/bottom divider lines that make the expanded
-        // block look boxed-in — keep it clean.
-        shape: const Border(),
-        collapsedShape: const Border(),
-        title: Text(name, style: const TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: Text('${TeacherCohortsScreen.gradeLabel(l, cohort)} · ${l.teacherCohortsScreenStudentsCount(count)}',
-            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
-        trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-          PopupMenuButton<String>(
-            onSelected: (v) async {
-              if (v == 'rename') await _renameDialog(context, ref, id, name, cohort);
-              if (v == 'delete') await _deleteDialog(context, ref, id, name);
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(value: 'rename', child: Text(l.teacherCohortsScreenRenameGrades)),
-              PopupMenuItem(value: 'delete', child: Text(l.teacherCohortsScreenDeleteCohort)),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Container(
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+          boxShadow: CmTokens.of(context).shadowSm,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          type: MaterialType.transparency,
+          child: ExpansionTile(
+            // Drop the default top/bottom divider lines that make the expanded
+            // block look boxed-in — keep it clean.
+            shape: const Border(),
+            collapsedShape: const Border(),
+            tilePadding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
+            leading: const CmIconTile(icon: Icons.groups_rounded),
+            title: Text(name, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  if (TeacherCohortsScreen.gradeLabel(l, cohort).isNotEmpty)
+                    CmPill(icon: Icons.stairs_rounded, label: TeacherCohortsScreen.gradeLabel(l, cohort)),
+                  CmPill(
+                    icon: Icons.person_rounded,
+                    label: l.teacherCohortsScreenStudentsCount(count),
+                    color: count > 0 ? cs.primary : null,
+                  ),
+                ],
+              ),
+            ),
+            trailing: Row(mainAxisSize: MainAxisSize.min, children: [
+              PopupMenuButton<String>(
+                onSelected: (v) async {
+                  if (v == 'rename') await _renameDialog(context, ref, id, name, cohort);
+                  if (v == 'delete') await _deleteDialog(context, ref, id, name);
+                },
+                itemBuilder: (_) => [
+                  PopupMenuItem(value: 'rename', child: Text(l.teacherCohortsScreenRenameGrades)),
+                  PopupMenuItem(value: 'delete', child: Text(l.teacherCohortsScreenDeleteCohort)),
+                ],
+              ),
+              Icon(Icons.expand_more_rounded, color: cs.onSurfaceVariant),
+            ]),
+            childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+            children: [
+              Divider(height: 1, color: cs.outlineVariant.withValues(alpha: 0.4)),
+              const SizedBox(height: 6),
+              _Roster(cohortId: id),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(46)),
+                  onPressed: () => _addStudents(context, ref, id, repo),
+                  icon: const Icon(Icons.person_add_alt_1_rounded),
+                  label: Text(l.teacherCohortsScreenAddStudents),
+                ),
+              ),
             ],
           ),
-          const Icon(Icons.expand_more_rounded),
-        ]),
-        childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        children: [
-          _Roster(cohortId: id),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _addStudents(context, ref, id, repo),
-              icon: const Icon(Icons.person_add_alt_1_rounded),
-              label: Text(l.teacherCohortsScreenAddStudents),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -270,7 +300,7 @@ class _CohortTile extends ConsumerWidget {
         actions: [
           TextButton(onPressed: () => Navigator.pop(d, false), child: Text(l.teacherCohortsScreenCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: cs.error),
+            style: FilledButton.styleFrom(backgroundColor: cs.error, foregroundColor: cs.onError),
             onPressed: () => Navigator.pop(d, true), child: Text(l.teacherCohortsScreenDelete)),
         ],
       ),
@@ -370,7 +400,15 @@ class _RosterState extends ConsumerState<_Roster> {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              title: Text('${s['name'] ?? '—'}'),
+              leading: CircleAvatar(
+                radius: 15,
+                backgroundColor: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
+                child: Text(
+                  '${s['name'] ?? '?'}'.trim().isEmpty ? '?' : '${s['name']}'.trim()[0].toUpperCase(),
+                  style: TextStyle(color: cs.primary, fontWeight: FontWeight.w800, fontSize: 13),
+                ),
+              ),
+              title: Text('${s['name'] ?? '—'}', style: const TextStyle(fontWeight: FontWeight.w600)),
               trailing: IconButton(
                 tooltip: l.a11yRemove,
                 icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),

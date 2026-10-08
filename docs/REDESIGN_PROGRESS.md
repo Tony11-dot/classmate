@@ -67,7 +67,7 @@ Update this file in the same commit as each screen's redesign.
 | Exams, Assignments, Assignment detail, Exam grades | 🎨 |
 | Student profile, Student grade detail, Averages, Analytics | 🎨 |
 | Slot attachments, Classroom add assignment / meeting / material | 🎨 |
-| Attendance history, Cohorts | ⬜ |
+| Attendance history, Cohorts | ✅ |
 
 ## Admin / Secretary
 | Screen | Status |
@@ -77,7 +77,7 @@ Update this file in the same commit as each screen's redesign.
 | Students hub | 🎨 |
 | Settings, School settings, Edit user, Import users, Export | 🎨 |
 | Reports, Grade scales, Subject detail, Periods | 🎨 |
-| Bell schedule | ⬜ |
+| Bell schedule | ✅ |
 | Solutions books admin | 🎨 |
 
 ## Parent
@@ -93,10 +93,9 @@ Update this file in the same commit as each screen's redesign.
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
 ## Up next (in order)
-1. Teacher attendance history + cohorts, admin bell schedule
-2. Message request / blocked people, drawer tools order, classroom order
-3. 🎨 screens with the most traffic: teacher exams/assignments/insights, message thread, CMail compose
-4. Onboarding (low priority)
+1. Message request / blocked people, drawer tools order, classroom order
+2. 🎨 screens with the most traffic: teacher exams/assignments/insights, message thread, CMail compose
+3. Onboarding (low priority)
 
 ## Known open items (not redesign)
 - Secretary student create/delete UI not wired
