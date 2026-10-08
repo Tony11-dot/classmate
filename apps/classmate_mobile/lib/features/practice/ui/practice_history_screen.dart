@@ -12,6 +12,9 @@ import 'practice_display_text.dart';
 import 'practice_history_review_screen.dart';
 import 'practice_mode_specs.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_press.dart';
+import '../../../core/theme/cm_tokens.dart';
+import 'practice_review_widgets.dart';
 
 String _practiceModeLabel(BuildContext context, PracticeMode mode) {
   final l = AppLocalizations.of(context)!;
@@ -36,7 +39,9 @@ String _practiceModeLabel(BuildContext context, PracticeMode mode) {
 String _friendlyError(BuildContext context, Object error) {
   final l = AppLocalizations.of(context)!;
   final raw = error.toString().replaceFirst('Exception: ', '').trim();
-  return raw.isEmpty ? l.practiceHistoryLoadError : '${l.practiceHistoryErrorPrefix} $raw';
+  return raw.isEmpty
+      ? l.practiceHistoryLoadError
+      : '${l.practiceHistoryErrorPrefix} $raw';
 }
 
 class PracticeHistoryScreen extends ConsumerWidget {
@@ -102,13 +107,13 @@ class PracticeHistoryScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text(_friendlyError(context, e))),
         data: (sessions) {
           if (sessions.isEmpty) {
-            return Center(child: Text(l.practiceHistoryEmpty));
+            return _HistoryEmpty(text: l.practiceHistoryEmpty);
           }
 
           final grouped = _groupSessions(context, sessions);
 
           return ListView(
-            padding: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
             children: grouped.entries.map((entry) {
               return _HistorySection(title: entry.key, sessions: entry.value);
             }).toList(),
@@ -152,6 +157,48 @@ class PracticeHistoryScreen extends ConsumerWidget {
   }
 }
 
+class _HistoryEmpty extends StatelessWidget {
+  const _HistoryEmpty({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHigh,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.history_rounded,
+                size: 30,
+                color: cs.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _HistorySection extends StatelessWidget {
   final String title;
   final List<PracticeHistorySession> sessions;
@@ -160,19 +207,26 @@ class _HistorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
+          padding: const EdgeInsetsDirectional.fromSTEB(6, 18, 6, 8),
           child: Text(
             title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: cs.onSurfaceVariant,
+              letterSpacing: 0.3,
+            ),
           ),
         ),
-        ...sessions.map((s) => _HistoryCard(session: s)),
+        for (final s in sessions)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: _HistoryCard(session: s),
+          ),
       ],
     );
   }
@@ -183,111 +237,161 @@ class _HistoryCard extends ConsumerWidget {
 
   const _HistoryCard({required this.session});
 
+  void _openReview(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PracticeHistoryReviewScreen(session: session),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final accent = practiceModeColor(session.mode);
+    final cs = Theme.of(context).colorScheme;
+    final dark = cs.brightness == Brightness.dark;
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: accent),
-      ),
-      child: ListTile(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => PracticeHistoryReviewScreen(session: session),
+    return CmPress(
+      onTap: () => _openReview(context),
+      child: Container(
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 4, 12),
+        decoration: BoxDecoration(
+          color: cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+          border: Border.all(
+            color: cs.outlineVariant.withValues(alpha: 0.35),
+            width: 0.8,
+          ),
+          boxShadow: CmTokens.of(context).shadowSm,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: dark ? 0.22 : 0.13),
+                borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+              ),
+              child: Icon(
+                practiceModeIcon(session.mode),
+                color: accent,
+                size: 22,
+              ),
             ),
-          );
-        },
-        leading: CircleAvatar(
-          backgroundColor: accent,
-          child: Icon(practiceModeIcon(session.mode), color: accent, size: 18),
-        ),
-        title: CMAiMessage(
-          localizedPracticeSubjectAndTopic(
-            context,
-            subject: session.subject,
-            topicLabel: session.topicLabel,
-          ),
-          compact: true,
-          textStyle: Theme.of(context).textTheme.bodyLarge,
-        ),
-        subtitle: CMAiMessage(
-          '${_practiceModeLabel(context, session.mode)} • '
-          '${session.correct}/${session.answered} • '
-          '${session.accuracyPercent}%',
-          compact: true,
-          textStyle: Theme.of(context).textTheme.bodyMedium,
-        ),
-        trailing: PopupMenuButton<String>(
-          padding: EdgeInsets.zero,
-          iconSize: 18,
-          icon: Icon(
-            Icons.more_horiz_rounded,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-          onSelected: (value) async {
-            if (value == 'delete') {
-              final l = AppLocalizations.of(context)!;
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (dialogContext) => AlertDialog(
-                  title: Text(l.practiceHistoryDeleteConfirmTitle),
-                  content: Text(l.practiceHistoryDeleteConfirmBody),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(false),
-                      child: Text(l.classroomsForwardCancel),
-                    ),
-                    FilledButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(true),
-                      child: Text(l.chatContextDelete),
-                    ),
-                  ],
-                ),
-              );
-
-              if (confirmed != true) return;
-              if (!context.mounted) return;
-
-              await PracticeHistoryScreen._rewriteWithout(session);
-              ref.invalidate(practiceHistoryProvider);
-            }
-
-            if (value == 'open') {
-              if (!context.mounted) return;
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => PracticeHistoryReviewScreen(session: session),
-                ),
-              );
-            }
-          },
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'open',
-              child: Row(
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.visibility_outlined, size: 18),
-                  const SizedBox(width: 10),
-                  Text(AppLocalizations.of(context)!.practiceHistoryOpenReview),
+                  CMAiMessage(
+                    localizedPracticeSubjectAndTopic(
+                      context,
+                      subject: session.subject,
+                      topicLabel: session.topicLabel,
+                    ),
+                    compact: true,
+                    textStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(
+                        _practiceModeLabel(context, session.mode),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      PracticeScorePill(
+                        correct: session.correct,
+                        answered: session.answered,
+                        percent: session.accuracyPercent,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  const Icon(Icons.delete_outline_rounded, size: 18),
-                  const SizedBox(width: 10),
-                  Text(AppLocalizations.of(context)!.practiceHistoryDeleteSession),
-                ],
+            PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              iconSize: 18,
+              icon: Icon(
+                Icons.more_horiz_rounded,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              onSelected: (value) async {
+                if (value == 'delete') {
+                  final l = AppLocalizations.of(context)!;
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: Text(l.practiceHistoryDeleteConfirmTitle),
+                      content: Text(l.practiceHistoryDeleteConfirmBody),
+                      actions: [
+                        TextButton(
+                          onPressed: () =>
+                              Navigator.of(dialogContext).pop(false),
+                          child: Text(l.classroomsForwardCancel),
+                        ),
+                        FilledButton(
+                          onPressed: () =>
+                              Navigator.of(dialogContext).pop(true),
+                          child: Text(l.chatContextDelete),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed != true) return;
+                  if (!context.mounted) return;
+
+                  await PracticeHistoryScreen._rewriteWithout(session);
+                  ref.invalidate(practiceHistoryProvider);
+                }
+
+                if (value == 'open') {
+                  if (!context.mounted) return;
+                  _openReview(context);
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'open',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.visibility_outlined, size: 18),
+                      const SizedBox(width: 10),
+                      Text(
+                        AppLocalizations.of(context)!.practiceHistoryOpenReview,
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      const Icon(Icons.delete_outline_rounded, size: 18),
+                      const SizedBox(width: 10),
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.practiceHistoryDeleteSession,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),

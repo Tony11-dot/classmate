@@ -7,6 +7,7 @@ import '../domain/practice_history_models.dart';
 import '../domain/practice_models.dart';
 import 'practice_display_text.dart';
 import 'practice_mode_specs.dart';
+import 'practice_review_widgets.dart';
 
 class PracticeHistoryReviewScreen extends StatefulWidget {
   final PracticeHistorySession session;
@@ -77,42 +78,7 @@ class _PracticeHistoryReviewScreenState
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
         children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: accent),
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  practiceModeIcon(widget.session.mode),
-                  color: accent,
-                  size: 44,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  localizedPracticeSubjectAndTopic(
-                    context,
-                    subject: widget.session.subject,
-                    topicLabel: widget.session.topicLabel,
-                  ),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${_practiceModeLabel(context, widget.session.mode)} • ${widget.session.correct}/${widget.session.answered} • ${widget.session.accuracyPercent}%',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _ReviewHero(session: widget.session, accent: accent),
           const SizedBox(height: 16),
           Wrap(
             spacing: 8,
@@ -170,10 +136,7 @@ class _PracticeHistoryReviewScreenState
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: cs.outlineVariant,
-                ),
+                borderRadius: BorderRadius.circular(CmTokens.radiusLg),
               ),
               child: Text(
                 l.practiceSessionNoQuestionsForFilter,
@@ -188,12 +151,12 @@ class _PracticeHistoryReviewScreenState
                     q.selectedIndex! >= 0 &&
                     q.selectedIndex! < q.options.length)
                 ? q.options[q.selectedIndex!]
-              : l.practiceSessionNoAnswer;
+                : l.practiceSessionNoAnswer;
 
             final correctLabel =
                 (q.correctIndex >= 0 && q.correctIndex < q.options.length)
                 ? q.options[q.correctIndex]
-              : l.practiceSessionUnknownAnswer;
+                : l.practiceSessionUnknownAnswer;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -201,12 +164,12 @@ class _PracticeHistoryReviewScreenState
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: cs.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(CmTokens.radiusLg),
                   border: Border.all(
-                    color: q.isCorrect
-                        ? CmTokens.of(context).good
-                        : cs.outlineVariant,
+                    color: cs.outlineVariant.withValues(alpha: 0.35),
+                    width: 0.8,
                   ),
+                  boxShadow: CmTokens.of(context).shadowSm,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,22 +178,16 @@ class _PracticeHistoryReviewScreenState
                       children: [
                         Expanded(
                           child: Text(
-                            localizedPracticeTopicLabel(
-                              context,
-                              q.topicLabel,
-                            ),
+                            localizedPracticeTopicLabel(context, q.topicLabel),
                             style: theme.textTheme.labelLarge?.copyWith(
                               color: accent,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
-                        Icon(
-                          q.isCorrect
-                              ? Icons.check_circle_rounded
-                              : Icons.cancel_rounded,
-                          color: q.isCorrect ? CmTokens.of(context).good : Colors.red,
-                          size: 18,
+                        ReviewStatusDot(
+                          answered: q.selectedIndex != null,
+                          correct: q.isCorrect,
                         ),
                       ],
                     ),
@@ -251,17 +208,25 @@ class _PracticeHistoryReviewScreenState
                       ),
                     ),
                     const SizedBox(height: 4),
-                    CMRichContent(data: selectedLabel),
+                    ReviewAnswerBox(
+                      tone: q.selectedIndex == null
+                          ? null
+                          : (q.isCorrect ? Colors.green : Colors.red),
+                      child: CMRichContent(data: selectedLabel),
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       l.practiceSessionCorrectAnswer,
                       style: theme.textTheme.labelMedium?.copyWith(
-                        color: CmTokens.of(context).good,
+                        color: cs.onSurfaceVariant,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    CMRichContent(data: correctLabel),
+                    ReviewAnswerBox(
+                      tone: Colors.green,
+                      child: CMRichContent(data: correctLabel),
+                    ),
                     const SizedBox(height: 10),
                     Text(
                       l.practiceSessionExplanation,
@@ -307,6 +272,100 @@ class _PracticeHistoryReviewScreenState
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Session summary at the top of a saved review: mode tile, subject/topic and
+/// the score, on a soft wash of the mode colour.
+class _ReviewHero extends StatelessWidget {
+  const _ReviewHero({required this.session, required this.accent});
+
+  final PracticeHistorySession session;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final dark = cs.brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            accent.withValues(alpha: dark ? 0.24 : 0.14),
+            cs.surfaceContainerLow,
+          ],
+        ),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
+        boxShadow: CmTokens.of(context).shadowSm,
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: accent,
+              borderRadius: BorderRadius.circular(CmTokens.radiusMd),
+              boxShadow: [
+                BoxShadow(
+                  color: accent.withValues(alpha: 0.35),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Icon(
+              practiceModeIcon(session.mode),
+              color: accent.computeLuminance() < 0.5
+                  ? Colors.white
+                  : Colors.black87,
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            localizedPracticeSubjectAndTopic(
+              context,
+              subject: session.subject,
+              topicLabel: session.topicLabel,
+            ),
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              Text(
+                _practiceModeLabel(context, session.mode),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              PracticeScorePill(
+                correct: session.correct,
+                answered: session.answered,
+                percent: session.accuracyPercent,
+              ),
+            ],
+          ),
         ],
       ),
     );

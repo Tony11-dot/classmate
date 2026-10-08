@@ -8,6 +8,11 @@ import '../../../common/widgets/cm_rich_content.dart';
 import '../domain/practice_models.dart';
 import '../providers/saved_questions_provider.dart';
 import 'practice_display_text.dart';
+import '../../../ui/widgets/cm_press.dart';
+
+/// Fill for tiles nested inside a surfaceContainerLow card.
+Color _innerPanelBg(ColorScheme cs) =>
+    cs.brightness == Brightness.dark ? cs.surfaceContainerHigh : cs.surface;
 
 String _modeLabel(BuildContext context, PracticeMode mode) {
   final l = AppLocalizations.of(context)!;
@@ -65,10 +70,13 @@ class SavedQuestionsScreen extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final saved = ref.watch(savedQuestionsProvider);
     final savedController = ref.read(savedQuestionsProvider.notifier);
-    final subjects = saved.map((item) => item.subject.trim()).where((item) => item.isNotEmpty).toSet();
+    final subjects = saved
+        .map((item) => item.subject.trim())
+        .where((item) => item.isNotEmpty)
+        .toSet();
     final topSubject = subjects.isEmpty
-      ? l.savedQuestionsTopSubjectNone
-      : localizedPracticeSubject(context, subjects.first);
+        ? l.savedQuestionsTopSubjectNone
+        : localizedPracticeSubject(context, subjects.first);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
@@ -76,19 +84,51 @@ class SavedQuestionsScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(26),
-            border: Border.all(
-              color: cs.outlineVariant,
+            borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                cs.primary.withValues(
+                  alpha: cs.brightness == Brightness.dark ? 0.20 : 0.10,
+                ),
+                cs.surfaceContainerLow,
+              ],
             ),
+            border: Border.all(
+              color: cs.outlineVariant.withValues(alpha: 0.35),
+              width: 0.8,
+            ),
+            boxShadow: CmTokens.of(context).shadowSm,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l.navSavedQuestions,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+              Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: cs.primary,
+                      borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+                    ),
+                    child: Icon(
+                      Icons.bookmark_rounded,
+                      color: cs.onPrimary,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      l.navSavedQuestions,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               Text(
@@ -166,7 +206,9 @@ class SavedQuestionsScreen extends ConsumerWidget {
                     Align(
                       alignment: AlignmentDirectional.centerStart,
                       child: TextButton.icon(
-                        onPressed: saved.isEmpty ? null : savedController.clearAll,
+                        onPressed: saved.isEmpty
+                            ? null
+                            : savedController.clearAll,
                         icon: const Icon(Icons.clear_all_rounded),
                         label: Text(l.savedQuestionsClearAction),
                       ),
@@ -200,10 +242,12 @@ class _SavedQuestionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
-        boxShadow: CmTokens.of(context).shadowSm,
+        color: _innerPanelBg(cs),
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,7 +264,9 @@ class _SavedQuestionCard extends StatelessWidget {
                 ),
               ),
               IconButton(
-                tooltip: AppLocalizations.of(context)!.chatMediaPreviewRemoveAction,
+                tooltip: AppLocalizations.of(
+                  context,
+                )!.chatMediaPreviewRemoveAction,
                 onPressed: onRemove,
                 icon: const Icon(Icons.bookmark_remove_rounded),
               ),
@@ -229,7 +275,10 @@ class _SavedQuestionCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             localizedPracticeTopicLabel(context, question.topicLabel),
-            style: TextStyle(color: cs.onSurfaceVariant, fontWeight: FontWeight.w700),
+            style: TextStyle(
+              color: cs.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 10),
           CMRichContent(data: question.prompt),
@@ -250,9 +299,18 @@ class _SavedQuestionCard extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _MetaChip(icon: Icons.tune_rounded, label: _modeLabel(context, question.mode)),
-              _MetaChip(icon: Icons.speed_rounded, label: _difficultyLabel(context, question.difficulty)),
-              _MetaChip(icon: Icons.schedule_rounded, label: _durationLabel(context, question.recommendedTimeSeconds)),
+              _MetaChip(
+                icon: Icons.tune_rounded,
+                label: _modeLabel(context, question.mode),
+              ),
+              _MetaChip(
+                icon: Icons.speed_rounded,
+                label: _difficultyLabel(context, question.difficulty),
+              ),
+              _MetaChip(
+                icon: Icons.schedule_rounded,
+                label: _durationLabel(context, question.recommendedTimeSeconds),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -260,15 +318,19 @@ class _SavedQuestionCard extends StatelessWidget {
             spacing: 10,
             runSpacing: 10,
             children: [
-              OutlinedButton.icon(
+              FilledButton.tonalIcon(
                 onPressed: onOpenPractice,
                 icon: const Icon(Icons.play_circle_fill_rounded),
-                label: Text(AppLocalizations.of(context)!.savedQuestionsOpenPractice),
+                label: Text(
+                  AppLocalizations.of(context)!.savedQuestionsOpenPractice,
+                ),
               ),
-              OutlinedButton.icon(
+              FilledButton.tonalIcon(
                 onPressed: onOpenSolutions,
                 icon: const Icon(Icons.lightbulb_rounded),
-                label: Text(AppLocalizations.of(context)!.savedQuestionsOpenSolutions),
+                label: Text(
+                  AppLocalizations.of(context)!.savedQuestionsOpenSolutions,
+                ),
               ),
             ],
           ),
@@ -289,9 +351,9 @@ class _MetaChip extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
+        color: cs.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -299,7 +361,14 @@ class _MetaChip extends StatelessWidget {
         children: [
           Icon(icon, size: 15, color: cs.primary),
           const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: cs.onSurface,
+            ),
+          ),
         ],
       ),
     );
@@ -324,8 +393,8 @@ class _MetricTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(18),
+        color: _innerPanelBg(cs),
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,6 +403,8 @@ class _MetricTile extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
@@ -365,15 +436,23 @@ class _SectionCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.35), width: 0.8),
+        borderRadius: BorderRadius.circular(CmTokens.radiusXl),
+        border: Border.all(
+          color: cs.outlineVariant.withValues(alpha: 0.35),
+          width: 0.8,
+        ),
         boxShadow: CmTokens.of(context).shadowSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
-          const SizedBox(height: 6),
+          Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 4),
           Text(
             subtitle,
             style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
@@ -403,21 +482,24 @@ class _ActionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return InkWell(
+    return CmPress(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: Ink(
-        padding: const EdgeInsets.all(14),
+      child: Container(
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(18),
+          color: _innerPanelBg(cs),
+          borderRadius: BorderRadius.circular(CmTokens.radiusMd),
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: cs.primaryContainer,
-              child: Icon(icon, size: 20),
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: cs.primaryContainer,
+                borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+              ),
+              child: Icon(icon, size: 21, color: cs.onPrimaryContainer),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -437,7 +519,7 @@ class _ActionTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.chevron_right_rounded),
+            Icon(Icons.chevron_right_rounded, color: cs.onSurfaceVariant),
           ],
         ),
       ),
@@ -457,18 +539,28 @@ class _EmptyStateCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(18),
+        color: _innerPanelBg(cs),
+        borderRadius: BorderRadius.circular(CmTokens.radiusMd),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+          Icon(
+            Icons.bookmark_border_rounded,
+            size: 30,
+            color: cs.onSurfaceVariant,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.w900),
+          ),
           const SizedBox(height: 6),
           Text(
             subtitle,
+            textAlign: TextAlign.center,
             style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
           ),
         ],

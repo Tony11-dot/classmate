@@ -12,6 +12,7 @@ import '../domain/practice_mode_behavior.dart';
 import '../providers/practice_providers.dart';
 import 'practice_display_text.dart';
 import 'practice_mode_specs.dart';
+import 'practice_review_widgets.dart';
 import 'practice_setup_screen.dart';
 import 'modes/mode_common.dart';
 import 'modes/practice_mode_view.dart';
@@ -43,7 +44,10 @@ String _practiceSessionModeLabel(BuildContext context, PracticeMode mode) {
   }
 }
 
-String _practiceSessionModeDescription(BuildContext context, PracticeMode mode) {
+String _practiceSessionModeDescription(
+  BuildContext context,
+  PracticeMode mode,
+) {
   final l = AppLocalizations.of(context)!;
   switch (mode) {
     case PracticeMode.practice:
@@ -387,12 +391,12 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                         selectedIndex >= 0 &&
                         selectedIndex < question.options.length)
                     ? question.options[selectedIndex]
-                  : l.practiceSessionNoAnswer;
+                    : l.practiceSessionNoAnswer;
                 final correctLabel =
                     (question.correctIndex >= 0 &&
                         question.correctIndex < question.options.length)
                     ? question.options[question.correctIndex]
-                  : l.practiceSessionUnknownAnswer;
+                    : l.practiceSessionUnknownAnswer;
                 final isCorrect = result?.isCorrect ?? false;
                 final isFlashcards =
                     state.filter.mode == PracticeMode.flashcards;
@@ -427,7 +431,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                                 ),
                               ),
                             ),
-                            _ReviewStatusDot(
+                            ReviewStatusDot(
                               answered: result != null,
                               correct: isCorrect,
                             ),
@@ -482,7 +486,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          _AnswerBox(
+                          ReviewAnswerBox(
                             tone: result == null
                                 ? null
                                 : (isCorrect ? Colors.green : Colors.red),
@@ -497,7 +501,7 @@ class _PracticeSessionScreenState extends ConsumerState<PracticeSessionScreen> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          _AnswerBox(
+                          ReviewAnswerBox(
                             tone: Colors.green,
                             child: CMAiMessage(correctLabel, compact: true),
                           ),
@@ -984,68 +988,10 @@ class _MiniPill extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: cs.onSurfaceVariant,
-            ),
+          fontWeight: FontWeight.w700,
+          color: cs.onSurfaceVariant,
+        ),
       ),
-    );
-  }
-}
-
-/// Small round status mark on a review card (correct / wrong / skipped).
-class _ReviewStatusDot extends StatelessWidget {
-  const _ReviewStatusDot({required this.answered, required this.correct});
-
-  final bool answered;
-  final bool correct;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final color = !answered
-        ? cs.surfaceContainerHighest
-        : correct
-        ? Colors.green
-        : Colors.red;
-    return Container(
-      width: 24,
-      height: 24,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      child: Icon(
-        !answered
-            ? Icons.remove_rounded
-            : correct
-            ? Icons.check_rounded
-            : Icons.close_rounded,
-        size: 15,
-        color: answered ? Colors.white : cs.onSurfaceVariant,
-      ),
-    );
-  }
-}
-
-/// Answer text in a soft tinted box (green = correct, red = wrong).
-class _AnswerBox extends StatelessWidget {
-  const _AnswerBox({required this.child, this.tone});
-
-  final Widget child;
-  final Color? tone;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final dark = cs.brightness == Brightness.dark;
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: tone == null
-            ? cs.surfaceContainerHigh
-            : tone!.withValues(alpha: dark ? 0.18 : 0.10),
-        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
-      ),
-      child: child,
     );
   }
 }
@@ -1195,7 +1141,9 @@ class _PracticeSessionMatchmakingScreenState
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        l.practiceSessionMatchmakingDifficulty(widget.difficulty),
+                        l.practiceSessionMatchmakingDifficulty(
+                          widget.difficulty,
+                        ),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: cs.onSurfaceVariant,
                         ),
