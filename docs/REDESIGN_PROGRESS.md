@@ -94,7 +94,7 @@ Update this file in the same commit as each screen's redesign.
 | Screen | Status |
 |---|---|
 | Parent home | ✅ |
-| Parent notifications | 🎨 |
+| Parent notifications | ✅ (matches student notifications) |
 
 ## Manager
 | Screen | Status |

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
+import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/parent_models.dart';
 import '../data/parent_repository.dart';
@@ -72,8 +74,8 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
         child: listAsync.when(
           loading: () => const Center(child: CmLoading()),
           error: (e, _) => ListView(children: [
-            const SizedBox(height: 120),
-            Center(child: Text(l.commonErrorWith(e))),
+            const SizedBox(height: 60),
+            CmEmptyState(icon: Icons.error_outline_rounded, title: l.commonError, message: l.commonErrorWith(e)),
           ]),
           data: (items) {
             // Split: child activity (studentId == selected child) vs the
@@ -93,23 +95,23 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
                 // ── Hero ──────────────────────────────────────────────
                 LiquidGlassCard(
                   padding: const EdgeInsets.all(18),
-                  borderRadius: BorderRadius.circular(26),
+                  borderRadius: BorderRadius.circular(28),
                   color: cs.primaryContainer,
-                  border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         l.navNotifications,
-                        style: theme.textTheme.titleLarge?.copyWith(
+                        style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w900,
+                          letterSpacing: -0.4,
                           color: cs.onPrimaryContainer,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         l.notificationsHeroSubtitleStudent,
-                        style: TextStyle(color: cs.onPrimaryContainer, height: 1.35),
+                        style: TextStyle(color: cs.onPrimaryContainer.withValues(alpha: 0.75), height: 1.35),
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -145,11 +147,7 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
                 const SizedBox(height: 16),
 
                 if (visible.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 60),
-                    child: Center(child: Text(l.parentNoNotificationsYet,
-                        style: TextStyle(color: cs.onSurfaceVariant))),
-                  )
+                  CmEmptyState(icon: Icons.notifications_none_rounded, title: l.parentNoNotificationsYet)
                 else
                   ...grouped.entries.map(
                     (entry) => Padding(
@@ -159,7 +157,7 @@ class _ParentNotificationsScreenState extends ConsumerState<ParentNotificationsS
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(bottom: 10),
-                            child: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w900)),
+                            child: Text(entry.key, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
                           ),
                           ...entry.value.map(
                             (item) => Padding(
@@ -228,22 +226,31 @@ class _MetricTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(14),
+        color: cs.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: cs.onPrimaryContainer),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(value, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
-              Text(label, style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11)),
-            ],
+          CmIconTile(icon: icon, size: 34),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(value,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        )),
+                Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w600)),
+              ],
+            ),
           ),
         ],
       ),
@@ -281,16 +288,26 @@ IconData _iconForType(String? type) {
   }
 }
 
-/// Subtle background tint matching the student screen's severity tones:
-/// attendance reads as a soft warning; everything else stays neutral.
+/// Icon-tile tint matching the student screen's severity tones:
+/// attendance reads as a soft warning; everything else is informational.
 Color _toneForType(BuildContext context, String? type) {
   final cs = Theme.of(context).colorScheme;
   switch ((type ?? '').toUpperCase()) {
     case 'ATTENDANCE_RECORDED':
     case 'ATTENDANCE_ALERT':
-      return cs.tertiaryContainer;
+      return CmTokens.of(context).warnContainer;
     default:
-      return cs.surfaceContainerHighest;
+      return cs.primaryContainer;
+  }
+}
+
+Color _toneFgForType(BuildContext context, String? type) {
+  switch ((type ?? '').toUpperCase()) {
+    case 'ATTENDANCE_RECORDED':
+    case 'ATTENDANCE_ALERT':
+      return CmTokens.of(context).onWarnContainer;
+    default:
+      return Theme.of(context).colorScheme.onPrimaryContainer;
   }
 }
 
@@ -312,23 +329,26 @@ class _NotificationTile extends StatelessWidget {
 
     return LiquidGlassCard(
       padding: EdgeInsets.zero,
-      borderRadius: BorderRadius.circular(20),
-      color: _toneForType(context, item.type),
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      borderRadius: BorderRadius.circular(22),
+      color: item.seen
+          ? cs.surfaceContainerLow
+          : Color.alphaBlend(cs.primary.withValues(alpha: 0.06), cs.surfaceContainerLow),
+      border: item.seen ? null : Border.all(color: cs.primary.withValues(alpha: 0.4)),
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 46,
+              height: 46,
               decoration: BoxDecoration(
-                color: cs.surfaceContainerLow,
-                shape: BoxShape.circle,
-                border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                color: _toneForType(context, item.type),
+                borderRadius: BorderRadius.circular(15),
               ),
-              child: Center(child: Icon(_iconForType(item.type), size: 20)),
+              child: Center(
+                child: Icon(_iconForType(item.type), size: 22, color: _toneFgForType(context, item.type)),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -341,14 +361,14 @@ class _NotificationTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           item.title.isEmpty ? l.notificationFallbackTitle : item.title,
-                          style: const TextStyle(fontWeight: FontWeight.w900),
+                          style: TextStyle(fontWeight: item.seen ? FontWeight.w700 : FontWeight.w900, fontSize: 15),
                         ),
                       ),
                       if (!item.seen)
                         Container(
                           width: 10,
                           height: 10,
-                          margin: const EdgeInsets.only(left: 8, top: 6),
+                          margin: const EdgeInsetsDirectional.only(start: 8, top: 6),
                           decoration: BoxDecoration(
                             color: cs.primary,
                             shape: BoxShape.circle,
@@ -396,8 +416,8 @@ class _MetaPill extends StatelessWidget {
     return LiquidGlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       borderRadius: BorderRadius.circular(999),
-      color: cs.surfaceContainerLow,
-      border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+      color: cs.surfaceContainerHigh,
+      border: const Border.fromBorderSide(BorderSide.none),
       child: Text(
         label,
         style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800),
