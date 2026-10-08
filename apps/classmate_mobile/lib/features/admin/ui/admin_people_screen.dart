@@ -292,7 +292,7 @@ class _UserTab extends ConsumerWidget {
             TextButton(onPressed: () => Navigator.pop(dCtx, false), child: Text(dl.adminDeleteConfirmCancel)),
             FilledButton(
               onPressed: () => Navigator.pop(dCtx, true),
-              style: FilledButton.styleFrom(backgroundColor: Theme.of(dCtx).colorScheme.error),
+              style: FilledButton.styleFrom(backgroundColor: Theme.of(dCtx).colorScheme.error, foregroundColor: Theme.of(dCtx).colorScheme.onError),
               child: Text(dl.adminDeleteConfirmDelete),
             ),
           ],

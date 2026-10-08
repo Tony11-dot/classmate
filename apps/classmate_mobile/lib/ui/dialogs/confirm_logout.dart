@@ -22,6 +22,7 @@ Future<bool> confirmLogout(BuildContext context) async {
         FilledButton(
           style: FilledButton.styleFrom(
             backgroundColor: Theme.of(dCtx).colorScheme.error,
+            foregroundColor: Theme.of(dCtx).colorScheme.onError,
           ),
           onPressed: () => Navigator.of(dCtx).pop(true),
           child: Text(l.navLogout),

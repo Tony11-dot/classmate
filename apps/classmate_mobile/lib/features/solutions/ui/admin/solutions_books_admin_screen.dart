@@ -101,7 +101,7 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.tutorCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l.commonDelete),
           ),

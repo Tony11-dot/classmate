@@ -652,7 +652,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
             child: Text(l.actionCancel),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: cs.error),
+            style: FilledButton.styleFrom(backgroundColor: cs.error, foregroundColor: cs.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l.actionBlock),
           ),
@@ -786,6 +786,7 @@ class _ThreadInfoSheetState extends State<_ThreadInfoSheet> {
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l.actionRemove),

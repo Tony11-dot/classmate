@@ -1282,7 +1282,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l.commonDelete),
           ),
@@ -1382,7 +1382,7 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.actionCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l.actionRemove),
           ),

@@ -123,7 +123,7 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(dCtx, false), child: Text(l.averagesCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(dCtx).colorScheme.error),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(dCtx).colorScheme.error, foregroundColor: Theme.of(dCtx).colorScheme.onError),
             onPressed: () => Navigator.pop(dCtx, true),
             child: Text(l.averagesDelete),
           ),

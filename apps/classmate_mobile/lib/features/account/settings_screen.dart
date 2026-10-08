@@ -775,7 +775,7 @@ class _ThemeTile extends StatelessWidget {
               child: Text(l.commonCancel),
             ),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: cs.error),
+              style: FilledButton.styleFrom(backgroundColor: cs.error, foregroundColor: cs.onError),
               onPressed: () => Navigator.of(ctx).pop(true),
               child: Text(l.commonDelete),
             ),

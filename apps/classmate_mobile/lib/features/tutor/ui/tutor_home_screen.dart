@@ -285,7 +285,7 @@ class _TutorHomeScreenState extends ConsumerState<TutorHomeScreen> {
                 child: Text(l.tutorCancel),
               ),
               FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: cs.error),
+                style: FilledButton.styleFrom(backgroundColor: cs.error, foregroundColor: cs.onError),
                 onPressed: () => Navigator.of(ctx).pop(true),
                 child: Text(AppLocalizations.of(ctx)!.tutorDeleteConversationButton),
               ),

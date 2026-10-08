@@ -3307,7 +3307,7 @@ class _SquarePeriodsSheetState extends ConsumerState<_SquarePeriodsSheet> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(AppLocalizations.of(ctx)!.commonDelete),
           ),

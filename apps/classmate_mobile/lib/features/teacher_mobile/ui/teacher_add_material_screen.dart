@@ -830,7 +830,7 @@ class _TeacherMaterialsStandaloneScreenState
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.of(ctx).pop(true), child: Text(AppLocalizations.of(ctx)!.commonDelete)),
         ],
       ),

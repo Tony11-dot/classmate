@@ -68,7 +68,7 @@ class _TeacherAssignmentsScreenState
           actions: [
             TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l.commonCancel)),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error),
+              style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
               onPressed: () => Navigator.of(ctx).pop(true),
               child: Text(l.commonDelete),
             ),
