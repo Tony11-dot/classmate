@@ -17,6 +17,7 @@ import '../domain/timing_mode.dart';
 import 'practice_session_screen.dart';
 import 'practice_history_screen.dart';
 import 'practice_analytics_debug_screen.dart';
+import '../../../ui/widgets/cm_loading.dart';
 
 String practiceDifficultyLabel(
   BuildContext context,
@@ -1058,11 +1059,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                             ).push(PracticeSessionRouteHelper.screen);
                           },
                     icon: loading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                        ? const CmLoading(size: 18)
                         : const Icon(Icons.play_arrow_rounded),
                     label: Text(
                       loading

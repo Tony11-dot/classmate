@@ -493,7 +493,7 @@ class _SaveBar extends StatelessWidget {
             FilledButton.icon(
               onPressed: saving ? null : onSave,
               icon: saving
-                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const CmLoading(size: 16)
                   : const Icon(Icons.check_rounded, size: 18),
               label: Text(l.permissionsSave),
             ),

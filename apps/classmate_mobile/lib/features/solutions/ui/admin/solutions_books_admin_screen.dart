@@ -500,7 +500,7 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
             child: FilledButton(
               onPressed: _saving ? null : _save,
               child: _saving
-                  ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const CmLoading(size: 18)
                   : Text(isEdit ? l.commonSave : l.solutionsAddBookAction),
             ),
           ),

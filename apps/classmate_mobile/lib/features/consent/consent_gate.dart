@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/auth/auth_session.dart';
 import '../../l10n/app_localizations.dart';
+import '../../ui/widgets/cm_loading.dart';
 
 /// Legal landing (Privacy · Terms · Delete account) — same URL the drawer uses.
 const _legalUrl = 'https://tony11-dot.github.io/classmate-legal/';
@@ -157,11 +158,7 @@ class _ConsentOverlayState extends ConsumerState<_ConsentOverlay> {
                       child: FilledButton(
                         onPressed: (_accepted && !_busy) ? _submit : null,
                         child: _busy
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
+                            ? const CmLoading(size: 20)
                             : Text(l.consentGateContinue),
                       ),
                     ),
