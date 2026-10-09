@@ -112,6 +112,7 @@ Update this file in the same commit as each screen's redesign.
 | ClassNotes reset page | ➖ separate product, own design + tests |
 | Website screenshots (classmateapp.org) | ✅ re-shot from the redesigned app (new logo); WebP, 6 × ~40–85 KB |
 | Website demo video | ✅ new white mark in both logo moments; re-encoded (10.9 MB, fast start); WebP poster |
+| Pitch deck (~/Desktop/CM/CM_Pitch.pptx + PDF) | ✅ all 20 phone mockups re-shot from the redesigned app (same 3D outline + shadow); backup of the previous deck in ~/Documents/ClassMate docs/CM-backup-2026-10-09/CM_Pitch.pre-screens.* |
 
 ## Fixes found while re-shooting (2026-10-09, round 11)
 - Schedule header: "Next up" and "Upcoming exam" get full rows — on a 402 pt iPhone both were cut
@@ -136,7 +137,7 @@ Update this file in the same commit as each screen's redesign.
   `http.runWithClient`) kept outside git; re-run it to refresh the site/video/deck shots
 
 ## Up next (in order)
-1. Every screen is ✅ or ➖. Next: on-device QA pass of build 302 (TestFlight / Play internal), then fix anything found.
+1. Every screen is ✅ or ➖. Next: on-device QA pass of build 303 (TestFlight / Play internal), then fix anything found.
 
 ## Known open items (not redesign)
 - Anthropic key: new key is live on Railway (2026-10-09). Still to do: confirm NOVA answers, then
@@ -144,7 +145,6 @@ Update this file in the same commit as each screen's redesign.
 - ⚠ Any Railway variable change redeploys GitHub `main` and drops this branch's backend — use
   `--skip-deploys`, then `railway up` from the repo root
 - Apple-review demo password is committed in 4 files of the public repo
-- Pitch deck screenshots are from June (old app look); the new shots are ready to drop in
 - Secretary student create/delete UI not wired
 - 11 stale failing tests (also fail on `main`)
 - Composer mic/classroom bug report — waiting on repro details
