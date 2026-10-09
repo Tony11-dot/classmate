@@ -540,10 +540,11 @@ class _SubjectCard extends StatelessWidget {
                         ],
                         if (isBest || isWeak) ...[
                           const SizedBox(height: 7),
-                          Row(
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
                             children: [
                               if (isBest) _SmallBadge(label: l.savedQuestionsTopSubjectMetric, color: cs.secondaryContainer, textColor: cs.onSecondaryContainer),
-                              if (isBest && isWeak) const SizedBox(width: 6),
                               if (isWeak) _SmallBadge(label: l.gradesMetricNeedsWork, color: cs.errorContainer, textColor: cs.onErrorContainer),
                             ],
                           ),

@@ -25,71 +25,82 @@ class ChildPicker extends ConsumerWidget {
       }
     });
 
-    return SizedBox(
-      height: 88,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: children.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (ctx, i) {
-          final c = children[i];
-          final isSelected = c.studentId == selected;
-          return GestureDetector(
-            onTap: () => ref.read(selectedChildProvider.notifier).select(c.studentId),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOut,
-              width: 160,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected ? cs.primaryContainer : cs.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isSelected ? cs.primary : Colors.transparent,
-                  width: 1.4,
+    Widget chip(ParentChild c) {
+      final isSelected = c.studentId == selected;
+      return GestureDetector(
+        onTap: () => ref.read(selectedChildProvider.notifier).select(c.studentId),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          width: 160,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected ? cs.primaryContainer : cs.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isSelected ? cs.primary : Colors.transparent,
+              width: 1.4,
+            ),
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: isSelected ? cs.primary : cs.surfaceContainerHighest,
+                child: Text(
+                  _initials(c.name),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? cs.onPrimary : cs.onSurface,
+                  ),
                 ),
               ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundColor: isSelected ? cs.primary : cs.surfaceContainerHighest,
-                    child: Text(
-                      _initials(c.name),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: isSelected ? cs.onPrimary : cs.onSurface,
-                      ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      c.name.isEmpty ? '—' : c.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          c.name.isEmpty ? '—' : c.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w800),
+                    if (c.gradeLabel.isNotEmpty)
+                      Text(
+                        c.gradeLabel,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: cs.onSurfaceVariant,
                         ),
-                        if (c.gradeLabel.isNotEmpty)
-                          Text(
-                            c.gradeLabel,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+                      ),
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            ],
+          ),
+        ),
+      );
+    }
+
+    // At least the original 88 pt, taller when large system text needs it;
+    // every chip matches the tallest one.
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 88),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var i = 0; i < children.length; i++) ...[
+                if (i > 0) const SizedBox(width: 10),
+                chip(children[i]),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

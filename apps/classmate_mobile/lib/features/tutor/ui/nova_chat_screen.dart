@@ -2467,12 +2467,17 @@ class _PersistentDisclaimer extends StatelessWidget {
           children: [
             Icon(Icons.info_outline_rounded, size: 11, color: cs.onSurfaceVariant.withValues(alpha: 0.55)),
             const SizedBox(width: 4),
-            Text(
-              AppLocalizations.of(context)!.novaChatScreenDisclaimerTapToLearn,
-              style: TextStyle(
-                fontSize: 11,
-                color: cs.onSurfaceVariant.withValues(alpha: 0.55),
-                height: 1.2,
+            // Flexible: wraps instead of running off-screen with large text
+            // or a longer translation.
+            Flexible(
+              child: Text(
+                AppLocalizations.of(context)!.novaChatScreenDisclaimerTapToLearn,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.55),
+                  height: 1.2,
+                ),
               ),
             ),
           ],

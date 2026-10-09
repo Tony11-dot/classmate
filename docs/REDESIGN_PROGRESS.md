@@ -129,6 +129,9 @@ Update this file in the same commit as each screen's redesign.
   user picked — theme now passes the font, like buttons and tabs
 - Parent home tool tiles clipped the "No child linked yet" note on a standard iPhone — tiles keep
   their shape but never get shorter than their content
+- Large system text (checked every rigged screen at 1.3×, 1.5×, 2×): Settings header, NOVA's
+  "can make mistakes" line, grade badges, Solutions subject tiles and the parent child picker
+  overflowed — they now wrap or grow; look unchanged at normal size. (Bottom nav untouched by rule.)
 - Marketing shots come from a local rig (real AppShell + screens, demo data, fake HTTP via
   `http.runWithClient`) kept outside git; re-run it to refresh the site/video/deck shots
 

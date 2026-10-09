@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
@@ -134,12 +136,19 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
             // Subjects as a 2-column grid of big icon tiles.
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 110),
-              sliver: SliverGrid.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              // Same 0.95 shape as before, but never shorter than the icon +
+              // a two-line subject name + book count (large system text
+              // clipped the count).
+              sliver: SliverLayoutBuilder(builder: (context, constraints) {
+                final tileW = (constraints.crossAxisExtent - 12) / 2;
+                final scale = MediaQuery.textScalerOf(context).scale(1);
+                final minH = 28 + 52 + 8 + 6 + 54 * scale;
+                return SliverGrid.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
-                  childAspectRatio: 0.95,
+                  mainAxisExtent: math.max(tileW / 0.95, minH),
                 ),
                 itemCount: subjects.length,
                 itemBuilder: (context, index) {
@@ -200,7 +209,8 @@ class _SolutionsScreenState extends ConsumerState<SolutionsScreen> {
                     ),
                   );
                 },
-              ),
+              );
+              }),
             ),
         ],
       ),
