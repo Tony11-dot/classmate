@@ -111,7 +111,7 @@
       "query": {}
     }
   },
-  "solutionsBookCount": "{count, plural, =1{1 livre} other{{count} livres}}",
+  "solutionsBookCount": "{count, plural, one{{count} livre} other{{count} livres}}",
   "@solutionsBookCount": {
     "placeholders": {
       "count": {
@@ -144,7 +144,7 @@
   },
   "solutionsExactQuestionTitle": "Solutions pour cette question exacte",
   "solutionsExactQuestionEmptySubtitle": "Rien n'a encore été téléchargé pour cette question exacte. Soyez le premier à aider vos camarades de classe.",
-  "solutionsUploadsFound": "{count, plural, =1{1 téléchargement trouvé} other{{count} téléchargements trouvés}}",
+  "solutionsUploadsFound": "{count, plural, one{{count} téléchargement trouvé} other{{count} téléchargements trouvés}}",
   "@solutionsUploadsFound": {
     "placeholders": {
       "count": {
@@ -241,7 +241,7 @@
   "teacherAttendanceClassNotesHint": "Ce qui a été couvert dans cette session…",
   "teacherAttendanceSaving": "Enregistrement…",
   "teacherAttendanceSaveAll": "Enregistrer la présence",
-  "teacherAttendanceSaveCount": "Enregistrer {count, plural, =1 {1 modification} other {{count} modifications}}",
+  "teacherAttendanceSaveCount": "Enregistrer {count, plural, one {{count} modification} other {{count} modifications}}",
   "teacherAttendanceSaved": "Présence enregistrée",
   "retry": "Réessayer",
   "scheduleRefreshTooFast": "L'emploi du temps se rafraîchit trop vite en ce moment. Attendez un instant puis réessayez.",
@@ -508,7 +508,7 @@
   "messagesPendingApprovals": "Approbations en attente",
   "messagesChatsSection": "Discussions",
   "messagesAllChatsSection": "Toutes les discussions",
-  "messagesConversationCount": "{count, plural, =1 {1 conversation} other {{count} conversations}}",
+  "messagesConversationCount": "{count, plural, one {{count} conversation} other {{count} conversations}}",
   "@messagesConversationCount": {
     "placeholders": {
       "count": {}
@@ -554,7 +554,7 @@
   "announcementsHeroSubtitle": "Annonces publiées de l'école, de l'enseignant et du système disponibles pour {audience}.",
   "announcementsLatestSourceLabel": "Dernière source",
   "announcementsNone": "Aucune",
-  "announcementsUnreadCountTitle": "{count, plural, =1 {1 annonce non lue} other {{count} annonces non lues}}",
+  "announcementsUnreadCountTitle": "{count, plural, one {{count} annonce non lue} other {{count} annonces non lues}}",
   "announcementsAllReadTitle": "Tout est lu",
   "announcementsEmptyForAudience": "Aucune annonce n'a été publiée pour {audience} pour le moment.",
   "announcementsLatestBody": "Dernière : {title}. Appuyez dessus pour lire le contenu complet.",
@@ -1161,7 +1161,7 @@
       "code": {}
     }
   },
-  "msgParticipantsAdded": "{count, plural, =1{1 participant ajouté} other{{count} participants ajoutés}}",
+  "msgParticipantsAdded": "{count, plural, one{{count} participant ajouté} other{{count} participants ajoutés}}",
   "@msgParticipantsAdded": {
     "placeholders": {
       "count": {
@@ -1169,7 +1169,7 @@
       }
     }
   },
-  "msgMembersCount": "{count, plural, =1{1 membre} other{{count} membres}}",
+  "msgMembersCount": "{count, plural, one{{count} membre} other{{count} membres}}",
   "@msgMembersCount": {
     "placeholders": {
       "count": {
@@ -1727,7 +1727,7 @@
     }
   },
   "messagesNoPeopleFound": "Aucune personne trouvée",
-  "messagesPeopleCount": "{count, plural, =1{1 personne} other{{count} personnes}}",
+  "messagesPeopleCount": "{count, plural, one{{count} personne} other{{count} personnes}}",
   "@messagesPeopleCount": {
     "placeholders": {
       "count": {
@@ -2257,7 +2257,7 @@
   "examsCouldNotLoadExams": "Impossible de charger les examens",
   "messagesNoPeopleToAdd": "Aucune personne à ajouter",
   "commonNoResultsForQuery": "Aucun résultat pour « {query} »",
-  "chatForwardedCount": "{count, plural, one{Transféré à 1 discussion} other{Transféré à {count} discussions}}",
+  "chatForwardedCount": "{count, plural, one{Transféré à {count} discussion} other{Transféré à {count} discussions}}",
   "commonReadMore": "Lire plus",
   "commonReadLess": "Lire moins",
   "adminNoRoleYet": "Aucun {role} pour l'instant",
@@ -2270,7 +2270,7 @@
   "profileUnverified": "Non vérifié",
   "notificationNewGradePosted": "📊 Nouvelle note publiée",
   "notificationNewGradePostedIn": "📊 Nouvelle note publiée en {subject}",
-  "messagesAddParticipants": "{count, plural, one{Ajouter 1 participant} other{Ajouter {count} participants}}",
+  "messagesAddParticipants": "{count, plural, one{Ajouter {count} participant} other{Ajouter {count} participants}}",
   "notificationFallbackTitle": "Notification",
   "adminCohortGradeRange": "Niveau {from}-{to}",
   "adminCohortGradesList": "Niveaux {list}",
@@ -2293,7 +2293,7 @@
       }
     }
   },
-  "adminExportRolePickedCount": "{count, plural, =1{1 sélectionné} other{{count} sélectionnés}}",
+  "adminExportRolePickedCount": "{count, plural, one{{count} sélectionné} other{{count} sélectionnés}}",
   "@adminExportRolePickedCount": {
     "placeholders": {
       "count": {
@@ -2355,7 +2355,7 @@
   "solutionsReportAction": "Signaler",
   "solutionsReportSubmitted": "Merci — signalé aux administrateurs.",
   "solutionsReportAlready": "Vous avez déjà signalé ceci.",
-  "solutionsBookPagesCount": "{count, plural, =1{1 page} other{{count} pages}}",
+  "solutionsBookPagesCount": "{count, plural, one{{count} page} other{{count} pages}}",
   "solutionsNoBooksYetForStudents": "Aucun livre ici pour l'instant. Votre enseignant les ajoutera.",
   "solutionsManageBooksTitle": "Gérer les livres",
   "solutionsNoBooksManageHint": "Aucun livre pour cette matière. Touchez + pour en ajouter un.",
@@ -2664,7 +2664,7 @@
   "scheduleScreenNotes": "Notes",
   "scheduleScreenMaterialFallback": "Support",
   "scheduleScreenNow": "MAINTENANT",
-  "scheduleScreenMaterialCount": "{count, plural, =1{1 support} other{{count} supports}}",
+  "scheduleScreenMaterialCount": "{count, plural, one{{count} support} other{{count} supports}}",
   "teacherFormResponsesScreenResponseCount": "{count} réponse{count, plural, =1{} other{s}}",
   "teacherFormResponsesScreenEmptyTitle": "Aucune réponse pour le moment",
   "teacherFormResponsesScreenEmptySubtitle": "Les réponses apparaîtront ici une fois que les élèves auront envoyé le formulaire.",
@@ -2736,7 +2736,7 @@
   "teacherScheduleScreenNextUp": "À suivre",
   "teacherScheduleScreenPeriodLabel": "Séance {period}",
   "teacherScheduleScreenGradeLabel": "Classe {grade}",
-  "teacherScheduleScreenMaterialsCount": "{count, plural, =1{1 support} other{{count} supports}}",
+  "teacherScheduleScreenMaterialsCount": "{count, plural, one{{count} support} other{{count} supports}}",
   "teacherClassroomAddAssignmentScreenTitle": "Ajouter un devoir",
   "teacherClassroomAddAssignmentScreenDetails": "Détails du devoir",
   "teacherClassroomAddAssignmentScreenNotifyStudents": "Notifier les élèves",
@@ -2951,7 +2951,7 @@
   "gradesHubSummary": "{subjects} matières · {students} élèves",
   "gradesHubSearchSubjects": "Rechercher des matières",
   "gradesHubEmpty": "Aucune note. Ajoutez une note et la matière apparaîtra ici.",
-  "gradesHubStudentCount": "{count, plural, =1{1 élève} other{{count} élèves}}",
+  "gradesHubStudentCount": "{count, plural, one{{count} élève} other{{count} élèves}}",
   "gradesSubjectStudentsTab": "Élèves",
   "gradesSubjectGradesTab": "Notes",
   "gradesSubjectNoGrades": "Aucune note dans cette matière.",
@@ -3262,5 +3262,5 @@
   "settingsThemeNameHint": "Mon thème",
   "settingsThemeAccentLabel": "Accent",
   "settingsCreateTheme": "Créer le thème",
-  "teacherFormsCount": "{count, plural, one{1 formulaire} other{{count} formulaires}}"
+  "teacherFormsCount": "{count, plural, one{{count} formulaire} other{{count} formulaires}}"
 }

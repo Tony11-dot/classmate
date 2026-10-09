@@ -374,26 +374,31 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: _statPill(
-                  context,
-                  icon: Icons.today_rounded,
-                  label: l.scheduleSelectedDay,
-                  value: '${selectedSlots.length}',
+          // Same height side by side even when one label wraps (Russian,
+          // French, large text).
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: _statPill(
+                    context,
+                    icon: Icons.today_rounded,
+                    label: l.scheduleSelectedDay,
+                    value: '${selectedSlots.length}',
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _statPill(
-                  context,
-                  icon: Icons.date_range_rounded,
-                  label: l.teacherWeekScheduleTitle,
-                  value: '$totalThisWeek',
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _statPill(
+                    context,
+                    icon: Icons.date_range_rounded,
+                    label: l.teacherWeekScheduleTitle,
+                    value: '$totalThisWeek',
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           if (nextUp != null) ...[
             const SizedBox(height: 12),
@@ -431,7 +436,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                             fontWeight: FontWeight.w800,
                             color: cs.onSurface,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -488,7 +493,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                     fontWeight: FontWeight.w800,
                     color: cs.onSurface,
                   ),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
@@ -548,7 +553,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700)),
+                Text(label, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant, fontWeight: FontWeight.w700)),
                 Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: cs.onSurface, height: 1.1)),
               ],
             ),
@@ -665,7 +670,8 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(
-                width: 50,
+                // Grows with large text so "08:00" never breaks in two.
+                width: MediaQuery.textScalerOf(context).scale(50).clamp(50.0, 110.0),
                 child: Padding(
                   padding: const EdgeInsets.only(top: 14),
                   child: Column(

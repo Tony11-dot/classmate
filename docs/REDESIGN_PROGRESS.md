@@ -184,6 +184,18 @@ Update this file in the same commit as each screen's redesign.
   called the admin user list "People" (the app says "Users") → matches the app
 - Tests: ClassNotes tests (feature gone since build 268) removed; the sidebar test follows the
   redesign's font weights → Flutter 58 pass / 5 known failures (was 57 / 11)
+- French & Russian pass (first time; earlier sweeps were en/he/ar) — every rigged screen at 1× and
+  1.3× text, no overflows. Fixed what the pictures showed:
+  - Messages: "Démarrer une discussion" squeezed the title to one letter per line → when the title,
+    icons and button don't fit in one row, the actions move under the title (English unchanged)
+  - Student + teacher Schedule: "08:00" broke in two at large text (time column grows now); the
+    count labels ("Недельное расписание", "Jour sélectionné") and "no upcoming exams" were cut off
+    → wrap to two lines, tiles stay equal height
+  - French day bar read "ven. 9 oct. · vendredi 9 octo…" (date twice) → "ven. 9 oct. · vendredi"
+  - Russian counts: "31 урок" showed as "1 урок" (Russian's singular form also covers 21, 31…, and
+    24 strings had a fixed "1"), and most lacked the 2–4 form ("2 ученика", not "2 учеников") →
+    proper one/few/many forms; French showed "1 livre" for zero books (16 strings) → real number
+    (+ tests)
 - Form fields: helper and error lines ended in "…" when a translation ran long (e.g. the Forgot-
   password SMS hint in Arabic) → wrap up to 3 lines, app-wide via the theme
 - Web app shell: a startup failure showed a raw red stack-trace page → a card with "ClassMate

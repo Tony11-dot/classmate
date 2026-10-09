@@ -178,37 +178,62 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
   Widget _header(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Text(
-              l.titleMessages,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: l.chatJoinGroupTooltip,
-            onPressed: _joinGroupByCode,
-            icon: const Icon(Icons.group_add_rounded),
-          ),
-          IconButton(
-            tooltip: l.messagesBlockedPeopleTitle,
-            onPressed: _openBlockedPeople,
-            icon: const Icon(Icons.block_rounded),
-          ),
-          const SizedBox(width: 4),
-          FilledButton.icon(
+    final titleStyle = theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900);
+    final title = Text(l.titleMessages, style: titleStyle);
+    final actions = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: l.chatJoinGroupTooltip,
+          onPressed: _joinGroupByCode,
+          icon: const Icon(Icons.group_add_rounded),
+        ),
+        IconButton(
+          tooltip: l.messagesBlockedPeopleTitle,
+          onPressed: _openBlockedPeople,
+          icon: const Icon(Icons.block_rounded),
+        ),
+        const SizedBox(width: 4),
+        Flexible(
+          child: FilledButton.icon(
             onPressed: _startNewChat,
             icon: const Icon(Icons.edit_rounded, size: 18),
-            label: Text(l.messagesStartChatAction),
+            label: Text(l.messagesStartChatAction, maxLines: 1, overflow: TextOverflow.ellipsis),
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+      child: LayoutBuilder(builder: (context, c) {
+        // One row when the title, both icons and the button fit; a long
+        // translation (e.g. French) or large text puts the actions on their
+        // own line instead of squeezing the title to one letter per line.
+        double widthOf(String s, TextStyle? style) => (TextPainter(
+              text: TextSpan(text: s, style: style),
+              textDirection: Directionality.of(context),
+              textScaler: MediaQuery.textScalerOf(context),
+              maxLines: 1,
+            )..layout())
+                .width;
+        final needed = widthOf(l.titleMessages, titleStyle) +
+            12 +
+            48 * 2 +
+            4 +
+            widthOf(l.messagesStartChatAction, theme.textTheme.labelLarge) +
+            74;
+        if (needed <= c.maxWidth) {
+          return Row(children: [Expanded(child: title), actions]);
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            title,
+            const SizedBox(height: 6),
+            Align(alignment: AlignmentDirectional.centerEnd, child: actions),
+          ],
+        );
+      }),
     );
   }
 

@@ -5,7 +5,7 @@
   "certNewCertificate": "Новый табель",
   "certChooseStudent": "Выберите ученика",
   "certSelectClassFirst": "Сначала выберите класс",
-  "certCertificateCount": "{count, plural, =0{Нет табелей} =1{1 табель} other{{count} табелей}}",
+  "certCertificateCount": "{count, plural, =0{Нет табелей} one{{count} табель} few{{count} табеля} many{{count} табелей} other{{count} табеля}}",
   "onbTeacher2Title": "Ваши классы — под рукой",
   "onbTeacher2Body": "Расписание, классы и списки учеников — всё в одном месте.",
   "onbTeacher3Title": "Оценки и посещаемость — быстро",
@@ -111,7 +111,7 @@
       "query": {}
     }
   },
-  "solutionsBookCount": "{count, plural, =1{1 книга} few{{count} книги} other{{count} книг}}",
+  "solutionsBookCount": "{count, plural, one{{count} книга} few{{count} книги} many{{count} книг} other{{count} книги}}",
   "@solutionsBookCount": {
     "placeholders": {
       "count": {
@@ -144,7 +144,7 @@
   },
   "solutionsExactQuestionTitle": "Решения для этого вопроса",
   "solutionsExactQuestionEmptySubtitle": "Для этого вопроса ещё ничего не загружено",
-  "solutionsUploadsFound": "{count, plural, =1{1 решение найдено} few{{count} решения найдено} other{{count} решений найдено}}",
+  "solutionsUploadsFound": "{count, plural, one{{count} решение найдено} few{{count} решения найдено} many{{count} решений найдено} other{{count} решения найдено}}",
   "@solutionsUploadsFound": {
     "placeholders": {
       "count": {
@@ -188,7 +188,7 @@
   "solutionsUploadCaptionOptional": "Подпись (необязательно)",
   "solutionsUploadImagesAction": "Изображения",
   "solutionsUploadPdfAction": "PDF",
-  "solutionsUploadFileCount": "{count} / 10 {count, plural, =1{файл выбран} few{файла выбрано} other{файлов выбрано}}",
+  "solutionsUploadFileCount": "{count} / 10 {count, plural, one{файл выбран} few{файла выбрано} many{файлов выбрано} other{файла выбрано}}",
   "@solutionsUploadFileCount": {
     "placeholders": {
       "count": {
@@ -264,7 +264,7 @@
   "scheduleNotOnboarded": "Профиль ученика ещё не настроен. Попросите администратора школы назначить вас в класс.",
   "scheduleLoadError": "Не удалось загрузить расписание",
   "scheduleSelectedDay": "Сегодня",
-  "scheduleClassCount": "{count, plural, =1{1 урок} few{{count} урока} other{{count} уроков}}",
+  "scheduleClassCount": "{count, plural, one{{count} урок} few{{count} урока} many{{count} уроков} other{{count} урока}}",
   "@scheduleClassCount": {
     "placeholders": {
       "count": {}
@@ -430,7 +430,7 @@
       }
     }
   },
-  "chatReactionCount": "{count, plural, =1 {Реакция} other {{count} реакции}}",
+  "chatReactionCount": "{count, plural, one{{count} реакция} few{{count} реакции} many{{count} реакций} other{{count} реакции}}",
   "@chatReactionCount": {
     "placeholders": {
       "count": {
@@ -523,7 +523,7 @@
   "messagesPendingApprovals": "Ожидают подтверждения",
   "messagesChatsSection": "Чаты",
   "messagesAllChatsSection": "Все чаты",
-  "messagesConversationCount": "{count, plural, =1 {1 разговор} few {{count} разговора} other {{count} разговоров}}",
+  "messagesConversationCount": "{count, plural, one{{count} разговор} few{{count} разговора} many{{count} разговоров} other{{count} разговора}}",
   "@messagesConversationCount": {
     "placeholders": {
       "count": {}
@@ -640,7 +640,7 @@
   },
   "announcementsLatestSourceLabel": "Источник",
   "announcementsNone": "Нет",
-  "announcementsUnreadCountTitle": "{count, plural, =1{1 непрочитанное} few{{count} непрочитанных} other{{count} непрочитанных}}",
+  "announcementsUnreadCountTitle": "{count, plural, one{{count} непрочитанное} few{{count} непрочитанных} many{{count} непрочитанных} other{{count} непрочитанного}}",
   "@announcementsUnreadCountTitle": {
     "placeholders": {
       "count": {
@@ -1300,7 +1300,7 @@
       "code": {}
     }
   },
-  "msgParticipantsAdded": "{count, plural, =1{Добавлен 1 участник} other{Добавлено {count} участников}}",
+  "msgParticipantsAdded": "{count, plural, one{Добавлен {count} участник} few{Добавлено {count} участника} many{Добавлено {count} участников} other{Добавлено {count} участника}}",
   "@msgParticipantsAdded": {
     "placeholders": {
       "count": {
@@ -1308,7 +1308,7 @@
       }
     }
   },
-  "msgMembersCount": "{count, plural, =1{1 участник} other{{count} участников}}",
+  "msgMembersCount": "{count, plural, one{{count} участник} few{{count} участника} many{{count} участников} other{{count} участника}}",
   "@msgMembersCount": {
     "placeholders": {
       "count": {
@@ -1866,7 +1866,7 @@
     }
   },
   "messagesNoPeopleFound": "Никого не найдено",
-  "messagesPeopleCount": "{count, plural, =1{1 человек} few{{count} человека} many{{count} человек} other{{count} человек}}",
+  "messagesPeopleCount": "{count, plural, one{{count} человек} few{{count} человека} many{{count} человек} other{{count} человека}}",
   "@messagesPeopleCount": {
     "placeholders": {
       "count": {
@@ -2803,8 +2803,8 @@
   "scheduleScreenNotes": "Заметки",
   "scheduleScreenMaterialFallback": "Материал",
   "scheduleScreenNow": "СЕЙЧАС",
-  "scheduleScreenMaterialCount": "{count, plural, =1{1 материал} other{{count} материалов}}",
-  "teacherFormResponsesScreenResponseCount": "{count, plural, =1{1 ответ} other{{count} ответов}}",
+  "scheduleScreenMaterialCount": "{count, plural, one{{count} материал} few{{count} материала} many{{count} материалов} other{{count} материала}}",
+  "teacherFormResponsesScreenResponseCount": "{count, plural, one{{count} ответ} few{{count} ответа} many{{count} ответов} other{{count} ответа}}",
   "teacherFormResponsesScreenEmptyTitle": "Ответов пока нет",
   "teacherFormResponsesScreenEmptySubtitle": "Ответы появятся здесь, как только ученики их отправят.",
   "teacherFormResponsesScreenStudentFallback": "Ученик",
@@ -2816,10 +2816,10 @@
   "teacherCreateFormScreenScaleTo": "до",
   "teacherMeetingsScreenNoneOption": "Нет",
   "teacherMeetingsScreenGradeLabel": "Класс {grade}",
-  "teacherMeetingsScreenStudentCount": "{count, plural, =1{1 ученик} other{{count} учеников}}",
+  "teacherMeetingsScreenStudentCount": "{count, plural, one{{count} ученик} few{{count} ученика} many{{count} учеников} other{{count} ученика}}",
   "teacherMeetingsScreenPickStartTime": "Выберите время начала",
   "teacherMeetingsScreenPickEndTime": "Выберите время окончания",
-  "teacherMeetingsScreenMembersWillReceive": "{count, plural, =1{1 участник получит это} other{{count} участников получат это}}",
+  "teacherMeetingsScreenMembersWillReceive": "{count, plural, one{{count} участник получит это} few{{count} участника получат это} many{{count} участников получат это} other{{count} участника получат это}}",
   "teacherAssignmentsScreenTitle": "Задания",
   "teacherAssignmentsScreenSummary": "Всего: {total} · опубликовано: {published}",
   "teacherAssignmentsScreenEmpty": "Заданий пока нет.\nНажмите +, чтобы создать.",
@@ -2828,10 +2828,10 @@
   "audienceSectionGrades": "Классы",
   "audienceSectionGradeLabel": "Класс {grade}",
   "audienceSectionStudents": "Ученики",
-  "audienceSectionStudentCount": "{count, plural, =1{1 ученик} other{{count} учеников}}",
-  "audienceSectionMemberCount": "{count, plural, =1{1 участник получит это} other{{count} участников получат это}}",
+  "audienceSectionStudentCount": "{count, plural, one{{count} ученик} few{{count} ученика} many{{count} учеников} other{{count} ученика}}",
+  "audienceSectionMemberCount": "{count, plural, one{{count} участник получит это} few{{count} участника получат это} many{{count} участников получат это} other{{count} участника получат это}}",
   "audienceSectionSelectedCount": "Выбрано: {count}",
-  "secretaryStudentsScreenStudentCount": "{count, plural, =1{1 ученик} other{{count} учеников}}",
+  "secretaryStudentsScreenStudentCount": "{count, plural, one{{count} ученик} few{{count} ученика} many{{count} учеников} other{{count} ученика}}",
   "secretaryStudentsScreenAvg": "Средн. {grade}",
   "secretaryStudentsScreenIdentity": "Личные данные",
   "secretaryStudentsScreenUsername": "Имя пользователя",
@@ -2875,7 +2875,7 @@
   "teacherScheduleScreenNextUp": "Далее",
   "teacherScheduleScreenPeriodLabel": "Урок {period}",
   "teacherScheduleScreenGradeLabel": "Класс {grade}",
-  "teacherScheduleScreenMaterialsCount": "{count, plural, =1{1 материал} other{{count} материалов}}",
+  "teacherScheduleScreenMaterialsCount": "{count, plural, one{{count} материал} few{{count} материала} many{{count} материалов} other{{count} материала}}",
   "teacherClassroomAddAssignmentScreenTitle": "Добавить задание",
   "teacherClassroomAddAssignmentScreenDetails": "Детали задания",
   "teacherClassroomAddAssignmentScreenNotifyStudents": "Уведомить учеников",
@@ -2910,13 +2910,13 @@
   "teacherAddMaterialScreenFileFallback": "Файл",
   "teacherAssignmentDetailScreenTitle": "Задание",
   "teacherAssignmentDetailScreenNoSubmissions": "Сдач пока нет",
-  "teacherAssignmentDetailScreenSubmissionCount": "{count, plural, =1{1 сдача} other{{count} сдач}}",
+  "teacherAssignmentDetailScreenSubmissionCount": "{count, plural, one{{count} сдача} few{{count} сдачи} many{{count} сдач} other{{count} сдачи}}",
   "teacherAssignmentDetailScreenGradedCount": "Оценено: {count}",
   "teacherAssignmentDetailScreenStudentFallback": "Ученик",
   "teacherAssignmentDetailScreenSubmittedOn": "Сдано {date}",
   "teacherAddAssignmentScreenGradeLabel": "Класс {count}",
-  "teacherAddAssignmentScreenStudentCount": "{count, plural, one {1 ученик} other {{count} учеников}}",
-  "teacherAddAssignmentScreenMembersWillReceive": "{count, plural, one {1 участник получит это} other {{count} участников получат это}}",
+  "teacherAddAssignmentScreenStudentCount": "{count, plural, one{{count} ученик} few{{count} ученика} many{{count} учеников} other{{count} ученика}}",
+  "teacherAddAssignmentScreenMembersWillReceive": "{count, plural, one{{count} участник получит это} few{{count} участника получат это} many{{count} участников получат это} other{{count} участника получат это}}",
   "teacherAddAssignmentScreenNoDueDate": "Без срока сдачи",
   "teacherAddAssignmentScreenMaterialFallback": "Материал",
   "teacherAddAssignmentScreenSelectedCount": "Выбрано: {count}",
@@ -3090,7 +3090,7 @@
   "gradesHubSummary": "{subjects} предметов · {students} учеников",
   "gradesHubSearchSubjects": "Поиск предметов",
   "gradesHubEmpty": "Пока нет оценок. Добавьте оценку — и предмет появится здесь.",
-  "gradesHubStudentCount": "{count, plural, =1{1 ученик} other{{count} учеников}}",
+  "gradesHubStudentCount": "{count, plural, one{{count} ученик} few{{count} ученика} many{{count} учеников} other{{count} ученика}}",
   "gradesSubjectStudentsTab": "Ученики",
   "gradesSubjectGradesTab": "Оценки",
   "gradesSubjectNoGrades": "В этом предмете пока нет оценок.",
@@ -3110,7 +3110,7 @@
   "teacherAddGradeSubjectRequired": "Пожалуйста, выберите предмет для этой оценки.",
   "gradesSubjectAveragesTab": "Средние",
   "gradesAveragesSummaryTitle": "Средний балл за семестр",
-  "gradesAveragesSummaryCount": "{count, plural, =0{Пока нет взвешенных оценок} =1{1 взвешенная оценка} other{{count} взвешенных оценок}}",
+  "gradesAveragesSummaryCount": "{count, plural, =0{Пока нет взвешенных оценок} one{{count} взвешенная оценка} few{{count} взвешенные оценки} many{{count} взвешенных оценок} other{{count} взвешенной оценки}}",
   "gradesAveragesTotalWeight": "Суммарный вес",
   "gradesAveragesNoWeighted": "Нет оценок с весом в этом семестре. Добавьте оценку или задайте %.",
   "a11yBack": "Назад",
@@ -3401,5 +3401,5 @@
   "settingsThemeNameHint": "Моя тема",
   "settingsThemeAccentLabel": "Акцент",
   "settingsCreateTheme": "Создать тему",
-  "teacherFormsCount": "{count, plural, other{{count} форм}}"
+  "teacherFormsCount": "{count, plural, one{{count} форма} few{{count} формы} many{{count} форм} other{{count} формы}}"
 }

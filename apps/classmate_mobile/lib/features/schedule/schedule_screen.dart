@@ -275,22 +275,32 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
               spacing: 10,
               runSpacing: 10,
               children: [
-                SizedBox(
-                  width: w,
-                  child: _statPill(
-                    context,
-                    icon: Icons.today_rounded,
-                    label: l.scheduleSelectedDay,
-                    value: l.scheduleClassCount(selectedItems.length),
-                  ),
-                ),
-                SizedBox(
-                  width: w,
-                  child: _statPill(
-                    context,
-                    icon: Icons.calendar_view_week_rounded,
-                    label: l.thisWeek,
-                    value: l.scheduleClassCount(weekTotal),
+                // The two counts stay the same height when a longer label
+                // (French, Russian, large text) wraps to a second line.
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        width: w,
+                        child: _statPill(
+                          context,
+                          icon: Icons.today_rounded,
+                          label: l.scheduleSelectedDay,
+                          value: l.scheduleClassCount(selectedItems.length),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        width: w,
+                        child: _statPill(
+                          context,
+                          icon: Icons.calendar_view_week_rounded,
+                          label: l.thisWeek,
+                          value: l.scheduleClassCount(weekTotal),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -715,6 +725,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   }
 
   String _weekdayLong(BuildContext context, DateTime date) {
+    // Just the weekday ("vendredi", "пятница"). Cutting the full date at its
+    // first comma doesn't work in French, which has none.
+    try {
+      return DateFormat.EEEE(Localizations.localeOf(context).toString()).format(date);
+    } catch (_) {}
     try {
       final fullDate = MaterialLocalizations.of(context).formatFullDate(date);
       final parts = fullDate.split(RegExp(r'[,،]'));
@@ -765,7 +780,7 @@ Widget _statPill(
             children: [
               Text(
                 label,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: cs.onSurfaceVariant,
@@ -1075,7 +1090,8 @@ class _ScheduleTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            width: 50,
+            // Grows with large text so "08:00" never breaks in two.
+            width: MediaQuery.textScalerOf(context).scale(50).clamp(50.0, 110.0),
             child: Padding(
               padding: const EdgeInsets.only(top: 14),
               child: Column(

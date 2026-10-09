@@ -412,7 +412,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count livres',
-      one: '1 livre',
+      one: '$count livre',
     );
     return '$_temp0';
   }
@@ -471,7 +471,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count téléchargements trouvés',
-      one: '1 téléchargement trouvé',
+      one: '$count téléchargement trouvé',
     );
     return '$_temp0';
   }
@@ -759,7 +759,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count modifications',
-      one: '1 modification',
+      one: '$count modification',
     );
     return 'Enregistrer $_temp0';
   }
@@ -1457,7 +1457,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count conversations',
-      one: '1 conversation',
+      one: '$count conversation',
     );
     return '$_temp0';
   }
@@ -1744,7 +1744,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count annonces non lues',
-      one: '1 annonce non lue',
+      one: '$count annonce non lue',
     );
     return '$_temp0';
   }
@@ -3438,7 +3438,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count participants ajoutés',
-      one: '1 participant ajouté',
+      one: '$count participant ajouté',
     );
     return '$_temp0';
   }
@@ -3449,7 +3449,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count membres',
-      one: '1 membre',
+      one: '$count membre',
     );
     return '$_temp0';
   }
@@ -5014,7 +5014,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count personnes',
-      one: '1 personne',
+      one: '$count personne',
     );
     return '$_temp0';
   }
@@ -6599,7 +6599,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: 'Transféré à $count discussions',
-      one: 'Transféré à 1 discussion',
+      one: 'Transféré à $count discussion',
     );
     return '$_temp0';
   }
@@ -6651,7 +6651,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: 'Ajouter $count participants',
-      one: 'Ajouter 1 participant',
+      one: 'Ajouter $count participant',
     );
     return '$_temp0';
   }
@@ -6706,7 +6706,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count sélectionnés',
-      one: '1 sélectionné',
+      one: '$count sélectionné',
     );
     return '$_temp0';
   }
@@ -6919,7 +6919,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count pages',
-      one: '1 page',
+      one: '$count page',
     );
     return '$_temp0';
   }
@@ -8059,7 +8059,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count supports',
-      one: '1 support',
+      one: '$count support',
     );
     return '$_temp0';
   }
@@ -8370,7 +8370,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count supports',
-      one: '1 support',
+      one: '$count support',
     );
     return '$_temp0';
   }
@@ -9054,7 +9054,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$count élèves',
-      one: '1 élève',
+      one: '$count élève',
     );
     return '$_temp0';
   }
@@ -9849,7 +9849,7 @@ class AppLocalizationsFr extends AppLocalizations {
       count,
       locale: localeName,
       other: '$countString formulaires',
-      one: '1 formulaire',
+      one: '$countString formulaire',
     );
     return '$_temp0';
   }
