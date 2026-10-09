@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:classmate_mobile/ui/widgets/cm_code_field.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/cm_surfaces.dart';
+import '../../core/theme/cm_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -1032,14 +1034,17 @@ Future<void> _showCodeSheet(
   final l = AppLocalizations.of(context)!;
   final codeCtrl = TextEditingController();
   bool submitting = false;
+  bool resending = false;
   String? error;
+  String? notice;
   var status = CmCodeStatus.idle;
 
   await showModalBottomSheet<void>(
-      useRootNavigator: true,
+    useRootNavigator: true,
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    showDragHandle: true,
     backgroundColor: cs.surface,
     builder: (sCtx) {
       return StatefulBuilder(builder: (ctx, setSt) {
@@ -1069,75 +1074,119 @@ Future<void> _showCodeSheet(
           }
         }
 
+        final theme = Theme.of(ctx);
+        final tk = CmTokens.of(ctx);
         return Padding(
-          padding: EdgeInsets.only(
-            left: 20, right: 20, top: 20,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          padding: EdgeInsets.fromLTRB(
+            24, 4, 24, MediaQuery.of(ctx).viewInsets.bottom + 24,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              CmIconTile(
+                icon: channel == 'sms'
+                    ? Icons.sms_rounded
+                    : Icons.mark_email_unread_rounded,
+                size: 56,
+              ),
+              const SizedBox(height: 16),
               Text(
                 l.profileEnterCodeTitle,
-                style: Theme.of(ctx).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
               Text(
                 target.isNotEmpty
                     ? l.profileCodeSentTo(target)
                     : l.profileCodeSent,
-                style: Theme.of(ctx).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium
+                    ?.copyWith(color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: 18),
-              Center(
-                child: CmCodeField(
-                  length: 6,
-                  controller: codeCtrl,
-                  digitsOnly: true,
-                  status: status,
-                  errorText: error,
-                  // Rebuild per digit so Confirm enables at the sixth.
-                  onChanged: (_) => setSt(() {
-                    if (status == CmCodeStatus.error) {
-                      status = CmCodeStatus.idle;
-                      error = null;
-                    }
-                  }),
-                  onCompleted: (_) => submit(),
-                ),
+              const SizedBox(height: 24),
+              CmCodeField(
+                length: 6,
+                controller: codeCtrl,
+                digitsOnly: true,
+                status: status,
+                errorText: error,
+                // Rebuild per digit so Confirm enables at the sixth.
+                onChanged: (_) => setSt(() {
+                  notice = null;
+                  if (status == CmCodeStatus.error) {
+                    status = CmCodeStatus.idle;
+                    error = null;
+                  }
+                }),
+                onCompleted: (_) => submit(),
               ),
-              const SizedBox(height: 16),
+              // A snackbar would land behind this sheet; confirm a resend here.
+              AnimatedSize(
+                duration: CmTokens.fast,
+                curve: CmTokens.easeOut,
+                child: notice == null
+                    ? const SizedBox(width: double.infinity)
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_circle_rounded,
+                                size: 16, color: tk.good),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                notice!,
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: tk.good,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 22),
               SizedBox(
                 width: double.infinity,
+                height: 52,
                 child: FilledButton(
                   onPressed: submitting || codeCtrl.text.length < 6 ? null : submit,
                   child: submitting
-                      ? CmLoading(size: 16, color: cs.onPrimary)
+                      ? CmLoading(size: 18, color: cs.onPrimary)
                       : Text(l.accountConfirmButton),
                 ),
               ),
-              const SizedBox(height: 8),
-              Center(
-                child: TextButton(
-                  onPressed: submitting
-                      ? null
-                      : () async {
-                          setSt(() { error = null; status = CmCodeStatus.idle; });
-                          try {
-                            await ref
-                                .read(verifyControllerProvider.notifier)
-                                .startVerify(channel, newValue: newValue);
-                            if (!ctx.mounted) return;
-                            ScaffoldMessenger.of(ctx).showSnackBar(
-                              SnackBar(content: Text(l.accountCodeResent)),
-                            );
-                          } catch (e) {
-                            setSt(() => error = _humanizeError(e));
-                          }
-                        },
-                  child: Text(l.accountResendCode),
-                ),
+              const SizedBox(height: 6),
+              TextButton.icon(
+                onPressed: submitting || resending
+                    ? null
+                    : () async {
+                        setSt(() {
+                          resending = true;
+                          error = null;
+                          notice = null;
+                          status = CmCodeStatus.idle;
+                        });
+                        try {
+                          await ref
+                              .read(verifyControllerProvider.notifier)
+                              .startVerify(channel, newValue: newValue);
+                          if (!ctx.mounted) return;
+                          setSt(() => notice = l.accountCodeResent);
+                        } catch (e) {
+                          setSt(() => error = _humanizeError(e));
+                        } finally {
+                          if (ctx.mounted) setSt(() => resending = false);
+                        }
+                      },
+                icon: resending
+                    ? const CmLoading(size: 16)
+                    : const Icon(Icons.refresh_rounded, size: 18),
+                label: Text(l.accountResendCode),
               ),
             ],
           ),
