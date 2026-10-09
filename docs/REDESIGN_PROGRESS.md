@@ -102,10 +102,23 @@ Update this file in the same commit as each screen's redesign.
 | School form, Bagrut exam form | ✅ |
 | Schools, Managers, Bagrut exams, Bagrut manage | ✅ |
 
+## Outside the app (2026-10-09)
+| Surface | Status |
+|---|---|
+| Emails — reset, password changed, verification code | ✅ shared shell, dark mode, code in subject; From + Reply-To = support@classmateapp.org |
+| Reset-password page (API `/reset-password`) | ✅ new wordmark, live checks, success state; token sanitized (XSS) |
+| Legal site (classmate-legal: index, privacy, terms, accessibility, delete account) | ✅ shared site.css/site.js, light + dark, Hebrew RTL; text unchanged except Gmail → support@ |
+| Verify-code sheet (Profile → Verify) | ✅ |
+| ClassNotes reset page | ➖ separate product, own design + tests |
+
 ## Up next (in order)
 1. Every screen is ✅ or ➖. Next: on-device QA pass of build 301 (TestFlight / Play internal), then fix anything found.
 
 ## Known open items (not redesign)
+- Rotate the Anthropic API key (live key is in this public repo's history, commit b49805ad)
+- Apple-review demo password is committed in 4 files of the public repo
+- Remove Railway vars RESEND_FROM_EMAIL / RESEND_REPLY_TO once the build with fixed addresses is live
+- Pitch deck screenshots are from June (old app look); re-shoot from the redesigned app
 - Secretary student create/delete UI not wired
 - 11 stale failing tests (also fail on `main`)
 - Composer mic/classroom bug report — waiting on repro details
