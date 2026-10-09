@@ -105,12 +105,14 @@ Update this file in the same commit as each screen's redesign.
 ## Outside the app (2026-10-09)
 | Surface | Status |
 |---|---|
-| Emails — reset, password changed, verification code | ✅ shared shell, dark mode, code in subject; From + Reply-To = support@classmateapp.org |
-| Reset-password page (API `/reset-password`) | ✅ new wordmark, live checks, success state; token sanitized (XSS) |
+| Emails — reset, password changed, verification code | ✅ shared shell, dark mode, code in subject; From + Reply-To = support@classmateapp.org; in the user's language (en/he/ar/fr/ru, RTL for he/ar) |
+| SMS — reset link, password changed, verification code | ✅ in the user's language |
+| Reset-password page (API `/reset-password`) | ✅ new wordmark, live checks, success state; token sanitized (XSS); in the email's language (or the browser's); dead links say so up front |
 | Legal site (classmate-legal: index, privacy, terms, accessibility, delete account) | ✅ shared site.css/site.js, light + dark, Hebrew RTL; text unchanged except Gmail → support@ |
 | Verify-code sheet (Profile → Verify) | ✅ |
 | ClassNotes reset page | ➖ separate product, own design + tests |
 | Website screenshots (classmateapp.org) | ✅ re-shot from the redesigned app (new logo); WebP, 6 × ~40–85 KB |
+| Website (classmateapp.org) icons, store badges, FAQ | ✅ emoji → line icons (+ theme toggle), Google Play badge live, FAQ matches the app |
 | Website demo video | ✅ new white mark in both logo moments; re-encoded (10.9 MB, fast start); WebP poster |
 | Pitch deck (~/Desktop/CM/CM_Pitch.pptx + PDF) | ✅ all 20 phone mockups re-shot from the redesigned app (same 3D outline + shadow); backup of the previous deck in ~/Documents/ClassMate docs/CM-backup-2026-10-09/CM_Pitch.pre-screens.* |
 
@@ -154,20 +156,41 @@ Update this file in the same commit as each screen's redesign.
 - Large text: Bagrut subject tiles cut the name off and the plan card's "resets on…" line ran off
   the edge — both fixed; whole sweep now clean in Arabic and Hebrew at 1.5× and 2×
 
+## Round 13 (2026-10-09) — the account flows in your language + help that matches the app
+- Reset / password-changed / verification-code emails and their SMS twins now come in the user's
+  language (en, he, ar, fr, ru; Pashto is a pseudo locale → English). Hebrew and Arabic are laid out
+  right to left; the link and the code stay left to right; no letter-spacing on Arabic
+- Language = the one the app is in when asking (Forgot password sends it), else the one the app last
+  reported for the account, else English. The link carries it, so the reset page matches the email
+- Reset page: checks the link before showing the form — an expired, used or broken link says so right
+  away (with "Get a new link" → the web app's Forgot password, and "Sign in") instead of after
+  typing two passwords. Server errors carry a code so the page shows its own translated message
+- Forgot-password screen: intro and expiry note were hard-coded English → translated; the SMS helper
+  line was English-only in he/ar/fr/ru → translated; the result message comes back in the app's language
+- Help FAQ (in-app, all 6 ARBs, and the website) said things the app no longer does — cohort join
+  codes, parent link codes, "Password Requests", "Diplomas", "preferred name language", attendance
+  saving by itself, "include current passwords" in export, Schedule/NOVA "in the drawer", the old
+  dark-mode switch, "a code by SMS". Every answer now matches the app (labels as they appear in each
+  language); deleting an account also mentions support@ (same as the legal page)
+- Support assistant notes: SMS sends a link (not a code); "Join Classroom" label
+- Website: emoji icons → line icons (features, FAQ groups, contact, download, theme toggle); Google Play
+  badge was "Coming soon" though the app is live on Play → links to the listing
+- Verify-code SMS log line no longer prints the code and number when Twilio isn't configured
+
 ## Up next (in order)
-1. Every screen is ✅ or ➖. Next: on-device QA pass of build 303 (TestFlight / Play internal), then fix anything found.
+1. Every screen is ✅ or ➖. Next: on-device QA pass of build 305 (TestFlight / Play internal), then fix anything found.
 
 ## Known open items (not redesign)
-- Anthropic key: the first new key wasn't tied to a Console workspace (NOVA got 400 "must include
-  the anthropic-workspace-id header"). A second key is live on Railway since 2026-10-09 (deploy
-  117d8fe8). If NOVA still says "Failed to stream reply", the server log line `[NOVA_PROVIDER_ERROR]`
-  names the cause; for the workspace error set `ANTHROPIC_WORKSPACE_ID` (the API sends it when
-  set). Then delete the old keys
+- Anthropic key: the second new key is live and NOVA answers (confirmed by Tony 2026-10-09). Still
+  to do: delete the old keys in the Console. If NOVA ever says "Failed to stream reply", the server
+  log line `[NOVA_PROVIDER_ERROR]` names the cause
 - ⚠ `railway up` is SKIPPED when nothing in the API changed — to apply a variable change alone, use
   `railway redeploy -y` (never `--from-source`, which pulls `main`)
 - ⚠ Any Railway variable change redeploys GitHub `main` and drops this branch's backend — use
   `--skip-deploys`, then `railway up` from the repo root
 - Apple-review demo password is committed in 4 files of the public repo
 - Secretary student create/delete UI not wired
+- Self-service account deletion: the API has `POST /account/delete` but the app has no button for it
+  (the FAQ points to the school admin or support@)
 - 11 stale failing tests (also fail on `main`)
 - Composer mic/classroom bug report — waiting on repro details

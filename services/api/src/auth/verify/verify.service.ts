@@ -2,6 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundEx
 import * as crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../password-reset/email.service';
+import { MailLocale, mailCopy, mailLocale } from '../password-reset/mail-i18n';
 import { SmsService } from '../password-reset/sms.service';
 
 export type Channel = 'email' | 'sms';
@@ -53,7 +54,7 @@ export class VerifyService {
     const { userId, channel } = args;
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, email: true, phone: true, name: true, school: { select: { name: true } } } as any,
+      select: { id: true, email: true, phone: true, name: true, language: true, school: { select: { name: true } } } as any,
     }) as any;
     if (!user) throw new NotFoundException('User not found');
 
@@ -149,12 +150,13 @@ export class VerifyService {
     });
 
     const schoolName: string | null = user.school?.name ?? null;
+    const locale = mailLocale(user.language);
     let sent = false;
     try {
       if (channel === 'email') {
-        sent = await this.sendEmailCode({ to: target, code: rawCode, schoolName });
+        sent = await this.sendEmailCode({ to: target, code: rawCode, schoolName, locale });
       } else {
-        sent = await this.sendSmsCode({ to: target, code: rawCode, schoolName });
+        sent = await this.sendSmsCode({ to: target, code: rawCode, schoolName, locale });
       }
     } catch (err) {
       this.logger.error(`Failed to send verify code to ${target}: ${(err as Error).message}`);
@@ -286,23 +288,34 @@ export class VerifyService {
 
   // ── senders ──────────────────────────────────────────────────────────────────
 
-  private async sendEmailCode(args: { to: string; code: string; schoolName: string | null }): Promise<boolean> {
+  private async sendEmailCode(args: {
+    to: string;
+    code: string;
+    schoolName: string | null;
+    locale: MailLocale;
+  }): Promise<boolean> {
     return this.email.sendVerificationCode({
       to: args.to,
       code: args.code,
       schoolName: args.schoolName,
       expiresInMinutes: CODE_TTL_MIN,
+      locale: args.locale,
     });
   }
 
-  private async sendSmsCode(args: { to: string; code: string; schoolName: string | null }): Promise<boolean> {
+  private async sendSmsCode(args: {
+    to: string;
+    code: string;
+    schoolName: string | null;
+    locale: MailLocale;
+  }): Promise<boolean> {
     if (!this.sms.isConfigured) {
-      this.logger.warn(`Twilio not configured; would have texted verify code ${args.code} to ${args.to}`);
+      this.logger.warn('Twilio not configured; would have texted a verify code (recipient/code redacted)');
       return false;
     }
     const label = args.schoolName ?? 'ClassMate';
-    const body = `${label} code: ${args.code} (expires in ${CODE_TTL_MIN} min). If you didn't ask, ignore this.`;
-    await this.sms.send(args.to, body);
+    const t = mailCopy(args.locale);
+    await this.sms.send(args.to, t.sms.code(label, args.code, t.minutes(CODE_TTL_MIN)));
     return true;
   }
 }

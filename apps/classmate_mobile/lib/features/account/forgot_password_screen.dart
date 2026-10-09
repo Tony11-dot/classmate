@@ -63,6 +63,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       final raw = await api.postJson('/auth/forgot-password', body: {
         'identifier': identifier,
         'channel': _mode == _ResetMode.email ? 'email' : 'sms',
+        // The server answers — and writes the email/SMS — in this language.
+        'language': Localizations.localeOf(context).languageCode,
       });
       if (!mounted) return;
       // Server returns { ok, code, sent, message }. `sent` drives the
@@ -89,9 +91,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
-    final headerCopy = _mode == _ResetMode.email
-        ? "Enter your email or username and we'll email you a reset link."
-        : "Enter your email or username and we'll text a reset link to the phone on your account.";
+    final l = AppLocalizations.of(context)!;
+    final headerCopy = _mode == _ResetMode.email ? l.forgotPasswordIntroEmail : l.forgotPasswordIntroSms;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -210,7 +211,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'The link expires in 1 hour and can only be used once.',
+                    l.forgotPasswordExpiryNote,
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                   ),
                 ),

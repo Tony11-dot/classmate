@@ -7931,6 +7931,24 @@ abstract class AppLocalizations {
   /// **'We\'ll text the link to the phone number on this account.'**
   String get forgotPasswordSmsHelper;
 
+  /// No description provided for @forgotPasswordIntroEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email or username and we\'ll email you a reset link.'**
+  String get forgotPasswordIntroEmail;
+
+  /// No description provided for @forgotPasswordIntroSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email or username and we\'ll text a reset link to the phone on your account.'**
+  String get forgotPasswordIntroSms;
+
+  /// No description provided for @forgotPasswordExpiryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The link expires in 1 hour and can only be used once.'**
+  String get forgotPasswordExpiryNote;
+
   /// No description provided for @commonAttachments.
   ///
   /// In en, this message translates to:
@@ -11180,7 +11198,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqStartedA2.
   ///
   /// In en, this message translates to:
-  /// **'Your school administrator creates accounts. Ask them to add you in their admin app, or to share a join code if your school uses self-enrolment.'**
+  /// **'Your school administrator creates accounts. Ask them to add you — they\'ll give you a username or email and a temporary password.'**
   String get faqStartedA2;
 
   /// No description provided for @faqStartedQ3.
@@ -11192,7 +11210,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqStartedA3.
   ///
   /// In en, this message translates to:
-  /// **'Yes — ClassMate supports English, Arabic, Hebrew, French, and Russian. Open Settings to switch language. You can also set a preferred name language in Profile.'**
+  /// **'Yes — ClassMate supports English, Arabic, Hebrew, French and Russian. Open Settings → Language to switch.'**
   String get faqStartedA3;
 
   /// No description provided for @faqStartedQ4.
@@ -11204,7 +11222,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqStartedA4.
   ///
   /// In en, this message translates to:
-  /// **'Open Settings from the drawer and toggle the appearance switch. The app respects your system preference by default.'**
+  /// **'Open Settings → Appearance → Theme. Pick \"System default\" to follow your device\'s light or dark mode, or choose one of 20 themes — you can also make your own.'**
   String get faqStartedA4;
 
   /// No description provided for @faqAccountQ1.
@@ -11216,7 +11234,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAccountA1.
   ///
   /// In en, this message translates to:
-  /// **'Tap \"Forgot password?\" on the login screen. You\'ll get a reset link by email or a code by SMS. If neither channel is verified yet, ask your school administrator to issue you a new temporary password.'**
+  /// **'Tap \"Forgot password?\" on the login screen. We\'ll send a reset link by email or by text message (SMS), in your language. If neither your email nor your phone is verified yet, ask your school administrator to set a new temporary password.'**
   String get faqAccountA1;
 
   /// No description provided for @faqAccountQ2.
@@ -11264,7 +11282,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqStudentsA1.
   ///
   /// In en, this message translates to:
-  /// **'Schedule is the first item in the drawer. You\'ll see this week\'s periods, who teaches each one, and any changes the admin has posted.'**
+  /// **'Schedule is the first tab at the bottom of the screen. You\'ll see this week\'s periods, who teaches each one, and any changes the admin has posted.'**
   String get faqStudentsA1;
 
   /// No description provided for @faqStudentsQ2.
@@ -11276,7 +11294,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqStudentsA2.
   ///
   /// In en, this message translates to:
-  /// **'A teacher will add you directly, or share a join code. To use a join code, open Classrooms from the drawer and tap \"Join with code\".'**
+  /// **'A teacher will add you directly, or share a join code. To use a join code, open the Classrooms tab, tap Join Classroom and type the code.'**
   String get faqStudentsA2;
 
   /// No description provided for @faqStudentsQ3.
@@ -11294,13 +11312,13 @@ abstract class AppLocalizations {
   /// No description provided for @faqStudentsQ4.
   ///
   /// In en, this message translates to:
-  /// **'What is Nova?'**
+  /// **'What is NOVA?'**
   String get faqStudentsQ4;
 
   /// No description provided for @faqStudentsA4.
   ///
   /// In en, this message translates to:
-  /// **'Nova is your AI study buddy — ask it to explain a concept, generate a quiz, or walk through a problem step by step. Open Nova from the drawer to start a session.'**
+  /// **'NOVA is your AI study buddy — ask it to explain a concept, generate a quiz, or walk through a problem step by step. Open the NOVA tab to start a chat.'**
   String get faqStudentsA4;
 
   /// No description provided for @faqTeachersQ1.
@@ -11324,7 +11342,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqTeachersA2.
   ///
   /// In en, this message translates to:
-  /// **'Open Attendance from the drawer, pick the date and period, then tap each student to set their status. Changes save automatically.'**
+  /// **'Open Attendance from School Tools, pick the date and period, set each student\'s status, then tap Save.'**
   String get faqTeachersA2;
 
   /// No description provided for @faqTeachersQ3.
@@ -11336,19 +11354,19 @@ abstract class AppLocalizations {
   /// No description provided for @faqTeachersA3.
   ///
   /// In en, this message translates to:
-  /// **'Open Assignments, tap +, fill in the title/due date/attachments, and pick a target (whole school, specific cohorts, or named students). Students see it instantly in their drawer.'**
+  /// **'Open Assignments, tap +, fill in the title/due date/attachments, and pick a target (whole school, specific cohorts, or named students). Students see it right away in their Assignments.'**
   String get faqTeachersA3;
 
   /// No description provided for @faqTeachersQ4.
   ///
   /// In en, this message translates to:
-  /// **'Can I issue a diploma or certificate?'**
+  /// **'Can I issue a certificate?'**
   String get faqTeachersQ4;
 
   /// No description provided for @faqTeachersA4.
   ///
   /// In en, this message translates to:
-  /// **'Yes — open Diplomas from the drawer, tap +, pick the student, fill in the title and details, and save. The student sees it in their own Diplomas section.'**
+  /// **'Homeroom teachers can — open Certificates from School Tools, pick the class and the student, then create the certificate. You can also build one PDF for the whole class. The student sees it in their own Certificates.'**
   String get faqTeachersA4;
 
   /// No description provided for @faqAdminsQ1.
@@ -11372,7 +11390,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAdminsA2.
   ///
   /// In en, this message translates to:
-  /// **'A cohort is a group of students that share a schedule. Open Cohorts from the drawer to create them, assign students, and generate join codes. A single cohort can span multiple grades.'**
+  /// **'A cohort is a group of students that share a schedule. Open Cohorts from School Tools to create them and add students. A single cohort can span multiple grades.'**
   String get faqAdminsA2;
 
   /// No description provided for @faqAdminsQ3.
@@ -11408,7 +11426,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAdminsA5.
   ///
   /// In en, this message translates to:
-  /// **'Open Export Data from the drawer. Choose whether to select by student or by cohort, pick the rows, and tap Export. Optionally include current passwords during export.'**
+  /// **'Open Export Data. Choose whether to select by student or by cohort, pick the rows, and tap Export. If you include passwords, each exported student gets a new temporary password (the old one stops working) — handy for printing login cards.'**
   String get faqAdminsA5;
 
   /// No description provided for @faqAdminsQ6.
@@ -11420,7 +11438,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAdminsA6.
   ///
   /// In en, this message translates to:
-  /// **'You can either set their password directly (Profile of the user → Security) or wait for them to file a request via \"Forgot password\" and approve it from Password Requests in the drawer.'**
+  /// **'Open Users, tap the person and set a new password — they also get an email or text with a link to choose their own. If their email or phone is verified, they can reset it themselves with \"Forgot password?\".'**
   String get faqAdminsA6;
 
   /// No description provided for @faqParentsQ1.
@@ -11432,7 +11450,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqParentsA1.
   ///
   /// In en, this message translates to:
-  /// **'Ask your child\'s school administrator to either add the link from their admin app, or share a one-time parent link code. Open Profile and enter the code under Family.'**
+  /// **'Your child\'s school administrator links your account to your child from their admin app. Once linked, your child appears on your Home screen.'**
   String get faqParentsA1;
 
   /// No description provided for @faqParentsQ2.
@@ -11444,7 +11462,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqParentsA2.
   ///
   /// In en, this message translates to:
-  /// **'Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won\'t see private chats or Nova sessions.'**
+  /// **'Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won\'t see private chats or NOVA sessions.'**
   String get faqParentsA2;
 
   /// No description provided for @faqPrivacyQ1.
@@ -11468,7 +11486,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqPrivacyA2.
   ///
   /// In en, this message translates to:
-  /// **'Ask your school administrator to delete it. They can remove the account from their admin app, which wipes your profile, schedule, and chats.'**
+  /// **'Ask your school administrator to delete it from their admin app, which wipes your profile, schedule, and chats. You can also email support@classmateapp.org from your account\'s email address and we\'ll delete it within 30 days.'**
   String get faqPrivacyA2;
 
   /// No description provided for @solutionsPagesCount.

@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from './email.service';
+import { MailLocale, mailLocale } from './mail-i18n';
 import { SmsService } from './sms.service';
 
 export type ResetChannel = 'email' | 'sms';
@@ -20,6 +21,8 @@ export type ResetOutcomeCode =
   | 'no_phone_on_file'
   | 'email_not_verified'
   | 'phone_not_verified';
+
+export type ResetTokenState = 'ok' | 'missing' | 'invalid' | 'used' | 'expired';
 
 export interface ResetOutcome {
   code: ResetOutcomeCode;
@@ -52,14 +55,14 @@ export class PasswordResetService {
     const lower = id.toLowerCase();
     const byEmail = await this.prisma.user.findFirst({
       where: { email: lower },
-      select: { id: true, email: true, phone: true, name: true, schoolId: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
+      select: { id: true, email: true, phone: true, name: true, schoolId: true, language: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
     });
     if (byEmail) return byEmail as any;
 
     // Fallback to username (also lower-cased to match how it's stored).
     const byUsername = await this.prisma.user.findFirst({
       where: { username: lower } as any,
-      select: { id: true, email: true, phone: true, name: true, schoolId: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
+      select: { id: true, email: true, phone: true, name: true, schoolId: true, language: true, emailVerifiedAt: true, phoneVerifiedAt: true } as any,
     });
     return (byUsername ?? null) as any;
   }
@@ -85,7 +88,12 @@ export class PasswordResetService {
    * account and which channels exist for it. Acceptable for the current
    * solo-school MVP — see [[verify_grandfather]] for context.
    */
-  async requestReset(args: { identifier: string; channel: ResetChannel }): Promise<ResetOutcome> {
+  async requestReset(args: {
+    identifier: string;
+    channel: ResetChannel;
+    /** The language the request came in (the app's, or the browser's). */
+    locale?: MailLocale | null;
+  }): Promise<ResetOutcome> {
     const user = await this.findUserByIdentifier(args.identifier);
     if (!user) {
       this.logger.log(`No user matched identifier=${args.identifier.slice(0, 3)}…`);
@@ -126,7 +134,10 @@ export class PasswordResetService {
       },
     });
 
-    const resetUrl = `${this.baseUrl}/reset-password?token=${rawToken}`;
+    // The language they're asking in wins; otherwise the one their app last
+    // reported. The link carries it so the reset page matches the email.
+    const locale = mailLocale(args.locale, user.language);
+    const resetUrl = this.resetUrl(rawToken, locale);
     const schoolName = await this.lookupSchoolName(user.schoolId);
     const recipientName = (user.name || '').trim() || null;
 
@@ -137,6 +148,7 @@ export class PasswordResetService {
         schoolName,
         resetUrl,
         expiresInMinutes: TOKEN_TTL_MINUTES,
+        locale,
       });
     } else {
       await this.sms.sendPasswordResetSms({
@@ -144,9 +156,15 @@ export class PasswordResetService {
         resetUrl,
         expiresInMinutes: TOKEN_TTL_MINUTES,
         schoolName,
+        locale,
       });
     }
     return { code: 'sent' };
+  }
+
+  private resetUrl(rawToken: string, locale: MailLocale): string {
+    const lang = locale === 'en' ? '' : `&lang=${locale}`;
+    return `${this.baseUrl}/reset-password?token=${rawToken}${lang}`;
   }
 
   private async lookupSchoolName(schoolId: string | null | undefined): Promise<string | null> {
@@ -180,7 +198,7 @@ export class PasswordResetService {
       target = await this.prisma.user.findUnique({
         where: { id: args.targetUserId },
         select: {
-          id: true, email: true, phone: true, name: true, schoolId: true,
+          id: true, email: true, phone: true, name: true, schoolId: true, language: true,
         } as any,
       });
     } catch (err) {
@@ -210,7 +228,8 @@ export class PasswordResetService {
       return;
     }
 
-    const resetUrl = `${this.baseUrl}/reset-password?token=${rawToken}`;
+    const locale = mailLocale(target.language);
+    const resetUrl = this.resetUrl(rawToken, locale);
     const schoolName = await this.lookupSchoolName(target.schoolId);
     const recipientName = (target.name || '').trim() || null;
 
@@ -225,6 +244,7 @@ export class PasswordResetService {
           byAdminName: args.byAdminName,
           resetUrl,
           expiresInMinutes: TOKEN_TTL_MINUTES,
+          locale,
         });
       } catch (err) {
         this.logger.warn(`notifyPasswordChanged: email send failed: ${(err as Error).message}`);
@@ -238,6 +258,7 @@ export class PasswordResetService {
           resetUrl,
           expiresInMinutes: TOKEN_TTL_MINUTES,
           schoolName,
+          locale,
         });
       } catch (err) {
         this.logger.warn(`notifyPasswordChanged: sms send failed: ${(err as Error).message}`);
@@ -246,21 +267,45 @@ export class PasswordResetService {
   }
 
   /**
+   * What a reset link can still do, without using it up — the reset page asks
+   * before showing the form, so a dead link says so straight away instead of
+   * after the user typed two passwords. Email scanners that pre-open links
+   * hit this too, which is why it never consumes anything.
+   */
+  async tokenState(rawToken: string): Promise<ResetTokenState> {
+    const raw = rawToken.trim();
+    if (!raw) return 'missing';
+    const row = await this.prisma.passwordResetToken.findUnique({
+      where: { tokenHash: this.hashToken(raw) },
+      select: { usedAt: true, expiresAt: true },
+    });
+    if (!row) return 'invalid';
+    if (row.usedAt) return 'used';
+    if (row.expiresAt.getTime() < Date.now()) return 'expired';
+    return 'ok';
+  }
+
+  /**
    * Validates the raw token, sets the user's new password (bcrypt-hashed),
    * marks the token used, and invalidates any other still-pending tokens for
-   * the same user.
+   * the same user. Errors carry a `code` the reset page turns into its own
+   * (localized) state.
    */
   async consumeReset(args: { token: string; newPassword: string }): Promise<void> {
     const raw = args.token.trim();
     const pw = args.newPassword;
-    if (!raw) throw new BadRequestException('Token is required.');
-    if (!pw || pw.length < 8) throw new BadRequestException('Password must be at least 8 characters.');
+    if (!raw) throw new BadRequestException({ message: 'Token is required.', code: 'missing' });
+    if (!pw || pw.length < 8) {
+      throw new BadRequestException({ message: 'Password must be at least 8 characters.', code: 'short' });
+    }
 
     const tokenHash = this.hashToken(raw);
     const row = await this.prisma.passwordResetToken.findUnique({ where: { tokenHash } });
-    if (!row) throw new NotFoundException('This reset link is invalid or has already been used.');
-    if (row.usedAt) throw new BadRequestException('This reset link has already been used.');
-    if (row.expiresAt.getTime() < Date.now()) throw new BadRequestException('This reset link has expired.');
+    if (!row) throw new NotFoundException({ message: 'This reset link is invalid or has already been used.', code: 'invalid' });
+    if (row.usedAt) throw new BadRequestException({ message: 'This reset link has already been used.', code: 'used' });
+    if (row.expiresAt.getTime() < Date.now()) {
+      throw new BadRequestException({ message: 'This reset link has expired.', code: 'expired' });
+    }
 
     const hash = await bcrypt.hash(pw, 12);
     await this.prisma.$transaction([

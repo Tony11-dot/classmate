@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
 
+import { isRtl, MailLocale, mailCopy } from './mail-i18n';
+
 /**
  * The one address people ever see or reach: every mail is sent from it and
  * replies land in it. Deliberately not configurable — support@ is the only
@@ -51,6 +53,7 @@ export class EmailService {
     expiresInMinutes: number;
     /** The app the account belongs to; ClassNotes accounts reset here too. */
     product?: 'ClassMate' | 'ClassNotes';
+    locale?: MailLocale;
   }): Promise<void> {
     if (!this.client) {
       this.logger.warn('Resend not configured; would have emailed a password reset link (recipient/link redacted)');
@@ -76,6 +79,7 @@ export class EmailService {
     byAdminName: string;
     resetUrl: string;
     expiresInMinutes: number;
+    locale?: MailLocale;
   }): Promise<void> {
     if (!this.client) {
       this.logger.warn('Resend not configured; would have sent a password-change notification (recipient redacted)');
@@ -100,6 +104,7 @@ export class EmailService {
     code: string;
     schoolName?: string | null;
     expiresInMinutes: number;
+    locale?: MailLocale;
   }): Promise<boolean> {
     if (!this.client) {
       this.logger.warn('Resend not configured; would have emailed a verification code (recipient/code redacted)');
@@ -123,37 +128,37 @@ export interface RenderedMail {
   text: string;
 }
 
+const bold = (s: string) => `<strong>${escapeHtml(s)}</strong>`;
+const plain = (s: string) => s;
+
 export function passwordResetMail(args: {
   recipientName?: string | null;
   schoolName?: string | null;
   resetUrl: string;
   expiresInMinutes: number;
   product?: 'ClassMate' | 'ClassNotes';
+  locale?: MailLocale;
 }): RenderedMail {
+  const locale = args.locale ?? 'en';
+  const t = mailCopy(locale);
   const product = args.product ?? 'ClassMate';
   const account = args.schoolName ?? product;
-  const greeting = args.recipientName ? `Hi ${args.recipientName},` : 'Hi,';
+  const greeting = t.hi(args.recipientName ?? null);
+  const min = t.minutes(args.expiresInMinutes);
   return {
-    subject: `Reset your ${account} password`,
-    html: renderEmail({
-      preheader: `Choose a new password. The link works for ${args.expiresInMinutes} minutes.`,
+    subject: t.reset.subject(account),
+    html: renderEmail(locale, {
+      preheader: t.reset.preheader(min),
       eyebrow: account,
-      title: 'Reset your password',
+      title: t.reset.title,
       paragraphs: [
         escapeHtml(greeting),
-        `We received a request to reset the password on your <strong>${escapeHtml(account)}</strong> account. ` +
-          `Use the button below to choose a new one. It works for the next <strong>${args.expiresInMinutes} minutes</strong>, once.`,
+        `${t.reset.intro(bold(account))} ${t.reset.useButton(bold, min)}`,
       ],
-      button: { label: 'Choose a new password', url: args.resetUrl },
-      note: "Didn't ask for this? Ignore this email. Your password stays the same.",
+      button: { label: t.reset.button, url: args.resetUrl },
+      note: t.reset.note,
     }),
-    text: textEmail([
-      greeting,
-      `We received a request to reset the password on your ${account} account.`,
-      `Open this link to choose a new one. It works for the next ${args.expiresInMinutes} minutes, once:`,
-      args.resetUrl,
-      "Didn't ask for this? Ignore this email. Your password stays the same.",
-    ]),
+    text: textEmail(locale, [greeting, t.reset.intro(account), t.reset.useLink(min), args.resetUrl, t.reset.note]),
   };
 }
 
@@ -163,28 +168,32 @@ export function passwordChangedMail(args: {
   byAdminName: string;
   resetUrl: string;
   expiresInMinutes: number;
+  locale?: MailLocale;
 }): RenderedMail {
+  const locale = args.locale ?? 'en';
+  const t = mailCopy(locale);
   const account = args.schoolName ?? 'ClassMate';
-  const greeting = args.recipientName ? `Hi ${args.recipientName},` : 'Hi,';
+  const greeting = t.hi(args.recipientName ?? null);
+  const min = t.minutes(args.expiresInMinutes);
   return {
-    subject: `Your ${account} password was changed`,
-    html: renderEmail({
-      preheader: `${args.byAdminName} changed your password. Not expecting it? Set your own.`,
+    subject: t.changed.subject(account),
+    html: renderEmail(locale, {
+      preheader: t.changed.preheader(args.byAdminName),
       eyebrow: account,
-      title: 'Your password was changed',
+      title: t.changed.title,
       paragraphs: [
         escapeHtml(greeting),
-        `<strong>${escapeHtml(args.byAdminName)}</strong>, an administrator at <strong>${escapeHtml(account)}</strong>, just changed your password.`,
-        'If you asked them to, you’re all set. Sign in with the new password they gave you.',
-        `<strong>Wasn’t expecting this,</strong> or want to pick your own? Use the button below within the next <strong>${args.expiresInMinutes} minutes</strong>.`,
+        t.changed.who(bold(args.byAdminName), bold(account)),
+        escapeHtml(t.changed.allSet),
+        t.changed.useButton(bold, min),
       ],
-      button: { label: 'Set my own password', url: args.resetUrl },
+      button: { label: t.changed.button, url: args.resetUrl },
     }),
-    text: textEmail([
+    text: textEmail(locale, [
       greeting,
-      `${args.byAdminName}, an administrator at ${account}, just changed your password.`,
-      "If you asked them to, you're all set. Sign in with the new password they gave you.",
-      `Wasn't expecting this, or want to pick your own? Use this link within the next ${args.expiresInMinutes} minutes:`,
+      t.changed.who(args.byAdminName, account),
+      t.changed.allSet,
+      t.changed.useLink(min),
       args.resetUrl,
     ]),
   };
@@ -194,24 +203,24 @@ export function verificationCodeMail(args: {
   code: string;
   schoolName?: string | null;
   expiresInMinutes: number;
+  locale?: MailLocale;
 }): RenderedMail {
+  const locale = args.locale ?? 'en';
+  const t = mailCopy(locale);
   const label = args.schoolName ?? 'ClassMate';
+  const min = t.minutes(args.expiresInMinutes);
   return {
-    subject: `${args.code} is your ${label} verification code`,
-    html: renderEmail({
-      preheader: `Your code is ${args.code}. It expires in ${args.expiresInMinutes} minutes.`,
+    subject: t.code.subject(args.code, label),
+    html: renderEmail(locale, {
+      preheader: t.code.preheader(args.code, min),
       eyebrow: label,
-      title: 'Your verification code',
-      paragraphs: ['Enter this code in the app to confirm it’s you.'],
+      title: t.code.title,
+      paragraphs: [escapeHtml(t.code.enter)],
       code: args.code,
-      after: `It expires in <strong>${args.expiresInMinutes} minutes</strong>. Asked for more than one? Any of your last three codes works.`,
-      note: "Didn't ask for a code? Ignore this email. Nothing changes until the code is entered.",
+      after: t.code.after(bold, min),
+      note: t.code.note,
     }),
-    text: textEmail([
-      `Your ${label} verification code is: ${args.code}`,
-      `Enter it in the app. It expires in ${args.expiresInMinutes} minutes.`,
-      "Didn't ask for a code? Ignore this email. Nothing changes until the code is entered.",
-    ]),
+    text: textEmail(locale, [t.code.textLine(label, args.code), t.code.textEnter(min), t.code.note]),
   };
 }
 
@@ -248,19 +257,30 @@ const C = {
  * and phone sizing on top. The header is the app icon plus live text, so it
  * stays legible when Gmail auto-inverts colours in dark mode.
  */
-function renderEmail(m: {
-  preheader: string;
-  eyebrow: string;
-  title: string;
-  paragraphs: string[];
-  button?: { label: string; url: string };
-  code?: string;
-  after?: string;
-  note?: string;
-}): string {
+function renderEmail(
+  locale: MailLocale,
+  m: {
+    preheader: string;
+    eyebrow: string;
+    title: string;
+    paragraphs: string[];
+    button?: { label: string; url: string };
+    code?: string;
+    after?: string;
+    note?: string;
+  },
+): string {
+  const t = mailCopy(locale);
   const base = emailBaseUrl();
+  const rtl = isRtl(locale);
+  const dir = rtl ? 'rtl' : 'ltr';
+  const align = rtl ? 'right' : 'left';
+  const end = rtl ? 'left' : 'right';
+  // Letter-spacing pulls Arabic letters apart (and does nothing for Hebrew),
+  // so the tracked eyebrow/title only stay tracked in Latin/Cyrillic.
+  const track = (px: string) => (rtl ? '0' : px);
   const p = (html: string) =>
-    `<p class="body" style="margin:0 0 14px;font:400 15.5px/1.6 ${FONT};color:${C.body}">${html}</p>`;
+    `<p class="body" style="margin:0 0 14px;font:400 15.5px/1.6 ${FONT};color:${C.body};text-align:${align}">${html}</p>`;
 
   const button = m.button
     ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:10px 0 6px">
@@ -268,13 +288,13 @@ function renderEmail(m: {
           <a class="btn-a" href="${escapeAttr(m.button.url)}" target="_blank" style="display:inline-block;padding:14px 26px;font:700 15px/1 ${FONT};color:#ffffff;text-decoration:none;border-radius:12px">${escapeHtml(m.button.label)}</a>
         </td></tr>
       </table>
-      <p class="muted" style="margin:18px 0 0;font:400 12.5px/1.55 ${FONT};color:${C.muted}">Button not working? Copy this link into your browser:<br>
-        <a class="link" href="${escapeAttr(m.button.url)}" style="color:${C.brand};word-break:break-all">${escapeHtml(m.button.url)}</a></p>`
+      <p class="muted" style="margin:18px 0 0;font:400 12.5px/1.55 ${FONT};color:${C.muted};text-align:${align}">${escapeHtml(t.buttonFallback)}<br>
+        <a class="link" dir="ltr" href="${escapeAttr(m.button.url)}" style="color:${C.brand};word-break:break-all">${escapeHtml(m.button.url)}</a></p>`
     : '';
 
   const code = m.code
     ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:6px 0 18px">
-        <tr><td class="code" align="center" style="background:${C.tint};border:1px solid ${C.tintLine};border-radius:16px;padding:22px 12px">
+        <tr><td class="code" align="center" dir="ltr" style="background:${C.tint};border:1px solid ${C.tintLine};border-radius:16px;padding:22px 12px">
           <span class="code-t" style="font:800 34px/1 'SF Mono',ui-monospace,Menlo,Consolas,monospace;letter-spacing:10px;color:${C.brand};padding-left:10px">${escapeHtml(m.code)}</span>
         </td></tr>
       </table>`
@@ -282,12 +302,12 @@ function renderEmail(m: {
 
   const note = m.note
     ? `<tr><td class="rule" style="border-top:1px solid ${C.line};padding:18px 0 0">
-        <p class="muted" style="margin:0;font:400 13px/1.55 ${FONT};color:${C.muted}">${escapeHtml(m.note)}</p>
+        <p class="muted" style="margin:0;font:400 13px/1.55 ${FONT};color:${C.muted};text-align:${align}">${escapeHtml(m.note)}</p>
       </td></tr>`
     : '';
 
   return `<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="${locale}" dir="${dir}" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -317,22 +337,22 @@ function renderEmail(m: {
   }
 </style>
 </head>
-<body class="bg" style="margin:0;padding:0;background:${C.paper};-webkit-text-size-adjust:100%">
+<body class="bg" dir="${dir}" style="margin:0;padding:0;background:${C.paper};-webkit-text-size-adjust:100%">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all">${escapeHtml(m.preheader)}&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;&#8199;&#65279;&#847;</div>
-<table role="presentation" class="bg" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.paper}">
+<table role="presentation" class="bg" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.paper}">
   <tr><td align="center" style="padding:36px 14px 28px">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">
-      <tr><td style="padding:0 6px 18px">
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-          <td style="padding-right:10px"><img src="${base}/static/brand/app-icon.png" width="36" height="36" alt="" style="display:block;border:0;border-radius:9px"></td>
-          <td class="ink" style="font:800 19px/1 ${FONT};letter-spacing:-0.2px;color:${C.ink}">ClassMate</td>
+    <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">
+      <tr><td align="${align}" style="padding:0 6px 18px">
+        <table role="presentation" dir="${dir}" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td style="padding-${end}:10px"><img src="${base}/static/brand/app-icon.png" width="36" height="36" alt="" style="display:block;border:0;border-radius:9px"></td>
+          <td class="ink" dir="ltr" style="font:800 19px/1 ${FONT};letter-spacing:-0.2px;color:${C.ink}">ClassMate</td>
         </tr></table>
       </td></tr>
       <tr><td class="card" style="background:${C.card};border:1px solid ${C.line};border-radius:22px;padding:36px 36px 30px">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-          <tr><td>
-            <p class="muted" style="margin:0 0 10px;font:700 11.5px/1.3 ${FONT};letter-spacing:1.4px;text-transform:uppercase;color:${C.muted}">${escapeHtml(m.eyebrow)}</p>
-            <h1 class="title" style="margin:0 0 18px;font:800 26px/1.2 ${FONT};letter-spacing:-0.5px;color:${C.ink}">${escapeHtml(m.title)}</h1>
+        <table role="presentation" dir="${dir}" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td align="${align}" style="text-align:${align}">
+            <p class="muted" style="margin:0 0 10px;font:700 11.5px/1.3 ${FONT};letter-spacing:${track('1.4px')};text-transform:uppercase;color:${C.muted};text-align:${align}">${escapeHtml(m.eyebrow)}</p>
+            <h1 class="title" style="margin:0 0 18px;font:800 26px/1.2 ${FONT};letter-spacing:${track('-0.5px')};color:${C.ink};text-align:${align}">${escapeHtml(m.title)}</h1>
             ${m.paragraphs.map(p).join('\n            ')}
             ${code}
             ${m.after ? p(m.after) : ''}
@@ -341,11 +361,11 @@ function renderEmail(m: {
           ${note ? `<tr><td style="height:20px;line-height:20px;font-size:0">&nbsp;</td></tr>${note}` : ''}
         </table>
       </td></tr>
-      <tr><td style="padding:22px 6px 0">
-        <p class="muted" style="margin:0 0 6px;font:400 13px/1.6 ${FONT};color:${C.muted}">Questions? Reply to this email or write to <a class="link" href="mailto:${SUPPORT_EMAIL}" style="color:${C.brand};text-decoration:none">${SUPPORT_EMAIL}</a>.</p>
-        <p class="muted" style="margin:0;font:400 12px/1.6 ${FONT};color:${C.muted}">ClassMate · One app. Your whole school. ·
-          <a class="link" href="https://tony11-dot.github.io/classmate-legal/privacy.html" style="color:${C.muted}">Privacy</a> ·
-          <a class="link" href="https://tony11-dot.github.io/classmate-legal/terms.html" style="color:${C.muted}">Terms</a></p>
+      <tr><td align="${align}" style="padding:22px 6px 0;text-align:${align}">
+        <p class="muted" style="margin:0 0 6px;font:400 13px/1.6 ${FONT};color:${C.muted}">${escapeHtml(t.questions)} <a class="link" dir="ltr" href="mailto:${SUPPORT_EMAIL}" style="color:${C.brand};text-decoration:none">${SUPPORT_EMAIL}</a>.</p>
+        <p class="muted" style="margin:0;font:400 12px/1.6 ${FONT};color:${C.muted}">ClassMate · ${escapeHtml(t.tagline)} ·
+          <a class="link" href="https://tony11-dot.github.io/classmate-legal/privacy.html" style="color:${C.muted}">${escapeHtml(t.privacy)}</a> ·
+          <a class="link" href="https://tony11-dot.github.io/classmate-legal/terms.html" style="color:${C.muted}">${escapeHtml(t.terms)}</a></p>
       </td></tr>
     </table>
   </td></tr>
@@ -355,11 +375,12 @@ function renderEmail(m: {
 }
 
 /** Plain-text twin of every mail, with the same sign-off. */
-function textEmail(lines: string[]): string {
+function textEmail(locale: MailLocale, lines: string[]): string {
+  const t = mailCopy(locale);
   return [
     ...lines.flatMap((l) => [l, '']),
-    `Questions? Reply to this email or write to ${SUPPORT_EMAIL}.`,
-    'ClassMate · One app. Your whole school.',
+    `${t.questions} ${SUPPORT_EMAIL}.`,
+    `ClassMate · ${t.tagline}`,
   ].join('\n');
 }
 

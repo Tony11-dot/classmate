@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import twilio from 'twilio';
 
+import { MailLocale, mailCopy } from './mail-i18n';
+
 /**
  * Twilio Programmable SMS wrapper. Lazy-instantiated so the app boots even
  * without TWILIO_* env vars (call sites check `isConfigured` and degrade).
@@ -52,11 +54,12 @@ export class SmsService {
     resetUrl: string;
     expiresInMinutes: number;
     schoolName?: string | null;
+    locale?: MailLocale;
   }): Promise<void> {
     const label = args.schoolName ?? 'ClassMate';
-    // Keep the body terse — single SMS segment (160 chars) is cheaper.
-    const body = `${label}: reset your password — ${args.resetUrl} (expires in ${args.expiresInMinutes} min). If you didn't ask, ignore this.`;
-    await this.send(args.to, body);
+    const t = mailCopy(args.locale ?? 'en');
+    // Keep the body terse — fewer SMS segments are cheaper.
+    await this.send(args.to, t.sms.reset(label, args.resetUrl, t.minutes(args.expiresInMinutes)));
   }
 
   /**
@@ -68,10 +71,14 @@ export class SmsService {
     resetUrl: string;
     expiresInMinutes: number;
     schoolName?: string | null;
+    locale?: MailLocale;
   }): Promise<void> {
     const label = args.schoolName ?? 'ClassMate';
-    const body = `${label}: your password was changed by ${args.byAdminName}. Set your own here: ${args.resetUrl} (expires in ${args.expiresInMinutes} min).`;
-    await this.send(args.to, body);
+    const t = mailCopy(args.locale ?? 'en');
+    await this.send(
+      args.to,
+      t.sms.changed(label, args.byAdminName, args.resetUrl, t.minutes(args.expiresInMinutes)),
+    );
   }
 
   /**

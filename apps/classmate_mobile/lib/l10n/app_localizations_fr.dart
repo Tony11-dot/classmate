@@ -4475,7 +4475,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get forgotPasswordSmsHelper =>
-      'We\'ll text the link to the phone number on this account.';
+      'Nous enverrons le lien par SMS au numéro de téléphone de ce compte.';
+
+  @override
+  String get forgotPasswordIntroEmail =>
+      'Saisissez votre e-mail ou nom d\'utilisateur et nous vous enverrons un lien de réinitialisation par e-mail.';
+
+  @override
+  String get forgotPasswordIntroSms =>
+      'Saisissez votre e-mail ou nom d\'utilisateur et nous enverrons un lien de réinitialisation par SMS au téléphone de votre compte.';
+
+  @override
+  String get forgotPasswordExpiryNote =>
+      'Le lien expire au bout d\'une heure et ne peut servir qu\'une fois.';
 
   @override
   String get commonAttachments => 'Pièces jointes';
@@ -6356,14 +6368,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqStartedA2 =>
-      'Votre administrateur scolaire crée les comptes. Demandez-lui de vous ajouter dans son application d\'administration, ou de partager un code d\'inscription si votre école utilise l\'auto-inscription.';
+      'Votre administrateur scolaire crée les comptes. Demandez-lui de vous ajouter — il vous donnera un nom d\'utilisateur ou un e-mail et un mot de passe temporaire.';
 
   @override
   String get faqStartedQ3 => 'Puis-je utiliser l\'application dans ma langue ?';
 
   @override
   String get faqStartedA3 =>
-      'Oui — ClassMate prend en charge l\'anglais, l\'arabe, l\'hébreu, le français et le russe. Ouvrez Paramètres pour changer de langue. Vous pouvez aussi définir une langue de nom préférée dans le Profil.';
+      'Oui — ClassMate prend en charge l\'anglais, l\'arabe, l\'hébreu, le français et le russe. Ouvrez Paramètres → Langue pour changer.';
 
   @override
   String get faqStartedQ4 =>
@@ -6371,14 +6383,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqStartedA4 =>
-      'Ouvrez Paramètres dans le menu et basculez l\'interrupteur d\'apparence. L\'application respecte votre préférence système par défaut.';
+      'Ouvrez Paramètres → Apparence → Thème. Choisissez « Par défaut du système » pour suivre le mode clair ou sombre de votre appareil, ou l\'un des 20 thèmes — vous pouvez aussi créer le vôtre.';
 
   @override
   String get faqAccountQ1 => 'J\'ai oublié mon mot de passe.';
 
   @override
   String get faqAccountA1 =>
-      'Appuyez sur « Mot de passe oublié ? » sur l\'écran de connexion. Vous recevrez un lien de réinitialisation par e-mail ou un code par SMS. Si aucun canal n\'est encore vérifié, demandez à votre administrateur scolaire un nouveau mot de passe temporaire.';
+      'Appuyez sur « Mot de passe oublié ? » sur l\'écran de connexion. Nous vous enverrons un lien de réinitialisation par e-mail ou par SMS, dans votre langue. Si ni votre e-mail ni votre téléphone n\'est encore vérifié, demandez à votre administrateur scolaire de définir un nouveau mot de passe temporaire.';
 
   @override
   String get faqAccountQ2 => 'Comment changer mon mot de passe ?';
@@ -6408,14 +6420,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqStudentsA1 =>
-      'L\'emploi du temps est le premier élément du menu. Vous verrez les périodes de cette semaine, qui enseigne chacune, et tout changement publié par l\'administrateur.';
+      'Agenda est le premier onglet en bas de l\'écran. Vous y verrez les cours de la semaine, qui enseigne chacun d\'eux et les changements publiés par l\'administration.';
 
   @override
   String get faqStudentsQ2 => 'Comment rejoindre une classe ?';
 
   @override
   String get faqStudentsA2 =>
-      'Un enseignant vous ajoutera directement, ou partagera un code d\'inscription. Pour utiliser un code, ouvrez Classes dans le menu et appuyez sur « Rejoindre avec un code ».';
+      'Un enseignant vous ajoutera directement ou partagera un code. Pour utiliser un code, ouvrez l\'onglet Classes, appuyez sur Rejoindre la classe et saisissez le code.';
 
   @override
   String get faqStudentsQ3 =>
@@ -6426,11 +6438,11 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les enseignants marquent les présences pendant le cours. Ouvrez Présences ou Notes dans le menu pour voir vos relevés. Les parents liés à votre compte voient les mêmes données.';
 
   @override
-  String get faqStudentsQ4 => 'Qu\'est-ce que Nova ?';
+  String get faqStudentsQ4 => 'Qu\'est-ce que NOVA ?';
 
   @override
   String get faqStudentsA4 =>
-      'Nova est votre assistant d\'étude IA — demandez-lui d\'expliquer un concept, de générer un quiz, ou de parcourir un problème étape par étape. Ouvrez Nova dans le menu pour démarrer une session.';
+      'NOVA est votre assistant d\'étude IA — demandez-lui d\'expliquer une notion, de générer un quiz ou de résoudre un problème étape par étape. Ouvrez l\'onglet NOVA pour commencer une conversation.';
 
   @override
   String get faqTeachersQ1 => 'Comment créer une classe ?';
@@ -6444,21 +6456,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqTeachersA2 =>
-      'Ouvrez Présences dans le menu, choisissez la date et la période, puis appuyez sur chaque élève pour définir son statut. Les changements sont enregistrés automatiquement.';
+      'Ouvrez Assiduité dans Outils scolaires, choisissez la date et le cours, indiquez le statut de chaque élève, puis appuyez sur Enregistrer.';
 
   @override
   String get faqTeachersQ3 => 'Comment assigner des devoirs ?';
 
   @override
   String get faqTeachersA3 =>
-      'Ouvrez Devoirs, appuyez sur +, remplissez le titre/date limite/pièces jointes, et choisissez une cible (toute l\'école, groupes spécifiques, ou élèves nommés). Les élèves le voient instantanément dans leur menu.';
+      'Ouvrez Devoirs, appuyez sur +, remplissez le titre/la date limite/les pièces jointes et choisissez une cible (toute l\'école, des cohortes précises ou des élèves nommés). Les élèves le voient tout de suite dans leurs Devoirs.';
 
   @override
-  String get faqTeachersQ4 => 'Puis-je émettre un diplôme ou un certificat ?';
+  String get faqTeachersQ4 => 'Puis-je délivrer un certificat ?';
 
   @override
   String get faqTeachersA4 =>
-      'Oui — ouvrez Diplômes dans le menu, appuyez sur +, choisissez l\'élève, remplissez le titre et les détails, et enregistrez. L\'élève le voit dans sa propre section Diplômes.';
+      'Les professeurs principaux peuvent le faire — ouvrez Certificats dans Outils scolaires, choisissez la classe et l\'élève, puis créez le certificat. Vous pouvez aussi générer un seul PDF pour toute la classe. L\'élève le voit dans ses propres Certificats.';
 
   @override
   String get faqAdminsQ1 => 'Par où commencer pour configurer une école ?';
@@ -6472,7 +6484,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqAdminsA2 =>
-      'Un groupe est un ensemble d\'élèves qui partagent un emploi du temps. Ouvrez Groupes dans le menu pour les créer, assigner des élèves, et générer des codes d\'inscription. Un seul groupe peut couvrir plusieurs niveaux.';
+      'Une cohorte est un groupe d\'élèves qui partagent un emploi du temps. Ouvrez Cohortes dans Outils scolaires pour les créer et y ajouter des élèves. Une même cohorte peut couvrir plusieurs niveaux.';
 
   @override
   String get faqAdminsQ3 => 'Un groupe peut-il couvrir plus d\'un niveau ?';
@@ -6494,7 +6506,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqAdminsA5 =>
-      'Ouvrez Exporter les données dans le menu. Choisissez de sélectionner par élève ou par groupe, choisissez les lignes, et appuyez sur Exporter. Optionnellement, incluez les mots de passe actuels lors de l\'export.';
+      'Ouvrez Exporter les données. Choisissez de sélectionner par élève ou par cohorte, cochez les lignes et appuyez sur Exporter. Si vous incluez les mots de passe, chaque élève exporté reçoit un nouveau mot de passe temporaire (l\'ancien ne fonctionne plus) — pratique pour imprimer des cartes de connexion.';
 
   @override
   String get faqAdminsQ6 =>
@@ -6502,21 +6514,21 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqAdminsA6 =>
-      'Vous pouvez soit définir son mot de passe directement (Profil de l\'utilisateur → Sécurité) soit attendre qu\'il dépose une demande via « Mot de passe oublié » et l\'approuver depuis Demandes de mot de passe dans le menu.';
+      'Ouvrez Utilisateurs, appuyez sur la personne et définissez un nouveau mot de passe — elle reçoit aussi un e-mail ou un SMS avec un lien pour choisir le sien. Si son e-mail ou son téléphone est vérifié, elle peut aussi le réinitialiser elle-même via « Mot de passe oublié ? ».';
 
   @override
   String get faqParentsQ1 => 'Comment lier mon compte à mon enfant ?';
 
   @override
   String get faqParentsA1 =>
-      'Demandez à l\'administrateur scolaire de votre enfant d\'ajouter le lien depuis son application d\'administration, ou de partager un code de lien parent à usage unique. Ouvrez Profil et entrez le code sous Famille.';
+      'L\'administrateur scolaire de votre enfant relie votre compte à celui de votre enfant depuis son application d\'administration. Une fois le lien fait, votre enfant apparaît sur votre écran d\'accueil.';
 
   @override
   String get faqParentsQ2 => 'Que puis-je voir sur mon enfant ?';
 
   @override
   String get faqParentsA2 =>
-      'Présences, notes, annonces et devoirs — exactement ce que voit votre enfant plus les tendances dans le temps. Vous ne verrez pas les conversations privées ni les sessions Nova.';
+      'Assiduité, notes, annonces et devoirs — exactement ce que voit votre enfant, plus l\'évolution dans le temps. Vous ne verrez ni les conversations privées ni les sessions NOVA.';
 
   @override
   String get faqPrivacyQ1 => 'Qui peut voir mes données ?';
@@ -6530,7 +6542,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get faqPrivacyA2 =>
-      'Demandez à votre administrateur scolaire de le supprimer. Il peut retirer le compte depuis son application d\'administration, ce qui efface votre profil, votre emploi du temps et vos conversations.';
+      'Demandez à votre administrateur scolaire de le supprimer depuis son application d\'administration, ce qui efface votre profil, votre emploi du temps et vos conversations. Vous pouvez aussi écrire à support@classmateapp.org depuis l\'adresse e-mail de votre compte : nous le supprimerons sous 30 jours.';
 
   @override
   String solutionsPagesCount(int count) {

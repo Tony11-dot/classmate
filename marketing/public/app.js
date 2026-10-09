@@ -3,21 +3,26 @@ document.getElementById('year').textContent = new Date().getFullYear();
 
 // ── Theme toggle (saved choice → system) ──
 const root = document.documentElement;
-const saved = localStorage.getItem('cm-theme');
+let saved = null;
+try { saved = localStorage.getItem('cm-theme'); } catch (_) { /* storage blocked */ }
 if (saved) {
   root.setAttribute('data-theme', saved);
 } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
   root.setAttribute('data-theme', 'dark');
 }
 const toggle = document.getElementById('themeToggle');
+const ICON_SUN = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+const ICON_MOON = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
 function syncToggleIcon() {
-  toggle.textContent = root.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+  const dark = root.getAttribute('data-theme') === 'dark';
+  toggle.innerHTML = dark ? ICON_SUN : ICON_MOON;
+  toggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
 }
 syncToggleIcon();
 toggle.addEventListener('click', () => {
   const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
   root.setAttribute('data-theme', next);
-  localStorage.setItem('cm-theme', next);
+  try { localStorage.setItem('cm-theme', next); } catch (_) { /* storage blocked */ }
   syncToggleIcon();
 });
 
