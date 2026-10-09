@@ -973,8 +973,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classroomsReorder => 'إعادة ترتيب الصفوف';
 
   @override
-  String classroomsCount(Object count) {
-    return '$count صفوف';
+  String classroomsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صف',
+      many: '$count صفًا',
+      few: '$count صفوف',
+      two: 'صفان',
+      one: 'صف واحد',
+      zero: 'لا صفوف',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1681,10 +1691,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get announcementsTabPublished => 'المنشورة';
 
   @override
-  String get announcementsAudienceTeacher => 'معلم';
+  String get announcementsAudienceTeacher => 'المعلم';
 
   @override
-  String get announcementsAudienceAccount => 'حساب';
+  String get announcementsAudienceAccount => 'حسابك';
 
   @override
   String get announcementsAudienceTeacherWorkspace => 'مساحة عمل المعلم';
@@ -1955,7 +1965,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'افتح عنوان URL المرفق في متصفحك أو تطبيق الاجتماع.';
 
   @override
-  String get meetingsEndedNote => 'This meeting has already taken place.';
+  String get meetingsEndedNote => 'انتهى هذا الاجتماع بالفعل.';
 
   @override
   String get meetingsJoinAction => 'انضم';
@@ -3583,7 +3593,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherRemoveMaterial => 'إزالة المادة؟';
 
   @override
-  String get teacherMaterialRemoved => 'Material removed';
+  String get teacherMaterialRemoved => 'تمت إزالة المادة';
 
   @override
   String get teacherScheduleMeetingTitle => 'جدولة اجتماع';
@@ -3650,7 +3660,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get chatMediaWebUnsupported =>
-      'Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.';
+      'التقاط الصور والتسجيل وإرفاق الملفات غير متاحة في المتصفح بعد — يرجى استخدام تطبيق ClassMate على الهاتف.';
 
   @override
   String get chatCouldNotSendMessage => 'تعذر إرسال الرسالة.';
@@ -4125,51 +4135,50 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminSettingsTitle => 'الإعدادات';
 
   @override
-  String get permissionsTitle => 'Permissions';
+  String get permissionsTitle => 'الصلاحيات';
 
   @override
-  String get permissionsNavSubtitle =>
-      'Choose what secretaries and teachers can do';
+  String get permissionsNavSubtitle => 'اختر ما يمكن للسكرتارية والمعلمين فعله';
 
   @override
   String get permissionsHeaderBlurb =>
-      'Turn abilities on or off for each role. Admins always have full access. Secretary abilities are off until you enable them; teacher abilities are on by default — switch one off to lock it.';
+      'فعّل القدرات أو أوقفها لكل دور. للمديرين وصول كامل دائمًا. قدرات السكرتارية متوقفة حتى تفعّلها، وقدرات المعلمين مفعّلة افتراضيًا — أوقف أيًّا منها لقفلها.';
 
   @override
-  String get permissionsSearchHint => 'Search permissions…';
+  String get permissionsSearchHint => 'ابحث في الصلاحيات…';
 
   @override
-  String get permissionsColSecretary => 'Secretaries';
+  String get permissionsColSecretary => 'السكرتارية';
 
   @override
-  String get permissionsColTeacher => 'Teachers';
+  String get permissionsColTeacher => 'المعلمون';
 
   @override
-  String get permissionsChangedBadge => 'Changed';
+  String get permissionsChangedBadge => 'تم التغيير';
 
   @override
-  String get permissionsSave => 'Save changes';
+  String get permissionsSave => 'حفظ التغييرات';
 
   @override
-  String get permissionsSaved => 'Permissions updated';
+  String get permissionsSaved => 'تم تحديث الصلاحيات';
 
   @override
   String permissionsSaveFailed(Object error) {
-    return 'Couldn\'t save permissions: $error';
+    return 'تعذّر حفظ الصلاحيات: $error';
   }
 
   @override
   String permissionsLoadFailed(Object error) {
-    return 'Couldn\'t load permissions: $error';
+    return 'تعذّر تحميل الصلاحيات: $error';
   }
 
   @override
   String permissionsNoResults(Object query) {
-    return 'No permissions match “$query”';
+    return 'لا توجد صلاحيات تطابق \"$query\"';
   }
 
   @override
-  String get permissionsResetChanges => 'Discard changes';
+  String get permissionsResetChanges => 'تجاهل التغييرات';
 
   @override
   String get adminSettingsBellSchedule => 'جرس المدرسة';
@@ -4237,7 +4246,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonSearch => 'بحث…';
 
   @override
-  String get commonNoResults => 'No results';
+  String get commonNoResults => 'لا نتائج';
 
   @override
   String get inboxActionPin => 'تثبيت المحادثة';
@@ -4642,7 +4651,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String supportContactCopied(String value) {
-    return 'Copied to clipboard: $value';
+    return 'تم النسخ إلى الحافظة: $value';
   }
 
   @override
@@ -4671,16 +4680,16 @@ class AppLocalizationsAr extends AppLocalizations {
       'عذرًا — لم أتمكن من الإجابة الآن. يرجى المحاولة مرة أخرى، أو التواصل مع الدعم أعلاه.';
 
   @override
-  String get supportAiSubtitle => 'Help with anything in ClassMate';
+  String get supportAiSubtitle => 'مساعدة في أي شيء داخل ClassMate';
 
   @override
-  String get supportAiSuggestPassword => 'How do I reset my password?';
+  String get supportAiSuggestPassword => 'كيف أعيد تعيين كلمة المرور؟';
 
   @override
-  String get supportAiSuggestJoin => 'How do I join a classroom with a code?';
+  String get supportAiSuggestJoin => 'كيف أنضم إلى صف برمز؟';
 
   @override
-  String get supportAiSuggestTheme => 'How do I change the app\'s theme?';
+  String get supportAiSuggestTheme => 'كيف أغيّر سمة التطبيق؟';
 
   @override
   String get aboutWhatIsClassmate => 'ما هو ClassMate؟';
@@ -5683,7 +5692,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classMaterialsTitleLabel => 'العنوان';
 
   @override
-  String get classMaterialsTitleHint => 'e.g. Chapter 3 worksheet';
+  String get classMaterialsTitleHint => 'مثال: ورقة عمل الفصل 3';
 
   @override
   String classMaterialsFilesCount(int count) {
@@ -8249,10 +8258,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminSchoolSettingsEnd => 'النهاية';
 
   @override
-  String get adminExportLayoutLabel => 'PDF layout';
+  String get adminExportLayoutLabel => 'تخطيط PDF';
 
   @override
-  String get adminExportLayoutTable => 'Compact table';
+  String get adminExportLayoutTable => 'جدول مضغوط';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
@@ -8766,7 +8775,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get certNotPublishedYet =>
-      'This certificate is still a draft — publish it first to open its PDF.';
+      'هذه الشهادة ما زالت مسودة — انشرها أولًا لفتح ملف PDF.';
 
   @override
   String get certGrin => 'الدرجات';
@@ -9640,24 +9649,23 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsCreateTheme => 'إنشاء السمة';
 
   @override
-  String get settingsEditTheme => 'Edit theme';
+  String get settingsEditTheme => 'تعديل السمة';
 
   @override
-  String get settingsSaveTheme => 'Save changes';
+  String get settingsSaveTheme => 'حفظ التغييرات';
 
   @override
-  String get settingsThemeNameRequired => 'Enter a name for your theme';
+  String get settingsThemeNameRequired => 'أدخل اسمًا للسمة';
 
   @override
-  String get settingsThemeNameDuplicate =>
-      'You already have a theme with this name';
+  String get settingsThemeNameDuplicate => 'لديك بالفعل سمة بهذا الاسم';
 
   @override
-  String get settingsDeleteThemeTitle => 'Delete theme?';
+  String get settingsDeleteThemeTitle => 'حذف السمة؟';
 
   @override
   String settingsDeleteThemeBody(String name) {
-    return '“$name” will be removed. This can\'t be undone.';
+    return 'ستتم إزالة \"$name\". لا يمكن التراجع عن ذلك.';
   }
 
   @override

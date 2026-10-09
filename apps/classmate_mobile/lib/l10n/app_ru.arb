@@ -313,10 +313,12 @@
   "editProfileSchool": "Школа",
   "classroomsYourClassrooms": "Ваши классы",
   "classroomsReorder": "Изменить порядок классов",
-  "classroomsCount": "{count} классов",
+  "classroomsCount": "{count, plural, one{{count} класс} few{{count} класса} many{{count} классов} other{{count} класса}}",
   "@classroomsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "classroomsSearchHint": "Поиск классов…",
@@ -627,9 +629,9 @@
   "announcementsLoadError": "Не удалось загрузить объявления",
   "announcementsLoadTimeout": "Превышено время ожидания",
   "announcementsLoadNetwork": "Нет подключения",
-  "announcementsAudienceTeacher": "Учитель",
-  "announcementsAudienceAccount": "Аккаунт",
-  "announcementsAudienceTeacherWorkspace": "Рабочее пространство",
+  "announcementsAudienceTeacher": "учителя",
+  "announcementsAudienceAccount": "вашего аккаунта",
+  "announcementsAudienceTeacherWorkspace": "рабочего пространства учителя",
   "announcementsLoadFailedTitle": "Ошибка загрузки",
   "announcementsLoadFailedHint": "Потяните для повтора",
   "announcementsHeroSubtitle": "Объявления для {audience}.",
@@ -3401,5 +3403,37 @@
   "settingsThemeNameHint": "Моя тема",
   "settingsThemeAccentLabel": "Акцент",
   "settingsCreateTheme": "Создать тему",
-  "teacherFormsCount": "{count, plural, one{{count} форма} few{{count} формы} many{{count} форм} other{{count} формы}}"
+  "teacherFormsCount": "{count, plural, one{{count} форма} few{{count} формы} many{{count} форм} other{{count} формы}}",
+  "meetingsEndedNote": "Эта встреча уже прошла.",
+  "teacherMaterialRemoved": "Материал удалён",
+  "chatMediaWebUnsupported": "Фото, запись и прикрепление файлов пока недоступны в браузере — используйте мобильное приложение ClassMate.",
+  "permissionsTitle": "Права доступа",
+  "permissionsNavSubtitle": "Выберите, что могут делать секретари и учителя",
+  "permissionsHeaderBlurb": "Включайте и выключайте возможности для каждой роли. У администраторов всегда полный доступ. Возможности секретарей выключены, пока вы их не включите; возможности учителей включены по умолчанию — выключите любую, чтобы закрыть её.",
+  "permissionsSearchHint": "Поиск прав…",
+  "permissionsColSecretary": "Секретари",
+  "permissionsColTeacher": "Учителя",
+  "permissionsChangedBadge": "Изменено",
+  "permissionsSave": "Сохранить изменения",
+  "permissionsSaved": "Права обновлены",
+  "permissionsSaveFailed": "Не удалось сохранить права: {error}",
+  "permissionsLoadFailed": "Не удалось загрузить права: {error}",
+  "permissionsNoResults": "Нет прав по запросу «{query}»",
+  "permissionsResetChanges": "Отменить изменения",
+  "commonNoResults": "Ничего не найдено",
+  "supportContactCopied": "Скопировано: {value}",
+  "supportAiSubtitle": "Помощь по любым вопросам о ClassMate",
+  "supportAiSuggestPassword": "Как сбросить пароль?",
+  "supportAiSuggestJoin": "Как войти в класс по коду?",
+  "supportAiSuggestTheme": "Как сменить тему приложения?",
+  "classMaterialsTitleHint": "например, рабочий лист к главе 3",
+  "adminExportLayoutLabel": "Макет PDF",
+  "adminExportLayoutTable": "Компактная таблица",
+  "certNotPublishedYet": "Этот сертификат ещё черновик — сначала опубликуйте его, чтобы открыть PDF.",
+  "settingsEditTheme": "Изменить тему",
+  "settingsSaveTheme": "Сохранить изменения",
+  "settingsThemeNameRequired": "Введите название темы",
+  "settingsThemeNameDuplicate": "У вас уже есть тема с таким названием",
+  "settingsDeleteThemeTitle": "Удалить тему?",
+  "settingsDeleteThemeBody": "«{name}» будет удалена. Это действие нельзя отменить."
 }

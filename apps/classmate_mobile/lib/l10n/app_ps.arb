@@ -387,10 +387,12 @@
   "editProfileSchool": "‹‹School››",
   "classroomsYourClassrooms": "‹‹Your classrooms››",
   "classroomsReorder": "‹‹Reorder classrooms››",
-  "classroomsCount": "‹‹{count} classrooms››",
+  "classroomsCount": "‹‹{count, plural, =1{1 classroom} other{{count} classrooms}}››",
   "@classroomsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "classroomsSearchHint": "‹‹Search classrooms››",
@@ -5000,5 +5002,46 @@
   "onbDeepAdminPeople": "شاګردان، ښوونکي او والدین اضافه کړئ، په ګروپونو ووېشئ، والدین له ماشوم سره ونښلوئ، او د کال په پای کې سندونه ورکړئ.",
   "onbDeepSecretary": "ورځ روانه وساتئ: مهال ویش سم کړئ، د یو کس ریکارډ اضافه یا نوی کړئ، سندونه ورکړئ او ژر اعلان خپور کړئ.",
   "onbDeepParentChild": "د خپلو ماشومانو ترمنځ بدلون وکړئ او د هر یو مهال ویش، نمرې، حاضري او کورنی کار وګورئ — هماغه انځور چې ښوونځی ویني.",
-  "onbDeepParentAlerts": "خبر شئ کله چې نمره خپره شي، غیر حاضري ثبت شي یا ښوونځی څه خپروي — او هماغه ځای کې ښوونکي ته ځواب ولیکئ."
+  "onbDeepParentAlerts": "خبر شئ کله چې نمره خپره شي، غیر حاضري ثبت شي یا ښوونځی څه خپروي — او هماغه ځای کې ښوونکي ته ځواب ولیکئ.",
+  "certChooseStudent": "‹‹Choose a student››",
+  "certSelectClassFirst": "‹‹Select a class first››",
+  "meetingsEndedNote": "‹‹This meeting has already taken place.››",
+  "teacherMaterialRemoved": "‹‹Material removed››",
+  "chatMediaWebUnsupported": "‹‹Taking photos, recording, and attaching files aren't available in the web browser yet — please use the ClassMate mobile app.››",
+  "permissionsTitle": "‹‹Permissions››",
+  "permissionsNavSubtitle": "‹‹Choose what secretaries and teachers can do››",
+  "permissionsHeaderBlurb": "‹‹Turn abilities on or off for each role. Admins always have full access. Secretary abilities are off until you enable them; teacher abilities are on by default — switch one off to lock it.››",
+  "permissionsSearchHint": "‹‹Search permissions…››",
+  "permissionsColSecretary": "‹‹Secretaries››",
+  "permissionsColTeacher": "‹‹Teachers››",
+  "permissionsChangedBadge": "‹‹Changed››",
+  "permissionsSave": "‹‹Save changes››",
+  "permissionsSaved": "‹‹Permissions updated››",
+  "permissionsSaveFailed": "‹‹Couldn't save permissions: {error}››",
+  "permissionsLoadFailed": "‹‹Couldn't load permissions: {error}››",
+  "permissionsNoResults": "‹‹No permissions match “{query}”››",
+  "permissionsResetChanges": "‹‹Discard changes››",
+  "commonNoResults": "‹‹No results››",
+  "supportContactCopied": "‹‹Copied to clipboard: {value}››",
+  "supportAiSubtitle": "‹‹Help with anything in ClassMate››",
+  "supportAiSuggestPassword": "‹‹How do I reset my password?››",
+  "supportAiSuggestJoin": "‹‹How do I join a classroom with a code?››",
+  "supportAiSuggestTheme": "‹‹How do I change the app's theme?››",
+  "classMaterialsTitleHint": "‹‹e.g. Chapter 3 worksheet››",
+  "drawerHoldToReorder": "‹‹Hold an item to drag & reorder››",
+  "adminExportLayoutLabel": "‹‹PDF layout››",
+  "adminExportLayoutTable": "‹‹Compact table››",
+  "certNotPublishedYet": "‹‹This certificate is still a draft — publish it first to open its PDF.››",
+  "settingsAddTheme": "‹‹Add theme››",
+  "settingsNewTheme": "‹‹New theme››",
+  "settingsThemeNameHint": "‹‹My theme››",
+  "settingsThemeAccentLabel": "‹‹Accent››",
+  "settingsCreateTheme": "‹‹Create theme››",
+  "settingsEditTheme": "‹‹Edit theme››",
+  "settingsSaveTheme": "‹‹Save changes››",
+  "settingsThemeNameRequired": "‹‹Enter a name for your theme››",
+  "settingsThemeNameDuplicate": "‹‹You already have a theme with this name››",
+  "settingsDeleteThemeTitle": "‹‹Delete theme?››",
+  "settingsDeleteThemeBody": "‹‹“{name}” will be removed. This can't be undone.››",
+  "teacherFormsCount": "‹‹{count, plural, one{1 form} other{{count} forms}}››"
 }

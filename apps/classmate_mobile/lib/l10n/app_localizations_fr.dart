@@ -994,8 +994,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get classroomsReorder => 'Réorganiser les classes';
 
   @override
-  String classroomsCount(Object count) {
-    return '$count classes';
+  String classroomsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count classes',
+      one: '$count classe',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1710,14 +1716,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get announcementsTabPublished => 'Publiées';
 
   @override
-  String get announcementsAudienceTeacher => 'enseignant';
+  String get announcementsAudienceTeacher => 'l\'enseignant';
 
   @override
-  String get announcementsAudienceAccount => 'compte';
+  String get announcementsAudienceAccount => 'votre compte';
 
   @override
   String get announcementsAudienceTeacherWorkspace =>
-      'espace de travail enseignant';
+      'l\'espace de travail enseignant';
 
   @override
   String get announcementsLoadFailedTitle =>
@@ -1994,7 +2000,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ouvrez l\'URL jointe dans votre navigateur ou votre application de réunion.';
 
   @override
-  String get meetingsEndedNote => 'This meeting has already taken place.';
+  String get meetingsEndedNote => 'Cette réunion a déjà eu lieu.';
 
   @override
   String get meetingsJoinAction => 'Rejoindre';
@@ -3653,7 +3659,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherRemoveMaterial => 'Retirer le matériel ?';
 
   @override
-  String get teacherMaterialRemoved => 'Material removed';
+  String get teacherMaterialRemoved => 'Support supprimé';
 
   @override
   String get teacherScheduleMeetingTitle => 'Planifier une réunion';
@@ -3721,7 +3727,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get chatMediaWebUnsupported =>
-      'Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.';
+      'La prise de photos, l\'enregistrement et l\'ajout de fichiers ne sont pas encore disponibles dans le navigateur — utilisez l\'application mobile ClassMate.';
 
   @override
   String get chatCouldNotSendMessage => 'Impossible d\'envoyer le message.';
@@ -4209,51 +4215,51 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminSettingsTitle => 'Paramètres';
 
   @override
-  String get permissionsTitle => 'Permissions';
+  String get permissionsTitle => 'Autorisations';
 
   @override
   String get permissionsNavSubtitle =>
-      'Choose what secretaries and teachers can do';
+      'Choisissez ce que les secrétaires et les enseignants peuvent faire';
 
   @override
   String get permissionsHeaderBlurb =>
-      'Turn abilities on or off for each role. Admins always have full access. Secretary abilities are off until you enable them; teacher abilities are on by default — switch one off to lock it.';
+      'Activez ou désactivez les capacités de chaque rôle. Les administrateurs ont toujours un accès complet. Les capacités des secrétaires restent désactivées tant que vous ne les activez pas ; celles des enseignants sont activées par défaut — désactivez-en une pour la verrouiller.';
 
   @override
-  String get permissionsSearchHint => 'Search permissions…';
+  String get permissionsSearchHint => 'Rechercher des autorisations…';
 
   @override
-  String get permissionsColSecretary => 'Secretaries';
+  String get permissionsColSecretary => 'Secrétaires';
 
   @override
-  String get permissionsColTeacher => 'Teachers';
+  String get permissionsColTeacher => 'Enseignants';
 
   @override
-  String get permissionsChangedBadge => 'Changed';
+  String get permissionsChangedBadge => 'Modifié';
 
   @override
-  String get permissionsSave => 'Save changes';
+  String get permissionsSave => 'Enregistrer';
 
   @override
-  String get permissionsSaved => 'Permissions updated';
+  String get permissionsSaved => 'Autorisations mises à jour';
 
   @override
   String permissionsSaveFailed(Object error) {
-    return 'Couldn\'t save permissions: $error';
+    return 'Impossible d\'enregistrer les autorisations : $error';
   }
 
   @override
   String permissionsLoadFailed(Object error) {
-    return 'Couldn\'t load permissions: $error';
+    return 'Impossible de charger les autorisations : $error';
   }
 
   @override
   String permissionsNoResults(Object query) {
-    return 'No permissions match “$query”';
+    return 'Aucune autorisation ne correspond à « $query »';
   }
 
   @override
-  String get permissionsResetChanges => 'Discard changes';
+  String get permissionsResetChanges => 'Annuler les modifications';
 
   @override
   String get adminSettingsBellSchedule => 'Sonnerie';
@@ -4322,7 +4328,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonSearch => 'Rechercher…';
 
   @override
-  String get commonNoResults => 'No results';
+  String get commonNoResults => 'Aucun résultat';
 
   @override
   String get inboxActionPin => 'Épingler la discussion';
@@ -4739,7 +4745,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String supportContactCopied(String value) {
-    return 'Copied to clipboard: $value';
+    return 'Copié dans le presse-papiers : $value';
   }
 
   @override
@@ -4768,16 +4774,18 @@ class AppLocalizationsFr extends AppLocalizations {
       'Désolé — je n\'ai pas pu répondre pour le moment. Veuillez réessayer ou contacter l\'assistance ci-dessus.';
 
   @override
-  String get supportAiSubtitle => 'Help with anything in ClassMate';
+  String get supportAiSubtitle => 'De l\'aide pour tout dans ClassMate';
 
   @override
-  String get supportAiSuggestPassword => 'How do I reset my password?';
+  String get supportAiSuggestPassword =>
+      'Comment réinitialiser mon mot de passe ?';
 
   @override
-  String get supportAiSuggestJoin => 'How do I join a classroom with a code?';
+  String get supportAiSuggestJoin =>
+      'Comment rejoindre une classe avec un code ?';
 
   @override
-  String get supportAiSuggestTheme => 'How do I change the app\'s theme?';
+  String get supportAiSuggestTheme => 'Comment changer le thème de l\'app ?';
 
   @override
   String get aboutWhatIsClassmate => 'Qu\'est-ce que ClassMate ?';
@@ -5794,7 +5802,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get classMaterialsTitleLabel => 'Titre';
 
   @override
-  String get classMaterialsTitleHint => 'e.g. Chapter 3 worksheet';
+  String get classMaterialsTitleHint => 'ex. Fiche d\'exercices du chapitre 3';
 
   @override
   String classMaterialsFilesCount(int count) {
@@ -8406,10 +8414,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminSchoolSettingsEnd => 'Fin';
 
   @override
-  String get adminExportLayoutLabel => 'PDF layout';
+  String get adminExportLayoutLabel => 'Mise en page du PDF';
 
   @override
-  String get adminExportLayoutTable => 'Compact table';
+  String get adminExportLayoutTable => 'Tableau compact';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
@@ -8932,7 +8940,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get certNotPublishedYet =>
-      'This certificate is still a draft — publish it first to open its PDF.';
+      'Ce certificat est encore un brouillon — publiez-le d\'abord pour ouvrir son PDF.';
 
   @override
   String get certGrin => 'Notes';
@@ -9819,24 +9827,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsCreateTheme => 'Créer le thème';
 
   @override
-  String get settingsEditTheme => 'Edit theme';
+  String get settingsEditTheme => 'Modifier le thème';
 
   @override
-  String get settingsSaveTheme => 'Save changes';
+  String get settingsSaveTheme => 'Enregistrer';
 
   @override
-  String get settingsThemeNameRequired => 'Enter a name for your theme';
+  String get settingsThemeNameRequired => 'Saisissez un nom pour votre thème';
 
   @override
   String get settingsThemeNameDuplicate =>
-      'You already have a theme with this name';
+      'Vous avez déjà un thème portant ce nom';
 
   @override
-  String get settingsDeleteThemeTitle => 'Delete theme?';
+  String get settingsDeleteThemeTitle => 'Supprimer le thème ?';
 
   @override
   String settingsDeleteThemeBody(String name) {
-    return '“$name” will be removed. This can\'t be undone.';
+    return '« $name » sera supprimé. Cette action est irréversible.';
   }
 
   @override

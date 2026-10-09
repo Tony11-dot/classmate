@@ -298,10 +298,12 @@
   "editProfileSchool": "École",
   "classroomsYourClassrooms": "Vos classes",
   "classroomsReorder": "Réorganiser les classes",
-  "classroomsCount": "{count} classes",
+  "classroomsCount": "{count, plural, one{{count} classe} other{{count} classes}}",
   "@classroomsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "classroomsSearchHint": "Rechercher des classes",
@@ -546,9 +548,9 @@
   "announcementsLoadError": "Impossible de charger les annonces en ce moment. Tirez pour actualiser ou réessayez.",
   "announcementsLoadTimeout": "Les annonces prennent trop de temps à charger. Tirez pour actualiser ou réessayez dans un moment.",
   "announcementsLoadNetwork": "Les annonces n'ont pas pu se connecter en ce moment. Vérifiez votre connexion et réessayez.",
-  "announcementsAudienceTeacher": "enseignant",
-  "announcementsAudienceAccount": "compte",
-  "announcementsAudienceTeacherWorkspace": "espace de travail enseignant",
+  "announcementsAudienceTeacher": "l'enseignant",
+  "announcementsAudienceAccount": "votre compte",
+  "announcementsAudienceTeacherWorkspace": "l'espace de travail enseignant",
   "announcementsLoadFailedTitle": "Impossible de charger les annonces",
   "announcementsLoadFailedHint": "Tirez pour actualiser une fois la connexion stable.",
   "announcementsHeroSubtitle": "Annonces publiées de l'école, de l'enseignant et du système disponibles pour {audience}.",
@@ -3262,5 +3264,37 @@
   "settingsThemeNameHint": "Mon thème",
   "settingsThemeAccentLabel": "Accent",
   "settingsCreateTheme": "Créer le thème",
-  "teacherFormsCount": "{count, plural, one{{count} formulaire} other{{count} formulaires}}"
+  "teacherFormsCount": "{count, plural, one{{count} formulaire} other{{count} formulaires}}",
+  "meetingsEndedNote": "Cette réunion a déjà eu lieu.",
+  "teacherMaterialRemoved": "Support supprimé",
+  "chatMediaWebUnsupported": "La prise de photos, l'enregistrement et l'ajout de fichiers ne sont pas encore disponibles dans le navigateur — utilisez l'application mobile ClassMate.",
+  "permissionsTitle": "Autorisations",
+  "permissionsNavSubtitle": "Choisissez ce que les secrétaires et les enseignants peuvent faire",
+  "permissionsHeaderBlurb": "Activez ou désactivez les capacités de chaque rôle. Les administrateurs ont toujours un accès complet. Les capacités des secrétaires restent désactivées tant que vous ne les activez pas ; celles des enseignants sont activées par défaut — désactivez-en une pour la verrouiller.",
+  "permissionsSearchHint": "Rechercher des autorisations…",
+  "permissionsColSecretary": "Secrétaires",
+  "permissionsColTeacher": "Enseignants",
+  "permissionsChangedBadge": "Modifié",
+  "permissionsSave": "Enregistrer",
+  "permissionsSaved": "Autorisations mises à jour",
+  "permissionsSaveFailed": "Impossible d'enregistrer les autorisations : {error}",
+  "permissionsLoadFailed": "Impossible de charger les autorisations : {error}",
+  "permissionsNoResults": "Aucune autorisation ne correspond à « {query} »",
+  "permissionsResetChanges": "Annuler les modifications",
+  "commonNoResults": "Aucun résultat",
+  "supportContactCopied": "Copié dans le presse-papiers : {value}",
+  "supportAiSubtitle": "De l'aide pour tout dans ClassMate",
+  "supportAiSuggestPassword": "Comment réinitialiser mon mot de passe ?",
+  "supportAiSuggestJoin": "Comment rejoindre une classe avec un code ?",
+  "supportAiSuggestTheme": "Comment changer le thème de l'app ?",
+  "classMaterialsTitleHint": "ex. Fiche d'exercices du chapitre 3",
+  "adminExportLayoutLabel": "Mise en page du PDF",
+  "adminExportLayoutTable": "Tableau compact",
+  "certNotPublishedYet": "Ce certificat est encore un brouillon — publiez-le d'abord pour ouvrir son PDF.",
+  "settingsEditTheme": "Modifier le thème",
+  "settingsSaveTheme": "Enregistrer",
+  "settingsThemeNameRequired": "Saisissez un nom pour votre thème",
+  "settingsThemeNameDuplicate": "Vous avez déjà un thème portant ce nom",
+  "settingsDeleteThemeTitle": "Supprimer le thème ?",
+  "settingsDeleteThemeBody": "« {name} » sera supprimé. Cette action est irréversible."
 }

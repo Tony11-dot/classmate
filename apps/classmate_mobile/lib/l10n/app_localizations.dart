@@ -1764,8 +1764,8 @@ abstract class AppLocalizations {
   /// No description provided for @classroomsCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} classrooms'**
-  String classroomsCount(Object count);
+  /// **'{count, plural, =1{1 classroom} other{{count} classrooms}}'**
+  String classroomsCount(int count);
 
   /// No description provided for @classroomsSearchHint.
   ///

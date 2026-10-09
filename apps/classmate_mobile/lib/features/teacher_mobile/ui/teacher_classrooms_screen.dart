@@ -184,7 +184,7 @@ class _TeacherClassroomsScreenState
                             Text(
                               allCourses.isEmpty
                                   ? l.teacherClassroomsNoCohorts
-                                  : '${allCourses.length} ${l.navClassrooms.toLowerCase()}',
+                                  : l.classroomsCount(allCourses.length),
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: cs.onPrimaryContainer.withValues(alpha: 0.8),
                                 fontWeight: FontWeight.w600,

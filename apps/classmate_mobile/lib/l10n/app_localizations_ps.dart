@@ -18,10 +18,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get certNewCertificate => '‹‹New certificate››';
 
   @override
-  String get certChooseStudent => 'Choose a student';
+  String get certChooseStudent => '‹‹Choose a student››';
 
   @override
-  String get certSelectClassFirst => 'Select a class first';
+  String get certSelectClassFirst => '‹‹Select a class first››';
 
   @override
   String certCertificateCount(int count) {
@@ -983,8 +983,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get classroomsReorder => '‹‹Reorder classrooms››';
 
   @override
-  String classroomsCount(Object count) {
-    return '‹‹$count classrooms››';
+  String classroomsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count classrooms',
+      one: '1 classroom',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -1971,7 +1977,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Open the attached URL in your browser or meeting app.››';
 
   @override
-  String get meetingsEndedNote => 'This meeting has already taken place.';
+  String get meetingsEndedNote => '‹‹This meeting has already taken place.››';
 
   @override
   String get meetingsJoinAction => '‹‹Join››';
@@ -3619,7 +3625,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherRemoveMaterial => '‹‹Remove material?››';
 
   @override
-  String get teacherMaterialRemoved => 'Material removed';
+  String get teacherMaterialRemoved => '‹‹Material removed››';
 
   @override
   String get teacherScheduleMeetingTitle => '‹‹Schedule Meeting››';
@@ -3687,7 +3693,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get chatMediaWebUnsupported =>
-      'Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.';
+      '‹‹Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.››';
 
   @override
   String get chatCouldNotSendMessage => '‹‹Could not send message.››';
@@ -4171,51 +4177,51 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminSettingsTitle => '‹‹Settings››';
 
   @override
-  String get permissionsTitle => 'Permissions';
+  String get permissionsTitle => '‹‹Permissions››';
 
   @override
   String get permissionsNavSubtitle =>
-      'Choose what secretaries and teachers can do';
+      '‹‹Choose what secretaries and teachers can do››';
 
   @override
   String get permissionsHeaderBlurb =>
-      'Turn abilities on or off for each role. Admins always have full access. Secretary abilities are off until you enable them; teacher abilities are on by default — switch one off to lock it.';
+      '‹‹Turn abilities on or off for each role. Admins always have full access. Secretary abilities are off until you enable them; teacher abilities are on by default — switch one off to lock it.››';
 
   @override
-  String get permissionsSearchHint => 'Search permissions…';
+  String get permissionsSearchHint => '‹‹Search permissions…››';
 
   @override
-  String get permissionsColSecretary => 'Secretaries';
+  String get permissionsColSecretary => '‹‹Secretaries››';
 
   @override
-  String get permissionsColTeacher => 'Teachers';
+  String get permissionsColTeacher => '‹‹Teachers››';
 
   @override
-  String get permissionsChangedBadge => 'Changed';
+  String get permissionsChangedBadge => '‹‹Changed››';
 
   @override
-  String get permissionsSave => 'Save changes';
+  String get permissionsSave => '‹‹Save changes››';
 
   @override
-  String get permissionsSaved => 'Permissions updated';
+  String get permissionsSaved => '‹‹Permissions updated››';
 
   @override
   String permissionsSaveFailed(Object error) {
-    return 'Couldn\'t save permissions: $error';
+    return '‹‹Couldn\'t save permissions: $error››';
   }
 
   @override
   String permissionsLoadFailed(Object error) {
-    return 'Couldn\'t load permissions: $error';
+    return '‹‹Couldn\'t load permissions: $error››';
   }
 
   @override
   String permissionsNoResults(Object query) {
-    return 'No permissions match “$query”';
+    return '‹‹No permissions match “$query”››';
   }
 
   @override
-  String get permissionsResetChanges => 'Discard changes';
+  String get permissionsResetChanges => '‹‹Discard changes››';
 
   @override
   String get adminSettingsBellSchedule => '‹‹Bell Schedule››';
@@ -4283,7 +4289,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get commonSearch => '‹‹Search…››';
 
   @override
-  String get commonNoResults => 'No results';
+  String get commonNoResults => '‹‹No results››';
 
   @override
   String get inboxActionPin => '‹‹Pin chat››';
@@ -4696,7 +4702,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String supportContactCopied(String value) {
-    return 'Copied to clipboard: $value';
+    return '‹‹Copied to clipboard: $value››';
   }
 
   @override
@@ -4725,16 +4731,17 @@ class AppLocalizationsPs extends AppLocalizations {
       'بښنه غواړو — دا مهال مو ځواب نه شو درکولی. مهرباني وکړئ بیا هڅه وکړئ، یا پورته له ملاتړ سره اړیکه ونیسئ.';
 
   @override
-  String get supportAiSubtitle => 'Help with anything in ClassMate';
+  String get supportAiSubtitle => '‹‹Help with anything in ClassMate››';
 
   @override
-  String get supportAiSuggestPassword => 'How do I reset my password?';
+  String get supportAiSuggestPassword => '‹‹How do I reset my password?››';
 
   @override
-  String get supportAiSuggestJoin => 'How do I join a classroom with a code?';
+  String get supportAiSuggestJoin =>
+      '‹‹How do I join a classroom with a code?››';
 
   @override
-  String get supportAiSuggestTheme => 'How do I change the app\'s theme?';
+  String get supportAiSuggestTheme => '‹‹How do I change the app\'s theme?››';
 
   @override
   String get aboutWhatIsClassmate => '‹‹What is ClassMate?››';
@@ -5746,7 +5753,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get classMaterialsTitleLabel => '‹‹Title››';
 
   @override
-  String get classMaterialsTitleHint => 'e.g. Chapter 3 worksheet';
+  String get classMaterialsTitleHint => '‹‹e.g. Chapter 3 worksheet››';
 
   @override
   String classMaterialsFilesCount(int count) {
@@ -6994,7 +7001,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Reorder the tools in your side menu››';
 
   @override
-  String get drawerHoldToReorder => 'Hold an item to drag & reorder';
+  String get drawerHoldToReorder => '‹‹Hold an item to drag & reorder››';
 
   @override
   String get adminSchoolGradeRangesDescription =>
@@ -8338,10 +8345,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminSchoolSettingsEnd => '‹‹End››';
 
   @override
-  String get adminExportLayoutLabel => 'PDF layout';
+  String get adminExportLayoutLabel => '‹‹PDF layout››';
 
   @override
-  String get adminExportLayoutTable => 'Compact table';
+  String get adminExportLayoutTable => '‹‹Compact table››';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
@@ -8858,7 +8865,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get certNotPublishedYet =>
-      'This certificate is still a draft — publish it first to open its PDF.';
+      '‹‹This certificate is still a draft — publish it first to open its PDF.››';
 
   @override
   String get certGrin => '‹‹Grades››';
@@ -9725,39 +9732,39 @@ class AppLocalizationsPs extends AppLocalizations {
       'خبر شئ کله چې نمره خپره شي، غیر حاضري ثبت شي یا ښوونځی څه خپروي — او هماغه ځای کې ښوونکي ته ځواب ولیکئ.';
 
   @override
-  String get settingsAddTheme => 'Add theme';
+  String get settingsAddTheme => '‹‹Add theme››';
 
   @override
-  String get settingsNewTheme => 'New theme';
+  String get settingsNewTheme => '‹‹New theme››';
 
   @override
-  String get settingsThemeNameHint => 'My theme';
+  String get settingsThemeNameHint => '‹‹My theme››';
 
   @override
-  String get settingsThemeAccentLabel => 'Accent';
+  String get settingsThemeAccentLabel => '‹‹Accent››';
 
   @override
-  String get settingsCreateTheme => 'Create theme';
+  String get settingsCreateTheme => '‹‹Create theme››';
 
   @override
-  String get settingsEditTheme => 'Edit theme';
+  String get settingsEditTheme => '‹‹Edit theme››';
 
   @override
-  String get settingsSaveTheme => 'Save changes';
+  String get settingsSaveTheme => '‹‹Save changes››';
 
   @override
-  String get settingsThemeNameRequired => 'Enter a name for your theme';
+  String get settingsThemeNameRequired => '‹‹Enter a name for your theme››';
 
   @override
   String get settingsThemeNameDuplicate =>
-      'You already have a theme with this name';
+      '‹‹You already have a theme with this name››';
 
   @override
-  String get settingsDeleteThemeTitle => 'Delete theme?';
+  String get settingsDeleteThemeTitle => '‹‹Delete theme?››';
 
   @override
   String settingsDeleteThemeBody(String name) {
-    return '“$name” will be removed. This can\'t be undone.';
+    return '‹‹“$name” will be removed. This can\'t be undone.››';
   }
 
   @override
@@ -9772,6 +9779,6 @@ class AppLocalizationsPs extends AppLocalizations {
       other: '$countString forms',
       one: '1 form',
     );
-    return '$_temp0';
+    return '‹‹$_temp0››';
   }
 }

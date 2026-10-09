@@ -427,10 +427,12 @@
   "editProfileSchool": "School",
   "classroomsYourClassrooms": "Your classrooms",
   "classroomsReorder": "Reorder classrooms",
-  "classroomsCount": "{count} classrooms",
+  "classroomsCount": "{count, plural, =1{1 classroom} other{{count} classrooms}}",
   "@classroomsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "classroomsSearchHint": "Search classrooms",

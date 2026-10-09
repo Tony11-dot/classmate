@@ -335,10 +335,12 @@
   "editProfileSchool": "בית ספר",
   "classroomsYourClassrooms": "הכיתות שלך",
   "classroomsReorder": "סידור הכיתות מחדש",
-  "classroomsCount": "{count} כיתות",
+  "classroomsCount": "{count, plural, =1{כיתה אחת} other{{count} כיתות}}",
   "@classroomsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "classroomsSearchHint": "חיפוש כיתות",
@@ -3262,5 +3264,37 @@
   "settingsThemeNameHint": "ערכת הנושא שלי",
   "settingsThemeAccentLabel": "צבע הדגשה",
   "settingsCreateTheme": "יצירת ערכה",
-  "teacherFormsCount": "{count, plural, other{{count} טפסים}}"
+  "teacherFormsCount": "{count, plural, other{{count} טפסים}}",
+  "meetingsEndedNote": "הפגישה הזו כבר התקיימה.",
+  "teacherMaterialRemoved": "החומר הוסר",
+  "chatMediaWebUnsupported": "צילום, הקלטה וצירוף קבצים עדיין לא זמינים בדפדפן — השתמש באפליקציית ClassMate בנייד.",
+  "permissionsTitle": "הרשאות",
+  "permissionsNavSubtitle": "בחר מה מזכירים ומורים יכולים לעשות",
+  "permissionsHeaderBlurb": "הפעל או כבה יכולות לכל תפקיד. למנהלים תמיד יש גישה מלאה. יכולות המזכירים כבויות עד שתפעיל אותן; יכולות המורים פעילות כברירת מחדל — כבה אחת כדי לנעול אותה.",
+  "permissionsSearchHint": "חיפוש הרשאות…",
+  "permissionsColSecretary": "מזכירים",
+  "permissionsColTeacher": "מורים",
+  "permissionsChangedBadge": "שונה",
+  "permissionsSave": "שמור שינויים",
+  "permissionsSaved": "ההרשאות עודכנו",
+  "permissionsSaveFailed": "לא ניתן לשמור את ההרשאות: {error}",
+  "permissionsLoadFailed": "לא ניתן לטעון את ההרשאות: {error}",
+  "permissionsNoResults": "אין הרשאות שתואמות ל-\"{query}\"",
+  "permissionsResetChanges": "בטל שינויים",
+  "commonNoResults": "אין תוצאות",
+  "supportContactCopied": "הועתק ללוח: {value}",
+  "supportAiSubtitle": "עזרה בכל דבר ב-ClassMate",
+  "supportAiSuggestPassword": "איך אני מאפס את הסיסמה?",
+  "supportAiSuggestJoin": "איך אני מצטרף לכיתה עם קוד?",
+  "supportAiSuggestTheme": "איך אני משנה את ערכת הנושא?",
+  "classMaterialsTitleHint": "למשל: דף עבודה פרק 3",
+  "adminExportLayoutLabel": "פריסת PDF",
+  "adminExportLayoutTable": "טבלה דחוסה",
+  "certNotPublishedYet": "התעודה הזו עדיין טיוטה — פרסם אותה קודם כדי לפתוח את ה-PDF.",
+  "settingsEditTheme": "עריכת ערכת נושא",
+  "settingsSaveTheme": "שמור שינויים",
+  "settingsThemeNameRequired": "הזן שם לערכת הנושא",
+  "settingsThemeNameDuplicate": "כבר יש לך ערכת נושא בשם הזה",
+  "settingsDeleteThemeTitle": "למחוק את ערכת הנושא?",
+  "settingsDeleteThemeBody": "\"{name}\" תוסר. אי אפשר לבטל את הפעולה."
 }

@@ -962,8 +962,14 @@ class AppLocalizationsHe extends AppLocalizations {
   String get classroomsReorder => 'סידור הכיתות מחדש';
 
   @override
-  String classroomsCount(Object count) {
-    return '$count כיתות';
+  String classroomsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count כיתות',
+      one: 'כיתה אחת',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1940,7 +1946,7 @@ class AppLocalizationsHe extends AppLocalizations {
       'פתח את ה-URL המצורף בדפדפן או באפליקציית פגישה.';
 
   @override
-  String get meetingsEndedNote => 'This meeting has already taken place.';
+  String get meetingsEndedNote => 'הפגישה הזו כבר התקיימה.';
 
   @override
   String get meetingsJoinAction => 'הצטרף';
@@ -3561,7 +3567,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherRemoveMaterial => 'להסיר חומר?';
 
   @override
-  String get teacherMaterialRemoved => 'Material removed';
+  String get teacherMaterialRemoved => 'החומר הוסר';
 
   @override
   String get teacherScheduleMeetingTitle => 'תזמן פגישה';
@@ -3628,7 +3634,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get chatMediaWebUnsupported =>
-      'Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.';
+      'צילום, הקלטה וצירוף קבצים עדיין לא זמינים בדפדפן — השתמש באפליקציית ClassMate בנייד.';
 
   @override
   String get chatCouldNotSendMessage => 'לא ניתן לשלוח הודעה.';
@@ -4103,51 +4109,50 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminSettingsTitle => 'הגדרות';
 
   @override
-  String get permissionsTitle => 'Permissions';
+  String get permissionsTitle => 'הרשאות';
 
   @override
-  String get permissionsNavSubtitle =>
-      'Choose what secretaries and teachers can do';
+  String get permissionsNavSubtitle => 'בחר מה מזכירים ומורים יכולים לעשות';
 
   @override
   String get permissionsHeaderBlurb =>
-      'Turn abilities on or off for each role. Admins always have full access. Secretary abilities are off until you enable them; teacher abilities are on by default — switch one off to lock it.';
+      'הפעל או כבה יכולות לכל תפקיד. למנהלים תמיד יש גישה מלאה. יכולות המזכירים כבויות עד שתפעיל אותן; יכולות המורים פעילות כברירת מחדל — כבה אחת כדי לנעול אותה.';
 
   @override
-  String get permissionsSearchHint => 'Search permissions…';
+  String get permissionsSearchHint => 'חיפוש הרשאות…';
 
   @override
-  String get permissionsColSecretary => 'Secretaries';
+  String get permissionsColSecretary => 'מזכירים';
 
   @override
-  String get permissionsColTeacher => 'Teachers';
+  String get permissionsColTeacher => 'מורים';
 
   @override
-  String get permissionsChangedBadge => 'Changed';
+  String get permissionsChangedBadge => 'שונה';
 
   @override
-  String get permissionsSave => 'Save changes';
+  String get permissionsSave => 'שמור שינויים';
 
   @override
-  String get permissionsSaved => 'Permissions updated';
+  String get permissionsSaved => 'ההרשאות עודכנו';
 
   @override
   String permissionsSaveFailed(Object error) {
-    return 'Couldn\'t save permissions: $error';
+    return 'לא ניתן לשמור את ההרשאות: $error';
   }
 
   @override
   String permissionsLoadFailed(Object error) {
-    return 'Couldn\'t load permissions: $error';
+    return 'לא ניתן לטעון את ההרשאות: $error';
   }
 
   @override
   String permissionsNoResults(Object query) {
-    return 'No permissions match “$query”';
+    return 'אין הרשאות שתואמות ל-\"$query\"';
   }
 
   @override
-  String get permissionsResetChanges => 'Discard changes';
+  String get permissionsResetChanges => 'בטל שינויים';
 
   @override
   String get adminSettingsBellSchedule => 'פעמון בית הספר';
@@ -4214,7 +4219,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonSearch => 'חיפוש…';
 
   @override
-  String get commonNoResults => 'No results';
+  String get commonNoResults => 'אין תוצאות';
 
   @override
   String get inboxActionPin => 'הצמד צ\'אט';
@@ -4615,7 +4620,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String supportContactCopied(String value) {
-    return 'Copied to clipboard: $value';
+    return 'הועתק ללוח: $value';
   }
 
   @override
@@ -4644,16 +4649,16 @@ class AppLocalizationsHe extends AppLocalizations {
       'מצטערים — לא הצלחתי לענות על זה כרגע. נסו שוב, או פנו לתמיכה למעלה.';
 
   @override
-  String get supportAiSubtitle => 'Help with anything in ClassMate';
+  String get supportAiSubtitle => 'עזרה בכל דבר ב-ClassMate';
 
   @override
-  String get supportAiSuggestPassword => 'How do I reset my password?';
+  String get supportAiSuggestPassword => 'איך אני מאפס את הסיסמה?';
 
   @override
-  String get supportAiSuggestJoin => 'How do I join a classroom with a code?';
+  String get supportAiSuggestJoin => 'איך אני מצטרף לכיתה עם קוד?';
 
   @override
-  String get supportAiSuggestTheme => 'How do I change the app\'s theme?';
+  String get supportAiSuggestTheme => 'איך אני משנה את ערכת הנושא?';
 
   @override
   String get aboutWhatIsClassmate => 'מהו ClassMate?';
@@ -5652,7 +5657,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get classMaterialsTitleLabel => 'כותרת';
 
   @override
-  String get classMaterialsTitleHint => 'e.g. Chapter 3 worksheet';
+  String get classMaterialsTitleHint => 'למשל: דף עבודה פרק 3';
 
   @override
   String classMaterialsFilesCount(int count) {
@@ -8197,10 +8202,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminSchoolSettingsEnd => 'סיום';
 
   @override
-  String get adminExportLayoutLabel => 'PDF layout';
+  String get adminExportLayoutLabel => 'פריסת PDF';
 
   @override
-  String get adminExportLayoutTable => 'Compact table';
+  String get adminExportLayoutTable => 'טבלה דחוסה';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
@@ -8710,7 +8715,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get certNotPublishedYet =>
-      'This certificate is still a draft — publish it first to open its PDF.';
+      'התעודה הזו עדיין טיוטה — פרסם אותה קודם כדי לפתוח את ה-PDF.';
 
   @override
   String get certGrin => 'ציונים';
@@ -9585,24 +9590,23 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsCreateTheme => 'יצירת ערכה';
 
   @override
-  String get settingsEditTheme => 'Edit theme';
+  String get settingsEditTheme => 'עריכת ערכת נושא';
 
   @override
-  String get settingsSaveTheme => 'Save changes';
+  String get settingsSaveTheme => 'שמור שינויים';
 
   @override
-  String get settingsThemeNameRequired => 'Enter a name for your theme';
+  String get settingsThemeNameRequired => 'הזן שם לערכת הנושא';
 
   @override
-  String get settingsThemeNameDuplicate =>
-      'You already have a theme with this name';
+  String get settingsThemeNameDuplicate => 'כבר יש לך ערכת נושא בשם הזה';
 
   @override
-  String get settingsDeleteThemeTitle => 'Delete theme?';
+  String get settingsDeleteThemeTitle => 'למחוק את ערכת הנושא?';
 
   @override
   String settingsDeleteThemeBody(String name) {
-    return '“$name” will be removed. This can\'t be undone.';
+    return '\"$name\" תוסר. אי אפשר לבטל את הפעולה.';
   }
 
   @override

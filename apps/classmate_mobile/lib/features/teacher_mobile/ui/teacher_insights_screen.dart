@@ -161,7 +161,7 @@ class _TeacherInsightsScreenState extends ConsumerState<TeacherInsightsScreen> {
                         const SizedBox(height: 10),
                         CmPill(
                           icon: Icons.people_rounded,
-                          label: '${_all.length} ${l.teacherStudentsLabel}',
+                          label: l.gradesHubStudentCount(_all.length),
                           color: cs.primary,
                         ),
                       ],

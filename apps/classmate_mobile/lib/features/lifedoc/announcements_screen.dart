@@ -1150,7 +1150,13 @@ class _MetricTile extends StatelessWidget {
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 2),
-          Text(label, style: TextStyle(color: cs.onSurfaceVariant)),
+          // One word ("Непрочитанные") shrinks to fit rather than breaking
+          // mid-word in a narrow tile.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(label, maxLines: 1, style: TextStyle(color: cs.onSurfaceVariant)),
+          ),
         ],
       ),
     );

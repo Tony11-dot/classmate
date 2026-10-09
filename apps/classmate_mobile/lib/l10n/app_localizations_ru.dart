@@ -984,8 +984,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get classroomsReorder => 'Изменить порядок классов';
 
   @override
-  String classroomsCount(Object count) {
-    return '$count классов';
+  String classroomsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count класса',
+      many: '$count классов',
+      few: '$count класса',
+      one: '$count класс',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1691,13 +1699,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get announcementsTabPublished => 'Опубликованные';
 
   @override
-  String get announcementsAudienceTeacher => 'Учитель';
+  String get announcementsAudienceTeacher => 'учителя';
 
   @override
-  String get announcementsAudienceAccount => 'Аккаунт';
+  String get announcementsAudienceAccount => 'вашего аккаунта';
 
   @override
-  String get announcementsAudienceTeacherWorkspace => 'Рабочее пространство';
+  String get announcementsAudienceTeacherWorkspace =>
+      'рабочего пространства учителя';
 
   @override
   String get announcementsLoadFailedTitle => 'Ошибка загрузки';
@@ -1953,7 +1962,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Откройте ссылку в браузере или приложении.';
 
   @override
-  String get meetingsEndedNote => 'This meeting has already taken place.';
+  String get meetingsEndedNote => 'Эта встреча уже прошла.';
 
   @override
   String get meetingsJoinAction => 'Войти';
@@ -3565,7 +3574,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherRemoveMaterial => 'Убрать материал?';
 
   @override
-  String get teacherMaterialRemoved => 'Material removed';
+  String get teacherMaterialRemoved => 'Материал удалён';
 
   @override
   String get teacherScheduleMeetingTitle => 'Запланировать встречу';
@@ -3633,7 +3642,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chatMediaWebUnsupported =>
-      'Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.';
+      'Фото, запись и прикрепление файлов пока недоступны в браузере — используйте мобильное приложение ClassMate.';
 
   @override
   String get chatCouldNotSendMessage => 'Не удалось отправить сообщение.';
@@ -4117,51 +4126,51 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminSettingsTitle => 'Настройки';
 
   @override
-  String get permissionsTitle => 'Permissions';
+  String get permissionsTitle => 'Права доступа';
 
   @override
   String get permissionsNavSubtitle =>
-      'Choose what secretaries and teachers can do';
+      'Выберите, что могут делать секретари и учителя';
 
   @override
   String get permissionsHeaderBlurb =>
-      'Turn abilities on or off for each role. Admins always have full access. Secretary abilities are off until you enable them; teacher abilities are on by default — switch one off to lock it.';
+      'Включайте и выключайте возможности для каждой роли. У администраторов всегда полный доступ. Возможности секретарей выключены, пока вы их не включите; возможности учителей включены по умолчанию — выключите любую, чтобы закрыть её.';
 
   @override
-  String get permissionsSearchHint => 'Search permissions…';
+  String get permissionsSearchHint => 'Поиск прав…';
 
   @override
-  String get permissionsColSecretary => 'Secretaries';
+  String get permissionsColSecretary => 'Секретари';
 
   @override
-  String get permissionsColTeacher => 'Teachers';
+  String get permissionsColTeacher => 'Учителя';
 
   @override
-  String get permissionsChangedBadge => 'Changed';
+  String get permissionsChangedBadge => 'Изменено';
 
   @override
-  String get permissionsSave => 'Save changes';
+  String get permissionsSave => 'Сохранить изменения';
 
   @override
-  String get permissionsSaved => 'Permissions updated';
+  String get permissionsSaved => 'Права обновлены';
 
   @override
   String permissionsSaveFailed(Object error) {
-    return 'Couldn\'t save permissions: $error';
+    return 'Не удалось сохранить права: $error';
   }
 
   @override
   String permissionsLoadFailed(Object error) {
-    return 'Couldn\'t load permissions: $error';
+    return 'Не удалось загрузить права: $error';
   }
 
   @override
   String permissionsNoResults(Object query) {
-    return 'No permissions match “$query”';
+    return 'Нет прав по запросу «$query»';
   }
 
   @override
-  String get permissionsResetChanges => 'Discard changes';
+  String get permissionsResetChanges => 'Отменить изменения';
 
   @override
   String get adminSettingsBellSchedule => 'Звонок';
@@ -4229,7 +4238,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonSearch => 'Поиск…';
 
   @override
-  String get commonNoResults => 'No results';
+  String get commonNoResults => 'Ничего не найдено';
 
   @override
   String get inboxActionPin => 'Закрепить чат';
@@ -4642,7 +4651,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String supportContactCopied(String value) {
-    return 'Copied to clipboard: $value';
+    return 'Скопировано: $value';
   }
 
   @override
@@ -4671,16 +4680,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'Извините — сейчас не удалось ответить. Попробуйте ещё раз или обратитесь в поддержку выше.';
 
   @override
-  String get supportAiSubtitle => 'Help with anything in ClassMate';
+  String get supportAiSubtitle => 'Помощь по любым вопросам о ClassMate';
 
   @override
-  String get supportAiSuggestPassword => 'How do I reset my password?';
+  String get supportAiSuggestPassword => 'Как сбросить пароль?';
 
   @override
-  String get supportAiSuggestJoin => 'How do I join a classroom with a code?';
+  String get supportAiSuggestJoin => 'Как войти в класс по коду?';
 
   @override
-  String get supportAiSuggestTheme => 'How do I change the app\'s theme?';
+  String get supportAiSuggestTheme => 'Как сменить тему приложения?';
 
   @override
   String get aboutWhatIsClassmate => 'Что такое ClassMate?';
@@ -5695,7 +5704,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get classMaterialsTitleLabel => 'Название';
 
   @override
-  String get classMaterialsTitleHint => 'e.g. Chapter 3 worksheet';
+  String get classMaterialsTitleHint => 'например, рабочий лист к главе 3';
 
   @override
   String classMaterialsFilesCount(int count) {
@@ -8318,10 +8327,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminSchoolSettingsEnd => 'Конец';
 
   @override
-  String get adminExportLayoutLabel => 'PDF layout';
+  String get adminExportLayoutLabel => 'Макет PDF';
 
   @override
-  String get adminExportLayoutTable => 'Compact table';
+  String get adminExportLayoutTable => 'Компактная таблица';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
@@ -8846,7 +8855,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get certNotPublishedYet =>
-      'This certificate is still a draft — publish it first to open its PDF.';
+      'Этот сертификат ещё черновик — сначала опубликуйте его, чтобы открыть PDF.';
 
   @override
   String get certGrin => 'Оценки';
@@ -9733,24 +9742,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsCreateTheme => 'Создать тему';
 
   @override
-  String get settingsEditTheme => 'Edit theme';
+  String get settingsEditTheme => 'Изменить тему';
 
   @override
-  String get settingsSaveTheme => 'Save changes';
+  String get settingsSaveTheme => 'Сохранить изменения';
 
   @override
-  String get settingsThemeNameRequired => 'Enter a name for your theme';
+  String get settingsThemeNameRequired => 'Введите название темы';
 
   @override
   String get settingsThemeNameDuplicate =>
-      'You already have a theme with this name';
+      'У вас уже есть тема с таким названием';
 
   @override
-  String get settingsDeleteThemeTitle => 'Delete theme?';
+  String get settingsDeleteThemeTitle => 'Удалить тему?';
 
   @override
   String settingsDeleteThemeBody(String name) {
-    return '“$name” will be removed. This can\'t be undone.';
+    return '«$name» будет удалена. Это действие нельзя отменить.';
   }
 
   @override

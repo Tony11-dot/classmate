@@ -978,8 +978,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get classroomsReorder => 'Reorder classrooms';
 
   @override
-  String classroomsCount(Object count) {
-    return '$count classrooms';
+  String classroomsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count classrooms',
+      one: '1 classroom',
+    );
+    return '$_temp0';
   }
 
   @override

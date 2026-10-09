@@ -196,6 +196,12 @@ Update this file in the same commit as each screen's redesign.
     24 strings had a fixed "1"), and most lacked the 2–4 form ("2 ученика", not "2 учеников") →
     proper one/few/many forms; French showed "1 livre" for zero books (16 strings) → real number
     (+ tests)
+- 32 strings had never been translated (the whole admin Permissions screen, theme editing, Support
+  AI suggestions, export layout, a few notices) — Hebrew/Arabic/French/Russian admins saw English →
+  translated with the app's existing terms; every locale now has every key
+- Counts built as "number + word" ("4 классы", "0 Ученики", "1 classrooms") → real plurals in every
+  language; "Объявления для Учитель" / "pour enseignant" → correct case and article
+- One-word stat labels ("Непрочитанные") broke mid-word or ended in "…" in narrow tiles → shrink to fit
 - Form fields: helper and error lines ended in "…" when a translation ran long (e.g. the Forgot-
   password SMS hint in Arabic) → wrap up to 3 lines, app-wide via the theme
 - Web app shell: a startup failure showed a raw red stack-trace page → a card with "ClassMate

@@ -519,10 +519,14 @@ class _MetricTile extends StatelessWidget {
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                 ),
-                Text(label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w600)),
+                // Shrinks to fit instead of "Непрочит…" in a narrow tile.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(label,
+                      maxLines: 1,
+                      style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.w600)),
+                ),
               ],
             ),
           ),

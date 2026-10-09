@@ -298,10 +298,12 @@
   "editProfileSchool": "المدرسة",
   "classroomsYourClassrooms": "صفوفك",
   "classroomsReorder": "إعادة ترتيب الصفوف",
-  "classroomsCount": "{count} صفوف",
+  "classroomsCount": "{count, plural, =0{لا صفوف} =1{صف واحد} =2{صفان} few{{count} صفوف} many{{count} صفًا} other{{count} صف}}",
   "@classroomsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "classroomsSearchHint": "ابحث في الصفوف",
@@ -546,8 +548,8 @@
   "announcementsLoadError": "لم نتمكن من تحميل الإعلانات الآن. اسحب لتحديث أو حاول مرة أخرى.",
   "announcementsLoadTimeout": "الإعلانات تستغرق وقتاً طويلاً للتحميل. اسحب لتحديث أو حاول بعد قليل.",
   "announcementsLoadNetwork": "لم تتمكن الإعلانات من الاتصال الآن. تحقق من الاتصال وحاول مرة أخرى.",
-  "announcementsAudienceTeacher": "معلم",
-  "announcementsAudienceAccount": "حساب",
+  "announcementsAudienceTeacher": "المعلم",
+  "announcementsAudienceAccount": "حسابك",
   "announcementsAudienceTeacherWorkspace": "مساحة عمل المعلم",
   "announcementsLoadFailedTitle": "لم يتمكن من تحميل الإعلانات",
   "announcementsLoadFailedHint": "اسحب لتحديث بعد استقرار الاتصال.",
@@ -3262,5 +3264,37 @@
   "settingsThemeNameHint": "السمة الخاصة بي",
   "settingsThemeAccentLabel": "اللون المميّز",
   "settingsCreateTheme": "إنشاء السمة",
-  "teacherFormsCount": "{count, plural, other{{count} نموذج}}"
+  "teacherFormsCount": "{count, plural, other{{count} نموذج}}",
+  "meetingsEndedNote": "انتهى هذا الاجتماع بالفعل.",
+  "teacherMaterialRemoved": "تمت إزالة المادة",
+  "chatMediaWebUnsupported": "التقاط الصور والتسجيل وإرفاق الملفات غير متاحة في المتصفح بعد — يرجى استخدام تطبيق ClassMate على الهاتف.",
+  "permissionsTitle": "الصلاحيات",
+  "permissionsNavSubtitle": "اختر ما يمكن للسكرتارية والمعلمين فعله",
+  "permissionsHeaderBlurb": "فعّل القدرات أو أوقفها لكل دور. للمديرين وصول كامل دائمًا. قدرات السكرتارية متوقفة حتى تفعّلها، وقدرات المعلمين مفعّلة افتراضيًا — أوقف أيًّا منها لقفلها.",
+  "permissionsSearchHint": "ابحث في الصلاحيات…",
+  "permissionsColSecretary": "السكرتارية",
+  "permissionsColTeacher": "المعلمون",
+  "permissionsChangedBadge": "تم التغيير",
+  "permissionsSave": "حفظ التغييرات",
+  "permissionsSaved": "تم تحديث الصلاحيات",
+  "permissionsSaveFailed": "تعذّر حفظ الصلاحيات: {error}",
+  "permissionsLoadFailed": "تعذّر تحميل الصلاحيات: {error}",
+  "permissionsNoResults": "لا توجد صلاحيات تطابق \"{query}\"",
+  "permissionsResetChanges": "تجاهل التغييرات",
+  "commonNoResults": "لا نتائج",
+  "supportContactCopied": "تم النسخ إلى الحافظة: {value}",
+  "supportAiSubtitle": "مساعدة في أي شيء داخل ClassMate",
+  "supportAiSuggestPassword": "كيف أعيد تعيين كلمة المرور؟",
+  "supportAiSuggestJoin": "كيف أنضم إلى صف برمز؟",
+  "supportAiSuggestTheme": "كيف أغيّر سمة التطبيق؟",
+  "classMaterialsTitleHint": "مثال: ورقة عمل الفصل 3",
+  "adminExportLayoutLabel": "تخطيط PDF",
+  "adminExportLayoutTable": "جدول مضغوط",
+  "certNotPublishedYet": "هذه الشهادة ما زالت مسودة — انشرها أولًا لفتح ملف PDF.",
+  "settingsEditTheme": "تعديل السمة",
+  "settingsSaveTheme": "حفظ التغييرات",
+  "settingsThemeNameRequired": "أدخل اسمًا للسمة",
+  "settingsThemeNameDuplicate": "لديك بالفعل سمة بهذا الاسم",
+  "settingsDeleteThemeTitle": "حذف السمة؟",
+  "settingsDeleteThemeBody": "ستتم إزالة \"{name}\". لا يمكن التراجع عن ذلك."
 }
