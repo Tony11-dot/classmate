@@ -3950,9 +3950,6 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherRetry => '‹‹Retry››';
 
   @override
-  String get teacherExamGradesStudents => '‹‹students››';
-
-  @override
   String get teacherExamGradesGraded => '‹‹graded››';
 
   @override

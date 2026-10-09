@@ -3987,9 +3987,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherRetry => 'Réessayer';
 
   @override
-  String get teacherExamGradesStudents => 'élèves';
-
-  @override
   String get teacherExamGradesGraded => 'notés';
 
   @override

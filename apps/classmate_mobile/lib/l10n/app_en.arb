@@ -1644,7 +1644,6 @@
   "examViewGradeAction": "Open Grades",
   "teacherGradesNothingToSave": "No changes to save.",
   "teacherRetry": "Retry",
-  "teacherExamGradesStudents": "students",
   "teacherExamGradesGraded": "graded",
   "teacherExamGradesNoStudents": "No students targeted.\nEdit the exam to add an audience.",
   "teacherExamGradesEnterGrades": "Enter grades",

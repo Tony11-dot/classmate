@@ -1519,7 +1519,6 @@
   "examViewGradeAction": "Открыть оценки",
   "teacherGradesNothingToSave": "Нет изменений для сохранения.",
   "teacherRetry": "Повторить",
-  "teacherExamGradesStudents": "учеников",
   "teacherExamGradesGraded": "оценено",
   "teacherExamGradesNoStudents": "Нет выбранных учеников.\nОтредактируйте экзамен, чтобы добавить аудиторию.",
   "teacherExamGradesEnterGrades": "Ввести оценки",

@@ -3910,9 +3910,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherRetry => 'إعادة المحاولة';
 
   @override
-  String get teacherExamGradesStudents => 'طلاب';
-
-  @override
   String get teacherExamGradesGraded => 'مُقيَّم';
 
   @override

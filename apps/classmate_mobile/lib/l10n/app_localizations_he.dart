@@ -3885,9 +3885,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherRetry => 'נסה שוב';
 
   @override
-  String get teacherExamGradesStudents => 'תלמידים';
-
-  @override
   String get teacherExamGradesGraded => 'מוערכים';
 
   @override

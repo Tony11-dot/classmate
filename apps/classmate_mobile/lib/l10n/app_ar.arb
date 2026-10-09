@@ -1380,7 +1380,6 @@
   "examViewGradeAction": "فتح الدرجات",
   "teacherGradesNothingToSave": "لا توجد تغييرات للحفظ.",
   "teacherRetry": "إعادة المحاولة",
-  "teacherExamGradesStudents": "طلاب",
   "teacherExamGradesGraded": "مُقيَّم",
   "teacherExamGradesNoStudents": "لا يوجد طلاب مستهدفون.\nعدّل الامتحان لإضافة جمهور.",
   "teacherExamGradesEnterGrades": "إدخال الدرجات",

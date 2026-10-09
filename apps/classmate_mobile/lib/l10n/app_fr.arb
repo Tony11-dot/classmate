@@ -1380,7 +1380,6 @@
   "examViewGradeAction": "Ouvrir les notes",
   "teacherGradesNothingToSave": "Aucune modification à enregistrer.",
   "teacherRetry": "Réessayer",
-  "teacherExamGradesStudents": "élèves",
   "teacherExamGradesGraded": "notés",
   "teacherExamGradesNoStudents": "Aucun élève ciblé.\nModifiez l'examen pour ajouter un public.",
   "teacherExamGradesEnterGrades": "Saisir les notes",

@@ -347,7 +347,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '${_students.length} ${l.teacherExamGradesStudents}',
+                                        l.gradesHubStudentCount(_students.length),
                                         style: theme.textTheme.headlineSmall?.copyWith(
                                           fontWeight: FontWeight.w900,
                                           height: 1.1,

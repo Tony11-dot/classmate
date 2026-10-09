@@ -7025,12 +7025,6 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get teacherRetry;
 
-  /// No description provided for @teacherExamGradesStudents.
-  ///
-  /// In en, this message translates to:
-  /// **'students'**
-  String get teacherExamGradesStudents;
-
   /// No description provided for @teacherExamGradesGraded.
   ///
   /// In en, this message translates to:

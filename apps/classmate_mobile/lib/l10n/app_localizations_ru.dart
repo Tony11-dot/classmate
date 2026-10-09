@@ -3899,9 +3899,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherRetry => 'Повторить';
 
   @override
-  String get teacherExamGradesStudents => 'учеников';
-
-  @override
   String get teacherExamGradesGraded => 'оценено';
 
   @override
