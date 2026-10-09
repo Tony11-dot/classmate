@@ -60,21 +60,6 @@ void main() {
     return title;
   }
 
-  testWidgets('ClassNotes gets its own title for every role that has it',
-      (tester) async {
-    expect(await titleFor(tester, '/classnotes'), 'ClassNotes');
-    expect(
-      await titleFor(tester, '/classnotes', isTeacherLike: true),
-      'ClassNotes',
-    );
-    expect(await titleFor(tester, '/classnotes', isParent: true), 'ClassNotes');
-  });
-
-  testWidgets('a notebook opened inside the tab keeps the ClassNotes title',
-      (tester) async {
-    expect(await titleFor(tester, '/classnotes/abc-123'), 'ClassNotes');
-  });
-
   testWidgets('every drawer tool has a distinct title', (tester) async {
     final l = await localizations(tester);
     // A role whose tools all resolve to the same fallback would leave the pill

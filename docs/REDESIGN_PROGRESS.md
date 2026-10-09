@@ -180,6 +180,10 @@ Update this file in the same commit as each screen's redesign.
   → once, in Core (found by the new desktop/iPad shots)
 - Wide screens: the shot rig now renders iPad (both orientations) and desktop web through the real
   sidebar chrome — every rigged screen passes at all three sizes
+- Support assistant still described the ClassNotes tool (removed from the app in build 268) and
+  called the admin user list "People" (the app says "Users") → matches the app
+- Tests: ClassNotes tests (feature gone since build 268) removed; the sidebar test follows the
+  redesign's font weights → Flutter 58 pass / 5 known failures (was 57 / 11)
 - Web app shell: a startup failure showed a raw red stack-trace page → a card with "ClassMate
   couldn't start", Reload, support@ and the details folded away (light + dark); installed-app colour
   was the old indigo → brand blue
@@ -199,5 +203,6 @@ Update this file in the same commit as each screen's redesign.
 - Secretary student create/delete UI not wired
 - Self-service account deletion: the API has `POST /account/delete` but the app has no button for it
   (the FAQ points to the school admin or support@)
-- 11 stale failing tests (also fail on `main`)
+- 5 stale failing tests, all practice text repair (bare LaTeX / code-tail heuristics the code
+  doesn't do); also fail on `main`
 - Composer mic/classroom bug report — waiting on repro details

@@ -129,16 +129,16 @@ void main() {
 
     await tester.pumpWidget(chromeShaped(router, location: '/schedule'));
     await tester.pumpAndSettle();
-    expect(weightOf('ClassNotes'), FontWeight.w500,
-        reason: 'ClassNotes is not the active route yet');
+    expect(weightOf('Grades'), FontWeight.w600,
+        reason: 'Grades is not the active route yet');
 
     // Same widget, new location — exactly what DesktopChromeShell does when the
     // router reports a new configuration.
-    await tester.pumpWidget(chromeShaped(router, location: '/classnotes'));
+    await tester.pumpWidget(chromeShaped(router, location: '/grades'));
     await tester.pumpAndSettle();
-    expect(weightOf('ClassNotes'), FontWeight.w700,
+    expect(weightOf('Grades'), FontWeight.w700,
         reason: 'the sidebar must re-render with the new active route');
-    expect(weightOf('Schedule'), FontWeight.w500);
+    expect(weightOf('Schedule'), FontWeight.w600);
   });
 
   testWidgets('slide-out drawer still renders School Tools', (tester) async {
