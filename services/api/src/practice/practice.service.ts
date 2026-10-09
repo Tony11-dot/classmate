@@ -18,6 +18,7 @@ import {
 } from './catalog/practice-topic-catalog';
 import { analyzeCustomPracticeTopic } from './intake/custom-topic-intake';
 import { FactualQuizService } from './factual/factual-quiz.service';
+import { anthropicOptions } from '../tutor/providers/openai.provider';
 import { ConceptualTopicService } from './conceptual/conceptual-topic.service';
 import { SymbolicTopicService } from './symbolic/symbolic-topic.service';
 import { AdaptivePracticeFlowService } from './adaptive/flow/adaptive-practice-flow.service';
@@ -1925,7 +1926,7 @@ export class PracticeService {
     }
 
     const Anthropic = require('@anthropic-ai/sdk').default ?? require('@anthropic-ai/sdk');
-    const client = new Anthropic({ apiKey });
+    const client = new Anthropic(anthropicOptions(apiKey));
     // Default to Haiku — cheapest tier, and plenty for generating
     // well-formed multiple-choice practice questions. Override with
     // ANTHROPIC_MODEL if a school wants higher-tier generation.

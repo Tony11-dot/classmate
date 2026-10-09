@@ -140,8 +140,11 @@ Update this file in the same commit as each screen's redesign.
 1. Every screen is ✅ or ➖. Next: on-device QA pass of build 303 (TestFlight / Play internal), then fix anything found.
 
 ## Known open items (not redesign)
-- Anthropic key: new key is live on Railway (2026-10-09). Still to do: confirm NOVA answers, then
-  delete the old key (not in the "ClassMate" Console org — check other orgs/workspaces)
+- Anthropic key: the new key (live on Railway 2026-10-09) isn't tied to a Console workspace, so NOVA
+  got 400 "must include the anthropic-workspace-id header". The API now sends
+  `ANTHROPIC_WORKSPACE_ID` when set, and provider errors show the app's own message instead of raw
+  JSON. To do: set that ID on Railway (or swap in a key made inside a workspace), confirm NOVA
+  answers, then delete the old key
 - ⚠ Any Railway variable change redeploys GitHub `main` and drops this branch's backend — use
   `--skip-deploys`, then `railway up` from the repo root
 - Apple-review demo password is committed in 4 files of the public repo

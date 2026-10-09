@@ -1386,7 +1386,14 @@ const system =
         subscriber.next(({ id: String(++eventId), data: { type: 'done', assistantMessage, sources, ...(sessionTitle ? { sessionTitle } : {}) } } as any));
         subscriber.complete();
       } catch (e: any) {
-        subscriber.next(({ id: String(++eventId), data: { type: 'error', message: String(e?.message ?? e) } } as any));
+        // Provider failures (key, workspace, overload) carry the raw API
+        // JSON — log it; the app shows its own localized message instead.
+        const fromProvider = e instanceof Anthropic.APIError;
+        if (fromProvider) console.error('[NOVA_PROVIDER_ERROR]', e.status, e.message);
+        const data = fromProvider
+          ? { type: 'error', code: 'PROVIDER_ERROR' }
+          : { type: 'error', message: String(e?.message ?? e) };
+        subscriber.next(({ id: String(++eventId), data } as any));
         subscriber.complete();
       }
     })();
