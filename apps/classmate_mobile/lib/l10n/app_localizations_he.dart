@@ -9619,4 +9619,115 @@ class AppLocalizationsHe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get permModuleClassesStudents => 'כיתות ותלמידים';
+
+  @override
+  String get permModuleCommunication => 'תקשורת';
+
+  @override
+  String get permModuleCertificates => 'תעודות';
+
+  @override
+  String get permModuleTeaching => 'הוראה';
+
+  @override
+  String get permModuleScheduleAnnouncements => 'מערכת שעות והודעות';
+
+  @override
+  String get permCohortsManageMembers => 'הוספה והסרה של תלמידים בכיתות';
+
+  @override
+  String get permCohortsManageMembersDesc =>
+      'שיבוץ תלמידים בכיתות והסרתם מרשימת הכיתה.';
+
+  @override
+  String get permCohortsManage => 'יצירה, עריכה ומחיקה של כיתות';
+
+  @override
+  String get permCohortsManageDesc =>
+      'יצירת כיתות חדשות, שינוי שמן, הגדרת שכבות ומחיקתן.';
+
+  @override
+  String get permStudentsCreate => 'הוספת חשבונות תלמידים';
+
+  @override
+  String get permStudentsCreateDesc =>
+      'יצירת חשבונות תלמידים חדשים בבית הספר. (חשבונות מורים ומנהלים נשארים בידי המנהל בלבד.)';
+
+  @override
+  String get permStudentsDelete => 'מחיקת חשבונות תלמידים';
+
+  @override
+  String get permStudentsDeleteDesc =>
+      'מחיקה לצמיתות של חשבונות תלמידים. (רק חשבונות תלמידים — אף פעם לא צוות.)';
+
+  @override
+  String get permCmailSend => 'שליחת דואר בית ספרי (CMail)';
+
+  @override
+  String get permCmailSendDesc =>
+      'כתיבה ושליחה של דואר לכל בית הספר — לתלמידים, להורים ולצוות.';
+
+  @override
+  String get permCertificatesManage => 'יצירה ועריכה של תעודות';
+
+  @override
+  String get permCertificatesManageDesc =>
+      'הנפקה, עריכה ופרסום של תעודות תלמידים.';
+
+  @override
+  String get permGradesEdit => 'הזנה ועריכה של ציונים';
+
+  @override
+  String get permGradesEditDesc =>
+      'רישום ושינוי של ציונים ותוצאות הערכה בכיתות שלהם.';
+
+  @override
+  String get permMaterialsManage => 'ניהול חומרי לימוד';
+
+  @override
+  String get permMaterialsManageDesc =>
+      'העלאה, עריכה ומחיקה של חומרי לימוד בכיתות שלהם.';
+
+  @override
+  String get permAssignmentsManage => 'ניהול משימות';
+
+  @override
+  String get permAssignmentsManageDesc =>
+      'יצירה, עריכה ומחיקה של משימות לכיתות שלהם.';
+
+  @override
+  String get permExamsManage => 'ניהול מבחנים';
+
+  @override
+  String get permExamsManageDesc => 'יצירה, תזמון, עריכה ומחיקה של מבחנים.';
+
+  @override
+  String get permMeetingsManage => 'ניהול מפגשים מקוונים';
+
+  @override
+  String get permMeetingsManageDesc => 'תזמון וניהול של שיעורים חיים ומקוונים.';
+
+  @override
+  String get permFormsManage => 'ניהול טפסים';
+
+  @override
+  String get permFormsManageDesc =>
+      'יצירה, עריכה ומחיקה של טפסים ואיסוף תשובות.';
+
+  @override
+  String get permScheduleEdit => 'עריכת מערכת השעות';
+
+  @override
+  String get permScheduleEditDesc =>
+      'הוספה, שינוי והסרה של שיעורים במערכת, הגדרת שעות ברירת מחדל ושינויים חד-פעמיים.';
+
+  @override
+  String get permAnnouncementsPost => 'פרסום הודעות';
+
+  @override
+  String get permAnnouncementsPostDesc =>
+      'פרסום הודעות לכיתות, לשכבות או לכל בית הספר.';
 }

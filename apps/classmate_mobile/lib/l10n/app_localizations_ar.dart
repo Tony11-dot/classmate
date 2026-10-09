@@ -9678,4 +9678,117 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get permModuleClassesStudents => 'الصفوف والطلاب';
+
+  @override
+  String get permModuleCommunication => 'التواصل';
+
+  @override
+  String get permModuleCertificates => 'الشهادات';
+
+  @override
+  String get permModuleTeaching => 'التدريس';
+
+  @override
+  String get permModuleScheduleAnnouncements => 'الجدول والإعلانات';
+
+  @override
+  String get permCohortsManageMembers => 'إضافة الطلاب إلى الصفوف وإزالتهم';
+
+  @override
+  String get permCohortsManageMembersDesc =>
+      'وضع الطلاب في الصفوف وإزالتهم من قائمة الصف.';
+
+  @override
+  String get permCohortsManage => 'إنشاء الصفوف وتعديلها وحذفها';
+
+  @override
+  String get permCohortsManageDesc =>
+      'إنشاء صفوف جديدة وإعادة تسميتها وتحديد المراحل وحذفها.';
+
+  @override
+  String get permStudentsCreate => 'إضافة حسابات الطلاب';
+
+  @override
+  String get permStudentsCreateDesc =>
+      'إنشاء حسابات طلاب جديدة في المدرسة. (تبقى حسابات المعلمين والمديرين للمدير فقط.)';
+
+  @override
+  String get permStudentsDelete => 'حذف حسابات الطلاب';
+
+  @override
+  String get permStudentsDeleteDesc =>
+      'حذف حسابات الطلاب نهائيًا. (حسابات الطلاب فقط — وليس الموظفين أبدًا.)';
+
+  @override
+  String get permCmailSend => 'إرسال بريد المدرسة (CMail)';
+
+  @override
+  String get permCmailSendDesc =>
+      'كتابة بريد على مستوى المدرسة وإرساله إلى الطلاب وأولياء الأمور والموظفين.';
+
+  @override
+  String get permCertificatesManage => 'إنشاء الشهادات وتعديلها';
+
+  @override
+  String get permCertificatesManageDesc =>
+      'إصدار شهادات الطلاب وتعديلها ونشرها.';
+
+  @override
+  String get permGradesEdit => 'إدخال العلامات وتعديلها';
+
+  @override
+  String get permGradesEditDesc =>
+      'تسجيل العلامات ونتائج التقييم وتغييرها لصفوفهم.';
+
+  @override
+  String get permMaterialsManage => 'إدارة مواد الصف';
+
+  @override
+  String get permMaterialsManageDesc =>
+      'رفع المواد التعليمية وتعديلها وحذفها في صفوفهم.';
+
+  @override
+  String get permAssignmentsManage => 'إدارة الواجبات';
+
+  @override
+  String get permAssignmentsManageDesc =>
+      'إنشاء الواجبات وتعديلها وحذفها لصفوفهم.';
+
+  @override
+  String get permExamsManage => 'إدارة الامتحانات';
+
+  @override
+  String get permExamsManageDesc =>
+      'إنشاء الامتحانات وجدولتها وتعديلها وحذفها.';
+
+  @override
+  String get permMeetingsManage => 'إدارة الاجتماعات عبر الإنترنت';
+
+  @override
+  String get permMeetingsManageDesc =>
+      'جدولة الحصص المباشرة وعبر الإنترنت وإدارتها.';
+
+  @override
+  String get permFormsManage => 'إدارة النماذج';
+
+  @override
+  String get permFormsManageDesc =>
+      'إنشاء النماذج وتعديلها وحذفها وجمع الردود.';
+
+  @override
+  String get permScheduleEdit => 'تعديل جدول المدرسة';
+
+  @override
+  String get permScheduleEditDesc =>
+      'إضافة الحصص وتغييرها وإزالتها، وتحديد أوقات الحصص الافتراضية، وإجراء تغييرات لمرة واحدة.';
+
+  @override
+  String get permAnnouncementsPost => 'نشر الإعلانات';
+
+  @override
+  String get permAnnouncementsPostDesc =>
+      'نشر الإعلانات للصفوف أو المراحل أو المدرسة كلها.';
 }

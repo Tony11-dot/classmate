@@ -9858,4 +9858,118 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get permModuleClassesStudents => 'Classes et élèves';
+
+  @override
+  String get permModuleCommunication => 'Communication';
+
+  @override
+  String get permModuleCertificates => 'Certificats';
+
+  @override
+  String get permModuleTeaching => 'Enseignement';
+
+  @override
+  String get permModuleScheduleAnnouncements => 'Emploi du temps et annonces';
+
+  @override
+  String get permCohortsManageMembers =>
+      'Ajouter / retirer des élèves des classes';
+
+  @override
+  String get permCohortsManageMembersDesc =>
+      'Placer des élèves dans des classes et les retirer de la liste de classe.';
+
+  @override
+  String get permCohortsManage => 'Créer, modifier et supprimer des classes';
+
+  @override
+  String get permCohortsManageDesc =>
+      'Créer des classes, les renommer, définir leurs niveaux et les supprimer.';
+
+  @override
+  String get permStudentsCreate => 'Ajouter des comptes élèves';
+
+  @override
+  String get permStudentsCreateDesc =>
+      'Créer de nouveaux comptes élèves dans l\'école. (Les comptes enseignants et administrateurs restent réservés à l\'administration.)';
+
+  @override
+  String get permStudentsDelete => 'Supprimer des comptes élèves';
+
+  @override
+  String get permStudentsDeleteDesc =>
+      'Supprimer définitivement des comptes élèves. (Uniquement des comptes élèves — jamais du personnel.)';
+
+  @override
+  String get permCmailSend => 'Envoyer le courrier de l\'école (CMail)';
+
+  @override
+  String get permCmailSendDesc =>
+      'Rédiger et envoyer du courrier à toute l\'école : élèves, parents et personnel.';
+
+  @override
+  String get permCertificatesManage => 'Créer et modifier des certificats';
+
+  @override
+  String get permCertificatesManageDesc =>
+      'Délivrer, modifier et publier les certificats des élèves.';
+
+  @override
+  String get permGradesEdit => 'Saisir et modifier des notes';
+
+  @override
+  String get permGradesEditDesc =>
+      'Enregistrer et modifier les notes et résultats d\'évaluation de leurs classes.';
+
+  @override
+  String get permMaterialsManage => 'Gérer les supports de cours';
+
+  @override
+  String get permMaterialsManageDesc =>
+      'Téléverser, modifier et supprimer des supports pédagogiques dans leurs classes.';
+
+  @override
+  String get permAssignmentsManage => 'Gérer les devoirs';
+
+  @override
+  String get permAssignmentsManageDesc =>
+      'Créer, modifier et supprimer des devoirs pour leurs classes.';
+
+  @override
+  String get permExamsManage => 'Gérer les examens';
+
+  @override
+  String get permExamsManageDesc =>
+      'Créer, planifier, modifier et supprimer des examens.';
+
+  @override
+  String get permMeetingsManage => 'Gérer les réunions en ligne';
+
+  @override
+  String get permMeetingsManageDesc =>
+      'Planifier et gérer les cours en direct ou en ligne.';
+
+  @override
+  String get permFormsManage => 'Gérer les formulaires';
+
+  @override
+  String get permFormsManageDesc =>
+      'Créer, modifier et supprimer des formulaires et recueillir les réponses.';
+
+  @override
+  String get permScheduleEdit => 'Modifier l\'emploi du temps';
+
+  @override
+  String get permScheduleEditDesc =>
+      'Ajouter, modifier et supprimer des créneaux, définir les horaires par défaut et faire des changements ponctuels.';
+
+  @override
+  String get permAnnouncementsPost => 'Publier des annonces';
+
+  @override
+  String get permAnnouncementsPostDesc =>
+      'Publier des annonces pour des classes, des niveaux ou toute l\'école.';
 }

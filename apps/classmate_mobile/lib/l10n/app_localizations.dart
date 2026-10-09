@@ -16846,6 +16846,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{1 form} other{{count} forms}}'**
   String teacherFormsCount(num count);
+
+  /// No description provided for @permModuleClassesStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Classes & Students'**
+  String get permModuleClassesStudents;
+
+  /// No description provided for @permModuleCommunication.
+  ///
+  /// In en, this message translates to:
+  /// **'Communication'**
+  String get permModuleCommunication;
+
+  /// No description provided for @permModuleCertificates.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificates'**
+  String get permModuleCertificates;
+
+  /// No description provided for @permModuleTeaching.
+  ///
+  /// In en, this message translates to:
+  /// **'Teaching'**
+  String get permModuleTeaching;
+
+  /// No description provided for @permModuleScheduleAnnouncements.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule & Announcements'**
+  String get permModuleScheduleAnnouncements;
+
+  /// No description provided for @permCohortsManageMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Add / remove students in classes'**
+  String get permCohortsManageMembers;
+
+  /// No description provided for @permCohortsManageMembersDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Place students into classes and remove them from the class roster.'**
+  String get permCohortsManageMembersDesc;
+
+  /// No description provided for @permCohortsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create, edit & delete classes'**
+  String get permCohortsManage;
+
+  /// No description provided for @permCohortsManageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new classes, rename them, set grades, and delete them.'**
+  String get permCohortsManageDesc;
+
+  /// No description provided for @permStudentsCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Add student accounts'**
+  String get permStudentsCreate;
+
+  /// No description provided for @permStudentsCreateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new student accounts in the school. (Teacher/admin accounts stay admin-only.)'**
+  String get permStudentsCreateDesc;
+
+  /// No description provided for @permStudentsDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete student accounts'**
+  String get permStudentsDelete;
+
+  /// No description provided for @permStudentsDeleteDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete student accounts. (Only student accounts — never staff.)'**
+  String get permStudentsDeleteDesc;
+
+  /// No description provided for @permCmailSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send school mail (CMail)'**
+  String get permCmailSend;
+
+  /// No description provided for @permCmailSendDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Compose and send school-wide mail to students, parents and staff.'**
+  String get permCmailSendDesc;
+
+  /// No description provided for @permCertificatesManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create & edit certificates'**
+  String get permCertificatesManage;
+
+  /// No description provided for @permCertificatesManageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue, edit and publish student certificates.'**
+  String get permCertificatesManageDesc;
+
+  /// No description provided for @permGradesEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter & edit grades'**
+  String get permGradesEdit;
+
+  /// No description provided for @permGradesEditDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Record and change grades and assessment scores for their classes.'**
+  String get permGradesEditDesc;
+
+  /// No description provided for @permMaterialsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage class materials'**
+  String get permMaterialsManage;
+
+  /// No description provided for @permMaterialsManageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload, edit and delete learning materials in their classrooms.'**
+  String get permMaterialsManageDesc;
+
+  /// No description provided for @permAssignmentsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage assignments'**
+  String get permAssignmentsManage;
+
+  /// No description provided for @permAssignmentsManageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create, edit and delete assignments for their classes.'**
+  String get permAssignmentsManageDesc;
+
+  /// No description provided for @permExamsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage exams'**
+  String get permExamsManage;
+
+  /// No description provided for @permExamsManageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create, schedule, edit and delete exams.'**
+  String get permExamsManageDesc;
+
+  /// No description provided for @permMeetingsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage online meetings'**
+  String get permMeetingsManage;
+
+  /// No description provided for @permMeetingsManageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule and manage live/online class meetings.'**
+  String get permMeetingsManageDesc;
+
+  /// No description provided for @permFormsManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage forms'**
+  String get permFormsManage;
+
+  /// No description provided for @permFormsManageDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Create, edit and delete forms and collect responses.'**
+  String get permFormsManageDesc;
+
+  /// No description provided for @permScheduleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit the school schedule'**
+  String get permScheduleEdit;
+
+  /// No description provided for @permScheduleEditDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add, change and remove timetable periods, set default period times and make one-off schedule changes.'**
+  String get permScheduleEditDesc;
+
+  /// No description provided for @permAnnouncementsPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Post announcements'**
+  String get permAnnouncementsPost;
+
+  /// No description provided for @permAnnouncementsPostDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish announcements to classes, grades or the whole school.'**
+  String get permAnnouncementsPostDesc;
 }
 
 class _AppLocalizationsDelegate

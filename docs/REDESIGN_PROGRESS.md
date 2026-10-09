@@ -199,6 +199,9 @@ Update this file in the same commit as each screen's redesign.
 - 32 strings had never been translated (the whole admin Permissions screen, theme editing, Support
   AI suggestions, export layout, a few notices) — Hebrew/Arabic/French/Russian admins saw English →
   translated with the app's existing terms; every locale now has every key
+- Permissions screen rows and sections came from the server's English catalog → translated in the
+  app by capability key (server text stays the fallback); a test reads the server catalog and fails
+  if a new capability arrives without a translation
 - Counts built as "number + word" ("4 классы", "0 Ученики", "1 classrooms") → real plurals in every
   language; "Объявления для Учитель" / "pour enseignant" → correct case and article
 - One-word stat labels ("Непрочитанные") broke mid-word or ended in "…" in narrow tiles → shrink to fit

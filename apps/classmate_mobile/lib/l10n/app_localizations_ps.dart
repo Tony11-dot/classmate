@@ -9778,4 +9778,117 @@ class AppLocalizationsPs extends AppLocalizations {
     );
     return '‹‹$_temp0››';
   }
+
+  @override
+  String get permModuleClassesStudents => '‹‹Classes & Students››';
+
+  @override
+  String get permModuleCommunication => '‹‹Communication››';
+
+  @override
+  String get permModuleCertificates => '‹‹Certificates››';
+
+  @override
+  String get permModuleTeaching => '‹‹Teaching››';
+
+  @override
+  String get permModuleScheduleAnnouncements => '‹‹Schedule & Announcements››';
+
+  @override
+  String get permCohortsManageMembers => '‹‹Add / remove students in classes››';
+
+  @override
+  String get permCohortsManageMembersDesc =>
+      '‹‹Place students into classes and remove them from the class roster.››';
+
+  @override
+  String get permCohortsManage => '‹‹Create, edit & delete classes››';
+
+  @override
+  String get permCohortsManageDesc =>
+      '‹‹Create new classes, rename them, set grades, and delete them.››';
+
+  @override
+  String get permStudentsCreate => '‹‹Add student accounts››';
+
+  @override
+  String get permStudentsCreateDesc =>
+      '‹‹Create new student accounts in the school. (Teacher/admin accounts stay admin-only.)››';
+
+  @override
+  String get permStudentsDelete => '‹‹Delete student accounts››';
+
+  @override
+  String get permStudentsDeleteDesc =>
+      '‹‹Permanently delete student accounts. (Only student accounts — never staff.)››';
+
+  @override
+  String get permCmailSend => '‹‹Send school mail (CMail)››';
+
+  @override
+  String get permCmailSendDesc =>
+      '‹‹Compose and send school-wide mail to students, parents and staff.››';
+
+  @override
+  String get permCertificatesManage => '‹‹Create & edit certificates››';
+
+  @override
+  String get permCertificatesManageDesc =>
+      '‹‹Issue, edit and publish student certificates.››';
+
+  @override
+  String get permGradesEdit => '‹‹Enter & edit grades››';
+
+  @override
+  String get permGradesEditDesc =>
+      '‹‹Record and change grades and assessment scores for their classes.››';
+
+  @override
+  String get permMaterialsManage => '‹‹Manage class materials››';
+
+  @override
+  String get permMaterialsManageDesc =>
+      '‹‹Upload, edit and delete learning materials in their classrooms.››';
+
+  @override
+  String get permAssignmentsManage => '‹‹Manage assignments››';
+
+  @override
+  String get permAssignmentsManageDesc =>
+      '‹‹Create, edit and delete assignments for their classes.››';
+
+  @override
+  String get permExamsManage => '‹‹Manage exams››';
+
+  @override
+  String get permExamsManageDesc =>
+      '‹‹Create, schedule, edit and delete exams.››';
+
+  @override
+  String get permMeetingsManage => '‹‹Manage online meetings››';
+
+  @override
+  String get permMeetingsManageDesc =>
+      '‹‹Schedule and manage live/online class meetings.››';
+
+  @override
+  String get permFormsManage => '‹‹Manage forms››';
+
+  @override
+  String get permFormsManageDesc =>
+      '‹‹Create, edit and delete forms and collect responses.››';
+
+  @override
+  String get permScheduleEdit => '‹‹Edit the school schedule››';
+
+  @override
+  String get permScheduleEditDesc =>
+      '‹‹Add, change and remove timetable periods, set default period times and make one-off schedule changes.››';
+
+  @override
+  String get permAnnouncementsPost => '‹‹Post announcements››';
+
+  @override
+  String get permAnnouncementsPostDesc =>
+      '‹‹Publish announcements to classes, grades or the whole school.››';
 }

@@ -130,10 +130,12 @@ class _AdminPermissionsScreenState extends ConsumerState<AdminPermissionsScreen>
   List<PermissionCapability> get _filtered {
     final q = _query.trim().toLowerCase();
     if (q.isEmpty) return _caps;
+    final l = AppLocalizations.of(context)!;
     return _caps.where((c) {
-      return c.label.toLowerCase().contains(q) ||
-          c.description.toLowerCase().contains(q) ||
-          c.module.toLowerCase().contains(q);
+      final t = capabilityText(l, c);
+      return t.label.toLowerCase().contains(q) ||
+          t.description.toLowerCase().contains(q) ||
+          moduleText(l, c.module).toLowerCase().contains(q);
     }).toList();
   }
 
@@ -276,7 +278,7 @@ class _ModuleHeader extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              label,
+              moduleText(AppLocalizations.of(context)!, label),
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.1,
@@ -336,11 +338,11 @@ class _CapabilityCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(cap.label,
+                    Text(capabilityText(l, cap).label,
                         style: theme.textTheme.bodyMedium
                             ?.copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
-                    Text(cap.description,
+                    Text(capabilityText(l, cap).description,
                         style: theme.textTheme.labelSmall
                             ?.copyWith(color: cs.onSurfaceVariant)),
                   ],
@@ -441,6 +443,37 @@ class _RoleChip extends StatelessWidget {
     );
   }
 }
+
+/// The server's catalog is English. Known capabilities and sections read in
+/// the app's language; anything added to the catalog later falls back to the
+/// server's text until it gets a translation.
+({String label, String description}) capabilityText(AppLocalizations l, PermissionCapability c) =>
+    switch (c.key) {
+      'cohorts.manageMembers' => (label: l.permCohortsManageMembers, description: l.permCohortsManageMembersDesc),
+      'cohorts.manage' => (label: l.permCohortsManage, description: l.permCohortsManageDesc),
+      'students.create' => (label: l.permStudentsCreate, description: l.permStudentsCreateDesc),
+      'students.delete' => (label: l.permStudentsDelete, description: l.permStudentsDeleteDesc),
+      'cmail.send' => (label: l.permCmailSend, description: l.permCmailSendDesc),
+      'certificates.manage' => (label: l.permCertificatesManage, description: l.permCertificatesManageDesc),
+      'grades.edit' => (label: l.permGradesEdit, description: l.permGradesEditDesc),
+      'materials.manage' => (label: l.permMaterialsManage, description: l.permMaterialsManageDesc),
+      'assignments.manage' => (label: l.permAssignmentsManage, description: l.permAssignmentsManageDesc),
+      'exams.manage' => (label: l.permExamsManage, description: l.permExamsManageDesc),
+      'meetings.manage' => (label: l.permMeetingsManage, description: l.permMeetingsManageDesc),
+      'forms.manage' => (label: l.permFormsManage, description: l.permFormsManageDesc),
+      'schedule.edit' => (label: l.permScheduleEdit, description: l.permScheduleEditDesc),
+      'announcements.post' => (label: l.permAnnouncementsPost, description: l.permAnnouncementsPostDesc),
+      _ => (label: c.label, description: c.description),
+    };
+
+String moduleText(AppLocalizations l, String module) => switch (module) {
+      'Classes & Students' => l.permModuleClassesStudents,
+      'Communication' => l.permModuleCommunication,
+      'Certificates' => l.permModuleCertificates,
+      'Teaching' => l.permModuleTeaching,
+      'Schedule & Announcements' => l.permModuleScheduleAnnouncements,
+      _ => module,
+    };
 
 /// Maps a permission module name to a representative icon for its section
 /// header. Matched loosely on the module string so new backend modules still

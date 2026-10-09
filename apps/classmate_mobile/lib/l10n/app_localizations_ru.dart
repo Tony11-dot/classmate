@@ -9775,4 +9775,118 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get permModuleClassesStudents => 'Классы и ученики';
+
+  @override
+  String get permModuleCommunication => 'Общение';
+
+  @override
+  String get permModuleCertificates => 'Сертификаты';
+
+  @override
+  String get permModuleTeaching => 'Преподавание';
+
+  @override
+  String get permModuleScheduleAnnouncements => 'Расписание и объявления';
+
+  @override
+  String get permCohortsManageMembers =>
+      'Добавлять и убирать учеников в классах';
+
+  @override
+  String get permCohortsManageMembersDesc =>
+      'Зачислять учеников в классы и убирать их из списка класса.';
+
+  @override
+  String get permCohortsManage => 'Создавать, изменять и удалять классы';
+
+  @override
+  String get permCohortsManageDesc =>
+      'Создавать новые классы, переименовывать их, задавать параллели и удалять.';
+
+  @override
+  String get permStudentsCreate => 'Добавлять аккаунты учеников';
+
+  @override
+  String get permStudentsCreateDesc =>
+      'Создавать новые аккаунты учеников в школе. (Аккаунты учителей и администраторов создаёт только администратор.)';
+
+  @override
+  String get permStudentsDelete => 'Удалять аккаунты учеников';
+
+  @override
+  String get permStudentsDeleteDesc =>
+      'Безвозвратно удалять аккаунты учеников. (Только учеников — никогда сотрудников.)';
+
+  @override
+  String get permCmailSend => 'Отправлять школьную почту (CMail)';
+
+  @override
+  String get permCmailSendDesc =>
+      'Писать и отправлять письма всей школе: ученикам, родителям и сотрудникам.';
+
+  @override
+  String get permCertificatesManage => 'Создавать и изменять сертификаты';
+
+  @override
+  String get permCertificatesManageDesc =>
+      'Выдавать, изменять и публиковать сертификаты учеников.';
+
+  @override
+  String get permGradesEdit => 'Ставить и изменять оценки';
+
+  @override
+  String get permGradesEditDesc =>
+      'Записывать и менять оценки и результаты контрольных в своих классах.';
+
+  @override
+  String get permMaterialsManage => 'Управлять материалами';
+
+  @override
+  String get permMaterialsManageDesc =>
+      'Загружать, изменять и удалять учебные материалы в своих классах.';
+
+  @override
+  String get permAssignmentsManage => 'Управлять заданиями';
+
+  @override
+  String get permAssignmentsManageDesc =>
+      'Создавать, изменять и удалять задания для своих классов.';
+
+  @override
+  String get permExamsManage => 'Управлять экзаменами';
+
+  @override
+  String get permExamsManageDesc =>
+      'Создавать, планировать, изменять и удалять экзамены.';
+
+  @override
+  String get permMeetingsManage => 'Управлять онлайн-встречами';
+
+  @override
+  String get permMeetingsManageDesc =>
+      'Планировать и проводить живые и онлайн-уроки.';
+
+  @override
+  String get permFormsManage => 'Управлять формами';
+
+  @override
+  String get permFormsManageDesc =>
+      'Создавать, изменять и удалять формы и собирать ответы.';
+
+  @override
+  String get permScheduleEdit => 'Изменять расписание школы';
+
+  @override
+  String get permScheduleEditDesc =>
+      'Добавлять, менять и удалять уроки, задавать стандартное время уроков и вносить разовые изменения.';
+
+  @override
+  String get permAnnouncementsPost => 'Публиковать объявления';
+
+  @override
+  String get permAnnouncementsPostDesc =>
+      'Публиковать объявления для классов, параллелей или всей школы.';
 }
