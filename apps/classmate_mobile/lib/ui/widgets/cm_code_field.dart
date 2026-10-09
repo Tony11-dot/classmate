@@ -158,6 +158,7 @@ class _CmCodeFieldState extends State<CmCodeField>
               : TextCapitalization.none,
           inputFormatters: [
             FilteringTextInputFormatter.deny(RegExp(r'\s')),
+            const _AsciiDigitsFormatter(),
             if (widget.digitsOnly) FilteringTextInputFormatter.digitsOnly,
             if (widget.upperCase) _UpperCaseFormatter(),
             LengthLimitingTextInputFormatter(widget.length),
@@ -345,6 +346,25 @@ class _CmCodeFieldState extends State<CmCodeField>
         );
       },
     );
+  }
+}
+
+/// Arabic keyboards type Arabic-Indic (٠١٢) or Persian (۰۱۲) digits; the
+/// digits-only filter would silently drop them. Map them to ASCII first.
+class _AsciiDigitsFormatter extends TextInputFormatter {
+  const _AsciiDigitsFormatter();
+
+  static String _map(String s) => String.fromCharCodes(s.runes.map((r) {
+        if (r >= 0x0660 && r <= 0x0669) return 0x30 + r - 0x0660;
+        if (r >= 0x06F0 && r <= 0x06F9) return 0x30 + r - 0x06F0;
+        return r;
+      }));
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final mapped = _map(newValue.text);
+    return mapped == newValue.text ? newValue : newValue.copyWith(text: mapped);
   }
 }
 

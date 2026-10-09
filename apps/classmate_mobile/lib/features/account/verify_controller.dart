@@ -71,9 +71,18 @@ class VerifyController extends Notifier<VerifyStatus> {
     }
   }
 
+  Future<String>? _pendingStart;
+
   /// Returns the masked target the server claims to have sent to (e.g.
   /// `t•••y@classmateapp.org`). Throws on bad-request / cooldown errors.
-  Future<String> startVerify(String channel, {String? newValue}) async {
+  /// A second tap while a send is in flight joins it instead of mailing a
+  /// second code.
+  Future<String> startVerify(String channel, {String? newValue}) {
+    return _pendingStart ??= _start(channel, newValue)
+        .whenComplete(() => _pendingStart = null);
+  }
+
+  Future<String> _start(String channel, String? newValue) async {
     final raw = await _api.postJson('/me/verify/$channel/start', body: {
       if (newValue != null && newValue.trim().isNotEmpty) 'newValue': newValue.trim(),
     });

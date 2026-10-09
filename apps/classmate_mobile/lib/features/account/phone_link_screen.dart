@@ -65,6 +65,7 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
   }
 
   Future<void> _sendCode() async {
+    if (_sending) return;
     final l = AppLocalizations.of(context)!;
     final phone = _normalize(_phoneCtl.text);
     if (phone.length < 11) {
@@ -87,7 +88,8 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
   Future<void> _confirm() async {
     final l = AppLocalizations.of(context)!;
     final code = _codeCtl.text.trim();
-    if (code.length != 6 || _sentTo == null) return;
+    // Auto-submit on the 6th digit and a Confirm tap can race — one request.
+    if (_verifying || code.length != 6 || _sentTo == null) return;
     setState(() {
       _verifying = true;
       _codeStatus = CmCodeStatus.checking;

@@ -154,7 +154,7 @@ export class TokensService {
     model: string;
     inputTokens: number;
     cachedInputTokens: number;
-    /// Prompt-cache writes; priced into costUsd/tokensCharged, not stored separately.
+    /// Prompt-cache writes; priced into costUsd only (ClassMate absorbs them — see computeCost).
     cacheWriteTokens?: number;
     outputTokens: number;
   }): Promise<{ tokensCharged: number; costUsd: number }> {

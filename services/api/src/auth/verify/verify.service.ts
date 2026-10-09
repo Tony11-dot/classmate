@@ -13,6 +13,12 @@ const CODE_TTL_MIN = 15;
 const MAX_ATTEMPTS = 5;
 /** Don't let users spam new codes for the same purpose. */
 const COOLDOWN_SECONDS = 30;
+/**
+ * How many recently issued codes stay redeemable at once. Emails can land
+ * late or out of order (and a double-tap can issue two), so the code in
+ * whichever message the user opens must still work — not only the newest.
+ */
+const LIVE_CODES = 3;
 
 @Injectable()
 export class VerifyService {
@@ -111,12 +117,20 @@ export class VerifyService {
       throw new BadRequestException(`Please wait ${waitSec}s before requesting another code.`);
     }
 
-    // Invalidate any older live codes for the same (user, channel, kind) so
-    // the freshly issued one is unambiguously the right one to redeem.
-    await this.prisma.verificationCode.updateMany({
-      where: { userId, channel, kind, usedAt: null },
-      data: { usedAt: new Date() },
+    // Earlier codes stay valid until they expire (a delayed email must still
+    // work), but only the newest LIVE_CODES - 1 survive alongside this one.
+    const stale = await this.prisma.verificationCode.findMany({
+      where: { userId, channel, usedAt: null },
+      orderBy: { createdAt: 'desc' },
+      skip: LIVE_CODES - 1,
+      select: { id: true },
     });
+    if (stale.length) {
+      await this.prisma.verificationCode.updateMany({
+        where: { id: { in: stale.map((r) => r.id) } },
+        data: { usedAt: new Date() },
+      });
+    }
 
     const rawCode = randomDigits(6);
     const codeHash = sha256(rawCode);
@@ -161,31 +175,36 @@ export class VerifyService {
     newValue?: string | null;
   }): Promise<{ ok: true; changed: boolean }> {
     const { userId, channel } = args;
-    const code = String(args.code ?? '').trim();
+    const code = normalizeCode(args.code);
     if (!/^\d{4,8}$/.test(code)) throw new BadRequestException('Invalid code format');
 
     const codeHash = sha256(code);
-    const row = await this.prisma.verificationCode.findFirst({
+    const live = await this.prisma.verificationCode.findMany({
       where: { userId, channel, usedAt: null, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: 'desc' },
+      take: LIVE_CODES,
     });
-    if (!row) throw new ForbiddenException('No active verification code. Request a new one.');
+    if (!live.length) throw new ForbiddenException('No active verification code. Request a new one.');
 
-    if (row.attempts >= MAX_ATTEMPTS) {
+    // Wrong guesses count against the newest code; a fresh code resets them.
+    const newest = live[0];
+    if (newest.attempts >= MAX_ATTEMPTS) {
       throw new ForbiddenException('Too many wrong attempts. Request a new code.');
     }
 
-    if (row.codeHash !== codeHash) {
+    const row = live.find((r) => r.codeHash === codeHash);
+    if (!row) {
       await this.prisma.verificationCode.update({
-        where: { id: row.id },
+        where: { id: newest.id },
         data: { attempts: { increment: 1 } },
       });
       throw new ForbiddenException('Incorrect code');
     }
 
-    // Mark this row consumed up-front so nothing can re-redeem it.
-    await this.prisma.verificationCode.update({
-      where: { id: row.id },
+    // Consume every live code for this channel up-front: the flow is done,
+    // and nothing can re-redeem a sibling.
+    await this.prisma.verificationCode.updateMany({
+      where: { id: { in: live.map((r) => r.id) } },
       data: { usedAt: new Date() },
     });
 
@@ -295,6 +314,18 @@ function randomDigits(len: number): string {
   let out = '';
   for (let i = 0; i < len; i++) out += digits[crypto.randomInt(0, digits.length)];
   return out;
+}
+
+/**
+ * Canonical form of a typed/pasted code: Arabic-Indic and Persian digits
+ * (what Arabic keyboards type) become ASCII, and spaces/dashes from a paste
+ * like "123 456" are dropped.
+ */
+export function normalizeCode(raw: unknown): string {
+  return String(raw ?? '')
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+    .replace(/\D/g, '');
 }
 
 function sha256(s: string): string {

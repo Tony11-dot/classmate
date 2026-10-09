@@ -53,9 +53,9 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
   // Claude Opus 4.7 — kept for completeness; not yet wired into NOVA but
   // we'd want the pricing already mapped if a future "Pro mode" toggles it.
   'claude-opus-4-7': {
-    inputPerM: 15.0,
-    cachedInputPerM: 1.5,
-    outputPerM: 75.0,
+    inputPerM: 5.0,
+    cachedInputPerM: 0.5,
+    outputPerM: 25.0,
   },
 };
 
@@ -130,7 +130,7 @@ export function computeCost(
   const baseCharge =
     inputTokens + cachedInputTokens * 0.2 + outputTokens * 5;
 
-  // Model price multiplier — Haiku = 1.0, Sonnet = 3.0, Opus = 15.0.
+  // Model price multiplier — Haiku = 1.0, Sonnet 4.6 = 3.0, Opus 4.7 = 5.0.
   // Without this a Sonnet-backed NOVA reply would cost the user the
   // same as a Haiku reply but cost the school 3x in Anthropic billing,
   // burning the margin. Scaling tokensCharged by the model's relative

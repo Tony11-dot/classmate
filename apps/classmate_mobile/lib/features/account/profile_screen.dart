@@ -1043,6 +1043,32 @@ Future<void> _showCodeSheet(
     backgroundColor: cs.surface,
     builder: (sCtx) {
       return StatefulBuilder(builder: (ctx, setSt) {
+        // One submit path for both the auto-submit on the last digit and the
+        // Confirm button, so they can never fire two requests.
+        Future<void> submit() async {
+          if (submitting) return;
+          setSt(() { submitting = true; error = null; status = CmCodeStatus.checking; });
+          try {
+            final changed = await ref
+                .read(verifyControllerProvider.notifier)
+                .confirmVerify(channel, code: codeCtrl.text, newValue: newValue);
+            if (!ctx.mounted) return;
+            setSt(() => status = CmCodeStatus.success);
+            await Future<void>.delayed(const Duration(milliseconds: 700));
+            if (!ctx.mounted) return;
+            Navigator.pop(ctx);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(changed ? l.profileUpdatedPendingVerification : l.profileVerified)),
+            );
+            // Pull /auth/me so AuthSession's cached email stays in sync.
+            if (changed) {
+              await ref.read(authSessionProvider).reloadFromMe();
+            }
+          } catch (e) {
+            setSt(() { submitting = false; error = _humanizeError(e); status = CmCodeStatus.error; });
+          }
+        }
+
         return Padding(
           padding: EdgeInsets.only(
             left: 20, right: 20, top: 20,
@@ -1064,73 +1090,31 @@ Future<void> _showCodeSheet(
                 style: Theme.of(ctx).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
               ),
               const SizedBox(height: 18),
-              Builder(builder: (_) {
-                Future<void> submit() async {
-                  if (submitting) return;
-                  setSt(() { submitting = true; error = null; status = CmCodeStatus.checking; });
-                  try {
-                    final changed = await ref
-                        .read(verifyControllerProvider.notifier)
-                        .confirmVerify(channel, code: codeCtrl.text, newValue: newValue);
-                    if (!ctx.mounted) return;
-                    setSt(() => status = CmCodeStatus.success);
-                    await Future<void>.delayed(const Duration(milliseconds: 700));
-                    if (!ctx.mounted) return;
-                    Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(changed ? AppLocalizations.of(context)!.profileUpdatedPendingVerification : AppLocalizations.of(context)!.profileVerified)),
-                    );
-                    if (changed) {
-                      await ref.read(authSessionProvider).reloadFromMe();
+              Center(
+                child: CmCodeField(
+                  length: 6,
+                  controller: codeCtrl,
+                  digitsOnly: true,
+                  status: status,
+                  errorText: error,
+                  // Rebuild per digit so Confirm enables at the sixth.
+                  onChanged: (_) => setSt(() {
+                    if (status == CmCodeStatus.error) {
+                      status = CmCodeStatus.idle;
+                      error = null;
                     }
-                  } catch (e) {
-                    setSt(() { submitting = false; error = _humanizeError(e); status = CmCodeStatus.error; });
-                  }
-                }
-                return Center(
-                  child: CmCodeField(
-                    length: 6,
-                    controller: codeCtrl,
-                    digitsOnly: true,
-                    status: status,
-                    errorText: error,
-                    onChanged: (_) {
-                      if (status == CmCodeStatus.error) {
-                        setSt(() { status = CmCodeStatus.idle; error = null; });
-                      }
-                    },
-                    onCompleted: (_) => submit(),
-                  ),
-                );
-              }),
+                  }),
+                  onCompleted: (_) => submit(),
+                ),
+              ),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: submitting
-                      ? null
-                      : () async {
-                          setSt(() { submitting = true; error = null; });
-                          try {
-                            final changed = await ref
-                                .read(verifyControllerProvider.notifier)
-                                .confirmVerify(channel, code: codeCtrl.text, newValue: newValue);
-                            if (!ctx.mounted) return;
-                            Navigator.pop(ctx);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(changed ? AppLocalizations.of(context)!.profileUpdatedPendingVerification : AppLocalizations.of(context)!.profileVerified)),
-                            );
-                            // Pull /auth/me so AuthSession's cached email stays in sync.
-                            if (changed) {
-                              await ref.read(authSessionProvider).reloadFromMe();
-                            }
-                          } catch (e) {
-                            setSt(() { submitting = false; error = _humanizeError(e); });
-                          }
-                        },
+                  onPressed: submitting || codeCtrl.text.length < 6 ? null : submit,
                   child: submitting
-                      ? const CmLoading(size: 16, color: Colors.white)
-                      : Text(AppLocalizations.of(ctx)!.accountConfirmButton),
+                      ? CmLoading(size: 16, color: cs.onPrimary)
+                      : Text(l.accountConfirmButton),
                 ),
               ),
               const SizedBox(height: 8),
@@ -1139,20 +1123,20 @@ Future<void> _showCodeSheet(
                   onPressed: submitting
                       ? null
                       : () async {
-                          setSt(() => error = null);
+                          setSt(() { error = null; status = CmCodeStatus.idle; });
                           try {
                             await ref
                                 .read(verifyControllerProvider.notifier)
                                 .startVerify(channel, newValue: newValue);
                             if (!ctx.mounted) return;
                             ScaffoldMessenger.of(ctx).showSnackBar(
-                              SnackBar(content: Text(AppLocalizations.of(ctx)!.accountCodeResent)),
+                              SnackBar(content: Text(l.accountCodeResent)),
                             );
                           } catch (e) {
                             setSt(() => error = _humanizeError(e));
                           }
                         },
-                  child: Text(AppLocalizations.of(ctx)!.accountResendCode),
+                  child: Text(l.accountResendCode),
                 ),
               ),
             ],
