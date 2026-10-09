@@ -319,7 +319,7 @@ abstract class AppLocalizations {
   /// No description provided for @consentGateError.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t save your choice. Please check your connection and try again.'**
+  /// **'Couldn’t save your choice. Please check your connection and try again.'**
   String get consentGateError;
 
   /// No description provided for @commonShowPassword.
@@ -385,7 +385,7 @@ abstract class AppLocalizations {
   /// No description provided for @logoutConfirmBody.
   ///
   /// In en, this message translates to:
-  /// **'You\'ll need to sign in again to use ClassMate.'**
+  /// **'You’ll need to sign in again to use ClassMate.'**
   String get logoutConfirmBody;
 
   /// No description provided for @pressBackAgainToExit.
@@ -487,13 +487,13 @@ abstract class AppLocalizations {
   /// Consent gate
   ///
   /// In en, this message translates to:
-  /// **'I have my parent or guardian\'s permission to use ClassMate'**
+  /// **'I have my parent or guardian’s permission to use ClassMate'**
   String get consentGateGuardian;
 
   /// Consent gate
   ///
   /// In en, this message translates to:
-  /// **'Agree & Continue'**
+  /// **'Agree & continue'**
   String get consentGateContinue;
 
   /// No description provided for @menu.
@@ -511,7 +511,7 @@ abstract class AppLocalizations {
   /// No description provided for @sectionSchoolTools.
   ///
   /// In en, this message translates to:
-  /// **'School Tools'**
+  /// **'School tools'**
   String get sectionSchoolTools;
 
   /// No description provided for @sectionAccount.
@@ -619,13 +619,13 @@ abstract class AppLocalizations {
   /// No description provided for @navTeacherWorkspace.
   ///
   /// In en, this message translates to:
-  /// **'Teacher Workspace'**
+  /// **'Teacher workspace'**
   String get navTeacherWorkspace;
 
   /// No description provided for @navSavedQuestions.
   ///
   /// In en, this message translates to:
-  /// **'Saved Questions'**
+  /// **'Saved questions'**
   String get navSavedQuestions;
 
   /// No description provided for @navProfile.
@@ -793,7 +793,7 @@ abstract class AppLocalizations {
   /// No description provided for @solutionsNoSubjectsMatch.
   ///
   /// In en, this message translates to:
-  /// **'No subjects match \"{query}\".'**
+  /// **'No subjects match “{query}”.'**
   String solutionsNoSubjectsMatch(Object query);
 
   /// No description provided for @solutionsBookCount.
@@ -817,7 +817,7 @@ abstract class AppLocalizations {
   /// No description provided for @solutionsBookTitleHint.
   ///
   /// In en, this message translates to:
-  /// **'Book title...'**
+  /// **'Book title…'**
   String get solutionsBookTitleHint;
 
   /// No description provided for @solutionsAddBookAction.
@@ -841,7 +841,7 @@ abstract class AppLocalizations {
   /// No description provided for @solutionsNoBooksMatch.
   ///
   /// In en, this message translates to:
-  /// **'No books match \"{query}\".'**
+  /// **'No books match “{query}”.'**
   String solutionsNoBooksMatch(Object query);
 
   /// No description provided for @solutionsBookLabel.
@@ -1027,7 +1027,7 @@ abstract class AppLocalizations {
   /// No description provided for @solutionsUploadSubmittingAction.
   ///
   /// In en, this message translates to:
-  /// **'Uploading...'**
+  /// **'Uploading…'**
   String get solutionsUploadSubmittingAction;
 
   /// No description provided for @solutionsUploadSubmitAction.
@@ -1219,7 +1219,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsLanguageSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search language...'**
+  /// **'Search language…'**
   String get settingsLanguageSearchHint;
 
   /// No description provided for @teacherQuickActions.
@@ -1482,13 +1482,13 @@ abstract class AppLocalizations {
   /// No description provided for @biometricFaceUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'Face ID isn\'t available on this device.'**
+  /// **'Face ID isn’t available on this device.'**
   String get biometricFaceUnavailable;
 
   /// No description provided for @biometricFingerprintUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'Fingerprint isn\'t available on this device.'**
+  /// **'Fingerprint isn’t available on this device.'**
   String get biometricFingerprintUnavailable;
 
   /// No description provided for @biometricNotAvailableOnDevice.
@@ -1506,7 +1506,7 @@ abstract class AppLocalizations {
   /// No description provided for @biometricSectionSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Turn on Face ID or your fingerprint to sign in faster. You\'ll confirm your password once.'**
+  /// **'Turn on Face ID or your fingerprint to sign in faster. You’ll confirm your password once.'**
   String get biometricSectionSubtitle;
 
   /// No description provided for @biometricFaceId.
@@ -1554,7 +1554,7 @@ abstract class AppLocalizations {
   /// No description provided for @biometricEnrollFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.'**
+  /// **'Couldn’t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.'**
   String get biometricEnrollFailed;
 
   /// No description provided for @biometricLoginFailed.
@@ -1632,7 +1632,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileMyCohortsEmpty.
   ///
   /// In en, this message translates to:
-  /// **'You\'re not enrolled in any cohorts yet.'**
+  /// **'You’re not enrolled in any cohorts yet.'**
   String get profileMyCohortsEmpty;
 
   /// No description provided for @profileAccountInfo.
@@ -1788,7 +1788,7 @@ abstract class AppLocalizations {
   /// No description provided for @classroomsLoadingLatestMessage.
   ///
   /// In en, this message translates to:
-  /// **'Loading latest message...'**
+  /// **'Loading latest message…'**
   String get classroomsLoadingLatestMessage;
 
   /// No description provided for @classroomsTapToOpen.
@@ -1878,8 +1878,8 @@ abstract class AppLocalizations {
   /// No description provided for @examsMaterialsCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} materials'**
-  String examsMaterialsCount(Object count);
+  /// **'{count, plural, one{{count} material} other{{count} materials}}'**
+  String examsMaterialsCount(int count);
 
   /// No description provided for @examsOpenState.
   ///
@@ -1896,8 +1896,8 @@ abstract class AppLocalizations {
   /// No description provided for @examsQuestionsCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} questions'**
-  String examsQuestionsCount(Object count);
+  /// **'{count, plural, one{{count} question} other{{count} questions}}'**
+  String examsQuestionsCount(int count);
 
   /// No description provided for @insightsNotReadyTitle.
   ///
@@ -2220,7 +2220,7 @@ abstract class AppLocalizations {
   /// No description provided for @chatMediaPreviewDrawCropAction.
   ///
   /// In en, this message translates to:
-  /// **'Draw & Crop'**
+  /// **'Draw & crop'**
   String get chatMediaPreviewDrawCropAction;
 
   /// No description provided for @chatMediaPreviewRotateLeftAction.
@@ -2256,7 +2256,7 @@ abstract class AppLocalizations {
   /// No description provided for @chatMediaPreviewCaptionHint.
   ///
   /// In en, this message translates to:
-  /// **'Add a caption...'**
+  /// **'Add a caption…'**
   String get chatMediaPreviewCaptionHint;
 
   /// No description provided for @tutorFailedToLoadChats.
@@ -2424,7 +2424,7 @@ abstract class AppLocalizations {
   /// No description provided for @tutorPlanLimitReachedMessage.
   ///
   /// In en, this message translates to:
-  /// **'This month\'s prompt or upload allowance is exhausted for your current NOVA plan. Pick a higher plan in the NOVA home screen to continue.'**
+  /// **'This month’s prompt or upload allowance is exhausted for your current NOVA plan. Pick a higher plan in the NOVA home screen to continue.'**
   String get tutorPlanLimitReachedMessage;
 
   /// No description provided for @tutorSendFailed.
@@ -2909,8 +2909,8 @@ abstract class AppLocalizations {
   /// No description provided for @notificationsShowingSummary.
   ///
   /// In en, this message translates to:
-  /// **'Showing {shown} of {total} notifications.'**
-  String notificationsShowingSummary(Object shown, Object total);
+  /// **'Showing {shown} of {total, plural, one{{total} notification} other{{total} notifications}}.'**
+  String notificationsShowingSummary(int shown, int total);
 
   /// No description provided for @notificationsEmptyForAccount.
   ///
@@ -3113,10 +3113,10 @@ abstract class AppLocalizations {
   /// No description provided for @announcementsShowingSummary.
   ///
   /// In en, this message translates to:
-  /// **'Showing {shown} of {total} announcements{sourceSegment}{stateSegment}.'**
+  /// **'Showing {shown} of {total, plural, one{{total} announcement} other{{total} announcements}}{sourceSegment}{stateSegment}.'**
   String announcementsShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object sourceSegment,
     Object stateSegment,
   );
@@ -3280,10 +3280,10 @@ abstract class AppLocalizations {
   /// No description provided for @meetingsShowingSummary.
   ///
   /// In en, this message translates to:
-  /// **'Showing {shown} of {total} meetings{subjectSegment}{accessSegment}.'**
+  /// **'Showing {shown} of {total, plural, one{{total} meeting} other{{total} meetings}}{subjectSegment}{accessSegment}.'**
   String meetingsShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object subjectSegment,
     Object accessSegment,
   );
@@ -3849,8 +3849,8 @@ abstract class AppLocalizations {
   /// No description provided for @practiceSetupLivesCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} lives'**
-  String practiceSetupLivesCount(Object count);
+  /// **'{count, plural, one{{count} life} other{{count} lives}}'**
+  String practiceSetupLivesCount(int count);
 
   /// No description provided for @practiceSetupAiTiming.
   ///
@@ -3867,8 +3867,8 @@ abstract class AppLocalizations {
   /// No description provided for @practiceSetupQuestionsCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} questions'**
-  String practiceSetupQuestionsCount(Object count);
+  /// **'{count, plural, one{{count} question} other{{count} questions}}'**
+  String practiceSetupQuestionsCount(int count);
 
   /// No description provided for @practiceSetupSectionSubjectTopic.
   ///
@@ -4689,13 +4689,13 @@ abstract class AppLocalizations {
   /// No description provided for @practiceSetupStopGenerating.
   ///
   /// In en, this message translates to:
-  /// **'Stop Generating'**
+  /// **'Stop generating'**
   String get practiceSetupStopGenerating;
 
   /// No description provided for @practiceSetupGenerating.
   ///
   /// In en, this message translates to:
-  /// **'Generating...'**
+  /// **'Generating…'**
   String get practiceSetupGenerating;
 
   /// No description provided for @practiceSetupStartSession.
@@ -4707,7 +4707,7 @@ abstract class AppLocalizations {
   /// No description provided for @practiceSetupSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search...'**
+  /// **'Search…'**
   String get practiceSetupSearchHint;
 
   /// No description provided for @practiceSessionModeDescriptionPractice.
@@ -5385,8 +5385,8 @@ abstract class AppLocalizations {
   /// No description provided for @assignmentsShowingSummary.
   ///
   /// In en, this message translates to:
-  /// **'Showing {shown} of {total} assignments.'**
-  String assignmentsShowingSummary(Object shown, Object total);
+  /// **'Showing {shown} of {total, plural, one{{total} assignment} other{{total} assignments}}.'**
+  String assignmentsShowingSummary(Object shown, int total);
 
   /// No description provided for @assignmentsNoFilterMatchesTitle.
   ///
@@ -5595,10 +5595,10 @@ abstract class AppLocalizations {
   /// No description provided for @attendanceShowingSummary.
   ///
   /// In en, this message translates to:
-  /// **'Showing {shown} of {total} marks for {subject} in {range}.'**
+  /// **'Showing {shown} of {total, plural, one{{total} mark} other{{total} marks}} for {subject} in {range}.'**
   String attendanceShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object subject,
     Object range,
   );
@@ -5798,8 +5798,8 @@ abstract class AppLocalizations {
   /// No description provided for @attendanceLessonCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} lessons'**
-  String attendanceLessonCount(Object count);
+  /// **'{count, plural, one{{count} lesson} other{{count} lessons}}'**
+  String attendanceLessonCount(int count);
 
   /// No description provided for @attendanceStatusPresent.
   ///
@@ -5978,7 +5978,7 @@ abstract class AppLocalizations {
   /// No description provided for @msgBlockContent.
   ///
   /// In en, this message translates to:
-  /// **'They won\'t be able to message you and you won\'t see their messages.'**
+  /// **'They won’t be able to message you and you won’t see their messages.'**
   String get msgBlockContent;
 
   /// No description provided for @msgRenameGroup.
@@ -6098,7 +6098,7 @@ abstract class AppLocalizations {
   /// No description provided for @msgJoinGroupTitle.
   ///
   /// In en, this message translates to:
-  /// **'Join a Group'**
+  /// **'Join a group'**
   String get msgJoinGroupTitle;
 
   /// No description provided for @msgJoinGroupSubtitle.
@@ -6170,25 +6170,25 @@ abstract class AppLocalizations {
   /// No description provided for @teacherGoToClassroom.
   ///
   /// In en, this message translates to:
-  /// **'Go to Classroom'**
+  /// **'Go to classroom'**
   String get teacherGoToClassroom;
 
   /// No description provided for @teacherMarkAttendance.
   ///
   /// In en, this message translates to:
-  /// **'Mark Attendance'**
+  /// **'Mark attendance'**
   String get teacherMarkAttendance;
 
   /// No description provided for @teacherPostAssignment.
   ///
   /// In en, this message translates to:
-  /// **'Post Assignment'**
+  /// **'Post assignment'**
   String get teacherPostAssignment;
 
   /// No description provided for @teacherNewAnnouncementAction.
   ///
   /// In en, this message translates to:
-  /// **'New Announcement'**
+  /// **'New announcement'**
   String get teacherNewAnnouncementAction;
 
   /// No description provided for @teacherGroupsLabel.
@@ -6302,7 +6302,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherWeekScheduleTitle.
   ///
   /// In en, this message translates to:
-  /// **'Week Schedule'**
+  /// **'Week schedule'**
   String get teacherWeekScheduleTitle;
 
   /// No description provided for @teacherAttendanceLast30.
@@ -6332,7 +6332,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherRecentGrades.
   ///
   /// In en, this message translates to:
-  /// **'Recent Grades'**
+  /// **'Recent grades'**
   String get teacherRecentGrades;
 
   /// No description provided for @teacherNoGradesRecorded.
@@ -6344,7 +6344,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherGradeAvg.
   ///
   /// In en, this message translates to:
-  /// **'Grade Avg'**
+  /// **'Grade avg'**
   String get teacherGradeAvg;
 
   /// No description provided for @teacherSubmittedLabel.
@@ -6362,7 +6362,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherGradeReports.
   ///
   /// In en, this message translates to:
-  /// **'Grade Reports'**
+  /// **'Grade reports'**
   String get teacherGradeReports;
 
   /// No description provided for @teacherAvgLabel.
@@ -6404,7 +6404,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherShareMaterialTitle.
   ///
   /// In en, this message translates to:
-  /// **'Share Material'**
+  /// **'Share material'**
   String get teacherShareMaterialTitle;
 
   /// No description provided for @teacherRemoveMaterial.
@@ -6422,7 +6422,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherScheduleMeetingTitle.
   ///
   /// In en, this message translates to:
-  /// **'Schedule Meeting'**
+  /// **'Schedule meeting'**
   String get teacherScheduleMeetingTitle;
 
   /// No description provided for @teacherCancelMeetingTitle.
@@ -6518,7 +6518,7 @@ abstract class AppLocalizations {
   /// No description provided for @chatOpenSettings.
   ///
   /// In en, this message translates to:
-  /// **'Open Settings'**
+  /// **'Open settings'**
   String get chatOpenSettings;
 
   /// No description provided for @chatCopied.
@@ -6536,7 +6536,7 @@ abstract class AppLocalizations {
   /// No description provided for @chatMediaWebUnsupported.
   ///
   /// In en, this message translates to:
-  /// **'Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.'**
+  /// **'Taking photos, recording, and attaching files aren’t available in the web browser yet — please use the ClassMate mobile app.'**
   String get chatMediaWebUnsupported;
 
   /// No description provided for @chatCouldNotSendMessage.
@@ -6638,7 +6638,7 @@ abstract class AppLocalizations {
   /// No description provided for @chatJoinGroup.
   ///
   /// In en, this message translates to:
-  /// **'Join Group'**
+  /// **'Join group'**
   String get chatJoinGroup;
 
   /// No description provided for @chatJoining.
@@ -6668,7 +6668,7 @@ abstract class AppLocalizations {
   /// No description provided for @novaTokenTip.
   ///
   /// In en, this message translates to:
-  /// **'Use your tokens carefully — they\'re meant for studying.'**
+  /// **'Use your tokens carefully — they’re meant for studying.'**
   String get novaTokenTip;
 
   /// No description provided for @practiceCustomDisclaimer.
@@ -6686,7 +6686,7 @@ abstract class AppLocalizations {
   /// No description provided for @classroomsJoinAction.
   ///
   /// In en, this message translates to:
-  /// **'Join Classroom'**
+  /// **'Join classroom'**
   String get classroomsJoinAction;
 
   /// No description provided for @classroomsJoinTooltip.
@@ -6698,7 +6698,7 @@ abstract class AppLocalizations {
   /// No description provided for @classroomsJoinTitle.
   ///
   /// In en, this message translates to:
-  /// **'Join a Classroom'**
+  /// **'Join a classroom'**
   String get classroomsJoinTitle;
 
   /// No description provided for @classroomsJoinSubtitle.
@@ -6746,7 +6746,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherTodaysClasses.
   ///
   /// In en, this message translates to:
-  /// **'Today\'s Classes'**
+  /// **'Today’s classes'**
   String get teacherTodaysClasses;
 
   /// No description provided for @teacherNoDate.
@@ -6842,13 +6842,13 @@ abstract class AppLocalizations {
   /// No description provided for @searchHint.
   ///
   /// In en, this message translates to:
-  /// **'Search...'**
+  /// **'Search…'**
   String get searchHint;
 
   /// No description provided for @teacherInsightsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Student Insights'**
+  /// **'Student insights'**
   String get teacherInsightsTitle;
 
   /// No description provided for @teacherInsightsSubtitle.
@@ -6914,8 +6914,8 @@ abstract class AppLocalizations {
   /// No description provided for @teacherFormsResponses.
   ///
   /// In en, this message translates to:
-  /// **'{count} responses'**
-  String teacherFormsResponses(Object count);
+  /// **'{count, plural, one{{count} response} other{{count} responses}}'**
+  String teacherFormsResponses(int count);
 
   /// No description provided for @teacherFormsPublished.
   ///
@@ -7010,7 +7010,7 @@ abstract class AppLocalizations {
   /// No description provided for @examViewGradeAction.
   ///
   /// In en, this message translates to:
-  /// **'Open Grades'**
+  /// **'Open grades'**
   String get examViewGradeAction;
 
   /// No description provided for @teacherGradesNothingToSave.
@@ -7160,7 +7160,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminDashboardTitle.
   ///
   /// In en, this message translates to:
-  /// **'School Overview'**
+  /// **'School overview'**
   String get adminDashboardTitle;
 
   /// No description provided for @adminStudents.
@@ -7196,7 +7196,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminQuickActions.
   ///
   /// In en, this message translates to:
-  /// **'Quick Actions'**
+  /// **'Quick actions'**
   String get adminQuickActions;
 
   /// No description provided for @adminAttendanceLast30.
@@ -7214,7 +7214,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminAddUser.
   ///
   /// In en, this message translates to:
-  /// **'Add User'**
+  /// **'Add user'**
   String get adminAddUser;
 
   /// No description provided for @adminCreateUser.
@@ -7232,7 +7232,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminUserCreated.
   ///
   /// In en, this message translates to:
-  /// **'User Created'**
+  /// **'User created'**
   String get adminUserCreated;
 
   /// No description provided for @adminCopied.
@@ -7244,7 +7244,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminDeleteUser.
   ///
   /// In en, this message translates to:
-  /// **'Delete User'**
+  /// **'Delete user'**
   String get adminDeleteUser;
 
   /// No description provided for @adminDeleteUserConfirm.
@@ -7256,19 +7256,19 @@ abstract class AppLocalizations {
   /// No description provided for @adminDeleteCohort.
   ///
   /// In en, this message translates to:
-  /// **'Delete Cohort'**
+  /// **'Delete cohort'**
   String get adminDeleteCohort;
 
   /// No description provided for @adminDeleteCohortConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Delete \"{name}\"? All student memberships will be removed.'**
+  /// **'Delete “{name}”? All student memberships will be removed.'**
   String adminDeleteCohortConfirm(Object name);
 
   /// No description provided for @adminAddCohort.
   ///
   /// In en, this message translates to:
-  /// **'Add Cohort'**
+  /// **'Add cohort'**
   String get adminAddCohort;
 
   /// No description provided for @adminCohortName.
@@ -7292,13 +7292,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminAddStudents.
   ///
   /// In en, this message translates to:
-  /// **'Add Students'**
+  /// **'Add students'**
   String get adminAddStudents;
 
   /// No description provided for @adminRemoveStudent.
   ///
   /// In en, this message translates to:
-  /// **'Remove Student'**
+  /// **'Remove student'**
   String get adminRemoveStudent;
 
   /// No description provided for @adminRemoveStudentConfirm.
@@ -7400,13 +7400,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminSchoolSettingsTitle.
   ///
   /// In en, this message translates to:
-  /// **'School Settings'**
+  /// **'School settings'**
   String get adminSchoolSettingsTitle;
 
   /// No description provided for @adminSchoolName.
   ///
   /// In en, this message translates to:
-  /// **'School Name'**
+  /// **'School name'**
   String get adminSchoolName;
 
   /// No description provided for @adminSchoolSaved.
@@ -7502,13 +7502,13 @@ abstract class AppLocalizations {
   /// No description provided for @permissionsSaveFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t save permissions: {error}'**
+  /// **'Couldn’t save permissions: {error}'**
   String permissionsSaveFailed(Object error);
 
   /// No description provided for @permissionsLoadFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t load permissions: {error}'**
+  /// **'Couldn’t load permissions: {error}'**
   String permissionsLoadFailed(Object error);
 
   /// No description provided for @permissionsNoResults.
@@ -7526,13 +7526,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminSettingsBellSchedule.
   ///
   /// In en, this message translates to:
-  /// **'Bell Schedule'**
+  /// **'Bell schedule'**
   String get adminSettingsBellSchedule;
 
   /// No description provided for @adminSettingsPeriodDefaults.
   ///
   /// In en, this message translates to:
-  /// **'Period Defaults'**
+  /// **'Period defaults'**
   String get adminSettingsPeriodDefaults;
 
   /// No description provided for @adminDeleteConfirmCancel.
@@ -7574,7 +7574,7 @@ abstract class AppLocalizations {
   /// No description provided for @chatThreadLoadFailedTitle.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t load this conversation'**
+  /// **'Couldn’t load this conversation'**
   String get chatThreadLoadFailedTitle;
 
   /// No description provided for @chatThreadLoadFailedBody.
@@ -7730,7 +7730,7 @@ abstract class AppLocalizations {
   /// No description provided for @inboxActionBlockConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Block this contact? They won\'t be able to message you anymore.'**
+  /// **'Block this contact? They won’t be able to message you anymore.'**
   String get inboxActionBlockConfirm;
 
   /// No description provided for @cmailActionMarkRead.
@@ -7826,7 +7826,7 @@ abstract class AppLocalizations {
   /// No description provided for @secretaryExportData.
   ///
   /// In en, this message translates to:
-  /// **'Export Data'**
+  /// **'Export data'**
   String get secretaryExportData;
 
   /// No description provided for @parentHomeGreeting.
@@ -7928,19 +7928,19 @@ abstract class AppLocalizations {
   /// No description provided for @forgotPasswordSmsHelper.
   ///
   /// In en, this message translates to:
-  /// **'We\'ll text the link to the phone number on this account.'**
+  /// **'We’ll text the link to the phone number on this account.'**
   String get forgotPasswordSmsHelper;
 
   /// No description provided for @forgotPasswordIntroEmail.
   ///
   /// In en, this message translates to:
-  /// **'Enter your email or username and we\'ll email you a reset link.'**
+  /// **'Enter your email or username and we’ll email you a reset link.'**
   String get forgotPasswordIntroEmail;
 
   /// No description provided for @forgotPasswordIntroSms.
   ///
   /// In en, this message translates to:
-  /// **'Enter your email or username and we\'ll text a reset link to the phone on your account.'**
+  /// **'Enter your email or username and we’ll text a reset link to the phone on your account.'**
   String get forgotPasswordIntroSms;
 
   /// No description provided for @forgotPasswordExpiryNote.
@@ -8012,7 +8012,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherMaterialDetails.
   ///
   /// In en, this message translates to:
-  /// **'Material Details'**
+  /// **'Material details'**
   String get teacherMaterialDetails;
 
   /// No description provided for @teacherMaterialTitleLabel.
@@ -8276,13 +8276,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminSetupSchoolSetup.
   ///
   /// In en, this message translates to:
-  /// **'School Setup'**
+  /// **'School setup'**
   String get adminSetupSchoolSetup;
 
   /// No description provided for @adminSetupComplete.
   ///
   /// In en, this message translates to:
-  /// **'You\'re all set. Tap any item to revisit or refine it.'**
+  /// **'You’re all set. Tap any item to revisit or refine it.'**
   String get adminSetupComplete;
 
   /// No description provided for @adminSetupInstructions.
@@ -8384,7 +8384,7 @@ abstract class AppLocalizations {
   /// No description provided for @supportContactDescription.
   ///
   /// In en, this message translates to:
-  /// **'Can\'t find your answer below? Get in touch and we\'ll come back to you within a working day.'**
+  /// **'Can’t find your answer below? Get in touch and we’ll come back to you within a working day.'**
   String get supportContactDescription;
 
   /// No description provided for @supportEmailLabel.
@@ -8432,7 +8432,7 @@ abstract class AppLocalizations {
   /// No description provided for @supportAiGreeting.
   ///
   /// In en, this message translates to:
-  /// **'Hi! I\'m NOVA, ClassMate\'s assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.'**
+  /// **'Hi! I’m NOVA, ClassMate’s assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.'**
   String get supportAiGreeting;
 
   /// No description provided for @supportAiInputHint.
@@ -8450,7 +8450,7 @@ abstract class AppLocalizations {
   /// No description provided for @supportAiError.
   ///
   /// In en, this message translates to:
-  /// **'Sorry — I couldn\'t answer that right now. Please try again, or contact support above.'**
+  /// **'Sorry — I couldn’t answer that right now. Please try again, or contact support above.'**
   String get supportAiError;
 
   /// No description provided for @supportAiSubtitle.
@@ -8474,7 +8474,7 @@ abstract class AppLocalizations {
   /// No description provided for @supportAiSuggestTheme.
   ///
   /// In en, this message translates to:
-  /// **'How do I change the app\'s theme?'**
+  /// **'How do I change the app’s theme?'**
   String get supportAiSuggestTheme;
 
   /// No description provided for @aboutWhatIsClassmate.
@@ -8498,7 +8498,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutMultilingualDescription.
   ///
   /// In en, this message translates to:
-  /// **'Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they\'re most comfortable with; teachers manage in theirs.'**
+  /// **'Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they’re most comfortable with; teachers manage in theirs.'**
   String get aboutMultilingualDescription;
 
   /// No description provided for @aboutPrivacyTitle.
@@ -8624,7 +8624,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminCopyCredsButton.
   ///
   /// In en, this message translates to:
-  /// **'Copy All'**
+  /// **'Copy all'**
   String get adminCopyCredsButton;
 
   /// No description provided for @adminGradeLabel.
@@ -8642,13 +8642,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminCreateAndAddStudents.
   ///
   /// In en, this message translates to:
-  /// **'Create & Add Students'**
+  /// **'Create & add students'**
   String get adminCreateAndAddStudents;
 
   /// No description provided for @adminAddStudentsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add Students'**
+  /// **'Add students'**
   String get adminAddStudentsTitle;
 
   /// No description provided for @adminSkipAdding.
@@ -8726,7 +8726,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminSchoolLogoLabel.
   ///
   /// In en, this message translates to:
-  /// **'School Logo'**
+  /// **'School logo'**
   String get adminSchoolLogoLabel;
 
   /// No description provided for @adminSchoolLogoUploaded.
@@ -8786,7 +8786,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminSchoolSubjectsTitle.
   ///
   /// In en, this message translates to:
-  /// **'School Subjects'**
+  /// **'School subjects'**
   String get adminSchoolSubjectsTitle;
 
   /// No description provided for @adminSchoolSubjectsDescription.
@@ -8804,7 +8804,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminSchoolBellTitle.
   ///
   /// In en, this message translates to:
-  /// **'Bell Schedule'**
+  /// **'Bell schedule'**
   String get adminSchoolBellTitle;
 
   /// No description provided for @adminSchoolBellInfo.
@@ -8828,13 +8828,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminExportOptionsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Export Options'**
+  /// **'Export options'**
   String get adminExportOptionsTitle;
 
   /// No description provided for @adminExportIncludePasswords.
   ///
   /// In en, this message translates to:
-  /// **'Include Passwords'**
+  /// **'Include passwords'**
   String get adminExportIncludePasswords;
 
   /// No description provided for @adminExportLanguageLabel.
@@ -8882,7 +8882,7 @@ abstract class AppLocalizations {
   /// No description provided for @messagesNoPeopleMatch.
   ///
   /// In en, this message translates to:
-  /// **'No people match \"{query}\"'**
+  /// **'No people match “{query}”'**
   String messagesNoPeopleMatch(Object query);
 
   /// No description provided for @messagesNoPeopleFound.
@@ -8936,7 +8936,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherDeleteItemConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Delete \"{title}\"?'**
+  /// **'Delete “{title}”?'**
   String teacherDeleteItemConfirm(Object title);
 
   /// No description provided for @teacherPublishTooltip.
@@ -8960,7 +8960,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherMeetingEnterValidUrl.
   ///
   /// In en, this message translates to:
-  /// **'Please enter a valid URL (e.g. https://zoom.us/j/...)'**
+  /// **'Please enter a valid URL (e.g. https://zoom.us/j/…)'**
   String get teacherMeetingEnterValidUrl;
 
   /// No description provided for @teacherMeetingPickStartTime.
@@ -9080,19 +9080,19 @@ abstract class AppLocalizations {
   /// No description provided for @teacherCreateClassroomButton.
   ///
   /// In en, this message translates to:
-  /// **'Create Classroom'**
+  /// **'Create classroom'**
   String get teacherCreateClassroomButton;
 
   /// No description provided for @teacherCreateFormTitle.
   ///
   /// In en, this message translates to:
-  /// **'Create Form'**
+  /// **'Create form'**
   String get teacherCreateFormTitle;
 
   /// No description provided for @teacherFormSaveDraft.
   ///
   /// In en, this message translates to:
-  /// **'Save Draft'**
+  /// **'Save draft'**
   String get teacherFormSaveDraft;
 
   /// No description provided for @teacherFormTitleHint.
@@ -9278,7 +9278,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherMaterialSearchStudentsGrade.
   ///
   /// In en, this message translates to:
-  /// **'Search students or grade...'**
+  /// **'Search students or grade…'**
   String get teacherMaterialSearchStudentsGrade;
 
   /// No description provided for @teacherMaterialDoneSelected.
@@ -9338,7 +9338,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherSaveGradesButton.
   ///
   /// In en, this message translates to:
-  /// **'Save Grades'**
+  /// **'Save grades'**
   String get teacherSaveGradesButton;
 
   /// No description provided for @teacherGradeFieldLabel.
@@ -9500,7 +9500,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminEditUserLinkedChildren.
   ///
   /// In en, this message translates to:
-  /// **'Linked Children'**
+  /// **'Linked children'**
   String get adminEditUserLinkedChildren;
 
   /// No description provided for @adminEditUserLinkButton.
@@ -9542,13 +9542,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminPeriodsTitle.
   ///
   /// In en, this message translates to:
-  /// **'Manage Periods'**
+  /// **'Manage periods'**
   String get adminPeriodsTitle;
 
   /// No description provided for @adminPeriodsAddPeriod.
   ///
   /// In en, this message translates to:
-  /// **'Add Period'**
+  /// **'Add period'**
   String get adminPeriodsAddPeriod;
 
   /// No description provided for @adminPeriodsNoPeriods.
@@ -9566,7 +9566,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminPeriodsNewPeriod.
   ///
   /// In en, this message translates to:
-  /// **'New Period'**
+  /// **'New period'**
   String get adminPeriodsNewPeriod;
 
   /// No description provided for @adminPeriodsDayLabel.
@@ -9800,13 +9800,13 @@ abstract class AppLocalizations {
   /// No description provided for @teacherMaterialEditTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit Material'**
+  /// **'Edit material'**
   String get teacherMaterialEditTitle;
 
   /// No description provided for @teacherMaterialAddTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add Material'**
+  /// **'Add material'**
   String get teacherMaterialAddTitle;
 
   /// No description provided for @teacherMaterialAudienceTitle.
@@ -9866,7 +9866,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherMaterialSubjectSearch.
   ///
   /// In en, this message translates to:
-  /// **'Search subjects...'**
+  /// **'Search subjects…'**
   String get teacherMaterialSubjectSearch;
 
   /// No description provided for @teacherMaterialAttachmentsTitle.
@@ -10124,7 +10124,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminScheduleSavedLabelOnlyError.
   ///
   /// In en, this message translates to:
-  /// **'Saved as slot label only — couldn\'t add to library: {error}'**
+  /// **'Saved as slot label only — couldn’t add to library: {error}'**
   String adminScheduleSavedLabelOnlyError(Object error);
 
   /// No description provided for @adminScheduleSavedLabelPickAudience.
@@ -10160,7 +10160,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherCreateClassroomNewTitle.
   ///
   /// In en, this message translates to:
-  /// **'New Classroom'**
+  /// **'New classroom'**
   String get teacherCreateClassroomNewTitle;
 
   /// No description provided for @teacherCreateClassroomLoadingStudents.
@@ -10244,13 +10244,13 @@ abstract class AppLocalizations {
   /// No description provided for @classMaterialsFilesCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} files'**
+  /// **'{count, plural, one{{count} file} other{{count} files}}'**
   String classMaterialsFilesCount(int count);
 
   /// No description provided for @classMaterialsLoadError.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t load materials'**
+  /// **'Couldn’t load materials'**
   String get classMaterialsLoadError;
 
   /// No description provided for @classMaterialsEmpty.
@@ -10262,7 +10262,7 @@ abstract class AppLocalizations {
   /// No description provided for @navPlans.
   ///
   /// In en, this message translates to:
-  /// **'NOVA Plans'**
+  /// **'NOVA plans'**
   String get navPlans;
 
   /// No description provided for @navReports.
@@ -10274,25 +10274,25 @@ abstract class AppLocalizations {
   /// No description provided for @navExportData.
   ///
   /// In en, this message translates to:
-  /// **'Export Data'**
+  /// **'Export data'**
   String get navExportData;
 
   /// No description provided for @sectionSecretaryTools.
   ///
   /// In en, this message translates to:
-  /// **'Secretary Tools'**
+  /// **'Secretary tools'**
   String get sectionSecretaryTools;
 
   /// No description provided for @sectionSchoolToolsLabel.
   ///
   /// In en, this message translates to:
-  /// **'School Tools'**
+  /// **'School tools'**
   String get sectionSchoolToolsLabel;
 
   /// No description provided for @sectionAdminTools.
   ///
   /// In en, this message translates to:
-  /// **'Admin Tools'**
+  /// **'Admin tools'**
   String get sectionAdminTools;
 
   /// No description provided for @chatVideoTrimTitle.
@@ -10334,7 +10334,7 @@ abstract class AppLocalizations {
   /// No description provided for @plansCouldntLoadBalance.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t load your balance'**
+  /// **'Couldn’t load your balance'**
   String get plansCouldntLoadBalance;
 
   /// No description provided for @plansFreePlan.
@@ -10478,7 +10478,7 @@ abstract class AppLocalizations {
   /// No description provided for @plansCouldntLoadPlans.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t load plans'**
+  /// **'Couldn’t load plans'**
   String get plansCouldntLoadPlans;
 
   /// No description provided for @paywallPlansUnavailable.
@@ -10490,7 +10490,7 @@ abstract class AppLocalizations {
   /// No description provided for @paywallTopupUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'Top-up unavailable. The store hasn\'t finished approving this product.'**
+  /// **'Top-up unavailable. The store hasn’t finished approving this product.'**
   String get paywallTopupUnavailable;
 
   /// No description provided for @paywallRestored.
@@ -10520,13 +10520,13 @@ abstract class AppLocalizations {
   /// No description provided for @paywallPurchaseInvalid.
   ///
   /// In en, this message translates to:
-  /// **'This purchase isn\'t valid. Try a different payment method.'**
+  /// **'This purchase isn’t valid. Try a different payment method.'**
   String get paywallPurchaseInvalid;
 
   /// No description provided for @paywallProductNotAvailable.
   ///
   /// In en, this message translates to:
-  /// **'This plan isn\'t available right now. Try again later.'**
+  /// **'This plan isn’t available right now. Try again later.'**
   String get paywallProductNotAvailable;
 
   /// No description provided for @paywallNetworkError.
@@ -10538,7 +10538,7 @@ abstract class AppLocalizations {
   /// No description provided for @paywallPaymentPending.
   ///
   /// In en, this message translates to:
-  /// **'Payment is pending approval (parental controls, etc.). It\'ll activate once approved.'**
+  /// **'Payment is pending approval (parental controls, etc.). It’ll activate once approved.'**
   String get paywallPaymentPending;
 
   /// No description provided for @paywallStoreProblem.
@@ -10664,13 +10664,13 @@ abstract class AppLocalizations {
   /// No description provided for @paywallTermsSubscription.
   ///
   /// In en, this message translates to:
-  /// **'By subscribing you agree to ClassMate\'s Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Cancel at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store or Google Play account.'**
+  /// **'By subscribing you agree to ClassMate’s Terms and Privacy Policy. Subscriptions auto-renew monthly until canceled. Cancel at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store or Google Play account.'**
   String get paywallTermsSubscription;
 
   /// No description provided for @paywallTermsTopup.
   ///
   /// In en, this message translates to:
-  /// **'By purchasing you agree to ClassMate\'s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.'**
+  /// **'By purchasing you agree to ClassMate’s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.'**
   String get paywallTermsTopup;
 
   /// No description provided for @paywallTermsLink.
@@ -10856,7 +10856,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminExportPasswordsWarning.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, one{This resets {count} student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.} other{This resets {count} students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.}}'**
+  /// **'{count, plural, one{This resets {count} student’s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.} other{This resets {count} students’ passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.}}'**
   String adminExportPasswordsWarning(int count);
 
   /// No description provided for @pickerSelectStudents.
@@ -10928,13 +10928,13 @@ abstract class AppLocalizations {
   /// No description provided for @commonCouldntSend.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t send: {error}'**
+  /// **'Couldn’t send: {error}'**
   String commonCouldntSend(String error);
 
   /// No description provided for @teacherExamDetailsSection.
   ///
   /// In en, this message translates to:
-  /// **'Exam Details'**
+  /// **'Exam details'**
   String get teacherExamDetailsSection;
 
   /// No description provided for @teacherExamStudyMaterialsWithCount.
@@ -10946,7 +10946,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherMeetingDetailsSection.
   ///
   /// In en, this message translates to:
-  /// **'Meeting Details'**
+  /// **'Meeting details'**
   String get teacherMeetingDetailsSection;
 
   /// No description provided for @teacherClassroomNameSection.
@@ -11192,19 +11192,19 @@ abstract class AppLocalizations {
   /// No description provided for @faqStartedA1.
   ///
   /// In en, this message translates to:
-  /// **'Tap \"Sign in\" on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You\'ll be asked to set a new password the first time.'**
+  /// **'Tap “Sign in” on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You’ll be asked to set a new password the first time.'**
   String get faqStartedA1;
 
   /// No description provided for @faqStartedQ2.
   ///
   /// In en, this message translates to:
-  /// **'I don\'t have a login yet.'**
+  /// **'I don’t have a login yet.'**
   String get faqStartedQ2;
 
   /// No description provided for @faqStartedA2.
   ///
   /// In en, this message translates to:
-  /// **'Your school administrator creates accounts. Ask them to add you — they\'ll give you a username or email and a temporary password.'**
+  /// **'Your school administrator creates accounts. Ask them to add you — they’ll give you a username or email and a temporary password.'**
   String get faqStartedA2;
 
   /// No description provided for @faqStartedQ3.
@@ -11228,7 +11228,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqStartedA4.
   ///
   /// In en, this message translates to:
-  /// **'Open Settings → Appearance → Theme. Pick \"System default\" to follow your device\'s light or dark mode, or choose one of 20 themes — you can also make your own.'**
+  /// **'Open Settings → Appearance → Theme. Pick “System default” to follow your device’s light or dark mode, or choose one of 20 themes — you can also make your own.'**
   String get faqStartedA4;
 
   /// No description provided for @faqAccountQ1.
@@ -11240,7 +11240,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAccountA1.
   ///
   /// In en, this message translates to:
-  /// **'Tap \"Forgot password?\" on the login screen. We\'ll send a reset link by email or by text message (SMS), in your language. If neither your email nor your phone is verified yet, ask your school administrator to set a new temporary password.'**
+  /// **'Tap “Forgot password?” on the login screen. We’ll send a reset link by email or by text message (SMS), in your language. If neither your email nor your phone is verified yet, ask your school administrator to set a new temporary password.'**
   String get faqAccountA1;
 
   /// No description provided for @faqAccountQ2.
@@ -11252,7 +11252,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAccountA2.
   ///
   /// In en, this message translates to:
-  /// **'Open Profile from the drawer, scroll to Security, and tap the password row. You\'ll need your current password to set a new one.'**
+  /// **'Open Profile from the drawer, scroll to Security, and tap the password row. You’ll need your current password to set a new one.'**
   String get faqAccountA2;
 
   /// No description provided for @faqAccountQ3.
@@ -11264,7 +11264,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAccountA3.
   ///
   /// In en, this message translates to:
-  /// **'Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it\'s really you, then you can set the new value.'**
+  /// **'Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it’s really you, then you can set the new value.'**
   String get faqAccountA3;
 
   /// No description provided for @faqAccountQ4.
@@ -11276,7 +11276,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAccountA4.
   ///
   /// In en, this message translates to:
-  /// **'When an administrator resets your password, you\'ll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.'**
+  /// **'When an administrator resets your password, you’ll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.'**
   String get faqAccountA4;
 
   /// No description provided for @faqStudentsQ1.
@@ -11288,7 +11288,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqStudentsA1.
   ///
   /// In en, this message translates to:
-  /// **'Schedule is the first tab at the bottom of the screen. You\'ll see this week\'s periods, who teaches each one, and any changes the admin has posted.'**
+  /// **'Schedule is the first tab at the bottom of the screen. You’ll see this week’s periods, who teaches each one, and any changes the admin has posted.'**
   String get faqStudentsA1;
 
   /// No description provided for @faqStudentsQ2.
@@ -11348,7 +11348,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqTeachersA2.
   ///
   /// In en, this message translates to:
-  /// **'Open Attendance from School Tools, pick the date and period, set each student\'s status, then tap Save.'**
+  /// **'Open Attendance from School tools, pick the date and period, set each student’s status, then tap Save.'**
   String get faqTeachersA2;
 
   /// No description provided for @faqTeachersQ3.
@@ -11372,7 +11372,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqTeachersA4.
   ///
   /// In en, this message translates to:
-  /// **'Homeroom teachers can — open Certificates from School Tools, pick the class and the student, then create the certificate. You can also build one PDF for the whole class. The student sees it in their own Certificates.'**
+  /// **'Homeroom teachers can — open Certificates from School tools, pick the class and the student, then create the certificate. You can also build one PDF for the whole class. The student sees it in their own Certificates.'**
   String get faqTeachersA4;
 
   /// No description provided for @faqAdminsQ1.
@@ -11396,7 +11396,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAdminsA2.
   ///
   /// In en, this message translates to:
-  /// **'A cohort is a group of students that share a schedule. Open Cohorts from School Tools to create them and add students. A single cohort can span multiple grades.'**
+  /// **'A cohort is a group of students that share a schedule. Open Cohorts from School tools to create them and add students. A single cohort can span multiple grades.'**
   String get faqAdminsA2;
 
   /// No description provided for @faqAdminsQ3.
@@ -11408,7 +11408,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAdminsA3.
   ///
   /// In en, this message translates to:
-  /// **'Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades\' filters and views, and announcements/templates targeted at any of those grades reach it.'**
+  /// **'Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades’ filters and views, and announcements/templates targeted at any of those grades reach it.'**
   String get faqAdminsA3;
 
   /// No description provided for @faqAdminsQ4.
@@ -11444,7 +11444,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqAdminsA6.
   ///
   /// In en, this message translates to:
-  /// **'Open Users, tap the person and set a new password — they also get an email or text with a link to choose their own. If their email or phone is verified, they can reset it themselves with \"Forgot password?\".'**
+  /// **'Open Users, tap the person and set a new password — they also get an email or text with a link to choose their own. If their email or phone is verified, they can reset it themselves with “Forgot password?”.'**
   String get faqAdminsA6;
 
   /// No description provided for @faqParentsQ1.
@@ -11456,7 +11456,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqParentsA1.
   ///
   /// In en, this message translates to:
-  /// **'Your child\'s school administrator links your account to your child from their admin app. Once linked, your child appears on your Home screen.'**
+  /// **'Your child’s school administrator links your account to your child from their admin app. Once linked, your child appears on your Home screen.'**
   String get faqParentsA1;
 
   /// No description provided for @faqParentsQ2.
@@ -11468,7 +11468,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqParentsA2.
   ///
   /// In en, this message translates to:
-  /// **'Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won\'t see private chats or NOVA sessions.'**
+  /// **'Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won’t see private chats or NOVA sessions.'**
   String get faqParentsA2;
 
   /// No description provided for @faqPrivacyQ1.
@@ -11480,7 +11480,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqPrivacyA1.
   ///
   /// In en, this message translates to:
-  /// **'Only people in your school. Teachers see their classrooms\' data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.'**
+  /// **'Only people in your school. Teachers see their classrooms’ data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.'**
   String get faqPrivacyA1;
 
   /// No description provided for @faqPrivacyQ2.
@@ -11492,7 +11492,7 @@ abstract class AppLocalizations {
   /// No description provided for @faqPrivacyA2.
   ///
   /// In en, this message translates to:
-  /// **'Ask your school administrator to delete it from their admin app, which wipes your profile, schedule, and chats. You can also email support@classmateapp.org from your account\'s email address and we\'ll delete it within 30 days.'**
+  /// **'Ask your school administrator to delete it from their admin app, which wipes your profile, schedule, and chats. You can also email support@classmateapp.org from your account’s email address and we’ll delete it within 30 days.'**
   String get faqPrivacyA2;
 
   /// No description provided for @solutionsPagesCount.
@@ -11504,37 +11504,37 @@ abstract class AppLocalizations {
   /// No description provided for @teacherMeetingEditTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit Meeting'**
+  /// **'Edit meeting'**
   String get teacherMeetingEditTitle;
 
   /// No description provided for @teacherMeetingNewTitle.
   ///
   /// In en, this message translates to:
-  /// **'Schedule Meeting'**
+  /// **'Schedule meeting'**
   String get teacherMeetingNewTitle;
 
   /// No description provided for @teacherExamEditTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit Exam'**
+  /// **'Edit exam'**
   String get teacherExamEditTitle;
 
   /// No description provided for @teacherExamNewTitle.
   ///
   /// In en, this message translates to:
-  /// **'Create Exam'**
+  /// **'Create exam'**
   String get teacherExamNewTitle;
 
   /// No description provided for @teacherAssignmentEditTitle.
   ///
   /// In en, this message translates to:
-  /// **'Edit Assignment'**
+  /// **'Edit assignment'**
   String get teacherAssignmentEditTitle;
 
   /// No description provided for @teacherAssignmentNewTitle.
   ///
   /// In en, this message translates to:
-  /// **'New Assignment'**
+  /// **'New assignment'**
   String get teacherAssignmentNewTitle;
 
   /// No description provided for @tooltipShowTabs.
@@ -11570,7 +11570,7 @@ abstract class AppLocalizations {
   /// No description provided for @commonNoResultsForQuery.
   ///
   /// In en, this message translates to:
-  /// **'No results for \"{query}\"'**
+  /// **'No results for “{query}”'**
   String commonNoResultsForQuery(String query);
 
   /// No description provided for @chatForwardedCount.
@@ -12038,7 +12038,7 @@ abstract class AppLocalizations {
   /// No description provided for @solutionsReportBody.
   ///
   /// In en, this message translates to:
-  /// **'Tell the admins what\'s wrong. The admins of both schools will review it.'**
+  /// **'Tell the admins what’s wrong. The admins of both schools will review it.'**
   String get solutionsReportBody;
 
   /// No description provided for @solutionsReportReasonHint.
@@ -12098,13 +12098,13 @@ abstract class AppLocalizations {
   /// No description provided for @solutionsDeleteBookBody.
   ///
   /// In en, this message translates to:
-  /// **'Delete \"{title}\"? This can\'t be undone.'**
+  /// **'Delete “{title}”? This can’t be undone.'**
   String solutionsDeleteBookBody(String title);
 
   /// No description provided for @solutionsBookSaveFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t save: {error}'**
+  /// **'Couldn’t save: {error}'**
   String solutionsBookSaveFailed(String error);
 
   /// No description provided for @solutionsBookDuplicateHint.
@@ -12122,7 +12122,7 @@ abstract class AppLocalizations {
   /// No description provided for @solutionsBookDuplicateBody.
   ///
   /// In en, this message translates to:
-  /// **'A book named \"{title}\" already exists. Make sure it isn’t the same one before adding it.'**
+  /// **'A book named “{title}” already exists. Make sure it isn’t the same one before adding it.'**
   String solutionsBookDuplicateBody(String title);
 
   /// No description provided for @solutionsBookAddAnyway.
@@ -12224,13 +12224,13 @@ abstract class AppLocalizations {
   /// No description provided for @solutionsReportFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t report: {error}'**
+  /// **'Couldn’t report: {error}'**
   String solutionsReportFailed(String error);
 
   /// No description provided for @teacherAddGradeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add Grade'**
+  /// **'Add grade'**
   String get teacherAddGradeTitle;
 
   /// No description provided for @commonCohort.
@@ -12266,7 +12266,7 @@ abstract class AppLocalizations {
   /// No description provided for @reorderToolsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Drag to reorder your School Tools. The Core and Account sections stay put.'**
+  /// **'Drag to reorder your School tools. The Core and Account sections stay put.'**
   String get reorderToolsSubtitle;
 
   /// No description provided for @reorderToolsReset.
@@ -12482,7 +12482,7 @@ abstract class AppLocalizations {
   /// teacherAddClassNotes
   ///
   /// In en, this message translates to:
-  /// **'Add Class Notes'**
+  /// **'Add class notes'**
   String get teacherAddClassNotes;
 
   /// teacherChooseExam
@@ -12524,7 +12524,7 @@ abstract class AppLocalizations {
   /// adminLinkChild
   ///
   /// In en, this message translates to:
-  /// **'Link Child'**
+  /// **'Link child'**
   String get adminLinkChild;
 
   /// adminChooseStudentDash
@@ -12566,13 +12566,13 @@ abstract class AppLocalizations {
   /// passwordsDoNotMatch
   ///
   /// In en, this message translates to:
-  /// **'Passwords don\'t match.'**
+  /// **'Passwords don’t match.'**
   String get passwordsDoNotMatch;
 
   /// novaOutOfTokens
   ///
   /// In en, this message translates to:
-  /// **'You\'ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.'**
+  /// **'You’ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.'**
   String get novaOutOfTokens;
 
   /// tutorDeleteConversationWarning
@@ -12635,10 +12635,10 @@ abstract class AppLocalizations {
   /// **'Period {period}'**
   String adminPeriodOption(Object period);
 
-  /// Cohort member count. Singular 'student' for 0-1, plural 'students' for 2+.
+  /// Cohort member count, pluralised.
   ///
   /// In en, this message translates to:
-  /// **'{count} student{count, plural, =0{} =1{} other{s}}'**
+  /// **'{count, plural, one{{count} student} other{{count} students}}'**
   String cohortStudentsCount(int count);
 
   /// teacherGradeTitleHint
@@ -12716,7 +12716,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminImportUsersScreenLoadedRows.
   ///
   /// In en, this message translates to:
-  /// **'Loaded {count} rows — review & edit, then Create'**
+  /// **'{count, plural, one{Loaded {count} row — review & edit, then Create} other{Loaded {count} rows — review & edit, then Create}}'**
   String adminImportUsersScreenLoadedRows(int count);
 
   /// No description provided for @adminImportUsersScreenFillAtLeastOneName.
@@ -12740,7 +12740,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminImportUsersScreenGridIntro.
   ///
   /// In en, this message translates to:
-  /// **'Fill a row per person, or load a CSV from the CSV tab and fix anything here. Username is optional — we generate one if blank. For students, set the grade and (optionally) a parent\'s username to link them.'**
+  /// **'Fill a row per person, or load a CSV from the CSV tab and fix anything here. Username is optional — we generate one if blank. For students, set the grade and (optionally) a parent’s username to link them.'**
   String get adminImportUsersScreenGridIntro;
 
   /// No description provided for @adminImportUsersScreenAddRow.
@@ -12818,19 +12818,19 @@ abstract class AppLocalizations {
   /// No description provided for @adminImportUsersScreenRecognisedColumns.
   ///
   /// In en, this message translates to:
-  /// **'Recognised columns'**
+  /// **'Recognized columns'**
   String get adminImportUsersScreenRecognisedColumns;
 
   /// No description provided for @adminImportUsersScreenRecognisedColumnsBody.
   ///
   /// In en, this message translates to:
-  /// **'name · username · password · email · phone · role · grade · parent (a username) · children (usernames)\n\nRole words like \"student / طالب / תלמיד / élève / ученик\" all map correctly. Grade reads the number from \"Grade 10\", \"الصف 10\", \"כיתה 10\". Missing usernames or passwords are generated automatically.'**
+  /// **'name · username · password · email · phone · role · grade · parent (a username) · children (usernames)\n\nRole words like “student / طالب / תלמיד / élève / ученик” all map correctly. Grade reads the number from “Grade 10”, “الصف 10”, “כיתה 10”. Missing usernames or passwords are generated automatically.'**
   String get adminImportUsersScreenRecognisedColumnsBody;
 
   /// No description provided for @adminImportUsersScreenDetectedRows.
   ///
   /// In en, this message translates to:
-  /// **'Detected — {count} rows'**
+  /// **'Detected — {count, plural, one{{count} row} other{{count} rows}}'**
   String adminImportUsersScreenDetectedRows(int count);
 
   /// No description provided for @adminImportUsersScreenNoColumnsDetected.
@@ -12860,7 +12860,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminImportUsersScreenResultSummary.
   ///
   /// In en, this message translates to:
-  /// **'✓ Created {count} users · {links} links'**
+  /// **'✓ Created {count, plural, one{{count} user} other{{count} users}} · {links, plural, one{{links} link} other{{links} links}}'**
   String adminImportUsersScreenResultSummary(int count, int links);
 
   /// No description provided for @adminImportUsersScreenResultFailedSuffix.
@@ -12902,7 +12902,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherCohortsScreenEmpty.
   ///
   /// In en, this message translates to:
-  /// **'No cohorts yet.\nTap \"New cohort\" to create one.'**
+  /// **'No cohorts yet.\nTap “New cohort” to create one.'**
   String get teacherCohortsScreenEmpty;
 
   /// No description provided for @teacherCohortsScreenCohortNameLabel.
@@ -12956,7 +12956,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherCohortsScreenStudentsCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} students'**
+  /// **'{count, plural, one{{count} student} other{{count} students}}'**
   String teacherCohortsScreenStudentsCount(int count);
 
   /// No description provided for @teacherCohortsScreenRenameGrades.
@@ -12998,7 +12998,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherCohortsScreenDeleteConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Delete \"{name}\"?'**
+  /// **'Delete “{name}”?'**
   String teacherCohortsScreenDeleteConfirmTitle(String name);
 
   /// No description provided for @teacherCohortsScreenDeleteConfirmBody.
@@ -13028,7 +13028,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherCohortsScreenAddedNStudents.
   ///
   /// In en, this message translates to:
-  /// **'Added {count} students'**
+  /// **'{count, plural, one{Added {count} student} other{Added {count} students}}'**
   String teacherCohortsScreenAddedNStudents(int count);
 
   /// No description provided for @teacherCohortsScreenNoStudentsYet.
@@ -13220,7 +13220,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminScheduleStudentCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} students'**
+  /// **'{count, plural, one{{count} student} other{{count} students}}'**
   String adminScheduleStudentCount(int count);
 
   /// No description provided for @adminScheduleAudienceNone.
@@ -13250,7 +13250,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminScheduleStudentClashMany.
   ///
   /// In en, this message translates to:
-  /// **'{count} students would have two periods at the same time:'**
+  /// **'{count, plural, one{{count} student would have two periods at the same time:} other{{count} students would have two periods at the same time:}}'**
   String adminScheduleStudentClashMany(int count);
 
   /// No description provided for @adminScheduleAStudent.
@@ -13280,13 +13280,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminScheduleStudentsInCohorts.
   ///
   /// In en, this message translates to:
-  /// **'{count} students in selected cohorts'**
+  /// **'{count, plural, one{{count} student in selected cohorts} other{{count} students in selected cohorts}}'**
   String adminScheduleStudentsInCohorts(int count, int cohortCount);
 
   /// No description provided for @adminScheduleStudentsInGrade.
   ///
   /// In en, this message translates to:
-  /// **'{count} students in Grade {grade}'**
+  /// **'{count, plural, one{{count} student in Grade {grade}} other{{count} students in Grade {grade}}}'**
   String adminScheduleStudentsInGrade(int count, String grade);
 
   /// No description provided for @adminScheduleCustomizedNote.
@@ -13358,7 +13358,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminScheduleNoSchoolSubjects.
   ///
   /// In en, this message translates to:
-  /// **'No school subjects yet. Tap \"Add new\" to define one.'**
+  /// **'No school subjects yet. Tap “Add new” to define one.'**
   String get adminScheduleNoSchoolSubjects;
 
   /// No description provided for @adminScheduleNoSubjectsMatch.
@@ -13418,7 +13418,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherNewAnnouncementScreenCohortsSelected.
   ///
   /// In en, this message translates to:
-  /// **'{count} cohorts selected'**
+  /// **'{count, plural, one{{count} cohort selected} other{{count} cohorts selected}}'**
   String teacherNewAnnouncementScreenCohortsSelected(int count);
 
   /// No description provided for @teacherNewAnnouncementScreenTapSelectStudents.
@@ -13430,7 +13430,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherNewAnnouncementScreenStudentsSelected.
   ///
   /// In en, this message translates to:
-  /// **'{count} students selected'**
+  /// **'{count, plural, one{{count} student selected} other{{count} students selected}}'**
   String teacherNewAnnouncementScreenStudentsSelected(int count);
 
   /// No description provided for @teacherNewAnnouncementScreenTapSelectParents.
@@ -13442,7 +13442,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherNewAnnouncementScreenParentsSelected.
   ///
   /// In en, this message translates to:
-  /// **'{count} parents selected'**
+  /// **'{count, plural, one{{count} parent selected} other{{count} parents selected}}'**
   String teacherNewAnnouncementScreenParentsSelected(int count);
 
   /// No description provided for @teacherNewAnnouncementScreenSelectedAudience.
@@ -13454,7 +13454,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherNewAnnouncementScreenStudentsInCohorts.
   ///
   /// In en, this message translates to:
-  /// **'{count} students in selected cohorts'**
+  /// **'{count, plural, one{{count} student in selected cohorts} other{{count} students in selected cohorts}}'**
   String teacherNewAnnouncementScreenStudentsInCohorts(int count);
 
   /// No description provided for @teacherNewAnnouncementScreenSelectParents.
@@ -13568,7 +13568,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherSlotAttachmentsScreenEmptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Attach materials so your students see them on this period\'s card.'**
+  /// **'Attach materials so your students see them on this period’s card.'**
   String get teacherSlotAttachmentsScreenEmptyBody;
 
   /// No description provided for @teacherSlotAttachmentsScreenMaterialFallback.
@@ -13778,7 +13778,7 @@ abstract class AppLocalizations {
   /// No description provided for @formDetailScreenQuestionCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} questions'**
+  /// **'{count, plural, one{{count} question} other{{count} questions}}'**
   String formDetailScreenQuestionCount(int count);
 
   /// No description provided for @formDetailScreenMultiSubmit.
@@ -14252,7 +14252,7 @@ abstract class AppLocalizations {
   /// No description provided for @appShellExportData.
   ///
   /// In en, this message translates to:
-  /// **'Export Data'**
+  /// **'Export data'**
   String get appShellExportData;
 
   /// No description provided for @appShellAdmin.
@@ -14336,13 +14336,13 @@ abstract class AppLocalizations {
   /// No description provided for @teacherClassroomAddAssignmentScreenTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add Assignment'**
+  /// **'Add assignment'**
   String get teacherClassroomAddAssignmentScreenTitle;
 
   /// No description provided for @teacherClassroomAddAssignmentScreenDetails.
   ///
   /// In en, this message translates to:
-  /// **'Assignment Details'**
+  /// **'Assignment details'**
   String get teacherClassroomAddAssignmentScreenDetails;
 
   /// No description provided for @teacherClassroomAddAssignmentScreenNotifyStudents.
@@ -14420,7 +14420,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminExportScreenSeparateFilesOnDesc.
   ///
   /// In en, this message translates to:
-  /// **'You\'ll share {count} PDF file(s) at once — each user gets their own.'**
+  /// **'You’ll share {count} PDF file(s) at once — each user gets their own.'**
   String adminExportScreenSeparateFilesOnDesc(int count);
 
   /// No description provided for @adminExportScreenSeparateFilesOffDesc.
@@ -14432,7 +14432,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminSubjectDetailScreenSchoolSettings.
   ///
   /// In en, this message translates to:
-  /// **'School Settings'**
+  /// **'School settings'**
   String get adminSubjectDetailScreenSchoolSettings;
 
   /// No description provided for @adminSubjectDetailScreenNewSubject.
@@ -14618,7 +14618,7 @@ abstract class AppLocalizations {
   /// No description provided for @teacherClassroomsScreenNewClassroom.
   ///
   /// In en, this message translates to:
-  /// **'New Classroom'**
+  /// **'New classroom'**
   String get teacherClassroomsScreenNewClassroom;
 
   /// No description provided for @assignmentsScreenAlreadyHandedIn.
@@ -14786,7 +14786,7 @@ abstract class AppLocalizations {
   /// No description provided for @cmAiMessageQuestionCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} questions'**
+  /// **'{count, plural, one{{count} question} other{{count} questions}}'**
   String cmAiMessageQuestionCount(int count);
 
   /// No description provided for @cmAiMessageDifficultyEasy.
@@ -14924,7 +14924,7 @@ abstract class AppLocalizations {
   /// No description provided for @examDetailScreenCountdownToday.
   ///
   /// In en, this message translates to:
-  /// **'It\'s today!'**
+  /// **'It’s today!'**
   String get examDetailScreenCountdownToday;
 
   /// No description provided for @teacherMaterialAddedBy.
@@ -15044,13 +15044,13 @@ abstract class AppLocalizations {
   /// No description provided for @adminAddManyCreateParent.
   ///
   /// In en, this message translates to:
-  /// **'Create new parent \"{name}\"'**
+  /// **'Create new parent “{name}”'**
   String adminAddManyCreateParent(String name);
 
   /// No description provided for @adminAddManyPastedRows.
   ///
   /// In en, this message translates to:
-  /// **'Added {count} rows'**
+  /// **'{count, plural, one{Added {count} row} other{Added {count} rows}}'**
   String adminAddManyPastedRows(int count);
 
   /// No description provided for @teacherCreateClassroomNoStudentsInCohort.
@@ -15086,7 +15086,7 @@ abstract class AppLocalizations {
   /// No description provided for @scheduleUpcomingExam.
   ///
   /// In en, this message translates to:
-  /// **'Upcoming Exam'**
+  /// **'Upcoming exam'**
   String get scheduleUpcomingExam;
 
   /// No description provided for @scheduleNoUpcomingExams.
@@ -15518,7 +15518,7 @@ abstract class AppLocalizations {
   /// No description provided for @navGradeScales.
   ///
   /// In en, this message translates to:
-  /// **'Grade Scales'**
+  /// **'Grade scales'**
   String get navGradeScales;
 
   /// No description provided for @gradeScaleAdd.
@@ -15698,7 +15698,7 @@ abstract class AppLocalizations {
   /// No description provided for @averagesDeleteConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Delete \"{title}\"? This cannot be undone.'**
+  /// **'Delete “{title}”? This cannot be undone.'**
   String averagesDeleteConfirm(Object title);
 
   /// No description provided for @averagesCancel.
@@ -15716,7 +15716,7 @@ abstract class AppLocalizations {
   /// No description provided for @averagesEmptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Tap \"Add average\" to create a weighted grade formula for a subject.'**
+  /// **'Tap “Add average” to create a weighted grade formula for a subject.'**
   String get averagesEmptyBody;
 
   /// No description provided for @averagesFullYear.
@@ -15836,7 +15836,7 @@ abstract class AppLocalizations {
   /// No description provided for @averagesFormatsHelp.
   ///
   /// In en, this message translates to:
-  /// **'Each format\'s weights must sum to 100%. The best-scoring format is used per student.'**
+  /// **'Each format’s weights must sum to 100%. The best-scoring format is used per student.'**
   String get averagesFormatsHelp;
 
   /// No description provided for @averagesAddFormat.
@@ -15926,7 +15926,7 @@ abstract class AppLocalizations {
   /// No description provided for @certPdfRemarks.
   ///
   /// In en, this message translates to:
-  /// **'Homeroom teacher\'s remarks'**
+  /// **'Homeroom teacher’s remarks'**
   String get certPdfRemarks;
 
   /// No description provided for @certTypeLabel.
@@ -16256,8 +16256,8 @@ abstract class AppLocalizations {
   /// No description provided for @cmailRecipients.
   ///
   /// In en, this message translates to:
-  /// **'{count} recipients'**
-  String cmailRecipients(num count);
+  /// **'{count, plural, one{{count} recipient} other{{count} recipients}}'**
+  String cmailRecipients(int count);
 
   /// No description provided for @cmailReadStats.
   ///
@@ -16292,7 +16292,7 @@ abstract class AppLocalizations {
   /// No description provided for @phoneLinkSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.'**
+  /// **'Protect your account with a phone number. We’ll text you a verification code — it also lets you reset your password by SMS.'**
   String get phoneLinkSubtitle;
 
   /// No description provided for @phoneLinkFieldLabel.
@@ -16538,13 +16538,13 @@ abstract class AppLocalizations {
   /// Headline of the illustrated error state shown when the device has no connectivity
   ///
   /// In en, this message translates to:
-  /// **'You\'re offline'**
+  /// **'You’re offline'**
   String get errStateOfflineTitle;
 
   /// Body copy of the offline illustrated error state
   ///
   /// In en, this message translates to:
-  /// **'We can\'t reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.'**
+  /// **'We can’t reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.'**
   String get errStateOfflineBody;
 
   /// Headline of the illustrated error state shown for 5xx server errors
@@ -16556,13 +16556,13 @@ abstract class AppLocalizations {
   /// Body copy of the server error illustrated state
   ///
   /// In en, this message translates to:
-  /// **'Our servers hit a snag. It\'s not you — please try again in a moment.'**
+  /// **'Our servers hit a snag. It’s not you — please try again in a moment.'**
   String get errStateServerBody;
 
   /// Headline of the illustrated error state shown for 404 not found
   ///
   /// In en, this message translates to:
-  /// **'We couldn\'t find that'**
+  /// **'We couldn’t find that'**
   String get errStateNotFoundTitle;
 
   /// Body copy of the not found illustrated state
@@ -16574,7 +16574,7 @@ abstract class AppLocalizations {
   /// Headline of the illustrated error state shown for 401/403 permission errors
   ///
   /// In en, this message translates to:
-  /// **'You don\'t have access'**
+  /// **'You don’t have access'**
   String get errStateForbiddenTitle;
 
   /// Body copy of the permission denied illustrated state
@@ -16604,7 +16604,7 @@ abstract class AppLocalizations {
   /// Body copy of the empty illustrated state
   ///
   /// In en, this message translates to:
-  /// **'When there\'s something to show, it\'ll appear right here.'**
+  /// **'When there’s something to show, it’ll appear right here.'**
   String get errStateEmptyBody;
 
   /// Headline of the fallback illustrated error state
@@ -16718,19 +16718,19 @@ abstract class AppLocalizations {
   /// Onboarding: deeper explanation on the welcome slide.
   ///
   /// In en, this message translates to:
-  /// **'Your timetable, grades, homework, messages and notes all live here — one sign-in for school. Here\'s a quick look at what\'s inside.'**
+  /// **'Your timetable, grades, homework, messages and notes all live here — one sign-in for school. Here’s a quick look at what’s inside.'**
   String get onbDeepWelcome;
 
   /// Onboarding: deeper explanation of the NOVA AI tutor.
   ///
   /// In en, this message translates to:
-  /// **'Ask NOVA anything in your own words and get a step-by-step explanation. Turn any topic into practice questions, save the ones you want to revisit, and photograph a question you\'re stuck on to have it worked through.'**
+  /// **'Ask NOVA anything in your own words and get a step-by-step explanation. Turn any topic into practice questions, save the ones you want to revisit, and photograph a question you’re stuck on to have it worked through.'**
   String get onbDeepNova;
 
   /// Onboarding: deeper explanation of schedule, grades, attendance, assignments.
   ///
   /// In en, this message translates to:
-  /// **'See today\'s lessons the moment you open the app, check a grade as soon as it\'s published, watch your attendance, and keep every assignment deadline in one list — with a reminder before it\'s due.'**
+  /// **'See today’s lessons the moment you open the app, check a grade as soon as it’s published, watch your attendance, and keep every assignment deadline in one list — with a reminder before it’s due.'**
   String get onbDeepTrack;
 
   /// Onboarding: deeper explanation of messages, announcements, meetings, CMail.
@@ -16742,13 +16742,13 @@ abstract class AppLocalizations {
   /// Onboarding: deeper explanation for teachers — classrooms and rosters.
   ///
   /// In en, this message translates to:
-  /// **'Open a classroom to see who\'s in it, take attendance in a couple of taps, hand out assignments and materials, and keep each cohort\'s roster tidy.'**
+  /// **'Open a classroom to see who’s in it, take attendance in a couple of taps, hand out assignments and materials, and keep each cohort’s roster tidy.'**
   String get onbDeepTeacherClasses;
 
   /// Onboarding: deeper explanation for teachers — grading and insights.
   ///
   /// In en, this message translates to:
-  /// **'Enter grades against your own scale, publish when you\'re ready, and let Insights show you who\'s slipping before it becomes a problem.'**
+  /// **'Enter grades against your own scale, publish when you’re ready, and let Insights show you who’s slipping before it becomes a problem.'**
   String get onbDeepTeacherGrading;
 
   /// Onboarding: deeper explanation for teachers — announcements and comms.
@@ -16772,13 +16772,13 @@ abstract class AppLocalizations {
   /// Onboarding: deeper explanation for secretaries.
   ///
   /// In en, this message translates to:
-  /// **'Keep the day running: fix the timetable, add or update a person\'s record, issue certificates and get an announcement out fast.'**
+  /// **'Keep the day running: fix the timetable, add or update a person’s record, issue certificates and get an announcement out fast.'**
   String get onbDeepSecretary;
 
   /// Onboarding: deeper explanation for parents — per-child overview.
   ///
   /// In en, this message translates to:
-  /// **'Switch between your children and see each one\'s timetable, grades, attendance and homework — the same picture the school sees.'**
+  /// **'Switch between your children and see each one’s timetable, grades, attendance and homework — the same picture the school sees.'**
   String get onbDeepParentChild;
 
   /// Onboarding: deeper explanation for parents — alerts and replies.
@@ -16850,7 +16850,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsDeleteThemeBody.
   ///
   /// In en, this message translates to:
-  /// **'“{name}” will be removed. This can\'t be undone.'**
+  /// **'“{name}” will be removed. This can’t be undone.'**
   String settingsDeleteThemeBody(String name);
 
   /// No description provided for @teacherFormsCount.
@@ -16862,7 +16862,7 @@ abstract class AppLocalizations {
   /// No description provided for @permModuleClassesStudents.
   ///
   /// In en, this message translates to:
-  /// **'Classes & Students'**
+  /// **'Classes & students'**
   String get permModuleClassesStudents;
 
   /// No description provided for @permModuleCommunication.
@@ -16886,7 +16886,7 @@ abstract class AppLocalizations {
   /// No description provided for @permModuleScheduleAnnouncements.
   ///
   /// In en, this message translates to:
-  /// **'Schedule & Announcements'**
+  /// **'Schedule & announcements'**
   String get permModuleScheduleAnnouncements;
 
   /// No description provided for @permCohortsManageMembers.
@@ -17056,6 +17056,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Publish announcements to classes, grades or the whole school.'**
   String get permAnnouncementsPostDesc;
+
+  /// No description provided for @teacherLibraryAddMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Add meeting'**
+  String get teacherLibraryAddMeeting;
+
+  /// No description provided for @teacherLibraryCreateNewMeeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new meeting'**
+  String get teacherLibraryCreateNewMeeting;
+
+  /// No description provided for @solutionsAllQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'All questions'**
+  String get solutionsAllQuestions;
+
+  /// No description provided for @announcementsNoDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'No additional details were attached.'**
+  String get announcementsNoDetails;
 }
 
 class _AppLocalizationsDelegate

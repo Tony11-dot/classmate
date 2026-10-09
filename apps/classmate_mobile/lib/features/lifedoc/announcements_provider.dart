@@ -223,7 +223,8 @@ class StudentAnnouncementsApi {
       return AnnouncementItem(
         id: '${map['id'] ?? ''}',
         title: '${map['title'] ?? 'Announcement'}',
-        body: body.isEmpty ? 'No additional details were attached.' : body,
+        // Empty stays empty — the screen shows a translated placeholder.
+        body: body,
         severity: map['pinned'] == true
             ? AnnouncementSeverity.warning
             : AnnouncementSeverity.info,

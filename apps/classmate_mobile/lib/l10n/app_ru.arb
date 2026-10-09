@@ -78,7 +78,7 @@
   "navAttendance": "Посещаемость",
   "navGrades": "Оценки",
   "navAssignments": "Задания",
-  "navMeetings": "Занятия",
+  "navMeetings": "Встречи",
   "navAnnouncements": "Объявления",
   "navNotifications": "Уведомления",
   "navSolutions": "Решения",
@@ -213,7 +213,7 @@
   "settingsThemeSystem": "Как в системе",
   "settingsThemeLight": "Светлая",
   "settingsThemeDark": "Тёмная",
-  "settingsLanguageSearchHint": "Поиск языка...",
+  "settingsLanguageSearchHint": "Поиск языка…",
   "teacherQuickActions": "Быстрые действия",
   "teacherUpcomingAssessments": "Предстоящие проверки",
   "teacherNoAssessmentsYet": "Контрольных работ ещё нет.",
@@ -283,7 +283,7 @@
   "loginSignIn": "Войти",
   "loginWelcomeTitle": "С возвращением",
   "loginWelcomeSubtitle": "Войдите в свой аккаунт ClassMate.",
-  "loginEmailLabel": "Email или имя пользователя",
+  "loginEmailLabel": "Эл. почта или имя пользователя",
   "loginPasswordLabel": "Пароль",
   "profileNotAvailable": "Недоступно",
   "profileSchoolInfo": "Информация о школе",
@@ -295,7 +295,7 @@
   "profileAccountInfo": "Данные аккаунта",
   "profileUsername": "Имя пользователя",
   "profileUsernameHint": "имя_пользователя",
-  "profileContactEmail": "Контактный email",
+  "profileContactEmail": "Контактная эл. почта",
   "profileSecurity": "Безопасность",
   "profilePasswordUpdated": "Пароль обновлён",
   "profileSave": "Сохранить",
@@ -354,18 +354,22 @@
       "subject": {}
     }
   },
-  "examsMaterialsCount": "{count} материалов",
+  "examsMaterialsCount": "{count, plural, one{{count} материал} few{{count} материала} many{{count} материалов} other{{count} материала}}",
   "@examsMaterialsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "examsOpenState": "Открыт",
   "examsClosedState": "Закрыт",
-  "examsQuestionsCount": "{count} вопросов",
+  "examsQuestionsCount": "{count, plural, one{{count} вопрос} few{{count} вопроса} many{{count} вопросов} other{{count} вопроса}}",
   "@examsQuestionsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "insightsNotReadyTitle": "Аналитика ещё не готова",
@@ -611,11 +615,15 @@
   "notificationsHeroSubtitleTeacher": "Ваш учительский центр уведомлений для объявлений, обновлений сервера и школьной активности в реальном времени.",
   "notificationsFiltersSubtitle": "Фильтруйте по источнику или статусу прочтения, чтобы быстрее разбирать входящие.",
   "notificationsSearchSourcesHint": "Поиск источников",
-  "notificationsShowingSummary": "Показано {shown} из {total} уведомлений.",
+  "notificationsShowingSummary": "Показано {shown} из {total, plural, one{{total} уведомления} other{{total} уведомлений}}.",
   "@notificationsShowingSummary": {
     "placeholders": {
-      "shown": {},
-      "total": {}
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "notificationsEmptyForAccount": "Для этого аккаунта сейчас нет уведомлений.",
@@ -678,11 +686,13 @@
       "state": {}
     }
   },
-  "announcementsShowingSummary": "Показано {shown} из {total} объявлений{sourceSegment}{stateSegment}.",
+  "announcementsShowingSummary": "Показано {shown} из {total, plural, one{{total} объявления} other{{total} объявлений}}{sourceSegment}{stateSegment}.",
   "@announcementsShowingSummary": {
     "placeholders": {
       "shown": {},
-      "total": {},
+      "total": {
+        "type": "int"
+      },
       "sourceSegment": {},
       "stateSegment": {}
     }
@@ -694,14 +704,14 @@
   "announcementsPullToRefreshHint": "Потяните для обновления",
   "announcementsInboxTitle": "Входящие",
   "announcementsInboxSubtitle": "Все объявления",
-  "meetingsLoadError": "Не удалось загрузить занятия",
+  "meetingsLoadError": "Не удалось загрузить встречи",
   "meetingsLoadTimeout": "Превышено время ожидания",
   "meetingsLoadNetwork": "Нет подключения",
-  "meetingsHeroSubtitle": "Онлайн-занятия",
+  "meetingsHeroSubtitle": "Онлайн-встречи",
   "meetingsJoinReadyMetric": "Доступно",
   "meetingsNoLinkMetric": "Без ссылки",
-  "meetingsNoPostedTitle": "Занятий пока нет",
-  "meetingsEmptyForAccount": "Для вашего аккаунта занятий пока нет.",
+  "meetingsNoPostedTitle": "Встреч пока нет",
+  "meetingsEmptyForAccount": "Для вашего аккаунта встреч пока нет.",
   "meetingsLatestBody": "{title} обновлено {updatedAt}. Откройте для получения ссылки.",
   "@meetingsLatestBody": {
     "placeholders": {
@@ -712,7 +722,7 @@
   "meetingsPullToRefreshHint": "Потяните для обновления.",
   "meetingsFiltersSubtitle": "Фильтр по предмету или наличию ссылки",
   "meetingsAccessLabel": "Доступ",
-  "meetingsAllMeetings": "Все занятия",
+  "meetingsAllMeetings": "Все встречи",
   "meetingsAccessReady": "Доступно",
   "meetingsAccessNoLink": "Без ссылки",
   "meetingsAccessNoLinkYet": "Ссылки ещё нет",
@@ -729,45 +739,47 @@
       "state": {}
     }
   },
-  "meetingsShowingSummary": "Показано {shown} из {total} занятий{subjectSegment}{accessSegment}.",
+  "meetingsShowingSummary": "Показано {shown} из {total, plural, one{{total} встречи} other{{total} встреч}}{subjectSegment}{accessSegment}.",
   "@meetingsShowingSummary": {
     "placeholders": {
       "shown": {},
-      "total": {},
+      "total": {
+        "type": "int"
+      },
       "subjectSegment": {},
       "accessSegment": {}
     }
   },
-  "meetingsNoMatchTitle": "Занятий не найдено",
+  "meetingsNoMatchTitle": "Встреч не найдено",
   "meetingsNoMatchSubtitle": "Попробуйте изменить фильтры.",
-  "meetingsListSubtitle": "Нажмите на занятие для просмотра деталей и ссылки.",
+  "meetingsListSubtitle": "Нажмите на встречу для просмотра деталей и ссылки.",
   "meetingsSharedByValue": "Поделился: {name}",
   "@meetingsSharedByValue": {
     "placeholders": {
       "name": {}
     }
   },
-  "meetingsPreviewFallback": "Откройте занятие для просмотра ссылки и деталей класса.",
-  "meetingsNoValidLinkAttached": "Действительной ссылки на занятие пока нет.",
+  "meetingsPreviewFallback": "Откройте встречу для просмотра ссылки и деталей класса.",
+  "meetingsNoValidLinkAttached": "Действительной ссылки на встречу пока нет.",
   "meetingsCouldNotOpenLink": "Не удалось открыть ссылку.",
-  "meetingsNoLinkToCopy": "Ссылки на занятие пока нет.",
+  "meetingsNoLinkToCopy": "Ссылки на встречу пока нет.",
   "meetingsLinkCopied": "Ссылка скопирована.",
-  "meetingsUnavailableTitle": "Занятия недоступны",
-  "meetingsUnavailableSubtitle": "Занятие не найдено. Возможно, оно было удалено или изменено.",
-  "meetingsUnavailableHint": "Вернитесь и обновите список занятий.",
+  "meetingsUnavailableTitle": "Встреча недоступна",
+  "meetingsUnavailableSubtitle": "Встреча не найдена. Возможно, она была удалена или изменена.",
+  "meetingsUnavailableHint": "Вернитесь и обновите список встреч.",
   "meetingsNoLinkAttachedYet": "Ссылка ещё не добавлена",
-  "meetingsAttachedLinkTitle": "Ссылка на занятие",
-  "meetingsAttachedLinkMissingBody": "Ссылка на занятие пока не добавлена.",
+  "meetingsAttachedLinkTitle": "Ссылка на встречу",
+  "meetingsAttachedLinkMissingBody": "Ссылка на встречу пока не добавлена.",
   "meetingsDetailsTitle": "Подробности",
-  "meetingsDetailsSubtitle": "Информация о занятии",
+  "meetingsDetailsSubtitle": "Информация о встрече",
   "meetingsDetailClassroomLabel": "Класс",
   "meetingsSharedByLabel": "Поделился",
-  "meetingsIdLabel": "ID занятия",
+  "meetingsIdLabel": "ID встречи",
   "meetingsAttachedLinkSubtitle": "Используйте ссылку для подключения или скопируйте её.",
   "meetingsOpening": "Открытие",
   "meetingsOpenLink": "Открыть",
   "meetingsCopyLink": "Копировать ссылку",
-  "meetingsAccessPanelTitle": "Доступ к занятию",
+  "meetingsAccessPanelTitle": "Доступ к встрече",
   "meetingsAccessPanelReadyBody": "Откройте ссылку в браузере или приложении.",
   "meetingsJoinAction": "Войти",
   "announcementsDetailLoadFailedHint": "Не удалось загрузить объявление",
@@ -810,9 +822,9 @@
   "classroomDetailNoMaterialsTitle": "Материалов пока нет",
   "classroomDetailNoMaterialsSubtitle": "В этом классе материалов нет.",
   "classroomDetailMaterialFallback": "Материал",
-  "classroomDetailNoMeetingsTitle": "Занятий пока нет",
-  "classroomDetailNoMeetingsSubtitle": "В этом классе занятий нет.",
-  "classroomDetailMeetingFallback": "Занятие",
+  "classroomDetailNoMeetingsTitle": "Встреч пока нет",
+  "classroomDetailNoMeetingsSubtitle": "В этом классе встреч нет.",
+  "classroomDetailMeetingFallback": "Встреча",
   "classroomDetailCouldNotLoadPeople": "Не удалось загрузить участников",
   "classroomDetailNoPeopleTitle": "Участников пока нет",
   "classroomDetailNoPeopleSubtitle": "В этом классе пока нет участников.",
@@ -850,10 +862,12 @@
   "practiceSetupHeroTitle": "Начать сессию",
   "practiceSetupHeroSubtitle": "Выберите режим, время и сложность.",
   "practiceSetupInfiniteLives": "Бесконечные попытки",
-  "practiceSetupLivesCount": "{count} попыток",
+  "practiceSetupLivesCount": "{count, plural, one{{count} попытка} few{{count} попытки} many{{count} попыток} other{{count} попытки}}",
   "@practiceSetupLivesCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "practiceSetupAiTiming": "Время AI",
@@ -863,10 +877,12 @@
       "seconds": {}
     }
   },
-  "practiceSetupQuestionsCount": "{count} вопросов",
+  "practiceSetupQuestionsCount": "{count, plural, one{{count} вопрос} few{{count} вопроса} many{{count} вопросов} other{{count} вопроса}}",
   "@practiceSetupQuestionsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "practiceSetupSectionSubjectTopic": "Предмет и тема",
@@ -1165,11 +1181,13 @@
   "assignmentsStatusLabel": "Статус",
   "assignmentsAllStatuses": "Все статусы",
   "assignmentsSearchStatuses": "Поиск статусов",
-  "assignmentsShowingSummary": "Показано {shown} из {total} заданий.",
+  "assignmentsShowingSummary": "Показано {shown} из {total, plural, one{{total} задания} other{{total} заданий}}.",
   "@assignmentsShowingSummary": {
     "placeholders": {
       "shown": {},
-      "total": {}
+      "total": {
+        "type": "int"
+      }
     }
   },
   "assignmentsNoFilterMatchesTitle": "Заданий не найдено",
@@ -1206,11 +1224,13 @@
   "attendanceWatchExcusedAddingUp": "Накапливаются уважит. причины",
   "attendanceWatchNoFlags": "Всё хорошо",
   "attendanceAllSubjectsLowercase": "все предметы",
-  "attendanceShowingSummary": "Показано {shown} из {total} записей по {subject} за {range}.",
+  "attendanceShowingSummary": "Показано {shown} из {total, plural, one{{total} записи} other{{total} записей}} по {subject} за {range}.",
   "@attendanceShowingSummary": {
     "placeholders": {
       "shown": {},
-      "total": {},
+      "total": {
+        "type": "int"
+      },
       "subject": {},
       "range": {}
     }
@@ -1252,10 +1272,12 @@
   "attendanceRecentDaysSubtitleFiltered": "Отфильтрованные записи",
   "attendanceRecentDaysSubtitleAll": "Последние записи",
   "attendanceLessonCountSingle": "1 урок",
-  "attendanceLessonCount": "{count} уроков",
+  "attendanceLessonCount": "{count, plural, one{{count} урок} few{{count} урока} many{{count} уроков} other{{count} урока}}",
   "@attendanceLessonCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "attendanceStatusPresent": "Присутствует",
@@ -1483,7 +1505,7 @@
   "teacherTotal": "Итого",
   "mediaOpenExternally": "Открыть во внешнем приложении",
   "mediaUnableToLoad": "Не удалось загрузить изображение",
-  "searchHint": "Поиск...",
+  "searchHint": "Поиск…",
   "teacherInsightsTitle": "Успеваемость студентов",
   "teacherInsightsSubtitle": "Выберите студента для просмотра его академических данных.",
   "teacherInsightsNoStudents": "Студенты не найдены.",
@@ -1495,10 +1517,12 @@
   "teacherExamsEmpty": "Оценок пока нет. Нажмите + чтобы создать.",
   "teacherFormsTitle": "Формы",
   "teacherFormsEmpty": "Форм пока нет. Нажмите + для создания.",
-  "teacherFormsResponses": "{count} ответов",
+  "teacherFormsResponses": "{count, plural, one{{count} ответ} few{{count} ответа} many{{count} ответов} other{{count} ответа}}",
   "@teacherFormsResponses": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "teacherFormsPublished": "Опубликовано",
@@ -1553,7 +1577,7 @@
     }
   },
   "adminDeleteCohort": "Удалить группу",
-  "adminDeleteCohortConfirm": "Удалить \"{name}\"? Все участники будут удалены.",
+  "adminDeleteCohortConfirm": "Удалить «{name}»? Все участники будут удалены.",
   "@adminDeleteCohortConfirm": {
     "placeholders": {
       "name": {}
@@ -1649,20 +1673,20 @@
   "parentNoChildLinked": "Дети ещё не привязаны",
   "parentPickChildFirst": "Сначала выберите ребёнка",
   "parentNoApprovedChildren": "Подтверждённых детей пока нет. Попросите школу привязать ваш аккаунт.",
-  "loginEmptyFieldsError": "Введите email или имя пользователя и пароль.",
+  "loginEmptyFieldsError": "Введите эл. почту или имя пользователя и пароль.",
   "loginConnectionError": "Нет подключения. Проверьте интернет и попробуйте снова.",
   "loginTimeoutError": "Время запроса истекло. Попробуйте снова.",
   "loginForgotPasswordLink": "Забыли пароль?",
   "forgotPasswordTitle": "Сброс пароля",
-  "forgotPasswordModeEmail": "Email",
+  "forgotPasswordModeEmail": "Эл. почта",
   "forgotPasswordModeSms": "SMS",
   "forgotPasswordEmailSent": "Ссылка для сброса отправлена (если аккаунт найден).",
-  "forgotPasswordEmptyError": "Введите email или имя пользователя, чтобы продолжить.",
-  "forgotPasswordEmailButton": "Отправить ссылку по email",
+  "forgotPasswordEmptyError": "Введите эл. почту или имя пользователя, чтобы продолжить.",
+  "forgotPasswordEmailButton": "Отправить ссылку на эл. почту",
   "forgotPasswordSmsButton": "Отправить ссылку по SMS",
   "forgotPasswordSmsHelper": "Мы отправим ссылку по SMS на номер телефона этого аккаунта.",
-  "forgotPasswordIntroEmail": "Введите email или имя пользователя, и мы отправим ссылку для сброса на почту.",
-  "forgotPasswordIntroSms": "Введите email или имя пользователя, и мы отправим ссылку для сброса по SMS на телефон из вашего аккаунта.",
+  "forgotPasswordIntroEmail": "Введите эл. почту или имя пользователя, и мы отправим ссылку для сброса на почту.",
+  "forgotPasswordIntroSms": "Введите эл. почту или имя пользователя, и мы отправим ссылку для сброса по SMS на телефон из вашего аккаунта.",
   "forgotPasswordExpiryNote": "Ссылка действует 1 час и только один раз.",
   "commonAttachments": "Вложения",
   "commonAttachFile": "Прикрепить файл",
@@ -1767,7 +1791,7 @@
   "adminSetupTeachersSubtitle": "Создайте аккаунты учителей",
   "supportContactTitle": "Свяжитесь с нами",
   "supportContactDescription": "Не нашли ответ ниже? Напишите нам, и мы ответим в течение рабочего дня.",
-  "supportEmailLabel": "Email",
+  "supportEmailLabel": "Эл. почта",
   "supportPhoneLabel": "Телефон",
   "supportSmsLabel": "Сообщение",
   "aboutWhatIsClassmate": "Что такое ClassMate?",
@@ -1790,7 +1814,7 @@
   "adminAddSecretary": "Добавить секретаря",
   "adminAddAdmin": "Добавить администратора",
   "adminEditUser": "Изменить пользователя",
-  "adminNoEmailPlaceholder": "(нет email)",
+  "adminNoEmailPlaceholder": "(нет эл. почты)",
   "adminNameEnglishRequired": "Требуется полное имя (на английском)",
   "adminUsernameRequired": "Требуется имя пользователя",
   "adminPasswordMinLength": "Пароль должен содержать не менее 8 символов (или оставьте пустым для авто-генерации)",
@@ -1801,7 +1825,7 @@
     }
   },
   "adminCredsUsername": "Имя пользователя",
-  "adminCredsEmail": "Email",
+  "adminCredsEmail": "Эл. почта",
   "adminCredsPassword": "Пароль",
   "adminShareCredsHint": "Передайте эти данные ученику.",
   "adminCopyCredsButton": "Копировать всё",
@@ -1902,7 +1926,7 @@
   "teacherPublishTooltip": "Опубликовать",
   "teacherMeetingEnterTitle": "Пожалуйста, введите название.",
   "teacherMeetingEnterLink": "Пожалуйста, введите ссылку на встречу.",
-  "teacherMeetingEnterValidUrl": "Пожалуйста, введите корректный URL (например, https://zoom.us/j/...)",
+  "teacherMeetingEnterValidUrl": "Пожалуйста, введите корректный URL (например, https://zoom.us/j/…)",
   "teacherMeetingPickStartTime": "Пожалуйста, выберите время начала.",
   "teacherMeetingVisibleToEveryone": "Видно всем",
   "teacherDeleteAssignmentTitle": "Удалить задание?",
@@ -1925,7 +1949,7 @@
   "teacherClassroomFileUnavailable": "Этот файл недоступен — учителю нужно загрузить его заново.",
   "teacherClassroomCodeCopied": "Код скопирован",
   "teacherClassroomCopyCodeTooltip": "Копировать код",
-  "teacherClassroomCouldNotAdd": "Не удалось добавить: {emails} — проверьте их email.",
+  "teacherClassroomCouldNotAdd": "Не удалось добавить: {emails} — проверьте их адрес эл. почты.",
   "@teacherClassroomCouldNotAdd": {
     "placeholders": {
       "emails": {}
@@ -1985,7 +2009,7 @@
   "teacherMaterialPickSubject": "Пожалуйста, выберите предмет.",
   "teacherMaterialAddLink": "Добавить ссылку",
   "teacherMaterialAddFile": "Добавить файл",
-  "teacherMaterialSearchStudentsGrade": "Поиск учеников или класса...",
+  "teacherMaterialSearchStudentsGrade": "Поиск учеников или класса…",
   "teacherMaterialDoneSelected": "Готово (выбрано {count})",
   "@teacherMaterialDoneSelected": {
     "placeholders": {
@@ -2039,7 +2063,7 @@
   },
   "adminEditUserLoginSection": "Вход",
   "adminEditUserUsernameLabel": "Имя пользователя",
-  "adminEditUserEmailOptional": "Email (необязательно)",
+  "adminEditUserEmailOptional": "Эл. почта (необязательно)",
   "adminEditUserChangePassword": "Сменить пароль",
   "adminEditUserNameSection": "Имя",
   "adminEditUserGradeSection": "Класс",
@@ -2104,7 +2128,7 @@
   "teacherMaterialSubjectRequired": "Предмет *",
   "teacherMaterialSubjectSelect": "Выберите предмет",
   "teacherMaterialSubjectOther": "Другой",
-  "teacherMaterialSubjectSearch": "Поиск предметов...",
+  "teacherMaterialSubjectSearch": "Поиск предметов…",
   "teacherMaterialAttachmentsTitle": "Вложения",
   "teacherMaterialAttachmentsWithCount": "Вложения ({count})",
   "teacherMaterialDeleteTitle": "Удалить материал?",
@@ -2166,7 +2190,7 @@
   "navMaterials": "Материалы",
   "classMaterialsAddTitle": "Добавить материал",
   "classMaterialsTitleLabel": "Название",
-  "classMaterialsFilesCount": "{count} файлов",
+  "classMaterialsFilesCount": "{count, plural, one{{count} файл} few{{count} файла} many{{count} файлов} other{{count} файла}}",
   "classMaterialsLoadError": "Не удалось загрузить материалы",
   "classMaterialsEmpty": "Пока нет общих материалов — добавьте первым.",
   "navPlans": "Планы NOVA",
@@ -2337,13 +2361,13 @@
   "faqStartedQ1": "Как мне войти?",
   "faqStartedA1": "Нажмите «Войти» на экране приветствия и введите электронную почту или имя пользователя, которые дал вам школьный администратор, плюс временный пароль. В первый раз вас попросят установить новый пароль.",
   "faqStartedQ2": "У меня ещё нет аккаунта.",
-  "faqStartedA2": "Аккаунты создаёт школьный администратор. Попросите его добавить вас — он выдаст имя пользователя или email и временный пароль.",
+  "faqStartedA2": "Аккаунты создаёт школьный администратор. Попросите его добавить вас — он выдаст имя пользователя или эл. почту и временный пароль.",
   "faqStartedQ3": "Могу ли я использовать приложение на своём языке?",
   "faqStartedA3": "Да — ClassMate поддерживает английский, арабский, иврит, французский и русский. Чтобы сменить язык, откройте Настройки → Язык.",
   "faqStartedQ4": "Как переключаться между тёмным и светлым режимом?",
   "faqStartedA4": "Откройте Настройки → Оформление → Тема. Выберите «Как в системе», чтобы следовать светлому или тёмному режиму устройства, или одну из 20 тем — можно создать и свою.",
   "faqAccountQ1": "Я забыл пароль.",
-  "faqAccountA1": "Нажмите «Забыли пароль?» на экране входа. Мы отправим ссылку для сброса по email или в SMS, на вашем языке. Если ни email, ни телефон ещё не подтверждены, попросите школьного администратора задать новый временный пароль.",
+  "faqAccountA1": "Нажмите «Забыли пароль?» на экране входа. Мы отправим ссылку для сброса по эл. почте или в SMS, на вашем языке. Если ни эл. почта, ни телефон ещё не подтверждены, попросите школьного администратора задать новый временный пароль.",
   "faqAccountQ2": "Как сменить пароль?",
   "faqAccountA2": "Откройте Профиль из меню, прокрутите до Безопасности, и нажмите строку пароля. Вам понадобится текущий пароль, чтобы установить новый.",
   "faqAccountQ3": "Как сменить электронную почту или номер телефона?",
@@ -2377,7 +2401,7 @@
   "faqAdminsQ5": "Как массово экспортировать учеников?",
   "faqAdminsA5": "Откройте Экспорт данных. Выберите отбор по ученикам или по группам, отметьте строки и нажмите «Экспорт». Если включить пароли, каждый экспортированный ученик получит новый временный пароль (старый перестанет работать) — удобно для печати карточек входа.",
   "faqAdminsQ6": "Пользователь попросил сбросить пароль. Что делать?",
-  "faqAdminsA6": "Откройте Пользователи, нажмите на человека и задайте новый пароль — он также получит письмо или SMS со ссылкой, чтобы выбрать свой. Если его email или телефон подтверждены, он может сбросить пароль сам через «Забыли пароль?».",
+  "faqAdminsA6": "Откройте Пользователи, нажмите на человека и задайте новый пароль — он также получит письмо или SMS со ссылкой, чтобы выбрать свой. Если его эл. почта или телефон подтверждены, он может сбросить пароль сам через «Забыли пароль?».",
   "faqParentsQ1": "Как связать мой аккаунт с ребёнком?",
   "faqParentsA1": "Школьный администратор связывает ваш аккаунт с ребёнком в приложении администратора. После этого ребёнок появится на вашем главном экране.",
   "faqParentsQ2": "Что я могу видеть о своём ребёнке?",
@@ -2385,7 +2409,7 @@
   "faqPrivacyQ1": "Кто может видеть мои данные?",
   "faqPrivacyA1": "Только люди в вашей школе. Учителя видят данные своих классов, администраторы — данные по всей школе, родители — связанных детей. Мы никогда не продаём данные рекламодателям.",
   "faqPrivacyQ2": "Как удалить аккаунт?",
-  "faqPrivacyA2": "Попросите школьного администратора удалить его в приложении администратора — это сотрёт ваш профиль, расписание и чаты. Можно также написать на support@classmateapp.org с email вашего аккаунта, и мы удалим его в течение 30 дней.",
+  "faqPrivacyA2": "Попросите школьного администратора удалить его в приложении администратора — это сотрёт ваш профиль, расписание и чаты. Можно также написать на support@classmateapp.org с эл. почты вашего аккаунта, и мы удалим его в течение 30 дней.",
   "solutionsPagesCount": "{count, plural, one{{count} страница} few{{count} страницы} many{{count} страниц} other{{count} страниц}}",
   "teacherMeetingEditTitle": "Изменить встречу",
   "teacherMeetingNewTitle": "Назначить встречу",
@@ -2596,7 +2620,7 @@
   "adminScheduleFrequencyWeeks": "×{freq} нед",
   "gradeLevelLabel": "Класс {grade}",
   "adminPeriodOption": "Период {period}",
-  "cohortStudentsCount": "{count} учеников",
+  "cohortStudentsCount": "{count, plural, one{{count} ученик} few{{count} ученика} many{{count} учеников} other{{count} ученика}}",
   "teacherGradeTitleHint": "напр. Работа на уроке, Тест 3",
   "teacherClassroomNameHint": "напр. Математика 10A",
   "novaAbout": "О NOVA",
@@ -2609,7 +2633,7 @@
   "adminImportUsersScreenTitle": "Импорт пользователей",
   "adminImportUsersScreenTabGrid": "Таблица",
   "adminImportUsersScreenTabCsv": "CSV",
-  "adminImportUsersScreenLoadedRows": "Загружено строк: {count} — проверьте и отредактируйте, затем нажмите «Создать»",
+  "adminImportUsersScreenLoadedRows": "{count, plural, one{Загружена {count} строка — проверьте и отредактируйте, затем нажмите «Создать»} few{Загружено {count} строки — проверьте и отредактируйте, затем нажмите «Создать»} many{Загружено {count} строк — проверьте и отредактируйте, затем нажмите «Создать»} other{Загружено {count} строки — проверьте и отредактируйте, затем нажмите «Создать»}}",
   "adminImportUsersScreenFillAtLeastOneName": "Укажите хотя бы одно имя",
   "adminImportUsersScreenFailed": "Ошибка: {error}",
   "adminImportUsersScreenBackToGrid": "Назад к таблице",
@@ -2628,12 +2652,12 @@
   "adminImportUsersScreenSelectedFile": "Выбрано: {fileName}",
   "adminImportUsersScreenRecognisedColumns": "Распознанные столбцы",
   "adminImportUsersScreenRecognisedColumnsBody": "имя · имя пользователя · пароль · эл. почта · телефон · роль · класс · родитель (имя пользователя) · дети (имена пользователей)\n\nСлова ролей, такие как «student / طالب / תלמיד / élève / ученик», распознаются корректно. Класс считывается как число из «Grade 10», «الصف 10», «כיתה 10». Отсутствующие имена пользователей и пароли создаются автоматически.",
-  "adminImportUsersScreenDetectedRows": "Обнаружено — строк: {count}",
+  "adminImportUsersScreenDetectedRows": "Обнаружено — {count, plural, one{{count} строка} few{{count} строки} many{{count} строк} other{{count} строки}}",
   "adminImportUsersScreenNoColumnsDetected": "Известные столбцы не обнаружены — проверьте строку заголовков.",
   "adminImportUsersScreenTruncatedNotice": "Показаны первые 2000 строк для проверки.",
   "adminImportUsersScreenReviewEditInGrid": "Проверить и изменить в таблице",
   "adminImportUsersScreenReviewEditHint": "Откроет вкладку «Таблица» с уже заполненными строками, чтобы вы могли исправить ошибки перед созданием.",
-  "adminImportUsersScreenResultSummary": "✓ Создано пользователей: {count} · связей: {links}",
+  "adminImportUsersScreenResultSummary": "✓ {count, plural, one{Создан {count} пользователь} few{Создано {count} пользователя} many{Создано {count} пользователей} other{Создано {count} пользователя}} · {links, plural, one{{links} связь} few{{links} связи} many{{links} связей} other{{links} связи}}",
   "adminImportUsersScreenResultFailedSuffix": " · с ошибкой: {failed}",
   "adminImportUsersScreenFailedRows": "Строки с ошибками",
   "adminImportUsersScreenFailedRow": "Строка {row}: {reason}",
@@ -2649,7 +2673,7 @@
   "teacherCohortsScreenEnterNameAndGrade": "Укажите название и хотя бы один класс",
   "teacherCohortsScreenCohortCreated": "Группа создана",
   "teacherCohortsScreenFailed": "Ошибка",
-  "teacherCohortsScreenStudentsCount": "Учеников: {count}",
+  "teacherCohortsScreenStudentsCount": "{count, plural, one{{count} ученик} few{{count} ученика} many{{count} учеников} other{{count} ученика}}",
   "teacherCohortsScreenRenameGrades": "Переименовать / классы",
   "teacherCohortsScreenDeleteCohort": "Удалить группу",
   "teacherCohortsScreenAddStudents": "Добавить учеников",
@@ -2661,7 +2685,7 @@
   "teacherCohortsScreenDelete": "Удалить",
   "teacherCohortsScreenDeleted": "Удалено",
   "teacherCohortsScreenLoadStudentsError": "Не удалось загрузить учеников",
-  "teacherCohortsScreenAddedNStudents": "Добавлено учеников: {count}",
+  "teacherCohortsScreenAddedNStudents": "{count, plural, one{Добавлен {count} ученик} few{Добавлено {count} ученика} many{Добавлено {count} учеников} other{Добавлено {count} ученика}}",
   "teacherCohortsScreenNoStudentsYet": "Учеников пока нет.",
   "adminSettingsScreenBulkTools": "Массовые операции",
   "adminSettingsScreenImportUsers": "Импорт пользователей",
@@ -2693,18 +2717,18 @@
   "adminScheduleGradeWithCohort": "Класс {grade} · {cohort}",
   "adminScheduleDateOnLabel": "Дата",
   "adminScheduleDateStartsOnLabel": "Начинается",
-  "adminScheduleStudentCount": "Учеников: {count}",
+  "adminScheduleStudentCount": "{count, plural, one{{count} ученик} few{{count} ученика} many{{count} учеников} other{{count} ученика}}",
   "adminScheduleAudienceNone": "—",
   "adminScheduleTeacherClashNamed": "У {name} будет два урока одновременно.",
   "adminScheduleTeacherClash": "У этого учителя будет два урока одновременно.",
   "adminScheduleStudentClashSingle": "У {name} будет два урока одновременно:",
-  "adminScheduleStudentClashMany": "У {count} учеников будет два урока одновременно:",
+  "adminScheduleStudentClashMany": "{count, plural, one{У {count} ученика будет два урока одновременно:} other{У {count} учеников будет два урока одновременно:}}",
   "adminScheduleAStudent": "Ученик",
   "adminScheduleAffected": "Затронуто: {preview}",
   "adminScheduleResolvePrompt": "Как это разрешить?",
   "adminScheduleResolvePromptStudents": "Как это разрешить для этих учеников?",
-  "adminScheduleStudentsInCohorts": "Учеников в выбранных группах: {count}",
-  "adminScheduleStudentsInGrade": "Учеников в классе {grade}: {count}",
+  "adminScheduleStudentsInCohorts": "{count, plural, one{{count} ученик в выбранных группах} few{{count} ученика в выбранных группах} many{{count} учеников в выбранных группах} other{{count} ученика в выбранных группах}}",
+  "adminScheduleStudentsInGrade": "{count, plural, one{{count} ученик в классе {grade}} few{{count} ученика в классе {grade}} many{{count} учеников в классе {grade}} other{{count} ученика в классе {grade}}}",
   "adminScheduleCustomizedNote": "Настроено — сохранено как отдельные ученики",
   "adminScheduleMoreCount": "+{count} ещё",
   "adminScheduleAddStudentsTitle": "Добавить учеников",
@@ -2726,13 +2750,13 @@
   "teacherNewAnnouncementScreenLoadingStudents": "Загрузка учеников…",
   "teacherNewAnnouncementScreenNoGradeLevels": "Уровни классов пока не найдены.",
   "teacherNewAnnouncementScreenTapSelectCohorts": "Нажмите, чтобы выбрать группы…",
-  "teacherNewAnnouncementScreenCohortsSelected": "Выбрано групп: {count}",
+  "teacherNewAnnouncementScreenCohortsSelected": "{count, plural, one{Выбрана {count} группа} few{Выбрано {count} группы} many{Выбрано {count} групп} other{Выбрано {count} группы}}",
   "teacherNewAnnouncementScreenTapSelectStudents": "Нажмите, чтобы выбрать учеников…",
-  "teacherNewAnnouncementScreenStudentsSelected": "Выбрано учеников: {count}",
+  "teacherNewAnnouncementScreenStudentsSelected": "{count, plural, one{Выбран {count} ученик} few{Выбрано {count} ученика} many{Выбрано {count} учеников} other{Выбрано {count} ученика}}",
   "teacherNewAnnouncementScreenTapSelectParents": "Нажмите, чтобы выбрать родителей…",
-  "teacherNewAnnouncementScreenParentsSelected": "Выбрано родителей: {count}",
+  "teacherNewAnnouncementScreenParentsSelected": "{count, plural, one{Выбран {count} родитель} few{Выбрано {count} родителя} many{Выбрано {count} родителей} other{Выбрано {count} родителя}}",
   "teacherNewAnnouncementScreenSelectedAudience": "Выбранная аудитория",
-  "teacherNewAnnouncementScreenStudentsInCohorts": "Учеников в выбранных группах: {count}",
+  "teacherNewAnnouncementScreenStudentsInCohorts": "{count, plural, one{{count} ученик в выбранных группах} few{{count} ученика в выбранных группах} many{{count} учеников в выбранных группах} other{{count} ученика в выбранных группах}}",
   "teacherNewAnnouncementScreenSelectParents": "Выбрать родителей",
   "teacherNewAnnouncementScreenChildrenSummary": "Детей: {count} — {summary}",
   "teacherNewAnnouncementScreenNoLinkedChildren": "Нет связанных детей",
@@ -2786,7 +2810,7 @@
   "formDetailScreenSubmitting": "Отправка…",
   "formDetailScreenSubmitAgain": "Отправить снова",
   "formDetailScreenSubmitForm": "Отправить форму",
-  "formDetailScreenQuestionCount": "Вопросов: {count}",
+  "formDetailScreenQuestionCount": "{count, plural, one{{count} вопрос} few{{count} вопроса} many{{count} вопросов} other{{count} вопроса}}",
   "formDetailScreenMultiSubmit": "Несколько отправок",
   "formDetailScreenOnePerStudent": "1 на ученика",
   "formDetailScreenRequired": "Обязательно",
@@ -2952,7 +2976,7 @@
   "classroomDetailUntitled": "Без названия",
   "typingDotsPaused": "Приостановлено",
   "cmAiMessageStartPracticeSession": "Начать тренировку",
-  "cmAiMessageQuestionCount": "Вопросов: {count}",
+  "cmAiMessageQuestionCount": "{count, plural, one{{count} вопрос} few{{count} вопроса} many{{count} вопросов} other{{count} вопроса}}",
   "cmAiMessageDifficultyEasy": "Лёгкий",
   "cmAiMessageDifficultyHard": "Сложный",
   "cmAiMessageDifficultyOlympiad": "Олимпиадный",
@@ -3044,8 +3068,8 @@
   "adminAddManyNoParentsYet": "Нет подходящих родителей — введите имя выше, чтобы создать",
   "adminAddManyUsernameTaken": "Имя пользователя уже занято",
   "adminAddManyUsernameDupe": "Повтор имени пользователя в этом списке",
-  "adminAddManyCreateParent": "Создать нового родителя \"{name}\"",
-  "adminAddManyPastedRows": "Добавлено строк: {count}",
+  "adminAddManyCreateParent": "Создать нового родителя «{name}»",
+  "adminAddManyPastedRows": "{count, plural, one{Добавлена {count} строка} few{Добавлено {count} строки} many{Добавлено {count} строк} other{Добавлено {count} строки}}",
   "navCertificates": "Сертификаты",
   "averagesDelete": "Удалить",
   "averagesFieldTitle": "Название",
@@ -3329,7 +3353,7 @@
   "cmailDeleteTitle": "Удалить письмо?",
   "cmailDeleteForAll": "Письмо будет удалено у всех.",
   "cmailDeleteForMe": "Письмо будет удалено из ваших входящих.",
-  "cmailRecipients": "{count} получателей",
+  "cmailRecipients": "{count, plural, one{{count} получатель} few{{count} получателя} many{{count} получателей} other{{count} получателя}}",
   "cmailReadStats": "Прочитано {read} из {total}",
   "cmailSubjectRequired": "Укажите тему",
   "cmailAudienceRequired": "Выберите, кому отправить это письмо",
@@ -3469,5 +3493,9 @@
   "permScheduleEdit": "Изменять расписание школы",
   "permScheduleEditDesc": "Добавлять, менять и удалять уроки, задавать стандартное время уроков и вносить разовые изменения.",
   "permAnnouncementsPost": "Публиковать объявления",
-  "permAnnouncementsPostDesc": "Публиковать объявления для классов, параллелей или всей школы."
+  "permAnnouncementsPostDesc": "Публиковать объявления для классов, параллелей или всей школы.",
+  "teacherLibraryAddMeeting": "Добавить встречу",
+  "teacherLibraryCreateNewMeeting": "Создать новую встречу",
+  "solutionsAllQuestions": "Все вопросы",
+  "announcementsNoDetails": "Дополнительные сведения не прикреплены."
 }

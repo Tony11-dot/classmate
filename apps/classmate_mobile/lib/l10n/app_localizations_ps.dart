@@ -142,7 +142,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get consentGateError =>
-      '‹‹Couldn\'t save your choice. Please check your connection and try again.››';
+      '‹‹Couldn’t save your choice. Please check your connection and try again.››';
 
   @override
   String get commonShowPassword => '‹‹Show password››';
@@ -178,7 +178,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get logoutConfirmBody =>
-      '‹‹You\'ll need to sign in again to use ClassMate.››';
+      '‹‹You’ll need to sign in again to use ClassMate.››';
 
   @override
   String get pressBackAgainToExit => '‹‹Press back again to exit››';
@@ -236,10 +236,10 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get consentGateGuardian =>
-      '‹‹I have my parent or guardian\'s permission to use ClassMate››';
+      '‹‹I have my parent or guardian’s permission to use ClassMate››';
 
   @override
-  String get consentGateContinue => '‹‹Agree & Continue››';
+  String get consentGateContinue => '‹‹Agree & continue››';
 
   @override
   String get menu => '‹‹Menu››';
@@ -248,7 +248,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get sectionCore => '‹‹Core››';
 
   @override
-  String get sectionSchoolTools => '‹‹School Tools››';
+  String get sectionSchoolTools => '‹‹School tools››';
 
   @override
   String get sectionAccount => '‹‹Account››';
@@ -302,10 +302,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get navHome => '‹‹Home››';
 
   @override
-  String get navTeacherWorkspace => '‹‹Teacher Workspace››';
+  String get navTeacherWorkspace => '‹‹Teacher workspace››';
 
   @override
-  String get navSavedQuestions => '‹‹Saved Questions››';
+  String get navSavedQuestions => '‹‹Saved questions››';
 
   @override
   String get navProfile => '‹‹Profile››';
@@ -401,7 +401,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String solutionsNoSubjectsMatch(Object query) {
-    return '‹‹No subjects match \"$query\".››';
+    return '‹‹No subjects match “$query”.››';
   }
 
   @override
@@ -422,7 +422,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get solutionsAddBookTitle => '‹‹Add a book››';
 
   @override
-  String get solutionsBookTitleHint => '‹‹Book title...››';
+  String get solutionsBookTitleHint => '‹‹Book title…››';
 
   @override
   String get solutionsAddBookAction => '‹‹Add a book››';
@@ -435,7 +435,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String solutionsNoBooksMatch(Object query) {
-    return '‹‹No books match \"$query\".››';
+    return '‹‹No books match “$query”.››';
   }
 
   @override
@@ -563,7 +563,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get solutionsUploadRetryFailedFiles => '‹‹Retry failed files››';
 
   @override
-  String get solutionsUploadSubmittingAction => '‹‹Uploading...››';
+  String get solutionsUploadSubmittingAction => '‹‹Uploading…››';
 
   @override
   String get solutionsUploadSubmitAction => '‹‹Upload solution››';
@@ -660,7 +660,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get settingsThemeOcean => 'سمندر';
 
   @override
-  String get settingsLanguageSearchHint => '‹‹Search language...››';
+  String get settingsLanguageSearchHint => '‹‹Search language…››';
 
   @override
   String get teacherQuickActions => '‹‹Quick actions››';
@@ -833,11 +833,11 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get biometricFaceUnavailable =>
-      '‹‹Face ID isn\'t available on this device.››';
+      '‹‹Face ID isn’t available on this device.››';
 
   @override
   String get biometricFingerprintUnavailable =>
-      '‹‹Fingerprint isn\'t available on this device.››';
+      '‹‹Fingerprint isn’t available on this device.››';
 
   @override
   String get biometricNotAvailableOnDevice =>
@@ -848,7 +848,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get biometricSectionSubtitle =>
-      '‹‹Turn on Face ID or your fingerprint to sign in faster. You\'ll confirm your password once.››';
+      '‹‹Turn on Face ID or your fingerprint to sign in faster. You’ll confirm your password once.››';
 
   @override
   String get biometricFaceId => '‹‹Face ID››';
@@ -875,7 +875,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get biometricEnrollFailed =>
-      '‹‹Couldn\'t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.››';
+      '‹‹Couldn’t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.››';
 
   @override
   String get biometricLoginFailed =>
@@ -916,7 +916,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get profileMyCohortsEmpty =>
-      '‹‹You\'re not enrolled in any cohorts yet.››';
+      '‹‹You’re not enrolled in any cohorts yet.››';
 
   @override
   String get profileAccountInfo => '‹‹Account info››';
@@ -1003,7 +1003,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get classroomsClassroomLabel => '‹‹Classroom››';
 
   @override
-  String get classroomsLoadingLatestMessage => '‹‹Loading latest message...››';
+  String get classroomsLoadingLatestMessage => '‹‹Loading latest message…››';
 
   @override
   String get classroomsTapToOpen => '‹‹Tap to open classroom››';
@@ -1056,8 +1056,14 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String examsMaterialsCount(Object count) {
-    return '‹‹$count materials››';
+  String examsMaterialsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count materials',
+      one: '$count material',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -1067,8 +1073,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get examsClosedState => '‹‹Closed››';
 
   @override
-  String examsQuestionsCount(Object count) {
-    return '‹‹$count questions››';
+  String examsQuestionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '$count question',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -1253,7 +1265,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get chatMediaPreviewEmptyState => '‹‹Nothing to preview››';
 
   @override
-  String get chatMediaPreviewDrawCropAction => '‹‹Draw & Crop››';
+  String get chatMediaPreviewDrawCropAction => '‹‹Draw & crop››';
 
   @override
   String get chatMediaPreviewRotateLeftAction => '‹‹Rotate left››';
@@ -1271,7 +1283,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get chatMediaPreviewRemoveAction => '‹‹Remove››';
 
   @override
-  String get chatMediaPreviewCaptionHint => '‹‹Add a caption...››';
+  String get chatMediaPreviewCaptionHint => '‹‹Add a caption…››';
 
   @override
   String get tutorFailedToLoadChats => '‹‹Failed to load chats››';
@@ -1363,7 +1375,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get tutorPlanLimitReachedMessage =>
-      '‹‹This month\'s prompt or upload allowance is exhausted for your current NOVA plan. Pick a higher plan in the NOVA home screen to continue.››';
+      '‹‹This month’s prompt or upload allowance is exhausted for your current NOVA plan. Pick a higher plan in the NOVA home screen to continue.››';
 
   @override
   String get tutorSendFailed => '‹‹Send failed.››';
@@ -1639,8 +1651,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get notificationsSearchSourcesHint => '‹‹Search sources››';
 
   @override
-  String notificationsShowingSummary(Object shown, Object total) {
-    return '‹‹Showing $shown of $total notifications.››';
+  String notificationsShowingSummary(int shown, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total notifications',
+      one: '$total notification',
+    );
+    return '‹‹Showing $shown of $_temp0.››';
   }
 
   @override
@@ -1773,11 +1791,17 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String announcementsShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object sourceSegment,
     Object stateSegment,
   ) {
-    return '‹‹Showing $shown of $total announcements$sourceSegment$stateSegment.››';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total announcements',
+      one: '$total announcement',
+    );
+    return '‹‹Showing $shown of $_temp0$sourceSegment$stateSegment.››';
   }
 
   @override
@@ -1879,11 +1903,17 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String meetingsShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object subjectSegment,
     Object accessSegment,
   ) {
-    return '‹‹Showing $shown of $total meetings$subjectSegment$accessSegment.››';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total meetings',
+      one: '$total meeting',
+    );
+    return '‹‹Showing $shown of $_temp0$subjectSegment$accessSegment.››';
   }
 
   @override
@@ -2203,8 +2233,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get practiceSetupInfiniteLives => '‹‹Infinite lives››';
 
   @override
-  String practiceSetupLivesCount(Object count) {
-    return '‹‹$count lives››';
+  String practiceSetupLivesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lives',
+      one: '$count life',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -2216,8 +2252,14 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String practiceSetupQuestionsCount(Object count) {
-    return '‹‹$count questions››';
+  String practiceSetupQuestionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '$count question',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -2656,16 +2698,16 @@ class AppLocalizationsPs extends AppLocalizations {
   String get practiceSetupTooltipAnalytics => '‹‹Practice analytics››';
 
   @override
-  String get practiceSetupStopGenerating => '‹‹Stop Generating››';
+  String get practiceSetupStopGenerating => '‹‹Stop generating››';
 
   @override
-  String get practiceSetupGenerating => '‹‹Generating...››';
+  String get practiceSetupGenerating => '‹‹Generating…››';
 
   @override
   String get practiceSetupStartSession => '‹‹Start session››';
 
   @override
-  String get practiceSetupSearchHint => '‹‹Search...››';
+  String get practiceSetupSearchHint => '‹‹Search…››';
 
   @override
   String get practiceSessionModeDescriptionPractice =>
@@ -3037,8 +3079,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get assignmentsSearchStatuses => '‹‹Search statuses››';
 
   @override
-  String assignmentsShowingSummary(Object shown, Object total) {
-    return '‹‹Showing $shown of $total assignments.››';
+  String assignmentsShowingSummary(Object shown, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total assignments',
+      one: '$total assignment',
+    );
+    return '‹‹Showing $shown of $_temp0.››';
   }
 
   @override
@@ -3161,11 +3209,17 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String attendanceShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object subject,
     Object range,
   ) {
-    return '‹‹Showing $shown of $total marks for $subject in $range.››';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total marks',
+      one: '$total mark',
+    );
+    return '‹‹Showing $shown of $_temp0 for $subject in $range.››';
   }
 
   @override
@@ -3279,8 +3333,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get attendanceLessonCountSingle => '‹‹1 lesson››';
 
   @override
-  String attendanceLessonCount(Object count) {
-    return '‹‹$count lessons››';
+  String attendanceLessonCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lessons',
+      one: '$count lesson',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -3373,7 +3433,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get msgBlockContent =>
-      '‹‹They won\'t be able to message you and you won\'t see their messages.››';
+      '‹‹They won’t be able to message you and you won’t see their messages.››';
 
   @override
   String get msgRenameGroup => '‹‹Rename group››';
@@ -3453,7 +3513,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get msgNotificationsUnmuted => '‹‹Notifications unmuted››';
 
   @override
-  String get msgJoinGroupTitle => '‹‹Join a Group››';
+  String get msgJoinGroupTitle => '‹‹Join a group››';
 
   @override
   String get msgJoinGroupSubtitle =>
@@ -3490,16 +3550,16 @@ class AppLocalizationsPs extends AppLocalizations {
   String get meetingCouldNotLoad => '‹‹Could not load meeting››';
 
   @override
-  String get teacherGoToClassroom => '‹‹Go to Classroom››';
+  String get teacherGoToClassroom => '‹‹Go to classroom››';
 
   @override
-  String get teacherMarkAttendance => '‹‹Mark Attendance››';
+  String get teacherMarkAttendance => '‹‹Mark attendance››';
 
   @override
-  String get teacherPostAssignment => '‹‹Post Assignment››';
+  String get teacherPostAssignment => '‹‹Post assignment››';
 
   @override
-  String get teacherNewAnnouncementAction => '‹‹New Announcement››';
+  String get teacherNewAnnouncementAction => '‹‹New announcement››';
 
   @override
   String get teacherGroupsLabel => '‹‹Groups››';
@@ -3560,7 +3620,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherTeachersLabel => '‹‹Teachers››';
 
   @override
-  String get teacherWeekScheduleTitle => '‹‹Week Schedule››';
+  String get teacherWeekScheduleTitle => '‹‹Week schedule››';
 
   @override
   String get teacherAttendanceLast30 => '‹‹Attendance (last 30 days)››';
@@ -3578,13 +3638,13 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹No saved attendance sessions.\nMark attendance from the schedule.››';
 
   @override
-  String get teacherRecentGrades => '‹‹Recent Grades››';
+  String get teacherRecentGrades => '‹‹Recent grades››';
 
   @override
   String get teacherNoGradesRecorded => '‹‹No grades recorded yet››';
 
   @override
-  String get teacherGradeAvg => '‹‹Grade Avg››';
+  String get teacherGradeAvg => '‹‹Grade avg››';
 
   @override
   String get teacherSubmittedLabel => '‹‹Submitted››';
@@ -3593,7 +3653,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherAnalyticsTitle => '‹‹Analytics››';
 
   @override
-  String get teacherGradeReports => '‹‹Grade Reports››';
+  String get teacherGradeReports => '‹‹Grade reports››';
 
   @override
   String get teacherAvgLabel => '‹‹avg››';
@@ -3619,7 +3679,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹This will remove it for all students.››';
 
   @override
-  String get teacherShareMaterialTitle => '‹‹Share Material››';
+  String get teacherShareMaterialTitle => '‹‹Share material››';
 
   @override
   String get teacherRemoveMaterial => '‹‹Remove material?››';
@@ -3628,7 +3688,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherMaterialRemoved => '‹‹Material removed››';
 
   @override
-  String get teacherScheduleMeetingTitle => '‹‹Schedule Meeting››';
+  String get teacherScheduleMeetingTitle => '‹‹Schedule meeting››';
 
   @override
   String get teacherCancelMeetingTitle => '‹‹Cancel meeting?››';
@@ -3683,7 +3743,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Please allow microphone access in Settings to send voice notes.››';
 
   @override
-  String get chatOpenSettings => '‹‹Open Settings››';
+  String get chatOpenSettings => '‹‹Open settings››';
 
   @override
   String get chatCopied => '‹‹Copied››';
@@ -3693,7 +3753,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get chatMediaWebUnsupported =>
-      '‹‹Taking photos, recording, and attaching files aren\'t available in the web browser yet — please use the ClassMate mobile app.››';
+      '‹‹Taking photos, recording, and attaching files aren’t available in the web browser yet — please use the ClassMate mobile app.››';
 
   @override
   String get chatCouldNotSendMessage => '‹‹Could not send message.››';
@@ -3744,7 +3804,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get chatCancelTooltip => '‹‹Cancel››';
 
   @override
-  String get chatJoinGroup => '‹‹Join Group››';
+  String get chatJoinGroup => '‹‹Join group››';
 
   @override
   String get chatJoining => '‹‹Joining…››';
@@ -3761,7 +3821,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get novaTokenTip =>
-      '‹‹Use your tokens carefully — they\'re meant for studying.››';
+      '‹‹Use your tokens carefully — they’re meant for studying.››';
 
   @override
   String get practiceCustomDisclaimer =>
@@ -3771,13 +3831,13 @@ class AppLocalizationsPs extends AppLocalizations {
   String get classroomsJoined => '‹‹You joined the classroom!››';
 
   @override
-  String get classroomsJoinAction => '‹‹Join Classroom››';
+  String get classroomsJoinAction => '‹‹Join classroom››';
 
   @override
   String get classroomsJoinTooltip => '‹‹Join a classroom››';
 
   @override
-  String get classroomsJoinTitle => '‹‹Join a Classroom››';
+  String get classroomsJoinTitle => '‹‹Join a classroom››';
 
   @override
   String get classroomsJoinSubtitle =>
@@ -3802,7 +3862,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherGreetingEvening => '‹‹Good evening››';
 
   @override
-  String get teacherTodaysClasses => '‹‹Today\'s Classes››';
+  String get teacherTodaysClasses => '‹‹Today’s classes››';
 
   @override
   String get teacherNoDate => '‹‹No date››';
@@ -3852,10 +3912,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get mediaUnableToLoad => '‹‹Unable to load image››';
 
   @override
-  String get searchHint => '‹‹Search...››';
+  String get searchHint => '‹‹Search…››';
 
   @override
-  String get teacherInsightsTitle => '‹‹Student Insights››';
+  String get teacherInsightsTitle => '‹‹Student insights››';
 
   @override
   String get teacherInsightsSubtitle =>
@@ -3890,8 +3950,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherFormsEmpty => '‹‹No forms yet. Tap + to create one.››';
 
   @override
-  String teacherFormsResponses(Object count) {
-    return '‹‹$count responses››';
+  String teacherFormsResponses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count responses',
+      one: '$count response',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -3941,7 +4007,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹This exam is complete. Check the grades tab for your result.››';
 
   @override
-  String get examViewGradeAction => '‹‹Open Grades››';
+  String get examViewGradeAction => '‹‹Open grades››';
 
   @override
   String get teacherGradesNothingToSave => '‹‹No changes to save.››';
@@ -4019,7 +4085,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get chatPreviewYou => 'تاسو';
 
   @override
-  String get adminDashboardTitle => '‹‹School Overview››';
+  String get adminDashboardTitle => '‹‹School overview››';
 
   @override
   String get adminStudents => '‹‹Students››';
@@ -4037,7 +4103,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminAdmins => '‹‹Admins››';
 
   @override
-  String get adminQuickActions => '‹‹Quick Actions››';
+  String get adminQuickActions => '‹‹Quick actions››';
 
   @override
   String get adminAttendanceLast30 => '‹‹Attendance — Last 30 Days››';
@@ -4047,7 +4113,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹No attendance data for the last 30 days.››';
 
   @override
-  String get adminAddUser => '‹‹Add User››';
+  String get adminAddUser => '‹‹Add user››';
 
   @override
   String get adminCreateUser => '‹‹Create››';
@@ -4056,13 +4122,13 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminRoleLabel => '‹‹Role››';
 
   @override
-  String get adminUserCreated => '‹‹User Created››';
+  String get adminUserCreated => '‹‹User created››';
 
   @override
   String get adminCopied => '‹‹Copied to clipboard››';
 
   @override
-  String get adminDeleteUser => '‹‹Delete User››';
+  String get adminDeleteUser => '‹‹Delete user››';
 
   @override
   String adminDeleteUserConfirm(Object name) {
@@ -4070,15 +4136,15 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get adminDeleteCohort => '‹‹Delete Cohort››';
+  String get adminDeleteCohort => '‹‹Delete cohort››';
 
   @override
   String adminDeleteCohortConfirm(Object name) {
-    return '‹‹Delete \"$name\"? All student memberships will be removed.››';
+    return '‹‹Delete “$name”? All student memberships will be removed.››';
   }
 
   @override
-  String get adminAddCohort => '‹‹Add Cohort››';
+  String get adminAddCohort => '‹‹Add cohort››';
 
   @override
   String get adminCohortName => '‹‹Cohort Name (e.g. 10th-2)››';
@@ -4090,10 +4156,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminRenameCohort => '‹‹Rename››';
 
   @override
-  String get adminAddStudents => '‹‹Add Students››';
+  String get adminAddStudents => '‹‹Add students››';
 
   @override
-  String get adminRemoveStudent => '‹‹Remove Student››';
+  String get adminRemoveStudent => '‹‹Remove student››';
 
   @override
   String adminRemoveStudentConfirm(Object name, Object cohort) {
@@ -4148,10 +4214,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminScheduleNoSlotsHint => '‹‹Tap + to add the first period››';
 
   @override
-  String get adminSchoolSettingsTitle => '‹‹School Settings››';
+  String get adminSchoolSettingsTitle => '‹‹School settings››';
 
   @override
-  String get adminSchoolName => '‹‹School Name››';
+  String get adminSchoolName => '‹‹School name››';
 
   @override
   String get adminSchoolSaved => '‹‹Saved››';
@@ -4204,12 +4270,12 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String permissionsSaveFailed(Object error) {
-    return '‹‹Couldn\'t save permissions: $error››';
+    return '‹‹Couldn’t save permissions: $error››';
   }
 
   @override
   String permissionsLoadFailed(Object error) {
-    return '‹‹Couldn\'t load permissions: $error››';
+    return '‹‹Couldn’t load permissions: $error››';
   }
 
   @override
@@ -4221,10 +4287,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get permissionsResetChanges => '‹‹Discard changes››';
 
   @override
-  String get adminSettingsBellSchedule => '‹‹Bell Schedule››';
+  String get adminSettingsBellSchedule => '‹‹Bell schedule››';
 
   @override
-  String get adminSettingsPeriodDefaults => '‹‹Period Defaults››';
+  String get adminSettingsPeriodDefaults => '‹‹Period defaults››';
 
   @override
   String get adminDeleteConfirmCancel => '‹‹Cancel››';
@@ -4245,7 +4311,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get commonRetry => '‹‹Retry››';
 
   @override
-  String get chatThreadLoadFailedTitle => 'دا خبرې اترې لوډ نه شوې';
+  String get chatThreadLoadFailedTitle => '‹‹Couldn’t load this conversation››';
 
   @override
   String get chatThreadLoadFailedBody =>
@@ -4328,7 +4394,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get inboxActionBlockConfirm =>
-      '‹‹Block this contact? They won\'t be able to message you anymore.››';
+      '‹‹Block this contact? They won’t be able to message you anymore.››';
 
   @override
   String get cmailActionMarkRead => '‹‹Mark as read››';
@@ -4381,7 +4447,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get secretaryReports => '‹‹Reports››';
 
   @override
-  String get secretaryExportData => '‹‹Export Data››';
+  String get secretaryExportData => '‹‹Export data››';
 
   @override
   String parentHomeGreeting(Object name) {
@@ -4440,15 +4506,15 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get forgotPasswordSmsHelper =>
-      '‹‹We\'ll text the link to the phone number on this account.››';
+      '‹‹We’ll text the link to the phone number on this account.››';
 
   @override
   String get forgotPasswordIntroEmail =>
-      '‹‹Enter your email or username and we\'ll email you a reset link.››';
+      '‹‹Enter your email or username and we’ll email you a reset link.››';
 
   @override
   String get forgotPasswordIntroSms =>
-      '‹‹Enter your email or username and we\'ll text a reset link to the phone on your account.››';
+      '‹‹Enter your email or username and we’ll text a reset link to the phone on your account.››';
 
   @override
   String get forgotPasswordExpiryNote =>
@@ -4485,7 +4551,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherShareButton => '‹‹Share››';
 
   @override
-  String get teacherMaterialDetails => '‹‹Material Details››';
+  String get teacherMaterialDetails => '‹‹Material details››';
 
   @override
   String get teacherMaterialTitleLabel => '‹‹Title *››';
@@ -4634,11 +4700,11 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get adminSetupSchoolSetup => '‹‹School Setup››';
+  String get adminSetupSchoolSetup => '‹‹School setup››';
 
   @override
   String get adminSetupComplete =>
-      '‹‹You\'re all set. Tap any item to revisit or refine it.››';
+      '‹‹You’re all set. Tap any item to revisit or refine it.››';
 
   @override
   String get adminSetupInstructions =>
@@ -4694,7 +4760,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get supportContactDescription =>
-      '‹‹Can\'t find your answer below? Get in touch and we\'ll come back to you within a working day.››';
+      '‹‹Can’t find your answer below? Get in touch and we’ll come back to you within a working day.››';
 
   @override
   String get supportEmailLabel => '‹‹Email››';
@@ -4722,7 +4788,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get supportAiGreeting =>
-      '‹‹Hi! I\'m NOVA, ClassMate\'s assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.››';
+      '‹‹Hi! I’m NOVA, ClassMate’s assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.››';
 
   @override
   String get supportAiInputHint => 'پوښتنه وکړئ…';
@@ -4733,7 +4799,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get supportAiError =>
-      'بښنه غواړو — دا مهال مو ځواب نه شو درکولی. مهرباني وکړئ بیا هڅه وکړئ، یا پورته له ملاتړ سره اړیکه ونیسئ.';
+      '‹‹Sorry — I couldn’t answer that right now. Please try again, or contact support above.››';
 
   @override
   String get supportAiSubtitle => '‹‹Help with anything in ClassMate››';
@@ -4746,7 +4812,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹How do I join a classroom with a code?››';
 
   @override
-  String get supportAiSuggestTheme => '‹‹How do I change the app\'s theme?››';
+  String get supportAiSuggestTheme => '‹‹How do I change the app’s theme?››';
 
   @override
   String get aboutWhatIsClassmate => '‹‹What is ClassMate?››';
@@ -4761,7 +4827,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get aboutMultilingualDescription =>
-      '‹‹Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they\'re most comfortable with; teachers manage in theirs.››';
+      '‹‹Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they’re most comfortable with; teachers manage in theirs.››';
 
   @override
   String get aboutPrivacyTitle => '‹‹Privacy first››';
@@ -4832,7 +4898,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Share these credentials with the student.››';
 
   @override
-  String get adminCopyCredsButton => '‹‹Copy All››';
+  String get adminCopyCredsButton => '‹‹Copy all››';
 
   @override
   String get adminGradeLabel => '‹‹Grade››';
@@ -4843,10 +4909,10 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get adminCreateAndAddStudents => '‹‹Create & Add Students››';
+  String get adminCreateAndAddStudents => '‹‹Create & add students››';
 
   @override
-  String get adminAddStudentsTitle => '‹‹Add Students››';
+  String get adminAddStudentsTitle => '‹‹Add students››';
 
   @override
   String get adminSkipAdding => '‹‹Skip››';
@@ -4886,7 +4952,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Pick a date for a one-off period.››';
 
   @override
-  String get adminSchoolLogoLabel => '‹‹School Logo››';
+  String get adminSchoolLogoLabel => '‹‹School logo››';
 
   @override
   String get adminSchoolLogoUploaded => '‹‹Logo uploaded››';
@@ -4917,7 +4983,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminSchoolHighestGrade => '‹‹Highest››';
 
   @override
-  String get adminSchoolSubjectsTitle => '‹‹School Subjects››';
+  String get adminSchoolSubjectsTitle => '‹‹School subjects››';
 
   @override
   String get adminSchoolSubjectsDescription =>
@@ -4928,7 +4994,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Set start and end times for each period. Add or remove periods as needed.››';
 
   @override
-  String get adminSchoolBellTitle => '‹‹Bell Schedule››';
+  String get adminSchoolBellTitle => '‹‹Bell schedule››';
 
   @override
   String get adminSchoolBellInfo =>
@@ -4941,10 +5007,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminSchoolEndTime => '‹‹End››';
 
   @override
-  String get adminExportOptionsTitle => '‹‹Export Options››';
+  String get adminExportOptionsTitle => '‹‹Export options››';
 
   @override
-  String get adminExportIncludePasswords => '‹‹Include Passwords››';
+  String get adminExportIncludePasswords => '‹‹Include passwords››';
 
   @override
   String get adminExportLanguageLabel => '‹‹Name language in the export››';
@@ -4971,7 +5037,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String messagesNoPeopleMatch(Object query) {
-    return '‹‹No people match \"$query\"››';
+    return '‹‹No people match “$query”››';
   }
 
   @override
@@ -5013,7 +5079,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String teacherDeleteItemConfirm(Object title) {
-    return '‹‹Delete \"$title\"?››';
+    return '‹‹Delete “$title”?››';
   }
 
   @override
@@ -5027,7 +5093,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get teacherMeetingEnterValidUrl =>
-      '‹‹Please enter a valid URL (e.g. https://zoom.us/j/...)››';
+      '‹‹Please enter a valid URL (e.g. https://zoom.us/j/…)››';
 
   @override
   String get teacherMeetingPickStartTime => '‹‹Please pick a start time.››';
@@ -5096,13 +5162,13 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherCustomSubjectLabel => '‹‹Custom subject *››';
 
   @override
-  String get teacherCreateClassroomButton => '‹‹Create Classroom››';
+  String get teacherCreateClassroomButton => '‹‹Create classroom››';
 
   @override
-  String get teacherCreateFormTitle => '‹‹Create Form››';
+  String get teacherCreateFormTitle => '‹‹Create form››';
 
   @override
-  String get teacherFormSaveDraft => '‹‹Save Draft››';
+  String get teacherFormSaveDraft => '‹‹Save draft››';
 
   @override
   String get teacherFormTitleHint => '‹‹Form title *››';
@@ -5203,7 +5269,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get teacherMaterialSearchStudentsGrade =>
-      '‹‹Search students or grade...››';
+      '‹‹Search students or grade…››';
 
   @override
   String teacherMaterialDoneSelected(int count) {
@@ -5237,7 +5303,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherAnnounceNoParents => '‹‹No parents found at this school.››';
 
   @override
-  String get teacherSaveGradesButton => '‹‹Save Grades››';
+  String get teacherSaveGradesButton => '‹‹Save grades››';
 
   @override
   String get teacherGradeFieldLabel => '‹‹Grade››';
@@ -5324,7 +5390,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminEditUserCohortsSection => '‹‹Cohorts››';
 
   @override
-  String get adminEditUserLinkedChildren => '‹‹Linked Children››';
+  String get adminEditUserLinkedChildren => '‹‹Linked children››';
 
   @override
   String get adminEditUserLinkButton => '‹‹Link››';
@@ -5345,10 +5411,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminEditUserSetPasswordButton => '‹‹Set password››';
 
   @override
-  String get adminPeriodsTitle => '‹‹Manage Periods››';
+  String get adminPeriodsTitle => '‹‹Manage periods››';
 
   @override
-  String get adminPeriodsAddPeriod => '‹‹Add Period››';
+  String get adminPeriodsAddPeriod => '‹‹Add period››';
 
   @override
   String get adminPeriodsNoPeriods => '‹‹No periods yet››';
@@ -5357,7 +5423,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminPeriodsTapToAdd => '‹‹Tap + to add the first period››';
 
   @override
-  String get adminPeriodsNewPeriod => '‹‹New Period››';
+  String get adminPeriodsNewPeriod => '‹‹New period››';
 
   @override
   String get adminPeriodsDayLabel => '‹‹Day››';
@@ -5491,10 +5557,10 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminExportColumnPassword => '‹‹Password››';
 
   @override
-  String get teacherMaterialEditTitle => '‹‹Edit Material››';
+  String get teacherMaterialEditTitle => '‹‹Edit material››';
 
   @override
-  String get teacherMaterialAddTitle => '‹‹Add Material››';
+  String get teacherMaterialAddTitle => '‹‹Add material››';
 
   @override
   String get teacherMaterialAudienceTitle => '‹‹Audience››';
@@ -5524,7 +5590,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherMaterialSubjectOther => '‹‹Other››';
 
   @override
-  String get teacherMaterialSubjectSearch => '‹‹Search subjects...››';
+  String get teacherMaterialSubjectSearch => '‹‹Search subjects…››';
 
   @override
   String get teacherMaterialAttachmentsTitle => '‹‹Attachments››';
@@ -5689,7 +5755,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String adminScheduleSavedLabelOnlyError(Object error) {
-    return '‹‹Saved as slot label only — couldn\'t add to library: $error››';
+    return '‹‹Saved as slot label only — couldn’t add to library: $error››';
   }
 
   @override
@@ -5713,7 +5779,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get commonCreate => '‹‹Create››';
 
   @override
-  String get teacherCreateClassroomNewTitle => '‹‹New Classroom››';
+  String get teacherCreateClassroomNewTitle => '‹‹New classroom››';
 
   @override
   String get teacherCreateClassroomLoadingStudents => '‹‹Loading students…››';
@@ -5762,33 +5828,39 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String classMaterialsFilesCount(int count) {
-    return '‹‹$count files››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files',
+      one: '$count file',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
-  String get classMaterialsLoadError => '‹‹Couldn\'t load materials››';
+  String get classMaterialsLoadError => '‹‹Couldn’t load materials››';
 
   @override
   String get classMaterialsEmpty =>
       '‹‹No materials yet — tap Add to share one.››';
 
   @override
-  String get navPlans => '‹‹NOVA Plans››';
+  String get navPlans => '‹‹NOVA plans››';
 
   @override
   String get navReports => '‹‹Reports››';
 
   @override
-  String get navExportData => '‹‹Export Data››';
+  String get navExportData => '‹‹Export data››';
 
   @override
-  String get sectionSecretaryTools => '‹‹Secretary Tools››';
+  String get sectionSecretaryTools => '‹‹Secretary tools››';
 
   @override
-  String get sectionSchoolToolsLabel => '‹‹School Tools››';
+  String get sectionSchoolToolsLabel => '‹‹School tools››';
 
   @override
-  String get sectionAdminTools => '‹‹Admin Tools››';
+  String get sectionAdminTools => '‹‹Admin tools››';
 
   @override
   String get chatVideoTrimTitle => '‹‹Trim video››';
@@ -5810,7 +5882,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹One-time purchases. Never expire. Stack on top of your plan.››';
 
   @override
-  String get plansCouldntLoadBalance => '‹‹Couldn\'t load your balance››';
+  String get plansCouldntLoadBalance => '‹‹Couldn’t load your balance››';
 
   @override
   String get plansFreePlan => '‹‹Free plan››';
@@ -5891,7 +5963,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get plansCurrentBadge => '‹‹CURRENT››';
 
   @override
-  String get plansCouldntLoadPlans => '‹‹Couldn\'t load plans››';
+  String get plansCouldntLoadPlans => '‹‹Couldn’t load plans››';
 
   @override
   String get paywallPlansUnavailable =>
@@ -5899,7 +5971,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get paywallTopupUnavailable =>
-      '‹‹Top-up unavailable. The store hasn\'t finished approving this product.››';
+      '‹‹Top-up unavailable. The store hasn’t finished approving this product.››';
 
   @override
   String get paywallRestored => '‹‹Your subscription was restored.››';
@@ -5919,11 +5991,11 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get paywallPurchaseInvalid =>
-      '‹‹This purchase isn\'t valid. Try a different payment method.››';
+      '‹‹This purchase isn’t valid. Try a different payment method.››';
 
   @override
   String get paywallProductNotAvailable =>
-      '‹‹This plan isn\'t available right now. Try again later.››';
+      '‹‹This plan isn’t available right now. Try again later.››';
 
   @override
   String get paywallNetworkError =>
@@ -5931,7 +6003,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get paywallPaymentPending =>
-      '‹‹Payment is pending approval (parental controls, etc.). It\'ll activate once approved.››';
+      '‹‹Payment is pending approval (parental controls, etc.). It’ll activate once approved.››';
 
   @override
   String get paywallStoreProblem =>
@@ -6009,11 +6081,11 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get paywallTermsSubscription =>
-      '‹‹By subscribing you agree to ClassMate\'s Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Cancel at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store or Google Play account.››';
+      '‹‹By subscribing you agree to ClassMate’s Terms and Privacy Policy. Subscriptions auto-renew monthly until canceled. Cancel at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store or Google Play account.››';
 
   @override
   String get paywallTermsTopup =>
-      '‹‹By purchasing you agree to ClassMate\'s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.››';
+      '‹‹By purchasing you agree to ClassMate’s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.››';
 
   @override
   String get paywallTermsLink => '‹‹Terms of Use (EULA)››';
@@ -6128,9 +6200,9 @@ class AppLocalizationsPs extends AppLocalizations {
       count,
       locale: localeName,
       other:
-          'This resets $count students\' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
+          'This resets $count students’ passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.',
       one:
-          'This resets $count student\'s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
+          'This resets $count student’s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.',
     );
     return '‹‹$_temp0››';
   }
@@ -6170,11 +6242,11 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String commonCouldntSend(String error) {
-    return '‹‹Couldn\'t send: $error››';
+    return '‹‹Couldn’t send: $error››';
   }
 
   @override
-  String get teacherExamDetailsSection => '‹‹Exam Details››';
+  String get teacherExamDetailsSection => '‹‹Exam details››';
 
   @override
   String teacherExamStudyMaterialsWithCount(int count) {
@@ -6182,7 +6254,7 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get teacherMeetingDetailsSection => '‹‹Meeting Details››';
+  String get teacherMeetingDetailsSection => '‹‹Meeting details››';
 
   @override
   String get teacherClassroomNameSection => '‹‹Classroom name››';
@@ -6323,14 +6395,14 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get faqStartedA1 =>
-      '‹‹Tap \"Sign in\" on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You\'ll be asked to set a new password the first time.››';
+      '‹‹Tap “Sign in” on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You’ll be asked to set a new password the first time.››';
 
   @override
-  String get faqStartedQ2 => '‹‹I don\'t have a login yet.››';
+  String get faqStartedQ2 => '‹‹I don’t have a login yet.››';
 
   @override
   String get faqStartedA2 =>
-      '‹‹Your school administrator creates accounts. Ask them to add you — they\'ll give you a username or email and a temporary password.››';
+      '‹‹Your school administrator creates accounts. Ask them to add you — they’ll give you a username or email and a temporary password.››';
 
   @override
   String get faqStartedQ3 => '‹‹Can I use the app in my language?››';
@@ -6344,28 +6416,28 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get faqStartedA4 =>
-      '‹‹Open Settings → Appearance → Theme. Pick \"System default\" to follow your device\'s light or dark mode, or choose one of 20 themes — you can also make your own.››';
+      '‹‹Open Settings → Appearance → Theme. Pick “System default” to follow your device’s light or dark mode, or choose one of 20 themes — you can also make your own.››';
 
   @override
   String get faqAccountQ1 => '‹‹I forgot my password.››';
 
   @override
   String get faqAccountA1 =>
-      '‹‹Tap \"Forgot password?\" on the login screen. We\'ll send a reset link by email or by text message (SMS), in your language. If neither your email nor your phone is verified yet, ask your school administrator to set a new temporary password.››';
+      '‹‹Tap “Forgot password?” on the login screen. We’ll send a reset link by email or by text message (SMS), in your language. If neither your email nor your phone is verified yet, ask your school administrator to set a new temporary password.››';
 
   @override
   String get faqAccountQ2 => '‹‹How do I change my password?››';
 
   @override
   String get faqAccountA2 =>
-      '‹‹Open Profile from the drawer, scroll to Security, and tap the password row. You\'ll need your current password to set a new one.››';
+      '‹‹Open Profile from the drawer, scroll to Security, and tap the password row. You’ll need your current password to set a new one.››';
 
   @override
   String get faqAccountQ3 => '‹‹How do I change my email or phone number?››';
 
   @override
   String get faqAccountA3 =>
-      '‹‹Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it\'s really you, then you can set the new value.››';
+      '‹‹Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it’s really you, then you can set the new value.››';
 
   @override
   String get faqAccountQ4 =>
@@ -6373,14 +6445,14 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get faqAccountA4 =>
-      '‹‹When an administrator resets your password, you\'ll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.››';
+      '‹‹When an administrator resets your password, you’ll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.››';
 
   @override
   String get faqStudentsQ1 => '‹‹Where do I see my schedule?››';
 
   @override
   String get faqStudentsA1 =>
-      '‹‹Schedule is the first tab at the bottom of the screen. You\'ll see this week\'s periods, who teaches each one, and any changes the admin has posted.››';
+      '‹‹Schedule is the first tab at the bottom of the screen. You’ll see this week’s periods, who teaches each one, and any changes the admin has posted.››';
 
   @override
   String get faqStudentsQ2 => '‹‹How do I join a classroom?››';
@@ -6415,7 +6487,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get faqTeachersA2 =>
-      '‹‹Open Attendance from School Tools, pick the date and period, set each student\'s status, then tap Save.››';
+      '‹‹Open Attendance from School tools, pick the date and period, set each student’s status, then tap Save.››';
 
   @override
   String get faqTeachersQ3 => '‹‹How do I assign homework?››';
@@ -6429,7 +6501,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get faqTeachersA4 =>
-      '‹‹Homeroom teachers can — open Certificates from School Tools, pick the class and the student, then create the certificate. You can also build one PDF for the whole class. The student sees it in their own Certificates.››';
+      '‹‹Homeroom teachers can — open Certificates from School tools, pick the class and the student, then create the certificate. You can also build one PDF for the whole class. The student sees it in their own Certificates.››';
 
   @override
   String get faqAdminsQ1 => '‹‹Where do I start setting up a school?››';
@@ -6443,14 +6515,14 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get faqAdminsA2 =>
-      '‹‹A cohort is a group of students that share a schedule. Open Cohorts from School Tools to create them and add students. A single cohort can span multiple grades.››';
+      '‹‹A cohort is a group of students that share a schedule. Open Cohorts from School tools to create them and add students. A single cohort can span multiple grades.››';
 
   @override
   String get faqAdminsQ3 => '‹‹Can a cohort cover more than one grade?››';
 
   @override
   String get faqAdminsA3 =>
-      '‹‹Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades\' filters and views, and announcements/templates targeted at any of those grades reach it.››';
+      '‹‹Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades’ filters and views, and announcements/templates targeted at any of those grades reach it.››';
 
   @override
   String get faqAdminsQ4 => '‹‹How do I build the weekly schedule?››';
@@ -6472,35 +6544,35 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get faqAdminsA6 =>
-      '‹‹Open Users, tap the person and set a new password — they also get an email or text with a link to choose their own. If their email or phone is verified, they can reset it themselves with \"Forgot password?\".››';
+      '‹‹Open Users, tap the person and set a new password — they also get an email or text with a link to choose their own. If their email or phone is verified, they can reset it themselves with “Forgot password?”.››';
 
   @override
   String get faqParentsQ1 => '‹‹How do I link my account to my child?››';
 
   @override
   String get faqParentsA1 =>
-      '‹‹Your child\'s school administrator links your account to your child from their admin app. Once linked, your child appears on your Home screen.››';
+      '‹‹Your child’s school administrator links your account to your child from their admin app. Once linked, your child appears on your Home screen.››';
 
   @override
   String get faqParentsQ2 => '‹‹What can I see about my child?››';
 
   @override
   String get faqParentsA2 =>
-      '‹‹Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won\'t see private chats or NOVA sessions.››';
+      '‹‹Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won’t see private chats or NOVA sessions.››';
 
   @override
   String get faqPrivacyQ1 => '‹‹Who can see my data?››';
 
   @override
   String get faqPrivacyA1 =>
-      '‹‹Only people in your school. Teachers see their classrooms\' data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.››';
+      '‹‹Only people in your school. Teachers see their classrooms’ data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.››';
 
   @override
   String get faqPrivacyQ2 => '‹‹How do I delete my account?››';
 
   @override
   String get faqPrivacyA2 =>
-      '‹‹Ask your school administrator to delete it from their admin app, which wipes your profile, schedule, and chats. You can also email support@classmateapp.org from your account\'s email address and we\'ll delete it within 30 days.››';
+      '‹‹Ask your school administrator to delete it from their admin app, which wipes your profile, schedule, and chats. You can also email support@classmateapp.org from your account’s email address and we’ll delete it within 30 days.››';
 
   @override
   String solutionsPagesCount(int count) {
@@ -6514,22 +6586,22 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get teacherMeetingEditTitle => '‹‹Edit Meeting››';
+  String get teacherMeetingEditTitle => '‹‹Edit meeting››';
 
   @override
-  String get teacherMeetingNewTitle => '‹‹Schedule Meeting››';
+  String get teacherMeetingNewTitle => '‹‹Schedule meeting››';
 
   @override
-  String get teacherExamEditTitle => '‹‹Edit Exam››';
+  String get teacherExamEditTitle => '‹‹Edit exam››';
 
   @override
-  String get teacherExamNewTitle => '‹‹Create Exam››';
+  String get teacherExamNewTitle => '‹‹Create exam››';
 
   @override
-  String get teacherAssignmentEditTitle => '‹‹Edit Assignment››';
+  String get teacherAssignmentEditTitle => '‹‹Edit assignment››';
 
   @override
-  String get teacherAssignmentNewTitle => '‹‹New Assignment››';
+  String get teacherAssignmentNewTitle => '‹‹New assignment››';
 
   @override
   String get tooltipShowTabs => '‹‹Show tabs››';
@@ -6548,7 +6620,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String commonNoResultsForQuery(String query) {
-    return '‹‹No results for \"$query\"››';
+    return '‹‹No results for “$query”››';
   }
 
   @override
@@ -6857,7 +6929,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get solutionsReportBody =>
-      '‹‹Tell the admins what\'s wrong. The admins of both schools will review it.››';
+      '‹‹Tell the admins what’s wrong. The admins of both schools will review it.››';
 
   @override
   String get solutionsReportReasonHint => '‹‹Reason (optional)››';
@@ -6898,12 +6970,12 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String solutionsDeleteBookBody(String title) {
-    return '‹‹Delete \"$title\"? This can\'t be undone.››';
+    return '‹‹Delete “$title”? This can’t be undone.››';
   }
 
   @override
   String solutionsBookSaveFailed(String error) {
-    return '‹‹Couldn\'t save: $error››';
+    return '‹‹Couldn’t save: $error››';
   }
 
   @override
@@ -6915,7 +6987,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String solutionsBookDuplicateBody(String title) {
-    return '‹‹A book named \"$title\" already exists. Make sure it isn’t the same one before adding it.››';
+    return '‹‹A book named “$title” already exists. Make sure it isn’t the same one before adding it.››';
   }
 
   @override
@@ -6970,11 +7042,11 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String solutionsReportFailed(String error) {
-    return '‹‹Couldn\'t report: $error››';
+    return '‹‹Couldn’t report: $error››';
   }
 
   @override
-  String get teacherAddGradeTitle => '‹‹Add Grade››';
+  String get teacherAddGradeTitle => '‹‹Add grade››';
 
   @override
   String get commonCohort => '‹‹Cohort››';
@@ -6993,7 +7065,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get reorderToolsSubtitle =>
-      '‹‹Drag to reorder your School Tools. The Core and Account sections stay put.››';
+      '‹‹Drag to reorder your School tools. The Core and Account sections stay put.››';
 
   @override
   String get reorderToolsReset => '‹‹Reset››';
@@ -7116,7 +7188,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get commonSubjectOptional => '‹‹Subject (optional)››';
 
   @override
-  String get teacherAddClassNotes => '‹‹Add Class Notes››';
+  String get teacherAddClassNotes => '‹‹Add class notes››';
 
   @override
   String get teacherChooseExam => '‹‹Choose exam››';
@@ -7137,7 +7209,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherOtherCustomSubject => '‹‹Other (type custom)››';
 
   @override
-  String get adminLinkChild => '‹‹Link Child››';
+  String get adminLinkChild => '‹‹Link child››';
 
   @override
   String get adminChooseStudentDash => '‹‹— Choose student —››';
@@ -7160,11 +7232,11 @@ class AppLocalizationsPs extends AppLocalizations {
   String get passwordMinChars => '‹‹At least 8 characters.››';
 
   @override
-  String get passwordsDoNotMatch => '‹‹Passwords don\'t match.››';
+  String get passwordsDoNotMatch => '‹‹Passwords don’t match.››';
 
   @override
   String get novaOutOfTokens =>
-      '‹‹You\'ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.››';
+      '‹‹You’ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.››';
 
   @override
   String get tutorDeleteConversationWarning =>
@@ -7209,7 +7281,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String cohortStudentsCount(int count) {
-    return '‹‹$count students››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '$count student',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7252,7 +7330,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String adminImportUsersScreenLoadedRows(int count) {
-    return '‹‹Loaded $count rows — review & edit, then Create››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Loaded $count rows — review & edit, then Create',
+      one: 'Loaded $count row — review & edit, then Create',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7269,7 +7353,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminImportUsersScreenGridIntro =>
-      '‹‹Fill a row per person, or load a CSV from the CSV tab and fix anything here. Username is optional — we generate one if blank. For students, set the grade and (optionally) a parent\'s username to link them.››';
+      '‹‹Fill a row per person, or load a CSV from the CSV tab and fix anything here. Username is optional — we generate one if blank. For students, set the grade and (optionally) a parent’s username to link them.››';
 
   @override
   String get adminImportUsersScreenAddRow => '‹‹Add row››';
@@ -7316,15 +7400,21 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminImportUsersScreenRecognisedColumns =>
-      '‹‹Recognised columns››';
+      '‹‹Recognized columns››';
 
   @override
   String get adminImportUsersScreenRecognisedColumnsBody =>
-      '‹‹name · username · password · email · phone · role · grade · parent (a username) · children (usernames)\n\nRole words like \"student / طالب / תלמיד / élève / ученик\" all map correctly. Grade reads the number from \"Grade 10\", \"الصف 10\", \"כיתה 10\". Missing usernames or passwords are generated automatically.››';
+      '‹‹name · username · password · email · phone · role · grade · parent (a username) · children (usernames)\n\nRole words like “student / طالب / תלמיד / élève / ученик” all map correctly. Grade reads the number from “Grade 10”, “الصف 10”, “כיתה 10”. Missing usernames or passwords are generated automatically.››';
 
   @override
   String adminImportUsersScreenDetectedRows(int count) {
-    return '‹‹Detected — $count rows››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows',
+      one: '$count row',
+    );
+    return '‹‹Detected — $_temp0››';
   }
 
   @override
@@ -7345,7 +7435,19 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String adminImportUsersScreenResultSummary(int count, int links) {
-    return '‹‹✓ Created $count users · $links links››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count users',
+      one: '$count user',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      links,
+      locale: localeName,
+      other: '$links links',
+      one: '$links link',
+    );
+    return '‹‹✓ Created $_temp0 · $_temp1››';
   }
 
   @override
@@ -7373,7 +7475,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get teacherCohortsScreenEmpty =>
-      '‹‹No cohorts yet.\nTap \"New cohort\" to create one.››';
+      '‹‹No cohorts yet.\nTap “New cohort” to create one.››';
 
   @override
   String get teacherCohortsScreenCohortNameLabel => '‹‹Cohort name››';
@@ -7402,7 +7504,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String teacherCohortsScreenStudentsCount(int count) {
-    return '‹‹$count students››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '$count student',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7425,7 +7533,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String teacherCohortsScreenDeleteConfirmTitle(String name) {
-    return '‹‹Delete \"$name\"?››';
+    return '‹‹Delete “$name”?››';
   }
 
   @override
@@ -7444,7 +7552,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String teacherCohortsScreenAddedNStudents(int count) {
-    return '‹‹Added $count students››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Added $count students',
+      one: 'Added $count student',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7564,7 +7678,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String adminScheduleStudentCount(int count) {
-    return '‹‹$count students››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students',
+      one: '$count student',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7586,7 +7706,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String adminScheduleStudentClashMany(int count) {
-    return '‹‹$count students would have two periods at the same time:››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students would have two periods at the same time:',
+      one: '$count student would have two periods at the same time:',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7606,12 +7732,24 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String adminScheduleStudentsInCohorts(int count, int cohortCount) {
-    return '‹‹$count students in selected cohorts››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students in selected cohorts',
+      one: '$count student in selected cohorts',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
   String adminScheduleStudentsInGrade(int count, String grade) {
-    return '‹‹$count students in Grade $grade››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students in Grade $grade',
+      one: '$count student in Grade $grade',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7659,7 +7797,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get adminScheduleNoSchoolSubjects =>
-      '‹‹No school subjects yet. Tap \"Add new\" to define one.››';
+      '‹‹No school subjects yet. Tap “Add new” to define one.››';
 
   @override
   String get adminScheduleNoSubjectsMatch =>
@@ -7701,7 +7839,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenCohortsSelected(int count) {
-    return '‹‹$count cohorts selected››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cohorts selected',
+      one: '$count cohort selected',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7710,7 +7854,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenStudentsSelected(int count) {
-    return '‹‹$count students selected››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students selected',
+      one: '$count student selected',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7719,7 +7869,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenParentsSelected(int count) {
-    return '‹‹$count parents selected››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count parents selected',
+      one: '$count parent selected',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7728,7 +7884,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenStudentsInCohorts(int count) {
-    return '‹‹$count students in selected cohorts››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count students in selected cohorts',
+      one: '$count student in selected cohorts',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -7801,7 +7963,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get teacherSlotAttachmentsScreenEmptyBody =>
-      '‹‹Attach materials so your students see them on this period\'s card.››';
+      '‹‹Attach materials so your students see them on this period’s card.››';
 
   @override
   String get teacherSlotAttachmentsScreenMaterialFallback => '‹‹Material››';
@@ -7934,7 +8096,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String formDetailScreenQuestionCount(int count) {
-    return '‹‹$count questions››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '$count question',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -8260,7 +8428,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get appShellReports => '‹‹Reports››';
 
   @override
-  String get appShellExportData => '‹‹Export Data››';
+  String get appShellExportData => '‹‹Export data››';
 
   @override
   String get appShellAdmin => '‹‹Admin››';
@@ -8319,11 +8487,11 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get teacherClassroomAddAssignmentScreenTitle => '‹‹Add Assignment››';
+  String get teacherClassroomAddAssignmentScreenTitle => '‹‹Add assignment››';
 
   @override
   String get teacherClassroomAddAssignmentScreenDetails =>
-      '‹‹Assignment Details››';
+      '‹‹Assignment details››';
 
   @override
   String get teacherClassroomAddAssignmentScreenNotifyStudents =>
@@ -8368,7 +8536,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String adminExportScreenSeparateFilesOnDesc(int count) {
-    return '‹‹You\'ll share $count PDF file(s) at once — each user gets their own.››';
+    return '‹‹You’ll share $count PDF file(s) at once — each user gets their own.››';
   }
 
   @override
@@ -8376,7 +8544,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Everyone in one PDF, each on their own page.››';
 
   @override
-  String get adminSubjectDetailScreenSchoolSettings => '‹‹School Settings››';
+  String get adminSubjectDetailScreenSchoolSettings => '‹‹School settings››';
 
   @override
   String get adminSubjectDetailScreenNewSubject => '‹‹New subject››';
@@ -8507,7 +8675,7 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get teacherClassroomsScreenNewClassroom => '‹‹New Classroom››';
+  String get teacherClassroomsScreenNewClassroom => '‹‹New classroom››';
 
   @override
   String get assignmentsScreenAlreadyHandedIn =>
@@ -8613,7 +8781,13 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String cmAiMessageQuestionCount(int count) {
-    return '‹‹$count questions››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count questions',
+      one: '$count question',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -8691,7 +8865,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get examDetailScreenCountdownPassed => '‹‹This exam has passed››';
 
   @override
-  String get examDetailScreenCountdownToday => '‹‹It\'s today!››';
+  String get examDetailScreenCountdownToday => '‹‹It’s today!››';
 
   @override
   String teacherMaterialAddedBy(String name) {
@@ -8759,12 +8933,18 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String adminAddManyCreateParent(String name) {
-    return '‹‹Create new parent \"$name\"››';
+    return '‹‹Create new parent “$name”››';
   }
 
   @override
   String adminAddManyPastedRows(int count) {
-    return '‹‹Added $count rows››';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Added $count rows',
+      one: 'Added $count row',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -8788,7 +8968,7 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get scheduleUpcomingExam => '‹‹Upcoming Exam››';
+  String get scheduleUpcomingExam => '‹‹Upcoming exam››';
 
   @override
   String get scheduleNoUpcomingExams => '‹‹No upcoming exams››';
@@ -9026,7 +9206,7 @@ class AppLocalizationsPs extends AppLocalizations {
       '‹‹Grade unpublished — hidden from students.››';
 
   @override
-  String get navGradeScales => '‹‹Grade Scales››';
+  String get navGradeScales => '‹‹Grade scales››';
 
   @override
   String get gradeScaleAdd => '‹‹Add grade scale››';
@@ -9126,7 +9306,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String averagesDeleteConfirm(Object title) {
-    return '‹‹Delete \"$title\"? This cannot be undone.››';
+    return '‹‹Delete “$title”? This cannot be undone.››';
   }
 
   @override
@@ -9137,7 +9317,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get averagesEmptyBody =>
-      '‹‹Tap \"Add average\" to create a weighted grade formula for a subject.››';
+      '‹‹Tap “Add average” to create a weighted grade formula for a subject.››';
 
   @override
   String get averagesFullYear => '‹‹Full year››';
@@ -9208,7 +9388,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get averagesFormatsHelp =>
-      '‹‹Each format\'s weights must sum to 100%. The best-scoring format is used per student.››';
+      '‹‹Each format’s weights must sum to 100%. The best-scoring format is used per student.››';
 
   @override
   String get averagesAddFormat => '‹‹Add format››';
@@ -9257,7 +9437,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get adminPrincipalAddRange => '‹‹Add range››';
 
   @override
-  String get certPdfRemarks => '‹‹Homeroom teacher\'s remarks››';
+  String get certPdfRemarks => '‹‹Homeroom teacher’s remarks››';
 
   @override
   String get certTypeLabel => '‹‹Certificate type››';
@@ -9440,8 +9620,14 @@ class AppLocalizationsPs extends AppLocalizations {
   String get cmailDeleteForMe => '‹‹This removes the mail from your inbox.››';
 
   @override
-  String cmailRecipients(num count) {
-    return '‹‹$count recipients››';
+  String cmailRecipients(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count recipients',
+      one: '$count recipient',
+    );
+    return '‹‹$_temp0››';
   }
 
   @override
@@ -9463,7 +9649,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get phoneLinkSubtitle =>
-      '‹‹Protect your account with a phone number. We\'ll text you a verification code — it also lets you reset your password by SMS.››';
+      '‹‹Protect your account with a phone number. We’ll text you a verification code — it also lets you reset your password by SMS.››';
 
   @override
   String get phoneLinkFieldLabel => '‹‹Phone number››';
@@ -9588,27 +9774,27 @@ class AppLocalizationsPs extends AppLocalizations {
   String get a11yHidePassword => '‹‹Hide password››';
 
   @override
-  String get errStateOfflineTitle => 'تاسو آفلاین یاست';
+  String get errStateOfflineTitle => '‹‹You’re offline››';
 
   @override
   String get errStateOfflineBody =>
-      'دا مهال ClassMate ته نه شو رسېدلی. خپل Wi-Fi یا موبایل ډېټا وګورئ، بیا هڅه وکړئ.';
+      '‹‹We can’t reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.››';
 
   @override
   String get errStateServerTitle => 'زموږ په اړخ کې ستونزه رامنځته شوه';
 
   @override
   String get errStateServerBody =>
-      'زموږ سرورونه له ستونزې سره مخ شول. دا ستاسو تېروتنه نه ده — مهرباني وکړئ یوه شېبه وروسته بیا هڅه وکړئ.';
+      '‹‹Our servers hit a snag. It’s not you — please try again in a moment.››';
 
   @override
-  String get errStateNotFoundTitle => 'هغه مو ونه موندل';
+  String get errStateNotFoundTitle => '‹‹We couldn’t find that››';
 
   @override
   String get errStateNotFoundBody => 'دا توکی ښایي لېږدول شوی یا ړنګ شوی وي.';
 
   @override
-  String get errStateForbiddenTitle => 'تاسو لاسرسی نه لرئ';
+  String get errStateForbiddenTitle => '‹‹You don’t have access››';
 
   @override
   String get errStateForbiddenBody =>
@@ -9626,7 +9812,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get errStateEmptyBody =>
-      'کله چې د ښودلو لپاره څه وي، همدلته به ښکاره شي.';
+      '‹‹When there’s something to show, it’ll appear right here.››';
 
   @override
   String get errStateGenericTitle => 'کومه ستونزه رامنځته شوه';
@@ -9690,15 +9876,15 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get onbDeepWelcome =>
-      'ستاسو مهال ویش، نمرې، کورنی کار، پیغامونه او یادښتونه ټول دلته دي — د ښوونځي لپاره یو ننوتل. دا یوه چټکه کتنه ده.';
+      '‹‹Your timetable, grades, homework, messages and notes all live here — one sign-in for school. Here’s a quick look at what’s inside.››';
 
   @override
   String get onbDeepNova =>
-      'له NOVA څخه په خپلو کلمو هر څه وپوښتئ او ګام په ګام تشریح ترلاسه کړئ. هر موضوع په تمرین بدل کړئ، هغه پوښتنې وساتئ چې بیا کتل غواړئ، او د یوې ستونزمنې پوښتنې عکس واخلئ تر څو حل شي.';
+      '‹‹Ask NOVA anything in your own words and get a step-by-step explanation. Turn any topic into practice questions, save the ones you want to revisit, and photograph a question you’re stuck on to have it worked through.››';
 
   @override
   String get onbDeepTrack =>
-      'د اپلیکېشن په پرانیستو سره د نن ورځې درسونه وګورئ، نمره سمدلاسه وګورئ چې خپره شي، خپله حاضري وګورئ، او ټولې دندې په یوه لیست کې وساتئ — د وخت نه مخکې یادونې سره.';
+      '‹‹See today’s lessons the moment you open the app, check a grade as soon as it’s published, watch your attendance, and keep every assignment deadline in one list — with a reminder before it’s due.››';
 
   @override
   String get onbDeepConnect =>
@@ -9706,11 +9892,11 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get onbDeepTeacherClasses =>
-      'ټولګی پرانیزئ چې وګورئ څوک دي، په دوو ټکونو حاضري واخلئ، دندې او مواد ورکړئ، او د هر ګروپ لیست منظم وساتئ.';
+      '‹‹Open a classroom to see who’s in it, take attendance in a couple of taps, hand out assignments and materials, and keep each cohort’s roster tidy.››';
 
   @override
   String get onbDeepTeacherGrading =>
-      'په خپل معیار نمرې ورکړئ، چې تیار شوئ خپرې کړئ، او پرېږدئ چې Insights وښيي چې څوک وروسته پاتې کیږي — تر ستونزې مخکې.';
+      '‹‹Enter grades against your own scale, publish when you’re ready, and let Insights show you who’s slipping before it becomes a problem.››';
 
   @override
   String get onbDeepTeacherComms =>
@@ -9726,11 +9912,11 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get onbDeepSecretary =>
-      'ورځ روانه وساتئ: مهال ویش سم کړئ، د یو کس ریکارډ اضافه یا نوی کړئ، سندونه ورکړئ او ژر اعلان خپور کړئ.';
+      '‹‹Keep the day running: fix the timetable, add or update a person’s record, issue certificates and get an announcement out fast.››';
 
   @override
   String get onbDeepParentChild =>
-      'د خپلو ماشومانو ترمنځ بدلون وکړئ او د هر یو مهال ویش، نمرې، حاضري او کورنی کار وګورئ — هماغه انځور چې ښوونځی ویني.';
+      '‹‹Switch between your children and see each one’s timetable, grades, attendance and homework — the same picture the school sees.››';
 
   @override
   String get onbDeepParentAlerts =>
@@ -9769,7 +9955,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String settingsDeleteThemeBody(String name) {
-    return '‹‹“$name” will be removed. This can\'t be undone.››';
+    return '‹‹“$name” will be removed. This can’t be undone.››';
   }
 
   @override
@@ -9788,7 +9974,7 @@ class AppLocalizationsPs extends AppLocalizations {
   }
 
   @override
-  String get permModuleClassesStudents => '‹‹Classes & Students››';
+  String get permModuleClassesStudents => '‹‹Classes & students››';
 
   @override
   String get permModuleCommunication => '‹‹Communication››';
@@ -9800,7 +9986,7 @@ class AppLocalizationsPs extends AppLocalizations {
   String get permModuleTeaching => '‹‹Teaching››';
 
   @override
-  String get permModuleScheduleAnnouncements => '‹‹Schedule & Announcements››';
+  String get permModuleScheduleAnnouncements => '‹‹Schedule & announcements››';
 
   @override
   String get permCohortsManageMembers => '‹‹Add / remove students in classes››';
@@ -9899,4 +10085,17 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get permAnnouncementsPostDesc =>
       '‹‹Publish announcements to classes, grades or the whole school.››';
+
+  @override
+  String get teacherLibraryAddMeeting => '‹‹Add meeting››';
+
+  @override
+  String get teacherLibraryCreateNewMeeting => '‹‹Create new meeting››';
+
+  @override
+  String get solutionsAllQuestions => '‹‹All questions››';
+
+  @override
+  String get announcementsNoDetails =>
+      '‹‹No additional details were attached.››';
 }

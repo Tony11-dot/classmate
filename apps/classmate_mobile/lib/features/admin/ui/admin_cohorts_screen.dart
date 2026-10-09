@@ -519,7 +519,9 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                   : students.isEmpty
                       ? Center(
                           child: Text(
-                            _showGradeOnly ? _emptyMsg : 'No students found',
+                            _showGradeOnly
+                                ? _emptyMsg
+                                : AppLocalizations.of(context)!.adminExportNoStudents,
                             style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                           ),
                         )

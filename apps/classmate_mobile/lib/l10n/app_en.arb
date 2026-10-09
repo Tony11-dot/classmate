@@ -73,7 +73,7 @@
       }
     }
   },
-  "consentGateError": "Couldn't save your choice. Please check your connection and try again.",
+  "consentGateError": "Couldn’t save your choice. Please check your connection and try again.",
   "commonShowPassword": "Show password",
   "commonHidePassword": "Hide password",
   "adminEmailInvalid": "Enter a valid email address",
@@ -84,7 +84,7 @@
   "adminHomeroomNoneAvailable": "No unassigned classes available",
   "adminHomeroomHint": "This teacher becomes the homeroom teacher of the selected class.",
   "logoutConfirmTitle": "Log out?",
-  "logoutConfirmBody": "You'll need to sign in again to use ClassMate.",
+  "logoutConfirmBody": "You’ll need to sign in again to use ClassMate.",
   "pressBackAgainToExit": "Press back again to exit",
   "onboardingSkip": "Skip",
   "onboardingNext": "Next",
@@ -113,17 +113,17 @@
   "@consentGateAccept": {
     "description": "Consent gate"
   },
-  "consentGateGuardian": "I have my parent or guardian's permission to use ClassMate",
+  "consentGateGuardian": "I have my parent or guardian’s permission to use ClassMate",
   "@consentGateGuardian": {
     "description": "Consent gate"
   },
-  "consentGateContinue": "Agree & Continue",
+  "consentGateContinue": "Agree & continue",
   "@consentGateContinue": {
     "description": "Consent gate"
   },
   "menu": "Menu",
   "sectionCore": "Core",
-  "sectionSchoolTools": "School Tools",
+  "sectionSchoolTools": "School tools",
   "sectionAccount": "Account",
   "navSchedule": "Schedule",
   "navClassrooms": "Classrooms",
@@ -141,8 +141,8 @@
   "navExams": "Exams",
   "navForms": "Forms",
   "navHome": "Home",
-  "navTeacherWorkspace": "Teacher Workspace",
-  "navSavedQuestions": "Saved Questions",
+  "navTeacherWorkspace": "Teacher workspace",
+  "navSavedQuestions": "Saved questions",
   "navProfile": "Profile",
   "navSettings": "Settings",
   "navLogout": "Log out",
@@ -182,7 +182,7 @@
   "titleExams": "Exams",
   "solutionsUploadAction": "Upload",
   "solutionsNoSubjectsAvailable": "No subjects available.",
-  "solutionsNoSubjectsMatch": "No subjects match \"{query}\".",
+  "solutionsNoSubjectsMatch": "No subjects match “{query}”.",
   "@solutionsNoSubjectsMatch": {
     "placeholders": {
       "query": {}
@@ -198,11 +198,11 @@
   },
   "solutionsBooksTitle": "Books",
   "solutionsAddBookTitle": "Add a book",
-  "solutionsBookTitleHint": "Book title...",
+  "solutionsBookTitleHint": "Book title…",
   "solutionsAddBookAction": "Add a book",
   "solutionsSearchBooks": "Search books",
   "solutionsChooseSubjectFirst": "Choose a subject first.",
-  "solutionsNoBooksMatch": "No books match \"{query}\".",
+  "solutionsNoBooksMatch": "No books match “{query}”.",
   "@solutionsNoBooksMatch": {
     "placeholders": {
       "query": {}
@@ -275,7 +275,7 @@
   },
   "solutionsUploadSomeFilesFailed": "Some files failed to upload.",
   "solutionsUploadRetryFailedFiles": "Retry failed files",
-  "solutionsUploadSubmittingAction": "Uploading...",
+  "solutionsUploadSubmittingAction": "Uploading…",
   "solutionsUploadSubmitAction": "Upload solution",
   "settingsTitle": "Settings",
   "settingsSubtitle": "Appearance, language & account",
@@ -307,7 +307,7 @@
   "settingsThemeSolarized": "Solarized",
   "settingsThemePlum": "Plum",
   "settingsThemeOcean": "Ocean",
-  "settingsLanguageSearchHint": "Search language...",
+  "settingsLanguageSearchHint": "Search language…",
   "teacherQuickActions": "Quick actions",
   "teacherUpcomingAssessments": "Upcoming assessments",
   "teacherNoAssessmentsYet": "No assessments created yet.",
@@ -380,11 +380,11 @@
   "biometricOrSignInWith": "or sign in with",
   "biometricNotSetUp": "No biometric sign-in set up yet. Turn on Face ID or fingerprint in Profile → Biometric sign-in.",
   "biometricNotRecognized": "Biometric not recognized. Try again or sign in with your password.",
-  "biometricFaceUnavailable": "Face ID isn't available on this device.",
-  "biometricFingerprintUnavailable": "Fingerprint isn't available on this device.",
+  "biometricFaceUnavailable": "Face ID isn’t available on this device.",
+  "biometricFingerprintUnavailable": "Fingerprint isn’t available on this device.",
   "biometricNotAvailableOnDevice": "Not available on this device",
   "biometricSectionTitle": "Biometric sign-in",
-  "biometricSectionSubtitle": "Turn on Face ID or your fingerprint to sign in faster. You'll confirm your password once.",
+  "biometricSectionSubtitle": "Turn on Face ID or your fingerprint to sign in faster. You’ll confirm your password once.",
   "biometricFaceId": "Face ID",
   "biometricFaceIdDesc": "Use Face ID to sign in",
   "biometricFingerprint": "Fingerprint",
@@ -392,7 +392,7 @@
   "biometricConfirmPasswordTitle": "Confirm your password",
   "biometricConfirmPasswordBody": "Enter your password to turn on biometric sign-in.",
   "biometricPasswordIncorrect": "Incorrect password. Please try again.",
-  "biometricEnrollFailed": "Couldn't verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.",
+  "biometricEnrollFailed": "Couldn’t verify your biometric. Make sure Face ID or a fingerprint is set up in your device settings.",
   "biometricLoginFailed": "Biometric sign-in failed. Please sign in with your password.",
   "biometricEnrollYes": "Enable",
   "loginWelcomeTitle": "Welcome back",
@@ -405,7 +405,7 @@
   "profileRole": "Role",
   "profileSchoolId": "School ID",
   "profileMyCohorts": "My cohorts",
-  "profileMyCohortsEmpty": "You're not enrolled in any cohorts yet.",
+  "profileMyCohortsEmpty": "You’re not enrolled in any cohorts yet.",
   "profileAccountInfo": "Account info",
   "profileUsername": "Username",
   "profileUsernameHint": "your_username",
@@ -438,7 +438,7 @@
   "classroomsSearchHint": "Search classrooms",
   "classroomsNoSearchMatches": "No classrooms match your search",
   "classroomsClassroomLabel": "Classroom",
-  "classroomsLoadingLatestMessage": "Loading latest message...",
+  "classroomsLoadingLatestMessage": "Loading latest message…",
   "classroomsTapToOpen": "Tap to open classroom",
   "classroomsNoMessagesYet": "No messages yet",
   "examsAllFilter": "All",
@@ -468,18 +468,22 @@
       "subject": {}
     }
   },
-  "examsMaterialsCount": "{count} materials",
+  "examsMaterialsCount": "{count, plural, one{{count} material} other{{count} materials}}",
   "@examsMaterialsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "examsOpenState": "Open",
   "examsClosedState": "Closed",
-  "examsQuestionsCount": "{count} questions",
+  "examsQuestionsCount": "{count, plural, one{{count} question} other{{count} questions}}",
   "@examsQuestionsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "insightsNotReadyTitle": "Insights are not ready yet",
@@ -559,13 +563,13 @@
   "chatEmojiPickerEmptyState": "No emoji found",
   "chatCameraGalleryAction": "Gallery",
   "chatMediaPreviewEmptyState": "Nothing to preview",
-  "chatMediaPreviewDrawCropAction": "Draw & Crop",
+  "chatMediaPreviewDrawCropAction": "Draw & crop",
   "chatMediaPreviewRotateLeftAction": "Rotate left",
   "chatMediaPreviewRotateRightAction": "Rotate right",
   "chatMediaPreviewMirrorAction": "Mirror",
   "chatMediaPreviewResetAction": "Reset",
   "chatMediaPreviewRemoveAction": "Remove",
-  "chatMediaPreviewCaptionHint": "Add a caption...",
+  "chatMediaPreviewCaptionHint": "Add a caption…",
   "tutorFailedToLoadChats": "Failed to load chats",
   "tutorNoChatsYet": "No chats yet",
   "tutorNoChatsMatchSearch": "No chats match your search",
@@ -603,7 +607,7 @@
   "tutorVoiceLimitReachedMessage": "Your current NOVA plan does not have enough voice minutes left for this transcription cycle.",
   "tutorTranscriptionFailed": "Transcription failed. Please try again.",
   "tutorPlanLimitReachedTitle": "NOVA plan limit reached",
-  "tutorPlanLimitReachedMessage": "This month's prompt or upload allowance is exhausted for your current NOVA plan. Pick a higher plan in the NOVA home screen to continue.",
+  "tutorPlanLimitReachedMessage": "This month’s prompt or upload allowance is exhausted for your current NOVA plan. Pick a higher plan in the NOVA home screen to continue.",
   "tutorSendFailed": "Send failed.",
   "tutorCurrentPlanUsageSummary": "Current plan: {plan} • {prompts} prompts left • {uploads} uploads left • {voice} voice minutes left",
   "@tutorCurrentPlanUsageSummary": {
@@ -726,11 +730,15 @@
   "notificationsHeroSubtitleTeacher": "Your teacher notification hub for announcements, server updates, and school activity as it happens.",
   "notificationsFiltersSubtitle": "Focus by source or read state to triage fast.",
   "notificationsSearchSourcesHint": "Search sources",
-  "notificationsShowingSummary": "Showing {shown} of {total} notifications.",
+  "notificationsShowingSummary": "Showing {shown} of {total, plural, one{{total} notification} other{{total} notifications}}.",
   "@notificationsShowingSummary": {
     "placeholders": {
-      "shown": {},
-      "total": {}
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "notificationsEmptyForAccount": "No notifications are available for this account right now.",
@@ -798,11 +806,13 @@
       "state": {}
     }
   },
-  "announcementsShowingSummary": "Showing {shown} of {total} announcements{sourceSegment}{stateSegment}.",
+  "announcementsShowingSummary": "Showing {shown} of {total, plural, one{{total} announcement} other{{total} announcements}}{sourceSegment}{stateSegment}.",
   "@announcementsShowingSummary": {
     "placeholders": {
       "shown": {},
-      "total": {},
+      "total": {
+        "type": "int"
+      },
       "sourceSegment": {},
       "stateSegment": {}
     }
@@ -849,11 +859,13 @@
       "state": {}
     }
   },
-  "meetingsShowingSummary": "Showing {shown} of {total} meetings{subjectSegment}{accessSegment}.",
+  "meetingsShowingSummary": "Showing {shown} of {total, plural, one{{total} meeting} other{{total} meetings}}{subjectSegment}{accessSegment}.",
   "@meetingsShowingSummary": {
     "placeholders": {
       "shown": {},
-      "total": {},
+      "total": {
+        "type": "int"
+      },
       "subjectSegment": {},
       "accessSegment": {}
     }
@@ -971,10 +983,12 @@
   "practiceSetupHeroTitle": "Start a session",
   "practiceSetupHeroSubtitle": "Choose a mode, timing, and difficulty.",
   "practiceSetupInfiniteLives": "Infinite lives",
-  "practiceSetupLivesCount": "{count} lives",
+  "practiceSetupLivesCount": "{count, plural, one{{count} life} other{{count} lives}}",
   "@practiceSetupLivesCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "practiceSetupAiTiming": "AI timing",
@@ -984,10 +998,12 @@
       "seconds": {}
     }
   },
-  "practiceSetupQuestionsCount": "{count} questions",
+  "practiceSetupQuestionsCount": "{count, plural, one{{count} question} other{{count} questions}}",
   "@practiceSetupQuestionsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "practiceSetupSectionSubjectTopic": "Subject & topic",
@@ -1149,10 +1165,10 @@
     }
   },
   "practiceSetupTooltipAnalytics": "Practice analytics",
-  "practiceSetupStopGenerating": "Stop Generating",
-  "practiceSetupGenerating": "Generating...",
+  "practiceSetupStopGenerating": "Stop generating",
+  "practiceSetupGenerating": "Generating…",
   "practiceSetupStartSession": "Start session",
-  "practiceSetupSearchHint": "Search...",
+  "practiceSetupSearchHint": "Search…",
   "practiceSessionModeDescriptionPractice": "Balanced solving with instant checking and feedback.",
   "practiceSessionModeDescriptionFlashcards": "Memory-first mode built for quick recall and retention.",
   "practiceSessionModeDescriptionSpeedRound": "Fast, low-friction, timed pressure reps.",
@@ -1287,11 +1303,13 @@
   "assignmentsStatusLabel": "Status",
   "assignmentsAllStatuses": "All statuses",
   "assignmentsSearchStatuses": "Search statuses",
-  "assignmentsShowingSummary": "Showing {shown} of {total} assignments.",
+  "assignmentsShowingSummary": "Showing {shown} of {total, plural, one{{total} assignment} other{{total} assignments}}.",
   "@assignmentsShowingSummary": {
     "placeholders": {
       "shown": {},
-      "total": {}
+      "total": {
+        "type": "int"
+      }
     }
   },
   "assignmentsNoFilterMatchesTitle": "No assignments match these filters",
@@ -1328,11 +1346,13 @@
   "attendanceWatchExcusedAddingUp": "Excused time adding up",
   "attendanceWatchNoFlags": "No current flags",
   "attendanceAllSubjectsLowercase": "all subjects",
-  "attendanceShowingSummary": "Showing {shown} of {total} marks for {subject} in {range}.",
+  "attendanceShowingSummary": "Showing {shown} of {total, plural, one{{total} mark} other{{total} marks}} for {subject} in {range}.",
   "@attendanceShowingSummary": {
     "placeholders": {
       "shown": {},
-      "total": {},
+      "total": {
+        "type": "int"
+      },
       "subject": {},
       "range": {}
     }
@@ -1374,10 +1394,12 @@
   "attendanceRecentDaysSubtitleFiltered": "Grouped by day for the filtered marks currently in view.",
   "attendanceRecentDaysSubtitleAll": "Grouped by day so you can catch absence or lateness patterns faster.",
   "attendanceLessonCountSingle": "1 lesson",
-  "attendanceLessonCount": "{count} lessons",
+  "attendanceLessonCount": "{count, plural, one{{count} lesson} other{{count} lessons}}",
   "@attendanceLessonCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "attendanceStatusPresent": "Present",
@@ -1409,7 +1431,7 @@
   "actionAdd": "Add",
   "actionKeep": "Keep",
   "msgBlockTitle": "Block this person?",
-  "msgBlockContent": "They won't be able to message you and you won't see their messages.",
+  "msgBlockContent": "They won’t be able to message you and you won’t see their messages.",
   "msgRenameGroup": "Rename group",
   "msgGroupName": "Group name",
   "msgMute": "Mute",
@@ -1453,7 +1475,7 @@
   },
   "msgNotificationsMuted": "Notifications muted",
   "msgNotificationsUnmuted": "Notifications unmuted",
-  "msgJoinGroupTitle": "Join a Group",
+  "msgJoinGroupTitle": "Join a group",
   "msgJoinGroupSubtitle": "Enter the invite code from the group admin",
   "examTitle": "Exam",
   "examNotFound": "Exam not found",
@@ -1465,10 +1487,10 @@
   "formClosed": "Closed",
   "meetingsCouldNotLoad": "Could not load meetings",
   "meetingCouldNotLoad": "Could not load meeting",
-  "teacherGoToClassroom": "Go to Classroom",
-  "teacherMarkAttendance": "Mark Attendance",
-  "teacherPostAssignment": "Post Assignment",
-  "teacherNewAnnouncementAction": "New Announcement",
+  "teacherGoToClassroom": "Go to classroom",
+  "teacherMarkAttendance": "Mark attendance",
+  "teacherPostAssignment": "Post assignment",
+  "teacherNewAnnouncementAction": "New announcement",
   "teacherGroupsLabel": "Groups",
   "teacherTestsLabel": "Tests",
   "teacherAnnounceLabel": "Announce",
@@ -1492,7 +1514,7 @@
   "teacherSearchStudents": "Search students…",
   "teacherParentsLabel": "Parents",
   "teacherTeachersLabel": "Teachers",
-  "teacherWeekScheduleTitle": "Week Schedule",
+  "teacherWeekScheduleTitle": "Week schedule",
   "teacherAttendanceLast30": "Attendance (last 30 days)",
   "teacherAttendanceFrom": "From {date}",
   "@teacherAttendanceFrom": {
@@ -1502,12 +1524,12 @@
   },
   "teacherAttendanceChangeDate": "Change date",
   "teacherAttendanceNoSessions": "No saved attendance sessions.\nMark attendance from the schedule.",
-  "teacherRecentGrades": "Recent Grades",
+  "teacherRecentGrades": "Recent grades",
   "teacherNoGradesRecorded": "No grades recorded yet",
-  "teacherGradeAvg": "Grade Avg",
+  "teacherGradeAvg": "Grade avg",
   "teacherSubmittedLabel": "Submitted",
   "teacherAnalyticsTitle": "Analytics",
-  "teacherGradeReports": "Grade Reports",
+  "teacherGradeReports": "Grade reports",
   "teacherAvgLabel": "avg",
   "teacherBelow60": "{count} below 60%",
   "@teacherBelow60": {
@@ -1525,10 +1547,10 @@
   "teacherNoGradesEntered": "No grades entered yet",
   "teacherDeleteAssignment": "Delete assignment?",
   "teacherDeleteAssignmentContent": "This will remove it for all students.",
-  "teacherShareMaterialTitle": "Share Material",
+  "teacherShareMaterialTitle": "Share material",
   "teacherRemoveMaterial": "Remove material?",
   "teacherMaterialRemoved": "Material removed",
-  "teacherScheduleMeetingTitle": "Schedule Meeting",
+  "teacherScheduleMeetingTitle": "Schedule meeting",
   "teacherCancelMeetingTitle": "Cancel meeting?",
   "teacherCancelMeetingAction": "Cancel meeting",
   "teacherJoinMeeting": "Join meeting",
@@ -1554,10 +1576,10 @@
   "chatDeleteForEveryone": "Delete for everyone",
   "chatMicNeeded": "Microphone access needed",
   "chatMicNeededBody": "Please allow microphone access in Settings to send voice notes.",
-  "chatOpenSettings": "Open Settings",
+  "chatOpenSettings": "Open settings",
   "chatCopied": "Copied",
   "chatCouldNotSendMedia": "Could not send media.",
-  "chatMediaWebUnsupported": "Taking photos, recording, and attaching files aren't available in the web browser yet — please use the ClassMate mobile app.",
+  "chatMediaWebUnsupported": "Taking photos, recording, and attaching files aren’t available in the web browser yet — please use the ClassMate mobile app.",
   "chatCouldNotSendMessage": "Could not send message.",
   "chatCouldNotForward": "Could not forward selected messages",
   "chatSelectAll": "Select all",
@@ -1574,17 +1596,17 @@
   "chatAttachedFile": "Attached file",
   "chatFollowUp": "Follow-up",
   "chatCancelTooltip": "Cancel",
-  "chatJoinGroup": "Join Group",
+  "chatJoinGroup": "Join group",
   "chatJoining": "Joining…",
   "chatJoinGroupTooltip": "Join group by code",
   "chatFilterAll": "All",
   "novaDisclaimer": "NOVA can make mistakes. Double-check important answers.",
-  "novaTokenTip": "Use your tokens carefully — they're meant for studying.",
+  "novaTokenTip": "Use your tokens carefully — they’re meant for studying.",
   "practiceCustomDisclaimer": "Custom topics are AI-generated on the fly. Questions may drift off-topic or be inaccurate for niche subjects. Verify unfamiliar answers independently.",
   "classroomsJoined": "You joined the classroom!",
-  "classroomsJoinAction": "Join Classroom",
+  "classroomsJoinAction": "Join classroom",
   "classroomsJoinTooltip": "Join a classroom",
-  "classroomsJoinTitle": "Join a Classroom",
+  "classroomsJoinTitle": "Join a classroom",
   "classroomsJoinSubtitle": "Enter the code your teacher gave you",
   "classroomsCouldNotOpenLink": "Could not open link",
   "classroomsReorderTitle": "Reorder classrooms",
@@ -1592,7 +1614,7 @@
   "teacherGreetingMorning": "Good morning",
   "teacherGreetingAfternoon": "Good afternoon",
   "teacherGreetingEvening": "Good evening",
-  "teacherTodaysClasses": "Today's Classes",
+  "teacherTodaysClasses": "Today’s classes",
   "teacherNoDate": "No date",
   "teacherUpcomingTestsSubtitle": "Next tests & quizzes",
   "teacherMeetingLinkHint": "Zoom / Meet / Teams link",
@@ -1608,8 +1630,8 @@
   "teacherTotal": "Total",
   "mediaOpenExternally": "Open externally",
   "mediaUnableToLoad": "Unable to load image",
-  "searchHint": "Search...",
-  "teacherInsightsTitle": "Student Insights",
+  "searchHint": "Search…",
+  "teacherInsightsTitle": "Student insights",
   "teacherInsightsSubtitle": "Select a student to view their academic insights.",
   "teacherInsightsNoStudents": "No students found.",
   "teacherInsightsSearchHint": "Search students…",
@@ -1620,10 +1642,12 @@
   "teacherExamsEmpty": "No assessments yet. Tap + to create one.",
   "teacherFormsTitle": "Forms",
   "teacherFormsEmpty": "No forms yet. Tap + to create one.",
-  "teacherFormsResponses": "{count} responses",
+  "teacherFormsResponses": "{count, plural, one{{count} response} other{{count} responses}}",
   "@teacherFormsResponses": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "teacherFormsPublished": "Published",
@@ -1641,7 +1665,7 @@
   "examQuickActionsSection": "Quick actions",
   "examViewGradeTitle": "See your grade",
   "examViewGradeBody": "This exam is complete. Check the grades tab for your result.",
-  "examViewGradeAction": "Open Grades",
+  "examViewGradeAction": "Open grades",
   "teacherGradesNothingToSave": "No changes to save.",
   "teacherRetry": "Retry",
   "teacherExamGradesGraded": "graded",
@@ -1666,40 +1690,40 @@
   "chatPreviewAttachment": "Attachment",
   "chatPreviewMessage": "Message",
   "chatPreviewYou": "You",
-  "adminDashboardTitle": "School Overview",
+  "adminDashboardTitle": "School overview",
   "adminStudents": "Students",
   "adminTeachers": "Teachers",
   "adminParents": "Parents",
   "adminSecretaries": "Secretaries",
   "adminAdmins": "Admins",
-  "adminQuickActions": "Quick Actions",
+  "adminQuickActions": "Quick actions",
   "adminAttendanceLast30": "Attendance — Last 30 Days",
   "adminNoAttendanceData": "No attendance data for the last 30 days.",
-  "adminAddUser": "Add User",
+  "adminAddUser": "Add user",
   "adminCreateUser": "Create",
   "adminRoleLabel": "Role",
-  "adminUserCreated": "User Created",
+  "adminUserCreated": "User created",
   "adminCopied": "Copied to clipboard",
-  "adminDeleteUser": "Delete User",
+  "adminDeleteUser": "Delete user",
   "adminDeleteUserConfirm": "Delete {name}? This cannot be undone.",
   "@adminDeleteUserConfirm": {
     "placeholders": {
       "name": {}
     }
   },
-  "adminDeleteCohort": "Delete Cohort",
-  "adminDeleteCohortConfirm": "Delete \"{name}\"? All student memberships will be removed.",
+  "adminDeleteCohort": "Delete cohort",
+  "adminDeleteCohortConfirm": "Delete “{name}”? All student memberships will be removed.",
   "@adminDeleteCohortConfirm": {
     "placeholders": {
       "name": {}
     }
   },
-  "adminAddCohort": "Add Cohort",
+  "adminAddCohort": "Add cohort",
   "adminCohortName": "Cohort Name (e.g. 10th-2)",
   "adminCohortGrade": "Grade",
   "adminRenameCohort": "Rename",
-  "adminAddStudents": "Add Students",
-  "adminRemoveStudent": "Remove Student",
+  "adminAddStudents": "Add students",
+  "adminRemoveStudent": "Remove student",
   "adminRemoveStudentConfirm": "Remove {name} from {cohort}?",
   "@adminRemoveStudentConfirm": {
     "placeholders": {
@@ -1722,8 +1746,8 @@
   "adminScheduleSearchTeacher": "Search teachers…",
   "adminScheduleSearchCohort": "Search cohorts…",
   "adminScheduleNoSlotsHint": "Tap + to add the first period",
-  "adminSchoolSettingsTitle": "School Settings",
-  "adminSchoolName": "School Name",
+  "adminSchoolSettingsTitle": "School settings",
+  "adminSchoolName": "School name",
   "adminSchoolSaved": "Saved",
   "adminSubjectsTitle": "Subjects",
   "adminSubjectsGrade": "Grade {grade}",
@@ -1746,13 +1770,13 @@
   "permissionsChangedBadge": "Changed",
   "permissionsSave": "Save changes",
   "permissionsSaved": "Permissions updated",
-  "permissionsSaveFailed": "Couldn't save permissions: {error}",
+  "permissionsSaveFailed": "Couldn’t save permissions: {error}",
   "@permissionsSaveFailed": {
     "placeholders": {
       "error": {}
     }
   },
-  "permissionsLoadFailed": "Couldn't load permissions: {error}",
+  "permissionsLoadFailed": "Couldn’t load permissions: {error}",
   "@permissionsLoadFailed": {
     "placeholders": {
       "error": {}
@@ -1765,15 +1789,15 @@
     }
   },
   "permissionsResetChanges": "Discard changes",
-  "adminSettingsBellSchedule": "Bell Schedule",
-  "adminSettingsPeriodDefaults": "Period Defaults",
+  "adminSettingsBellSchedule": "Bell schedule",
+  "adminSettingsPeriodDefaults": "Period defaults",
   "adminDeleteConfirmCancel": "Cancel",
   "adminDeleteConfirmDelete": "Delete",
   "adminSave": "Save",
   "adminCancel": "Cancel",
   "adminSearchPeople": "Search by name…",
   "commonRetry": "Retry",
-  "chatThreadLoadFailedTitle": "Couldn't load this conversation",
+  "chatThreadLoadFailedTitle": "Couldn’t load this conversation",
   "chatThreadLoadFailedBody": "Please check your connection and try again.",
   "chatThreadLoadFailedBusy": "The server is a little busy right now. Give it a moment, then retry.",
   "commonBack": "Back",
@@ -1799,7 +1823,7 @@
   "inboxActionDeleteChat": "Delete chat",
   "inboxActionDeleteChatConfirm": "Delete this chat? It disappears from your list and history; it comes back if they message you again.",
   "inboxActionBlock": "Block contact",
-  "inboxActionBlockConfirm": "Block this contact? They won't be able to message you anymore.",
+  "inboxActionBlockConfirm": "Block this contact? They won’t be able to message you anymore.",
   "cmailActionMarkRead": "Mark as read",
   "cmailActionMarkUnread": "Mark as unread",
   "cmailDeleteConfirm": "Delete this mail from your mailbox?",
@@ -1820,7 +1844,7 @@
   },
   "secretaryYourTools": "Your tools",
   "secretaryReports": "Reports",
-  "secretaryExportData": "Export Data",
+  "secretaryExportData": "Export data",
   "parentHomeGreeting": "Hi {name} 👋",
   "@parentHomeGreeting": {
     "placeholders": {
@@ -1842,9 +1866,9 @@
   "forgotPasswordEmptyError": "Enter your email or username to continue.",
   "forgotPasswordEmailButton": "Email me a reset link",
   "forgotPasswordSmsButton": "Text me a reset link",
-  "forgotPasswordSmsHelper": "We'll text the link to the phone number on this account.",
-  "forgotPasswordIntroEmail": "Enter your email or username and we'll email you a reset link.",
-  "forgotPasswordIntroSms": "Enter your email or username and we'll text a reset link to the phone on your account.",
+  "forgotPasswordSmsHelper": "We’ll text the link to the phone number on this account.",
+  "forgotPasswordIntroEmail": "Enter your email or username and we’ll email you a reset link.",
+  "forgotPasswordIntroSms": "Enter your email or username and we’ll text a reset link to the phone on your account.",
   "forgotPasswordExpiryNote": "The link expires in 1 hour and can only be used once.",
   "commonAttachments": "Attachments",
   "commonAttachFile": "Attach file",
@@ -1856,7 +1880,7 @@
   "commonOpen": "Open",
   "commonAdd": "Add",
   "teacherShareButton": "Share",
-  "teacherMaterialDetails": "Material Details",
+  "teacherMaterialDetails": "Material details",
   "teacherMaterialTitleLabel": "Title *",
   "teacherMaterialDescriptionLabel": "Description (optional)",
   "teacherMaterialContentSection": "Content",
@@ -1935,8 +1959,8 @@
       "count": {}
     }
   },
-  "adminSetupSchoolSetup": "School Setup",
-  "adminSetupComplete": "You're all set. Tap any item to revisit or refine it.",
+  "adminSetupSchoolSetup": "School setup",
+  "adminSetupComplete": "You’re all set. Tap any item to revisit or refine it.",
   "adminSetupInstructions": "Complete these steps to fully set up your school.",
   "adminSetupLogoTitle": "Upload school logo",
   "adminSetupLogoSubtitle": "Appears in headers and the drawer",
@@ -1953,7 +1977,7 @@
   "adminSetupTeachersTitle": "Add teachers",
   "adminSetupTeachersSubtitle": "Create teacher accounts",
   "supportContactTitle": "Talk to us",
-  "supportContactDescription": "Can't find your answer below? Get in touch and we'll come back to you within a working day.",
+  "supportContactDescription": "Can’t find your answer below? Get in touch and we’ll come back to you within a working day.",
   "supportEmailLabel": "Email",
   "supportPhoneLabel": "Phone",
   "supportSmsLabel": "Message",
@@ -1968,18 +1992,18 @@
   "supportAiCardTitle": "Ask NOVA",
   "supportAiCardSubtitle": "NOVA answers anything about using ClassMate — any time",
   "supportAiSheetTitle": "NOVA",
-  "supportAiGreeting": "Hi! I'm NOVA, ClassMate's assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.",
+  "supportAiGreeting": "Hi! I’m NOVA, ClassMate’s assistant. Ask me anything about using the app — logging in, your schedule, grades, messages, and more.",
   "supportAiInputHint": "Ask a question…",
   "supportAiDisclaimer": "AI can make mistakes. For account, billing, or bug reports, email support@classmateapp.org.",
-  "supportAiError": "Sorry — I couldn't answer that right now. Please try again, or contact support above.",
+  "supportAiError": "Sorry — I couldn’t answer that right now. Please try again, or contact support above.",
   "supportAiSubtitle": "Help with anything in ClassMate",
   "supportAiSuggestPassword": "How do I reset my password?",
   "supportAiSuggestJoin": "How do I join a classroom with a code?",
-  "supportAiSuggestTheme": "How do I change the app's theme?",
+  "supportAiSuggestTheme": "How do I change the app’s theme?",
   "aboutWhatIsClassmate": "What is ClassMate?",
   "aboutClassmateDescription": "ClassMate is the school operating system for students, teachers, administrators, and parents. One app, four roles, every part of the school day in a single place — schedule, attendance, grades, classrooms, assignments, messaging, and an AI study buddy.",
   "aboutMultilingualTitle": "Built for schools that speak more than one language",
-  "aboutMultilingualDescription": "Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they're most comfortable with; teachers manage in theirs.",
+  "aboutMultilingualDescription": "Every name, subject, and announcement can carry up to five language variants (English, Arabic, Hebrew, French, Russian). Students see the language they’re most comfortable with; teachers manage in theirs.",
   "aboutPrivacyTitle": "Privacy first",
   "aboutPrivacyDescription": "School data stays inside the school. Roles map cleanly onto what each person can see — teachers see their classrooms, admins see their school, parents see their children. No third-party trackers, no ad networks.",
   "aboutContactTitle": "Contact",
@@ -2010,7 +2034,7 @@
   "adminCredsEmail": "Email",
   "adminCredsPassword": "Password",
   "adminShareCredsHint": "Share these credentials with the student.",
-  "adminCopyCredsButton": "Copy All",
+  "adminCopyCredsButton": "Copy all",
   "adminGradeLabel": "Grade",
   "adminCohortGradeFormat": "Grade {grade}",
   "@adminCohortGradeFormat": {
@@ -2018,8 +2042,8 @@
       "grade": {}
     }
   },
-  "adminCreateAndAddStudents": "Create & Add Students",
-  "adminAddStudentsTitle": "Add Students",
+  "adminCreateAndAddStudents": "Create & add students",
+  "adminAddStudentsTitle": "Add students",
   "adminSkipAdding": "Skip",
   "adminInCohortBadge": "In cohort",
   "adminScheduleByCohort": "By Cohort ▾",
@@ -2037,7 +2061,7 @@
     }
   },
   "adminSchedulePickDateOnce": "Pick a date for a one-off period.",
-  "adminSchoolLogoLabel": "School Logo",
+  "adminSchoolLogoLabel": "School logo",
   "adminSchoolLogoUploaded": "Logo uploaded",
   "adminSchoolNoLogoYet": "No logo yet",
   "adminSchoolLogoDescription": "Appears next to your school name in the app drawer.",
@@ -2047,15 +2071,15 @@
   "adminSchoolGradeRangeLabel": "Grade range",
   "adminSchoolLowestGrade": "Lowest",
   "adminSchoolHighestGrade": "Highest",
-  "adminSchoolSubjectsTitle": "School Subjects",
+  "adminSchoolSubjectsTitle": "School subjects",
   "adminSchoolSubjectsDescription": "Available to all teachers when creating assignments.",
   "adminSchoolBellHint": "Set start and end times for each period. Add or remove periods as needed.",
-  "adminSchoolBellTitle": "Bell Schedule",
+  "adminSchoolBellTitle": "Bell schedule",
   "adminSchoolBellInfo": "Set the start and end time for each period. These become the default times used when building the weekly schedule.",
   "adminSchoolStartTime": "Start",
   "adminSchoolEndTime": "End",
-  "adminExportOptionsTitle": "Export Options",
-  "adminExportIncludePasswords": "Include Passwords",
+  "adminExportOptionsTitle": "Export options",
+  "adminExportIncludePasswords": "Include passwords",
   "adminExportLanguageLabel": "Name language in the export",
   "adminExportCsvButton": "Export CSV",
   "adminExportPdfButton": "Export PDF",
@@ -2068,7 +2092,7 @@
       "error": {}
     }
   },
-  "messagesNoPeopleMatch": "No people match \"{query}\"",
+  "messagesNoPeopleMatch": "No people match “{query}”",
   "@messagesNoPeopleMatch": {
     "placeholders": {
       "query": {}
@@ -2099,7 +2123,7 @@
   },
   "studentFormClosedButton": "Form closed",
   "studentFormAlreadySubmittedButton": "Already submitted",
-  "teacherDeleteItemConfirm": "Delete \"{title}\"?",
+  "teacherDeleteItemConfirm": "Delete “{title}”?",
   "@teacherDeleteItemConfirm": {
     "placeholders": {
       "title": {}
@@ -2108,7 +2132,7 @@
   "teacherPublishTooltip": "Publish",
   "teacherMeetingEnterTitle": "Please enter a title.",
   "teacherMeetingEnterLink": "Please enter a meeting link.",
-  "teacherMeetingEnterValidUrl": "Please enter a valid URL (e.g. https://zoom.us/j/...)",
+  "teacherMeetingEnterValidUrl": "Please enter a valid URL (e.g. https://zoom.us/j/…)",
   "teacherMeetingPickStartTime": "Please pick a start time.",
   "teacherMeetingVisibleToEveryone": "Visible to everyone",
   "teacherDeleteAssignmentTitle": "Delete assignment?",
@@ -2143,9 +2167,9 @@
   "teacherClassroomNameSubjectRequired": "Name and subject are required.",
   "teacherClassroomCreated": "Classroom created!",
   "teacherCustomSubjectLabel": "Custom subject *",
-  "teacherCreateClassroomButton": "Create Classroom",
-  "teacherCreateFormTitle": "Create Form",
-  "teacherFormSaveDraft": "Save Draft",
+  "teacherCreateClassroomButton": "Create classroom",
+  "teacherCreateFormTitle": "Create form",
+  "teacherFormSaveDraft": "Save draft",
   "teacherFormTitleHint": "Form title *",
   "teacherFormDescriptionHint": "Description (optional)",
   "teacherFormAcceptingResponses": "Accepting responses",
@@ -2191,7 +2215,7 @@
   "teacherMaterialPickSubject": "Please select a subject.",
   "teacherMaterialAddLink": "Add link",
   "teacherMaterialAddFile": "Add file",
-  "teacherMaterialSearchStudentsGrade": "Search students or grade...",
+  "teacherMaterialSearchStudentsGrade": "Search students or grade…",
   "teacherMaterialDoneSelected": "Done ({count} selected)",
   "@teacherMaterialDoneSelected": {
     "placeholders": {
@@ -2213,7 +2237,7 @@
   "teacherAnnounceNoCohorts": "No cohorts available",
   "teacherAnnounceNothingFound": "Nothing found",
   "teacherAnnounceNoParents": "No parents found at this school.",
-  "teacherSaveGradesButton": "Save Grades",
+  "teacherSaveGradesButton": "Save grades",
   "teacherGradeFieldLabel": "Grade",
   "teacherFeedbackOptionalLabel": "Feedback (optional)",
   "teacherSearchHintShort": "Search…",
@@ -2250,18 +2274,18 @@
   "adminEditUserNameSection": "Name",
   "adminEditUserGradeSection": "Grade",
   "adminEditUserCohortsSection": "Cohorts",
-  "adminEditUserLinkedChildren": "Linked Children",
+  "adminEditUserLinkedChildren": "Linked children",
   "adminEditUserLinkButton": "Link",
   "adminEditUserNoChildren": "No children linked yet.",
   "adminEditUserSetPasswordTitle": "Set new password",
   "adminEditUserNewPasswordLabel": "New password",
   "adminEditUserConfirmPasswordLabel": "Confirm password",
   "adminEditUserSetPasswordButton": "Set password",
-  "adminPeriodsTitle": "Manage Periods",
-  "adminPeriodsAddPeriod": "Add Period",
+  "adminPeriodsTitle": "Manage periods",
+  "adminPeriodsAddPeriod": "Add period",
   "adminPeriodsNoPeriods": "No periods yet",
   "adminPeriodsTapToAdd": "Tap + to add the first period",
-  "adminPeriodsNewPeriod": "New Period",
+  "adminPeriodsNewPeriod": "New period",
   "adminPeriodsDayLabel": "Day",
   "adminPeriodsPeriodLabel": "Period",
   "adminPeriodsTimeLabel": "Time",
@@ -2352,8 +2376,8 @@
   "adminExportColumnCohorts": "Cohorts",
   "adminExportColumnSchool": "School",
   "adminExportColumnPassword": "Password",
-  "teacherMaterialEditTitle": "Edit Material",
-  "teacherMaterialAddTitle": "Add Material",
+  "teacherMaterialEditTitle": "Edit material",
+  "teacherMaterialAddTitle": "Add material",
   "teacherMaterialAudienceTitle": "Audience",
   "teacherMaterialAudienceClassrooms": "Classrooms",
   "teacherMaterialAudienceCohorts": "Cohorts",
@@ -2363,7 +2387,7 @@
   "teacherMaterialSubjectRequired": "Subject *",
   "teacherMaterialSubjectSelect": "Select subject",
   "teacherMaterialSubjectOther": "Other",
-  "teacherMaterialSubjectSearch": "Search subjects...",
+  "teacherMaterialSubjectSearch": "Search subjects…",
   "teacherMaterialAttachmentsTitle": "Attachments",
   "teacherMaterialAttachmentsWithCount": "Attachments ({count})",
   "@teacherMaterialAttachmentsWithCount": {
@@ -2482,7 +2506,7 @@
       }
     }
   },
-  "adminScheduleSavedLabelOnlyError": "Saved as slot label only — couldn't add to library: {error}",
+  "adminScheduleSavedLabelOnlyError": "Saved as slot label only — couldn’t add to library: {error}",
   "@adminScheduleSavedLabelOnlyError": {
     "placeholders": {
       "error": {
@@ -2509,7 +2533,7 @@
     }
   },
   "commonCreate": "Create",
-  "teacherCreateClassroomNewTitle": "New Classroom",
+  "teacherCreateClassroomNewTitle": "New classroom",
   "teacherCreateClassroomLoadingStudents": "Loading students…",
   "teacherExamPublishedHint": "Published — students can see this exam",
   "teacherDoneSelected": "Done ({count} selected)",
@@ -2537,7 +2561,7 @@
   "classMaterialsAddTitle": "Add material",
   "classMaterialsTitleLabel": "Title",
   "classMaterialsTitleHint": "e.g. Chapter 3 worksheet",
-  "classMaterialsFilesCount": "{count} files",
+  "classMaterialsFilesCount": "{count, plural, one{{count} file} other{{count} files}}",
   "@classMaterialsFilesCount": {
     "placeholders": {
       "count": {
@@ -2545,21 +2569,21 @@
       }
     }
   },
-  "classMaterialsLoadError": "Couldn't load materials",
+  "classMaterialsLoadError": "Couldn’t load materials",
   "classMaterialsEmpty": "No materials yet — tap Add to share one.",
-  "navPlans": "NOVA Plans",
+  "navPlans": "NOVA plans",
   "navReports": "Reports",
-  "navExportData": "Export Data",
-  "sectionSecretaryTools": "Secretary Tools",
-  "sectionSchoolToolsLabel": "School Tools",
-  "sectionAdminTools": "Admin Tools",
+  "navExportData": "Export data",
+  "sectionSecretaryTools": "Secretary tools",
+  "sectionSchoolToolsLabel": "School tools",
+  "sectionAdminTools": "Admin tools",
   "chatVideoTrimTitle": "Trim video",
   "chatMediaPreviewTrimAction": "Trim",
   "commonUntitled": "Untitled",
   "plansMonthlyPlans": "Monthly plans",
   "plansTokenTopups": "Token top-ups",
   "plansTopupsSubtitle": "One-time purchases. Never expire. Stack on top of your plan.",
-  "plansCouldntLoadBalance": "Couldn't load your balance",
+  "plansCouldntLoadBalance": "Couldn’t load your balance",
   "plansFreePlan": "Free plan",
   "planTierFree": "Free",
   "planTierBudget": "Budget",
@@ -2611,9 +2635,9 @@
   "plansHowTokensWorkBody": "Tokens are how AI counts its work.\n• A short question ≈ 2,000 tokens\n• A long explanation or practice session ≈ 5,000–10,000\n• Image analysis costs a bit more\n\nYour monthly tokens reset on the 1st. Top-up tokens never expire.",
   "plansPerMonthSuffix": " / mo",
   "plansCurrentBadge": "CURRENT",
-  "plansCouldntLoadPlans": "Couldn't load plans",
+  "plansCouldntLoadPlans": "Couldn’t load plans",
   "paywallPlansUnavailable": "Plans unavailable. Try again in a moment.",
-  "paywallTopupUnavailable": "Top-up unavailable. The store hasn't finished approving this product.",
+  "paywallTopupUnavailable": "Top-up unavailable. The store hasn’t finished approving this product.",
   "paywallRestored": "Your subscription was restored.",
   "paywallNoRestores": "No previous purchases found on this Apple ID.",
   "paywallRestoreFailed": "Restore failed: {error}",
@@ -2625,10 +2649,10 @@
     }
   },
   "paywallPurchasesRestricted": "Purchases are restricted on this device.",
-  "paywallPurchaseInvalid": "This purchase isn't valid. Try a different payment method.",
-  "paywallProductNotAvailable": "This plan isn't available right now. Try again later.",
+  "paywallPurchaseInvalid": "This purchase isn’t valid. Try a different payment method.",
+  "paywallProductNotAvailable": "This plan isn’t available right now. Try again later.",
   "paywallNetworkError": "Network issue. Check your connection and try again.",
-  "paywallPaymentPending": "Payment is pending approval (parental controls, etc.). It'll activate once approved.",
+  "paywallPaymentPending": "Payment is pending approval (parental controls, etc.). It’ll activate once approved.",
   "paywallStoreProblem": "The App Store had a problem. Try again in a minute.",
   "paywallGenericError": "Something went wrong. Try again.",
   "paywallWelcomeMessage": "Welcome to {plan}! Tokens are on the way.",
@@ -2684,8 +2708,8 @@
   "paywallWebOnlyTitle": "Purchase on mobile",
   "paywallWebOnlyBody": "Subscriptions and top-ups go through the App Store or Google Play. Open ClassMate on your iPhone, iPad, or Android phone to subscribe — your account and tokens are shared across devices.",
   "paywallWebOnlyDismiss": "Got it",
-  "paywallTermsSubscription": "By subscribing you agree to ClassMate's Terms and Privacy Policy. Subscriptions auto-renew monthly until cancelled. Cancel at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store or Google Play account.",
-  "paywallTermsTopup": "By purchasing you agree to ClassMate's Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.",
+  "paywallTermsSubscription": "By subscribing you agree to ClassMate’s Terms and Privacy Policy. Subscriptions auto-renew monthly until canceled. Cancel at least 24 hours before the end of the current period. Manage or cancel anytime in your App Store or Google Play account.",
+  "paywallTermsTopup": "By purchasing you agree to ClassMate’s Terms and Privacy Policy. Top-up tokens are non-refundable once consumed.",
   "paywallTermsLink": "Terms of Use (EULA)",
   "paywallPrivacyLink": "Privacy Policy",
   "paywallFeatureTokens": "Use tokens across NOVA chat and Practice sessions",
@@ -2737,7 +2761,7 @@
   "forwardSearchChatsAndClassrooms": "Search chats and classrooms…",
   "profileNewPhone": "New phone",
   "profileNewEmail": "New email",
-  "adminExportPasswordsWarning": "{count, plural, one{This resets {count} student's password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.} other{This resets {count} students' passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.}}",
+  "adminExportPasswordsWarning": "{count, plural, one{This resets {count} student’s password to a new one and puts it in the file, so you can print and hand out the login card. Their old password stops working. Anyone with the file can sign in as that student — share carefully and delete when done.} other{This resets {count} students’ passwords to new ones and puts them in the file, so you can print and hand out the login cards. Their old passwords stop working. Anyone with the file can sign in as those students — share carefully and delete when done.}}",
   "@adminExportPasswordsWarning": {
     "placeholders": {
       "count": {
@@ -2756,7 +2780,7 @@
   "drawerCouldNotLoadChildren": "Could not load children",
   "drawerNoChildrenLinked": "No children linked",
   "drawerSwitchChild": "Switch child",
-  "commonCouldntSend": "Couldn't send: {error}",
+  "commonCouldntSend": "Couldn’t send: {error}",
   "@commonCouldntSend": {
     "placeholders": {
       "error": {
@@ -2764,7 +2788,7 @@
       }
     }
   },
-  "teacherExamDetailsSection": "Exam Details",
+  "teacherExamDetailsSection": "Exam details",
   "teacherExamStudyMaterialsWithCount": "Study Materials ({count})",
   "@teacherExamStudyMaterialsWithCount": {
     "placeholders": {
@@ -2773,7 +2797,7 @@
       }
     }
   },
-  "teacherMeetingDetailsSection": "Meeting Details",
+  "teacherMeetingDetailsSection": "Meeting details",
   "teacherClassroomNameSection": "Classroom name",
   "teacherAddByCohortSection": "Add by cohort",
   "teacherAddIndividualStudentsSection": "Add individual students",
@@ -2848,23 +2872,23 @@
   },
   "announcementAllGoodBody": "No major academic risks detected right now.",
   "faqStartedQ1": "How do I log in?",
-  "faqStartedA1": "Tap \"Sign in\" on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You'll be asked to set a new password the first time.",
-  "faqStartedQ2": "I don't have a login yet.",
-  "faqStartedA2": "Your school administrator creates accounts. Ask them to add you — they'll give you a username or email and a temporary password.",
+  "faqStartedA1": "Tap “Sign in” on the welcome screen and enter the email or username your school administrator gave you, plus your temporary password. You’ll be asked to set a new password the first time.",
+  "faqStartedQ2": "I don’t have a login yet.",
+  "faqStartedA2": "Your school administrator creates accounts. Ask them to add you — they’ll give you a username or email and a temporary password.",
   "faqStartedQ3": "Can I use the app in my language?",
   "faqStartedA3": "Yes — ClassMate supports English, Arabic, Hebrew, French and Russian. Open Settings → Language to switch.",
   "faqStartedQ4": "How do I switch between dark and light mode?",
-  "faqStartedA4": "Open Settings → Appearance → Theme. Pick \"System default\" to follow your device's light or dark mode, or choose one of 20 themes — you can also make your own.",
+  "faqStartedA4": "Open Settings → Appearance → Theme. Pick “System default” to follow your device’s light or dark mode, or choose one of 20 themes — you can also make your own.",
   "faqAccountQ1": "I forgot my password.",
-  "faqAccountA1": "Tap \"Forgot password?\" on the login screen. We'll send a reset link by email or by text message (SMS), in your language. If neither your email nor your phone is verified yet, ask your school administrator to set a new temporary password.",
+  "faqAccountA1": "Tap “Forgot password?” on the login screen. We’ll send a reset link by email or by text message (SMS), in your language. If neither your email nor your phone is verified yet, ask your school administrator to set a new temporary password.",
   "faqAccountQ2": "How do I change my password?",
-  "faqAccountA2": "Open Profile from the drawer, scroll to Security, and tap the password row. You'll need your current password to set a new one.",
+  "faqAccountA2": "Open Profile from the drawer, scroll to Security, and tap the password row. You’ll need your current password to set a new one.",
   "faqAccountQ3": "How do I change my email or phone number?",
-  "faqAccountA3": "Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it's really you, then you can set the new value.",
+  "faqAccountA3": "Open Profile, tap the field you want to change, and follow the verification prompts. A code is sent to your CURRENT email/phone first to confirm it’s really you, then you can set the new value.",
   "faqAccountQ4": "My school administrator can change my password — how does that work?",
-  "faqAccountA4": "When an administrator resets your password, you'll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.",
+  "faqAccountA4": "When an administrator resets your password, you’ll get an email and SMS with a one-tap link to set your own password. The admin never sees what you choose.",
   "faqStudentsQ1": "Where do I see my schedule?",
-  "faqStudentsA1": "Schedule is the first tab at the bottom of the screen. You'll see this week's periods, who teaches each one, and any changes the admin has posted.",
+  "faqStudentsA1": "Schedule is the first tab at the bottom of the screen. You’ll see this week’s periods, who teaches each one, and any changes the admin has posted.",
   "faqStudentsQ2": "How do I join a classroom?",
   "faqStudentsA2": "A teacher will add you directly, or share a join code. To use a join code, open the Classrooms tab, tap Join Classroom and type the code.",
   "faqStudentsQ3": "How do attendance and grades work?",
@@ -2874,31 +2898,31 @@
   "faqTeachersQ1": "How do I create a classroom?",
   "faqTeachersA1": "Open Classrooms from the drawer and tap the + button. Give it a name and subject; students can be added by hand or via a join code.",
   "faqTeachersQ2": "How do I mark attendance?",
-  "faqTeachersA2": "Open Attendance from School Tools, pick the date and period, set each student's status, then tap Save.",
+  "faqTeachersA2": "Open Attendance from School tools, pick the date and period, set each student’s status, then tap Save.",
   "faqTeachersQ3": "How do I assign homework?",
   "faqTeachersA3": "Open Assignments, tap +, fill in the title/due date/attachments, and pick a target (whole school, specific cohorts, or named students). Students see it right away in their Assignments.",
   "faqTeachersQ4": "Can I issue a certificate?",
-  "faqTeachersA4": "Homeroom teachers can — open Certificates from School Tools, pick the class and the student, then create the certificate. You can also build one PDF for the whole class. The student sees it in their own Certificates.",
+  "faqTeachersA4": "Homeroom teachers can — open Certificates from School tools, pick the class and the student, then create the certificate. You can also build one PDF for the whole class. The student sees it in their own Certificates.",
   "faqAdminsQ1": "Where do I start setting up a school?",
   "faqAdminsA1": "Open the Admin Dashboard. The School Setup widget at the top shows a 7-step checklist (logo, name, subjects, bell schedule, cohorts, students, teachers). Each step deep-links to where you complete it.",
   "faqAdminsQ2": "How do cohorts work?",
-  "faqAdminsA2": "A cohort is a group of students that share a schedule. Open Cohorts from School Tools to create them and add students. A single cohort can span multiple grades.",
+  "faqAdminsA2": "A cohort is a group of students that share a schedule. Open Cohorts from School tools to create them and add students. A single cohort can span multiple grades.",
   "faqAdminsQ3": "Can a cohort cover more than one grade?",
-  "faqAdminsA3": "Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades' filters and views, and announcements/templates targeted at any of those grades reach it.",
+  "faqAdminsA3": "Yes — when creating a cohort, select multiple grades. The cohort then appears in any of those grades’ filters and views, and announcements/templates targeted at any of those grades reach it.",
   "faqAdminsQ4": "How do I build the weekly schedule?",
   "faqAdminsA4": "Open Schedule from the drawer. Tap any cell to add a period — pick the day/period, teacher, subject, and audience (cohort/student/grade). Bell-schedule times come from School Settings.",
   "faqAdminsQ5": "How do I bulk-export students?",
   "faqAdminsA5": "Open Export Data. Choose whether to select by student or by cohort, pick the rows, and tap Export. If you include passwords, each exported student gets a new temporary password (the old one stops working) — handy for printing login cards.",
   "faqAdminsQ6": "A user asked me to reset their password. What do I do?",
-  "faqAdminsA6": "Open Users, tap the person and set a new password — they also get an email or text with a link to choose their own. If their email or phone is verified, they can reset it themselves with \"Forgot password?\".",
+  "faqAdminsA6": "Open Users, tap the person and set a new password — they also get an email or text with a link to choose their own. If their email or phone is verified, they can reset it themselves with “Forgot password?”.",
   "faqParentsQ1": "How do I link my account to my child?",
-  "faqParentsA1": "Your child's school administrator links your account to your child from their admin app. Once linked, your child appears on your Home screen.",
+  "faqParentsA1": "Your child’s school administrator links your account to your child from their admin app. Once linked, your child appears on your Home screen.",
   "faqParentsQ2": "What can I see about my child?",
-  "faqParentsA2": "Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won't see private chats or NOVA sessions.",
+  "faqParentsA2": "Attendance, grades, announcements, and homework — exactly what your child sees plus the trends across time. You won’t see private chats or NOVA sessions.",
   "faqPrivacyQ1": "Who can see my data?",
-  "faqPrivacyA1": "Only people in your school. Teachers see their classrooms' data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.",
+  "faqPrivacyA1": "Only people in your school. Teachers see their classrooms’ data, admins see school-wide data, parents see their linked children. We never sell data to advertisers.",
   "faqPrivacyQ2": "How do I delete my account?",
-  "faqPrivacyA2": "Ask your school administrator to delete it from their admin app, which wipes your profile, schedule, and chats. You can also email support@classmateapp.org from your account's email address and we'll delete it within 30 days.",
+  "faqPrivacyA2": "Ask your school administrator to delete it from their admin app, which wipes your profile, schedule, and chats. You can also email support@classmateapp.org from your account’s email address and we’ll delete it within 30 days.",
   "solutionsPagesCount": "{count, plural, one{{count} page} other{{count} pages}}",
   "@solutionsPagesCount": {
     "placeholders": {
@@ -2907,18 +2931,18 @@
       }
     }
   },
-  "teacherMeetingEditTitle": "Edit Meeting",
-  "teacherMeetingNewTitle": "Schedule Meeting",
-  "teacherExamEditTitle": "Edit Exam",
-  "teacherExamNewTitle": "Create Exam",
-  "teacherAssignmentEditTitle": "Edit Assignment",
-  "teacherAssignmentNewTitle": "New Assignment",
+  "teacherMeetingEditTitle": "Edit meeting",
+  "teacherMeetingNewTitle": "Schedule meeting",
+  "teacherExamEditTitle": "Edit exam",
+  "teacherExamNewTitle": "Create exam",
+  "teacherAssignmentEditTitle": "Edit assignment",
+  "teacherAssignmentNewTitle": "New assignment",
   "tooltipShowTabs": "Show tabs",
   "tooltipHideTabs": "Hide tabs",
   "examsCouldNotLoadForms": "Could not load forms",
   "examsCouldNotLoadExams": "Could not load exams",
   "messagesNoPeopleToAdd": "No people to add",
-  "commonNoResultsForQuery": "No results for \"{query}\"",
+  "commonNoResultsForQuery": "No results for “{query}”",
   "@commonNoResultsForQuery": {
     "placeholders": {
       "query": {
@@ -3093,7 +3117,7 @@
   "insightsPracticeTitle": "Practice accuracy",
   "commonUnknown": "Unknown",
   "solutionsReportTitle": "Report this solution",
-  "solutionsReportBody": "Tell the admins what's wrong. The admins of both schools will review it.",
+  "solutionsReportBody": "Tell the admins what’s wrong. The admins of both schools will review it.",
   "solutionsReportReasonHint": "Reason (optional)",
   "solutionsReportAction": "Report",
   "solutionsReportSubmitted": "Thanks — reported to the admins.",
@@ -3110,7 +3134,7 @@
   "solutionsManageBooksTitle": "Manage books",
   "solutionsNoBooksManageHint": "No books for this subject yet. Tap + to add one.",
   "solutionsDeleteBookTitle": "Delete book?",
-  "solutionsDeleteBookBody": "Delete \"{title}\"? This can't be undone.",
+  "solutionsDeleteBookBody": "Delete “{title}”? This can’t be undone.",
   "@solutionsDeleteBookBody": {
     "placeholders": {
       "title": {
@@ -3118,7 +3142,7 @@
       }
     }
   },
-  "solutionsBookSaveFailed": "Couldn't save: {error}",
+  "solutionsBookSaveFailed": "Couldn’t save: {error}",
   "@solutionsBookSaveFailed": {
     "placeholders": {
       "error": {
@@ -3128,7 +3152,7 @@
   },
   "solutionsBookDuplicateHint": "Before adding, make sure this book isn’t already in the database.",
   "solutionsBookDuplicateTitle": "Possible duplicate book",
-  "solutionsBookDuplicateBody": "A book named \"{title}\" already exists. Make sure it isn’t the same one before adding it.",
+  "solutionsBookDuplicateBody": "A book named “{title}” already exists. Make sure it isn’t the same one before adding it.",
   "@solutionsBookDuplicateBody": {
     "placeholders": {
       "title": {
@@ -3159,7 +3183,7 @@
   "solutionsReportStatusRemoved": "Removed",
   "solutionsReportRemoved": "Solution removed.",
   "solutionsReportApproved": "Report dismissed — solution kept.",
-  "solutionsReportFailed": "Couldn't report: {error}",
+  "solutionsReportFailed": "Couldn’t report: {error}",
   "@solutionsReportFailed": {
     "placeholders": {
       "error": {
@@ -3167,13 +3191,13 @@
       }
     }
   },
-  "teacherAddGradeTitle": "Add Grade",
+  "teacherAddGradeTitle": "Add grade",
   "commonCohort": "Cohort",
   "teacherCreateNewExam": "Create new exam",
   "teacherCreateNewAssignment": "Create new assignment",
   "commonReturn": "Return",
   "reorderToolsTitle": "Reorder menu",
-  "reorderToolsSubtitle": "Drag to reorder your School Tools. The Core and Account sections stay put.",
+  "reorderToolsSubtitle": "Drag to reorder your School tools. The Core and Account sections stay put.",
   "reorderToolsReset": "Reset",
   "reorderToolsSettingsSection": "Menu",
   "reorderToolsSettingsSubtitle": "Reorder the tools in your side menu",
@@ -3265,7 +3289,7 @@
   "@commonSubjectOptional": {
     "description": "commonSubjectOptional"
   },
-  "teacherAddClassNotes": "Add Class Notes",
+  "teacherAddClassNotes": "Add class notes",
   "@teacherAddClassNotes": {
     "description": "teacherAddClassNotes"
   },
@@ -3293,7 +3317,7 @@
   "@teacherOtherCustomSubject": {
     "description": "teacherOtherCustomSubject"
   },
-  "adminLinkChild": "Link Child",
+  "adminLinkChild": "Link child",
   "@adminLinkChild": {
     "description": "adminLinkChild"
   },
@@ -3321,11 +3345,11 @@
   "@passwordMinChars": {
     "description": "passwordMinChars"
   },
-  "passwordsDoNotMatch": "Passwords don't match.",
+  "passwordsDoNotMatch": "Passwords don’t match.",
   "@passwordsDoNotMatch": {
     "description": "passwordsDoNotMatch"
   },
-  "novaOutOfTokens": "You've used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.",
+  "novaOutOfTokens": "You’ve used all your tokens for this period. Upgrade or top up to keep chatting with NOVA.",
   "@novaOutOfTokens": {
     "description": "novaOutOfTokens"
   },
@@ -3384,9 +3408,9 @@
       }
     }
   },
-  "cohortStudentsCount": "{count} student{count, plural, =0{} =1{} other{s}}",
+  "cohortStudentsCount": "{count, plural, one{{count} student} other{{count} students}}",
   "@cohortStudentsCount": {
-    "description": "Cohort member count. Singular 'student' for 0-1, plural 'students' for 2+.",
+    "description": "Cohort member count, pluralised.",
     "placeholders": {
       "count": {
         "type": "int"
@@ -3437,11 +3461,11 @@
   "adminImportUsersScreenTitle": "Import users",
   "adminImportUsersScreenTabGrid": "Grid",
   "adminImportUsersScreenTabCsv": "CSV",
-  "adminImportUsersScreenLoadedRows": "Loaded {count} rows — review & edit, then Create",
+  "adminImportUsersScreenLoadedRows": "{count, plural, one{Loaded {count} row — review & edit, then Create} other{Loaded {count} rows — review & edit, then Create}}",
   "adminImportUsersScreenFillAtLeastOneName": "Fill at least one name",
   "adminImportUsersScreenFailed": "Failed: {error}",
   "adminImportUsersScreenBackToGrid": "Back to grid",
-  "adminImportUsersScreenGridIntro": "Fill a row per person, or load a CSV from the CSV tab and fix anything here. Username is optional — we generate one if blank. For students, set the grade and (optionally) a parent's username to link them.",
+  "adminImportUsersScreenGridIntro": "Fill a row per person, or load a CSV from the CSV tab and fix anything here. Username is optional — we generate one if blank. For students, set the grade and (optionally) a parent’s username to link them.",
   "adminImportUsersScreenAddRow": "Add row",
   "adminImportUsersScreenCreateCount": "Create ({count})",
   "adminImportUsersScreenRole": "Role",
@@ -3454,21 +3478,21 @@
   "adminImportUsersScreenChooseCsv": "Choose CSV file",
   "adminImportUsersScreenChooseDifferentFile": "Choose a different file",
   "adminImportUsersScreenSelectedFile": "Selected: {fileName}",
-  "adminImportUsersScreenRecognisedColumns": "Recognised columns",
-  "adminImportUsersScreenRecognisedColumnsBody": "name · username · password · email · phone · role · grade · parent (a username) · children (usernames)\n\nRole words like \"student / طالب / תלמיד / élève / ученик\" all map correctly. Grade reads the number from \"Grade 10\", \"الصف 10\", \"כיתה 10\". Missing usernames or passwords are generated automatically.",
-  "adminImportUsersScreenDetectedRows": "Detected — {count} rows",
+  "adminImportUsersScreenRecognisedColumns": "Recognized columns",
+  "adminImportUsersScreenRecognisedColumnsBody": "name · username · password · email · phone · role · grade · parent (a username) · children (usernames)\n\nRole words like “student / طالب / תלמיד / élève / ученик” all map correctly. Grade reads the number from “Grade 10”, “الصف 10”, “כיתה 10”. Missing usernames or passwords are generated automatically.",
+  "adminImportUsersScreenDetectedRows": "Detected — {count, plural, one{{count} row} other{{count} rows}}",
   "adminImportUsersScreenNoColumnsDetected": "No known columns detected — check your header row.",
   "adminImportUsersScreenTruncatedNotice": "Showing the first 2000 rows for review.",
   "adminImportUsersScreenReviewEditInGrid": "Review & edit in grid",
   "adminImportUsersScreenReviewEditHint": "Opens the Grid tab pre-filled with these rows so you can fix any mistakes before creating.",
-  "adminImportUsersScreenResultSummary": "✓ Created {count} users · {links} links",
+  "adminImportUsersScreenResultSummary": "✓ Created {count, plural, one{{count} user} other{{count} users}} · {links, plural, one{{links} link} other{{links} links}}",
   "adminImportUsersScreenResultFailedSuffix": " · {failed} failed",
   "adminImportUsersScreenFailedRows": "Failed rows",
   "adminImportUsersScreenFailedRow": "Row {row}: {reason}",
   "adminImportUsersScreenCredentialsTitle": "Credentials (hand these to your users)",
   "teacherCohortsScreenNewCohort": "New cohort",
   "teacherCohortsScreenLoadError": "Could not load cohorts.",
-  "teacherCohortsScreenEmpty": "No cohorts yet.\nTap \"New cohort\" to create one.",
+  "teacherCohortsScreenEmpty": "No cohorts yet.\nTap “New cohort” to create one.",
   "teacherCohortsScreenCohortNameLabel": "Cohort name",
   "teacherCohortsScreenCohortNameHint": "e.g. 10-2",
   "teacherCohortsScreenGradesLabel": "Grade(s)",
@@ -3477,19 +3501,19 @@
   "teacherCohortsScreenEnterNameAndGrade": "Enter a name and at least one grade",
   "teacherCohortsScreenCohortCreated": "Cohort created",
   "teacherCohortsScreenFailed": "Failed",
-  "teacherCohortsScreenStudentsCount": "{count} students",
+  "teacherCohortsScreenStudentsCount": "{count, plural, one{{count} student} other{{count} students}}",
   "teacherCohortsScreenRenameGrades": "Rename / grades",
   "teacherCohortsScreenDeleteCohort": "Delete cohort",
   "teacherCohortsScreenAddStudents": "Add students",
   "teacherCohortsScreenEditCohort": "Edit cohort",
   "teacherCohortsScreenSave": "Save",
   "teacherCohortsScreenSaved": "Saved",
-  "teacherCohortsScreenDeleteConfirmTitle": "Delete \"{name}\"?",
+  "teacherCohortsScreenDeleteConfirmTitle": "Delete “{name}”?",
   "teacherCohortsScreenDeleteConfirmBody": "The cohort is removed and students are detached from it. Student accounts are not deleted.",
   "teacherCohortsScreenDelete": "Delete",
   "teacherCohortsScreenDeleted": "Deleted",
   "teacherCohortsScreenLoadStudentsError": "Could not load students",
-  "teacherCohortsScreenAddedNStudents": "Added {count} students",
+  "teacherCohortsScreenAddedNStudents": "{count, plural, one{Added {count} student} other{Added {count} students}}",
   "teacherCohortsScreenNoStudentsYet": "No students yet.",
   "adminSettingsScreenBulkTools": "Bulk tools",
   "adminSettingsScreenImportUsers": "Import users",
@@ -3521,18 +3545,18 @@
   "adminScheduleGradeWithCohort": "Grade {grade} · {cohort}",
   "adminScheduleDateOnLabel": "On",
   "adminScheduleDateStartsOnLabel": "Starts on",
-  "adminScheduleStudentCount": "{count} students",
+  "adminScheduleStudentCount": "{count, plural, one{{count} student} other{{count} students}}",
   "adminScheduleAudienceNone": "—",
   "adminScheduleTeacherClashNamed": "{name} would have two classes at the same time.",
   "adminScheduleTeacherClash": "This teacher would have two classes at the same time.",
   "adminScheduleStudentClashSingle": "{name} would have two periods at the same time:",
-  "adminScheduleStudentClashMany": "{count} students would have two periods at the same time:",
+  "adminScheduleStudentClashMany": "{count, plural, one{{count} student would have two periods at the same time:} other{{count} students would have two periods at the same time:}}",
   "adminScheduleAStudent": "A student",
   "adminScheduleAffected": "Affected: {preview}",
   "adminScheduleResolvePrompt": "How should this be resolved?",
   "adminScheduleResolvePromptStudents": "How should this be resolved for those students?",
-  "adminScheduleStudentsInCohorts": "{count} students in selected cohorts",
-  "adminScheduleStudentsInGrade": "{count} students in Grade {grade}",
+  "adminScheduleStudentsInCohorts": "{count, plural, one{{count} student in selected cohorts} other{{count} students in selected cohorts}}",
+  "adminScheduleStudentsInGrade": "{count, plural, one{{count} student in Grade {grade}} other{{count} students in Grade {grade}}}",
   "adminScheduleCustomizedNote": "Customized — saved as individual students",
   "adminScheduleMoreCount": "+{count} more",
   "adminScheduleAddStudentsTitle": "Add students",
@@ -3544,7 +3568,7 @@
   "adminScheduleEveryNWeeks": "Every {freq} weeks",
   "adminScheduleColorLabel": "Color",
   "adminScheduleSubjectRequired": "Subject *",
-  "adminScheduleNoSchoolSubjects": "No school subjects yet. Tap \"Add new\" to define one.",
+  "adminScheduleNoSchoolSubjects": "No school subjects yet. Tap “Add new” to define one.",
   "adminScheduleNoSubjectsMatch": "No subjects match your search.",
   "teacherNewAnnouncementScreenBroadcastBody": "No specific audience selected. This announcement will be visible to EVERY student, parent, teacher, secretary, and admin in the school.",
   "teacherNewAnnouncementScreenGradeLabel": "Grade {grade}",
@@ -3554,13 +3578,13 @@
   "teacherNewAnnouncementScreenLoadingStudents": "Loading students…",
   "teacherNewAnnouncementScreenNoGradeLevels": "No grade levels found yet.",
   "teacherNewAnnouncementScreenTapSelectCohorts": "Tap to select cohorts…",
-  "teacherNewAnnouncementScreenCohortsSelected": "{count} cohorts selected",
+  "teacherNewAnnouncementScreenCohortsSelected": "{count, plural, one{{count} cohort selected} other{{count} cohorts selected}}",
   "teacherNewAnnouncementScreenTapSelectStudents": "Tap to select students…",
-  "teacherNewAnnouncementScreenStudentsSelected": "{count} students selected",
+  "teacherNewAnnouncementScreenStudentsSelected": "{count, plural, one{{count} student selected} other{{count} students selected}}",
   "teacherNewAnnouncementScreenTapSelectParents": "Tap to select parents…",
-  "teacherNewAnnouncementScreenParentsSelected": "{count} parents selected",
+  "teacherNewAnnouncementScreenParentsSelected": "{count, plural, one{{count} parent selected} other{{count} parents selected}}",
   "teacherNewAnnouncementScreenSelectedAudience": "Selected audience",
-  "teacherNewAnnouncementScreenStudentsInCohorts": "{count} students in selected cohorts",
+  "teacherNewAnnouncementScreenStudentsInCohorts": "{count, plural, one{{count} student in selected cohorts} other{{count} students in selected cohorts}}",
   "teacherNewAnnouncementScreenSelectParents": "Select parents",
   "teacherNewAnnouncementScreenChildrenSummary": "{count} children — {summary}",
   "teacherNewAnnouncementScreenNoLinkedChildren": "No linked children",
@@ -3579,7 +3603,7 @@
   "roleBadgeParent": "Parent",
   "roleBadgeMember": "Member",
   "teacherSlotAttachmentsScreenEmptyTitle": "No attachments yet",
-  "teacherSlotAttachmentsScreenEmptyBody": "Attach materials so your students see them on this period's card.",
+  "teacherSlotAttachmentsScreenEmptyBody": "Attach materials so your students see them on this period’s card.",
   "teacherSlotAttachmentsScreenMaterialFallback": "Material",
   "teacherSlotAttachmentsScreenSheetTitle": "Attach material",
   "teacherSlotAttachmentsScreenCreateNew": "Create new material",
@@ -3614,7 +3638,7 @@
   "formDetailScreenSubmitting": "Submitting…",
   "formDetailScreenSubmitAgain": "Submit again",
   "formDetailScreenSubmitForm": "Submit form",
-  "formDetailScreenQuestionCount": "{count} questions",
+  "formDetailScreenQuestionCount": "{count, plural, one{{count} question} other{{count} questions}}",
   "formDetailScreenMultiSubmit": "Multi-submit",
   "formDetailScreenOnePerStudent": "1 per student",
   "formDetailScreenRequired": "Required",
@@ -3693,7 +3717,7 @@
   "profileVerifyNewContactInfo": "A verification code will be sent to the value you enter — confirming you own it.",
   "profileVerifyCurrentContactInfo": "A verification code will be sent to your CURRENT {label} so you can prove ownership before switching.",
   "appShellReports": "Reports",
-  "appShellExportData": "Export Data",
+  "appShellExportData": "Export data",
   "appShellAdmin": "Admin",
   "appShellViewingAs": "Viewing as ",
   "appShellSwitchChild": "Switch child",
@@ -3707,8 +3731,8 @@
   "teacherScheduleScreenPeriodLabel": "Period {period}",
   "teacherScheduleScreenGradeLabel": "Grade {grade}",
   "teacherScheduleScreenMaterialsCount": "{count, plural, =1{1 material} other{{count} materials}}",
-  "teacherClassroomAddAssignmentScreenTitle": "Add Assignment",
-  "teacherClassroomAddAssignmentScreenDetails": "Assignment Details",
+  "teacherClassroomAddAssignmentScreenTitle": "Add assignment",
+  "teacherClassroomAddAssignmentScreenDetails": "Assignment details",
   "teacherClassroomAddAssignmentScreenNotifyStudents": "Notify students",
   "teacherClassroomAddAssignmentScreenUploading": "Uploading…",
   "teacherClassroomAddAssignmentScreenAttachFiles": "Attach files",
@@ -3721,9 +3745,9 @@
   "adminExportScreenEachUserAloneOff": "Compact table — every user is a row.",
   "adminExportScreenSeparateFilesOn": "Separate PDF per user",
   "adminExportScreenSeparateFilesOff": "Single PDF, one page per user",
-  "adminExportScreenSeparateFilesOnDesc": "You'll share {count} PDF file(s) at once — each user gets their own.",
+  "adminExportScreenSeparateFilesOnDesc": "You’ll share {count} PDF file(s) at once — each user gets their own.",
   "adminExportScreenSeparateFilesOffDesc": "Everyone in one PDF, each on their own page.",
-  "adminSubjectDetailScreenSchoolSettings": "School Settings",
+  "adminSubjectDetailScreenSchoolSettings": "School settings",
   "adminSubjectDetailScreenNewSubject": "New subject",
   "adminSubjectDetailScreenLangEnglish": "English",
   "adminSubjectDetailScreenLangArabic": "Arabic",
@@ -3754,7 +3778,7 @@
   "teacherAddAssignmentScreenMaterialFallback": "Material",
   "teacherAddAssignmentScreenSelectedCount": "{count} selected",
   "teacherClassroomsScreenGradeLabel": "Grade {grade}",
-  "teacherClassroomsScreenNewClassroom": "New Classroom",
+  "teacherClassroomsScreenNewClassroom": "New classroom",
   "assignmentsScreenAlreadyHandedIn": "You have already handed in this assignment.",
   "assignmentsScreenAddNoteOrFiles": "Add a note or attach files, then press Hand in.",
   "assignmentsScreenGradeLabel": "Grade: {grade}",
@@ -3782,7 +3806,7 @@
   "classroomDetailUntitled": "Untitled",
   "typingDotsPaused": "Paused",
   "cmAiMessageStartPracticeSession": "Start practice session",
-  "cmAiMessageQuestionCount": "{count} questions",
+  "cmAiMessageQuestionCount": "{count, plural, one{{count} question} other{{count} questions}}",
   "cmAiMessageDifficultyEasy": "Easy",
   "cmAiMessageDifficultyHard": "Hard",
   "cmAiMessageDifficultyOlympiad": "Olympiad",
@@ -4447,7 +4471,7 @@
   "gradesScreenTimeout": "Request timed out. Check your connection.",
   "gradesScreenNoConnection": "No connection. Pull to retry.",
   "examDetailScreenCountdownPassed": "This exam has passed",
-  "examDetailScreenCountdownToday": "It's today!",
+  "examDetailScreenCountdownToday": "It’s today!",
   "@teacherCohortsScreenSingleGrade": {
     "placeholders": {
       "grade": {
@@ -4505,7 +4529,7 @@
   "adminUsernameAvailable": "Username is available",
   "adminUsernameInvalidFormat": "Use 3+ letters, digits, or . _ -",
   "adminUsernameSuggestionsLabel": "Available suggestions — tap to use:",
-  "adminAddManyCreateParent": "Create new parent \"{name}\"",
+  "adminAddManyCreateParent": "Create new parent “{name}”",
   "@adminAddManyCreateParent": {
     "placeholders": {
       "name": {
@@ -4513,7 +4537,7 @@
       }
     }
   },
-  "adminAddManyPastedRows": "Added {count} rows",
+  "adminAddManyPastedRows": "{count, plural, one{Added {count} row} other{Added {count} rows}}",
   "@adminAddManyPastedRows": {
     "placeholders": {
       "count": {
@@ -4540,7 +4564,7 @@
       }
     }
   },
-  "scheduleUpcomingExam": "Upcoming Exam",
+  "scheduleUpcomingExam": "Upcoming exam",
   "scheduleNoUpcomingExams": "No upcoming exams",
   "navCertificates": "Certificates",
   "averagesDelete": "Delete",
@@ -4628,7 +4652,7 @@
   "@gradesPublishedToast": {},
   "gradesUnpublishedToast": "Grade unpublished — hidden from students.",
   "@gradesUnpublishedToast": {},
-  "navGradeScales": "Grade Scales",
+  "navGradeScales": "Grade scales",
   "@navGradeScales": {},
   "gradeScaleAdd": "Add grade scale",
   "@gradeScaleAdd": {},
@@ -4700,7 +4724,7 @@
   "@averagesAdd": {},
   "averagesDeleteTitle": "Delete average",
   "@averagesDeleteTitle": {},
-  "averagesDeleteConfirm": "Delete \"{title}\"? This cannot be undone.",
+  "averagesDeleteConfirm": "Delete “{title}”? This cannot be undone.",
   "@averagesDeleteConfirm": {
     "placeholders": {
       "title": {}
@@ -4710,7 +4734,7 @@
   "@averagesCancel": {},
   "averagesEmptyTitle": "No averages yet",
   "@averagesEmptyTitle": {},
-  "averagesEmptyBody": "Tap \"Add average\" to create a weighted grade formula for a subject.",
+  "averagesEmptyBody": "Tap “Add average” to create a weighted grade formula for a subject.",
   "@averagesEmptyBody": {},
   "averagesFullYear": "Full year",
   "@averagesFullYear": {},
@@ -4772,7 +4796,7 @@
   "@averagesLabelUnits": {},
   "averagesFormats": "Formats",
   "@averagesFormats": {},
-  "averagesFormatsHelp": "Each format's weights must sum to 100%. The best-scoring format is used per student.",
+  "averagesFormatsHelp": "Each format’s weights must sum to 100%. The best-scoring format is used per student.",
   "@averagesFormatsHelp": {},
   "averagesAddFormat": "Add format",
   "@averagesAddFormat": {},
@@ -4823,7 +4847,7 @@
       }
     }
   },
-  "certPdfRemarks": "Homeroom teacher's remarks",
+  "certPdfRemarks": "Homeroom teacher’s remarks",
   "certTypeLabel": "Certificate type",
   "certTypeAnnual": "Annual",
   "certTypeSemester": "End of {sem}",
@@ -4899,11 +4923,11 @@
   "cmailDeleteTitle": "Delete mail?",
   "cmailDeleteForAll": "This deletes the mail for everyone.",
   "cmailDeleteForMe": "This removes the mail from your inbox.",
-  "cmailRecipients": "{count} recipients",
+  "cmailRecipients": "{count, plural, one{{count} recipient} other{{count} recipients}}",
   "@cmailRecipients": {
     "placeholders": {
       "count": {
-        "type": "num"
+        "type": "int"
       }
     }
   },
@@ -4922,7 +4946,7 @@
   "cmailAudienceRequired": "Pick who this mail goes to",
   "cmailAttachments": "Attachments",
   "phoneLinkTitle": "Add your phone",
-  "phoneLinkSubtitle": "Protect your account with a phone number. We'll text you a verification code — it also lets you reset your password by SMS.",
+  "phoneLinkSubtitle": "Protect your account with a phone number. We’ll text you a verification code — it also lets you reset your password by SMS.",
   "phoneLinkFieldLabel": "Phone number",
   "phoneLinkSend": "Send code",
   "phoneLinkCodeSent": "Code sent to {phone}",
@@ -5030,11 +5054,11 @@
   "@a11yHidePassword": {
     "description": "Accessibility label for the Hide password button"
   },
-  "errStateOfflineTitle": "You're offline",
+  "errStateOfflineTitle": "You’re offline",
   "@errStateOfflineTitle": {
     "description": "Headline of the illustrated error state shown when the device has no connectivity"
   },
-  "errStateOfflineBody": "We can't reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.",
+  "errStateOfflineBody": "We can’t reach ClassMate right now. Check your Wi-Fi or mobile data, then try again.",
   "@errStateOfflineBody": {
     "description": "Body copy of the offline illustrated error state"
   },
@@ -5042,11 +5066,11 @@
   "@errStateServerTitle": {
     "description": "Headline of the illustrated error state shown for 5xx server errors"
   },
-  "errStateServerBody": "Our servers hit a snag. It's not you — please try again in a moment.",
+  "errStateServerBody": "Our servers hit a snag. It’s not you — please try again in a moment.",
   "@errStateServerBody": {
     "description": "Body copy of the server error illustrated state"
   },
-  "errStateNotFoundTitle": "We couldn't find that",
+  "errStateNotFoundTitle": "We couldn’t find that",
   "@errStateNotFoundTitle": {
     "description": "Headline of the illustrated error state shown for 404 not found"
   },
@@ -5054,7 +5078,7 @@
   "@errStateNotFoundBody": {
     "description": "Body copy of the not found illustrated state"
   },
-  "errStateForbiddenTitle": "You don't have access",
+  "errStateForbiddenTitle": "You don’t have access",
   "@errStateForbiddenTitle": {
     "description": "Headline of the illustrated error state shown for 401/403 permission errors"
   },
@@ -5074,7 +5098,7 @@
   "@errStateEmptyTitle": {
     "description": "Headline of the illustrated empty state shown when there is no content"
   },
-  "errStateEmptyBody": "When there's something to show, it'll appear right here.",
+  "errStateEmptyBody": "When there’s something to show, it’ll appear right here.",
   "@errStateEmptyBody": {
     "description": "Body copy of the empty illustrated state"
   },
@@ -5122,15 +5146,15 @@
   "@onbSwipeHint": {
     "description": "Hint telling the user the onboarding slides can be swiped."
   },
-  "onbDeepWelcome": "Your timetable, grades, homework, messages and notes all live here — one sign-in for school. Here's a quick look at what's inside.",
+  "onbDeepWelcome": "Your timetable, grades, homework, messages and notes all live here — one sign-in for school. Here’s a quick look at what’s inside.",
   "@onbDeepWelcome": {
     "description": "Onboarding: deeper explanation on the welcome slide."
   },
-  "onbDeepNova": "Ask NOVA anything in your own words and get a step-by-step explanation. Turn any topic into practice questions, save the ones you want to revisit, and photograph a question you're stuck on to have it worked through.",
+  "onbDeepNova": "Ask NOVA anything in your own words and get a step-by-step explanation. Turn any topic into practice questions, save the ones you want to revisit, and photograph a question you’re stuck on to have it worked through.",
   "@onbDeepNova": {
     "description": "Onboarding: deeper explanation of the NOVA AI tutor."
   },
-  "onbDeepTrack": "See today's lessons the moment you open the app, check a grade as soon as it's published, watch your attendance, and keep every assignment deadline in one list — with a reminder before it's due.",
+  "onbDeepTrack": "See today’s lessons the moment you open the app, check a grade as soon as it’s published, watch your attendance, and keep every assignment deadline in one list — with a reminder before it’s due.",
   "@onbDeepTrack": {
     "description": "Onboarding: deeper explanation of schedule, grades, attendance, assignments."
   },
@@ -5138,11 +5162,11 @@
   "@onbDeepConnect": {
     "description": "Onboarding: deeper explanation of messages, announcements, meetings, CMail."
   },
-  "onbDeepTeacherClasses": "Open a classroom to see who's in it, take attendance in a couple of taps, hand out assignments and materials, and keep each cohort's roster tidy.",
+  "onbDeepTeacherClasses": "Open a classroom to see who’s in it, take attendance in a couple of taps, hand out assignments and materials, and keep each cohort’s roster tidy.",
   "@onbDeepTeacherClasses": {
     "description": "Onboarding: deeper explanation for teachers — classrooms and rosters."
   },
-  "onbDeepTeacherGrading": "Enter grades against your own scale, publish when you're ready, and let Insights show you who's slipping before it becomes a problem.",
+  "onbDeepTeacherGrading": "Enter grades against your own scale, publish when you’re ready, and let Insights show you who’s slipping before it becomes a problem.",
   "@onbDeepTeacherGrading": {
     "description": "Onboarding: deeper explanation for teachers — grading and insights."
   },
@@ -5158,11 +5182,11 @@
   "@onbDeepAdminPeople": {
     "description": "Onboarding: deeper explanation for admins — people management."
   },
-  "onbDeepSecretary": "Keep the day running: fix the timetable, add or update a person's record, issue certificates and get an announcement out fast.",
+  "onbDeepSecretary": "Keep the day running: fix the timetable, add or update a person’s record, issue certificates and get an announcement out fast.",
   "@onbDeepSecretary": {
     "description": "Onboarding: deeper explanation for secretaries."
   },
-  "onbDeepParentChild": "Switch between your children and see each one's timetable, grades, attendance and homework — the same picture the school sees.",
+  "onbDeepParentChild": "Switch between your children and see each one’s timetable, grades, attendance and homework — the same picture the school sees.",
   "@onbDeepParentChild": {
     "description": "Onboarding: deeper explanation for parents — per-child overview."
   },
@@ -5180,7 +5204,7 @@
   "settingsThemeNameRequired": "Enter a name for your theme",
   "settingsThemeNameDuplicate": "You already have a theme with this name",
   "settingsDeleteThemeTitle": "Delete theme?",
-  "settingsDeleteThemeBody": "“{name}” will be removed. This can't be undone.",
+  "settingsDeleteThemeBody": "“{name}” will be removed. This can’t be undone.",
   "@settingsDeleteThemeBody": {
     "placeholders": {
       "name": {
@@ -5197,11 +5221,11 @@
       }
     }
   },
-  "permModuleClassesStudents": "Classes & Students",
+  "permModuleClassesStudents": "Classes & students",
   "permModuleCommunication": "Communication",
   "permModuleCertificates": "Certificates",
   "permModuleTeaching": "Teaching",
-  "permModuleScheduleAnnouncements": "Schedule & Announcements",
+  "permModuleScheduleAnnouncements": "Schedule & announcements",
   "permCohortsManageMembers": "Add / remove students in classes",
   "permCohortsManageMembersDesc": "Place students into classes and remove them from the class roster.",
   "permCohortsManage": "Create, edit & delete classes",
@@ -5229,5 +5253,9 @@
   "permScheduleEdit": "Edit the school schedule",
   "permScheduleEditDesc": "Add, change and remove timetable periods, set default period times and make one-off schedule changes.",
   "permAnnouncementsPost": "Post announcements",
-  "permAnnouncementsPostDesc": "Publish announcements to classes, grades or the whole school."
+  "permAnnouncementsPostDesc": "Publish announcements to classes, grades or the whole school.",
+  "teacherLibraryAddMeeting": "Add meeting",
+  "teacherLibraryCreateNewMeeting": "Create new meeting",
+  "solutionsAllQuestions": "All questions",
+  "announcementsNoDetails": "No additional details were attached."
 }

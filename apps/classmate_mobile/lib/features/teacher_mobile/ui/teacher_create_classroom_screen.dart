@@ -130,7 +130,7 @@ class _TeacherCreateClassroomScreenState
         cohortIds: _selectedCohortIds.toList(),
       );
       if (!mounted) return;
-      _snack('Classroom created!');
+      _snack(AppLocalizations.of(context)!.teacherClassroomCreated);
       widget.onCreated?.call();
       Navigator.of(context).pop(true);
     } catch (e) {

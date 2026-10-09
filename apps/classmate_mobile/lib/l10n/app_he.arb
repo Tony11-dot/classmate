@@ -38,7 +38,7 @@
   "consentGateError": "לא הצלחנו לשמור את הבחירה שלכם. בדקו את החיבור ונסו שוב.",
   "commonShowPassword": "הצגת סיסמה",
   "commonHidePassword": "הסתרת סיסמה",
-  "adminEmailInvalid": "הזינו כתובת אימייל תקינה",
+  "adminEmailInvalid": "הזינו כתובת דוא\"ל תקינה",
   "adminPhoneInvalid": "הזינו מספר טלפון תקין",
   "adminFullNameLabel": "שם מלא",
   "adminHomeroomLabel": "כיתת אם",
@@ -101,7 +101,7 @@
   "adminAddManyUsernameTaken": "שם המשתמש כבר תפוס",
   "adminAddManyUsernameDupe": "שם משתמש כפול ברשימה זו",
   "adminAddManyCreateParent": "צור הורה חדש \"{name}\"",
-  "adminAddManyPastedRows": "נוספו {count} שורות",
+  "adminAddManyPastedRows": "{count, plural, =1{נוספה שורה אחת} other{נוספו {count} שורות}}",
   "menu": "תפריט",
   "sectionCore": "ניווט ראשי",
   "sectionSchoolTools": "כלי בית ספר",
@@ -158,7 +158,7 @@
   },
   "solutionsBooksTitle": "ספרים",
   "solutionsAddBookTitle": "הוסף ספר",
-  "solutionsBookTitleHint": "כותרת הספר...",
+  "solutionsBookTitleHint": "כותרת הספר…",
   "solutionsAddBookAction": "הוסף ספר",
   "solutionsSearchBooks": "חפש ספרים",
   "solutionsChooseSubjectFirst": "בחר נושא קודם.",
@@ -235,7 +235,7 @@
   },
   "solutionsUploadSomeFilesFailed": "כמה קבצים נכשלו בהעלאה.",
   "solutionsUploadRetryFailedFiles": "נסו שוב קבצים שנכשלו",
-  "solutionsUploadSubmittingAction": "מעלה...",
+  "solutionsUploadSubmittingAction": "מעלה…",
   "solutionsUploadSubmitAction": "העלה פתרון",
   "settingsTitle": "הגדרות",
   "settingsSubtitle": "מראה, שפה וחשבון",
@@ -250,7 +250,7 @@
   "settingsThemeSystem": "ברירת מחדל של מערכת",
   "settingsThemeLight": "בהיר",
   "settingsThemeDark": "כהה",
-  "settingsLanguageSearchHint": "חפש שפה...",
+  "settingsLanguageSearchHint": "חפש שפה…",
   "teacherQuickActions": "פעולות מהירות",
   "teacherUpcomingAssessments": "הערכות קרובות",
   "teacherNoAssessmentsYet": "עדיין לא נוצרו הערכות.",
@@ -275,7 +275,7 @@
   "teacherAttendanceTodaySessions": "ישיבות היום",
   "teacherAttendanceSessionSummary": "{cohort} • כיתה {grade} • {date} • שיעור {period}",
   "teacherAttendanceClassNotesLabel": "הערות שיעור",
-  "teacherAttendanceClassNotesHint": "מה כוסה בשיעור זה...",
+  "teacherAttendanceClassNotesHint": "מה כוסה בשיעור זה…",
   "teacherAttendanceSaving": "שומר…",
   "teacherAttendanceSaveAll": "שמור נוכחות",
   "teacherAttendanceSaveCount": "שמור {count, plural, =1 {שינוי אחד} other {{count} שינויים}}",
@@ -317,7 +317,7 @@
   "profileAccountInfo": "פרטי חשבון",
   "profileUsername": "שם משתמש",
   "profileUsernameHint": "your_username",
-  "profileContactEmail": "אימייל ליצירת קשר",
+  "profileContactEmail": "דוא\"ל ליצירת קשר",
   "profileSecurity": "אבטחה",
   "profilePasswordUpdated": "הסיסמה עודכנה",
   "profileSave": "שמור",
@@ -346,7 +346,7 @@
   "classroomsSearchHint": "חיפוש כיתות",
   "classroomsNoSearchMatches": "אין כיתות שתואמות לחיפוש שלך",
   "classroomsClassroomLabel": "כיתה",
-  "classroomsLoadingLatestMessage": "טוען את ההודעה האחרונה...",
+  "classroomsLoadingLatestMessage": "טוען את ההודעה האחרונה…",
   "classroomsTapToOpen": "הקש כדי לפתוח את הכיתה",
   "classroomsNoMessagesYet": "אין הודעות עדיין",
   "examsAllFilter": "הכול",
@@ -376,18 +376,22 @@
       "subject": {}
     }
   },
-  "examsMaterialsCount": "{count} חומרים",
+  "examsMaterialsCount": "{count, plural, =1{חומר אחד} other{{count} חומרים}}",
   "@examsMaterialsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "examsOpenState": "פתוח",
   "examsClosedState": "סגור",
-  "examsQuestionsCount": "{count} שאלות",
+  "examsQuestionsCount": "{count, plural, =1{שאלה אחת} other{{count} שאלות}}",
   "@examsQuestionsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "insightsNotReadyTitle": "התובנות עדיין לא מוכנות",
@@ -473,7 +477,7 @@
   "chatMediaPreviewMirrorAction": "שיקוף",
   "chatMediaPreviewResetAction": "איפוס",
   "chatMediaPreviewRemoveAction": "הסרה",
-  "chatMediaPreviewCaptionHint": "הוסיפו כיתוב...",
+  "chatMediaPreviewCaptionHint": "הוסיפו כיתוב…",
   "tutorFailedToLoadChats": "טעינת הצ'אטים נכשלה",
   "tutorNoChatsYet": "עדיין אין צ'אטים",
   "tutorNoChatsMatchSearch": "אין צ'אטים שתואמים לחיפוש שלכם",
@@ -511,7 +515,7 @@
   "tutorVoiceLimitReachedMessage": "לתוכנית ה-NOVA הנוכחית שלך אין מספיק דקות קול למחזור התמלול הזה.",
   "tutorTranscriptionFailed": "התמלול נכשל. נסו שוב.",
   "tutorPlanLimitReachedTitle": "הגעת למגבלת תוכנית NOVA",
-  "tutorPlanLimitReachedMessage": "מכסת הפרומפטים או ההעלאות של החודש לתוכנית ה-NOVA הנוכחית שלך אזלה. בחרו תוכנית גבוהה יותר במסך הבית של NOVA כדי להמשיך.",
+  "tutorPlanLimitReachedMessage": "מכסת הפרומפטים או ההעלאות של החודש לתוכנית ה-NOVA הנוכחית שלכם אזלה. בחרו תוכנית גבוהה יותר במסך הבית של NOVA כדי להמשיך.",
   "tutorSendFailed": "השליחה נכשלה.",
   "tutorCurrentPlanUsageSummary": "תוכנית נוכחית: {plan} • {prompts} פרומפטים נותרו • {uploads} העלאות נותרו • {voice} דקות קול נותרו",
   "@tutorCurrentPlanUsageSummary": {
@@ -602,7 +606,7 @@
   "announcementsSearchStatesHint": "לא קרא / קרא",
   "announcementsSummarySourceSegment": " מ{source}",
   "announcementsSummaryStateSegment": " ב{state}",
-  "announcementsShowingSummary": "מציג {shown} מתוך {total} הודעות{sourceSegment}{stateSegment}.",
+  "announcementsShowingSummary": "מוצגות {shown} מתוך {total, plural, =1{הודעה אחת} other{{total} הודעות}}{sourceSegment}{stateSegment}.",
   "announcementsNoMatchTitle": "אין הודעות התואמות לסינונים אלה",
   "announcementsNoPublishedTitle": "אין הודעות שפורסמו עדיין",
   "announcementsNoMatchSubtitle": "נסה מקור שונה או חזור לכל ההודעות כדי להביא עוד פריטים לתצוגה.",
@@ -677,11 +681,15 @@
   "notificationsHeroSubtitleTeacher": "מרכז ההתראות של המורה להודעות, עדכוני שרת ופעילות בית ספרית בזמן אמת.",
   "notificationsFiltersSubtitle": "התמקדו לפי מקור או מצב קריאה כדי למיין מהר יותר.",
   "notificationsSearchSourcesHint": "חיפוש מקורות",
-  "notificationsShowingSummary": "מוצגות {shown} מתוך {total} התראות.",
+  "notificationsShowingSummary": "מוצגות {shown} מתוך {total, plural, =1{התראה אחת} other{{total} התראות}}.",
   "@notificationsShowingSummary": {
     "placeholders": {
-      "shown": {},
-      "total": {}
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "notificationsEmptyForAccount": "אין כרגע התראות זמינות לחשבון הזה.",
@@ -734,7 +742,7 @@
   "meetingsAccessSearchHint": "מוכן להצטרף / עדיין אין קישור",
   "meetingsSummarySubjectSegment": " עבור {subject}",
   "meetingsSummaryAccessSegment": " ב{state}",
-  "meetingsShowingSummary": "הצגה של {shown} מתוך {total} פגישות{subjectSegment}{accessSegment}.",
+  "meetingsShowingSummary": "מוצגות {shown} מתוך {total, plural, =1{פגישה אחת} other{{total} פגישות}}{subjectSegment}{accessSegment}.",
   "meetingsNoMatchTitle": "אין פגישות תואמות לפילטרים אלה",
   "meetingsNoMatchSubtitle": "נסה את כל הנושאים או כלול פגישות ללא קישורים כדי לחזור יותר תוצאות לרשימה.",
   "meetingsListSubtitle": "הקש על כל פגישה כדי לפתוח את תצוגת הפרטים במסך מלא והקפוץ לקישור המצורף שלה כשהוא זמין.",
@@ -802,7 +810,9 @@
   "practiceSetupLivesCount": "{count} חיים",
   "@practiceSetupLivesCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "practiceSetupAiTiming": "תזמון AI",
@@ -812,10 +822,12 @@
       "seconds": {}
     }
   },
-  "practiceSetupQuestionsCount": "{count} שאלות",
+  "practiceSetupQuestionsCount": "{count, plural, =1{שאלה אחת} other{{count} שאלות}}",
   "@practiceSetupQuestionsCount": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "practiceSetupSectionSubjectTopic": "מקצוע ונושא",
@@ -963,9 +975,9 @@
   "savedQuestionsSecondsTarget": "{count} שנ' יעד",
   "practiceSetupTooltipAnalytics": "אנליטיקת תרגול",
   "practiceSetupStopGenerating": "עצור יצירה",
-  "practiceSetupGenerating": "יוצר...",
+  "practiceSetupGenerating": "יוצר…",
   "practiceSetupStartSession": "התחל סשן",
-  "practiceSetupSearchHint": "חיפוש...",
+  "practiceSetupSearchHint": "חיפוש…",
   "practiceSessionModeDescriptionPractice": "פתרון מאוזן עם בדיקה ומשוב מיידיים.",
   "practiceSessionModeDescriptionFlashcards": "מצב מבוסס זיכרון לשליפה ושימור מהירים.",
   "practiceSessionModeDescriptionSpeedRound": "חזרות לחץ מהירות, קצרות ומתוזמנות.",
@@ -1093,7 +1105,7 @@
   "assignmentsStatusLabel": "סטטוס",
   "assignmentsAllStatuses": "כל הסטטוסים",
   "assignmentsSearchStatuses": "חפש סטטוסים",
-  "assignmentsShowingSummary": "מוצג {shown} מתוך {total} משימות.",
+  "assignmentsShowingSummary": "מוצגות {shown} מתוך {total, plural, =1{משימה אחת} other{{total} משימות}}.",
   "assignmentsNoFilterMatchesTitle": "אין משימות התואמות למסננים אלה",
   "assignmentsNoFilterMatchesSubtitle": "נסה את כל הנושאים או תצוגת סטטוס רחבה יותר כדי להחזיר עוד משימות לרשימה.",
   "assignmentsClearFiltersHint": "נקה מסננים כדי לראות הכל שוב.",
@@ -1128,7 +1140,7 @@
   "attendanceWatchExcusedAddingUp": "זמן מוצדק מצטבר",
   "attendanceWatchNoFlags": "אין דגלים נוכחיים",
   "attendanceAllSubjectsLowercase": "כל הנושאים",
-  "attendanceShowingSummary": "מציג {shown} מתוך {total} סימנים עבור {subject} בטווח {range}.",
+  "attendanceShowingSummary": "מוצגים {shown} מתוך {total, plural, =1{סימון אחד} other{{total} סימונים}} עבור {subject} בטווח {range}.",
   "attendanceDayToneAbsent": "יום היעדרות",
   "attendanceDayToneLate": "אות איחור",
   "attendanceDayToneExcused": "נוכחות מוצדקת",
@@ -1161,7 +1173,7 @@
   "attendanceRecentDaysSubtitleFiltered": "מקובצים לפי יום עבור הסימנים המסוננים בתצוגה כרגע.",
   "attendanceRecentDaysSubtitleAll": "מקובצים לפי יום כך שתוכל לתפוס דפוסי היעדרות או איחור מהר יותר.",
   "attendanceLessonCountSingle": "שיעור אחד",
-  "attendanceLessonCount": "{count} שיעורים",
+  "attendanceLessonCount": "{count, plural, =1{שיעור אחד} other{{count} שיעורים}}",
   "attendanceStatusPresent": "נוכח",
   "attendanceStatusLate": "באיחור",
   "attendanceStatusAbsent": "היעדר",
@@ -1381,7 +1393,7 @@
   "teacherTotal": "סה״כ",
   "mediaOpenExternally": "פתח באפליקציה חיצונית",
   "mediaUnableToLoad": "לא ניתן לטעון את התמונה",
-  "searchHint": "חפש...",
+  "searchHint": "חפש…",
   "teacherInsightsTitle": "תובנות תלמידים",
   "teacherInsightsSubtitle": "בחר תלמיד כדי לצפות בתובנות האקדמיות שלו.",
   "teacherInsightsNoStudents": "לא נמצאו תלמידים.",
@@ -1393,10 +1405,12 @@
   "teacherExamsEmpty": "אין הערכות עדיין. הקש + כדי ליצור.",
   "teacherFormsTitle": "טפסים",
   "teacherFormsEmpty": "אין טפסים עדיין. הקש + כדי ליצור.",
-  "teacherFormsResponses": "{count} תגובות",
+  "teacherFormsResponses": "{count, plural, =1{תגובה אחת} other{{count} תגובות}}",
   "@teacherFormsResponses": {
     "placeholders": {
-      "count": {}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "teacherFormsPublished": "פורסם",
@@ -1800,7 +1814,7 @@
   "teacherPublishTooltip": "פרסם",
   "teacherMeetingEnterTitle": "אנא הזן כותרת.",
   "teacherMeetingEnterLink": "אנא הזן קישור לפגישה.",
-  "teacherMeetingEnterValidUrl": "אנא הזן כתובת תקינה (לדוגמה https://zoom.us/j/...)",
+  "teacherMeetingEnterValidUrl": "אנא הזן כתובת תקינה (לדוגמה https://zoom.us/j/…)",
   "teacherMeetingPickStartTime": "אנא בחר שעת התחלה.",
   "teacherMeetingVisibleToEveryone": "גלוי לכולם",
   "teacherDeleteAssignmentTitle": "למחוק את המטלה?",
@@ -1883,7 +1897,7 @@
   "teacherMaterialPickSubject": "אנא בחר מקצוע.",
   "teacherMaterialAddLink": "הוסף קישור",
   "teacherMaterialAddFile": "הוסף קובץ",
-  "teacherMaterialSearchStudentsGrade": "חפש תלמידים או שכבה...",
+  "teacherMaterialSearchStudentsGrade": "חפש תלמידים או שכבה…",
   "teacherMaterialDoneSelected": "סיום ({count} נבחרו)",
   "@teacherMaterialDoneSelected": {
     "placeholders": {
@@ -2002,7 +2016,7 @@
   "teacherMaterialSubjectRequired": "מקצוע *",
   "teacherMaterialSubjectSelect": "בחר מקצוע",
   "teacherMaterialSubjectOther": "אחר",
-  "teacherMaterialSubjectSearch": "חפש מקצועות...",
+  "teacherMaterialSubjectSearch": "חפש מקצועות…",
   "teacherMaterialAttachmentsTitle": "קבצים מצורפים",
   "teacherMaterialAttachmentsWithCount": "קבצים מצורפים ({count})",
   "teacherMaterialDeleteTitle": "למחוק חומר?",
@@ -2064,7 +2078,7 @@
   "navMaterials": "חומרי לימוד",
   "classMaterialsAddTitle": "הוספת חומר",
   "classMaterialsTitleLabel": "כותרת",
-  "classMaterialsFilesCount": "{count} קבצים",
+  "classMaterialsFilesCount": "{count, plural, =1{קובץ אחד} other{{count} קבצים}}",
   "classMaterialsLoadError": "לא ניתן לטעון חומרים",
   "classMaterialsEmpty": "עדיין אין חומרים משותפים — היה הראשון להוסיף.",
   "navPlans": "תוכניות NOVA",
@@ -2192,7 +2206,7 @@
   "commonCouldntSend": "לא ניתן לשלוח: {error}",
   "teacherExamDetailsSection": "פרטי המבחן",
   "teacherExamStudyMaterialsWithCount": "חומרי לימוד ({count})",
-  "teacherMeetingDetailsSection": "פרטי המפגש",
+  "teacherMeetingDetailsSection": "פרטי הפגישה",
   "teacherClassroomNameSection": "שם הכיתה",
   "teacherAddByCohortSection": "הוסף לפי קבוצה",
   "teacherAddIndividualStudentsSection": "הוסף תלמידים בודדים",
@@ -2285,8 +2299,8 @@
   "faqPrivacyQ2": "איך אני מוחק את החשבון?",
   "faqPrivacyA2": "בקש ממנהל בית הספר למחוק אותו מאפליקציית הניהול — זה מוחק את הפרופיל, מערכת השעות והצ'אטים שלך. אפשר גם לכתוב ל-support@classmateapp.org מכתובת הדוא\"ל של החשבון, ונמחק אותו תוך 30 יום.",
   "solutionsPagesCount": "{count, plural, one{עמוד אחד} other{{count} עמודים}}",
-  "teacherMeetingEditTitle": "ערוך מפגש",
-  "teacherMeetingNewTitle": "תזמן מפגש",
+  "teacherMeetingEditTitle": "ערוך פגישה",
+  "teacherMeetingNewTitle": "תזמן פגישה",
   "teacherExamEditTitle": "ערוך מבחן",
   "teacherExamNewTitle": "צור מבחן",
   "teacherAssignmentEditTitle": "ערוך מטלה",
@@ -2494,7 +2508,7 @@
   "adminScheduleFrequencyWeeks": "×{freq} שב'",
   "gradeLevelLabel": "כיתה {grade}",
   "adminPeriodOption": "שיעור {period}",
-  "cohortStudentsCount": "{count} תלמידים",
+  "cohortStudentsCount": "{count, plural, =1{תלמיד אחד} other{{count} תלמידים}}",
   "teacherGradeTitleHint": "לדוגמה: השתתפות בכיתה, בוחן 3",
   "teacherClassroomNameHint": "לדוגמה: מתמטיקה 10A",
   "novaAbout": "אודות NOVA",
@@ -2507,7 +2521,7 @@
   "adminImportUsersScreenTitle": "ייבוא משתמשים",
   "adminImportUsersScreenTabGrid": "טבלה",
   "adminImportUsersScreenTabCsv": "CSV",
-  "adminImportUsersScreenLoadedRows": "נטענו {count} שורות — בדקו וערכו, ואז צרו",
+  "adminImportUsersScreenLoadedRows": "{count, plural, =1{נטענה שורה אחת — בדקו וערכו, ואז צרו} other{נטענו {count} שורות — בדקו וערכו, ואז צרו}}",
   "adminImportUsersScreenFillAtLeastOneName": "מלאו לפחות שם אחד",
   "adminImportUsersScreenFailed": "נכשל: {error}",
   "adminImportUsersScreenBackToGrid": "חזרה לטבלה",
@@ -2525,13 +2539,13 @@
   "adminImportUsersScreenChooseDifferentFile": "בחירת קובץ אחר",
   "adminImportUsersScreenSelectedFile": "נבחר: {fileName}",
   "adminImportUsersScreenRecognisedColumns": "עמודות שזוהו",
-  "adminImportUsersScreenRecognisedColumnsBody": "שם · שם משתמש · סיסמה · אימייל · טלפון · תפקיד · כיתה · הורה (שם משתמש) · ילדים (שמות משתמש)\n\nמילות תפקיד כמו \"student / طالب / תלמיד / élève / ученик\" כולן ממופות כראוי. הכיתה נקראת מהמספר ב-\"Grade 10\", \"الصف 10\", \"כיתה 10\". שמות משתמש או סיסמאות חסרים נוצרים אוטומטית.",
-  "adminImportUsersScreenDetectedRows": "זוהו — {count} שורות",
+  "adminImportUsersScreenRecognisedColumnsBody": "שם · שם משתמש · סיסמה · דוא\"ל · טלפון · תפקיד · כיתה · הורה (שם משתמש) · ילדים (שמות משתמש)\n\nמילות תפקיד כמו \"student / طالب / תלמיד / élève / ученик\" כולן ממופות כראוי. הכיתה נקראת מהמספר ב-\"Grade 10\", \"الصف 10\", \"כיתה 10\". שמות משתמש או סיסמאות חסרים נוצרים אוטומטית.",
+  "adminImportUsersScreenDetectedRows": "זוהו — {count, plural, =1{שורה אחת} other{{count} שורות}}",
   "adminImportUsersScreenNoColumnsDetected": "לא זוהו עמודות מוכרות — בדקו את שורת הכותרת.",
   "adminImportUsersScreenTruncatedNotice": "מוצגות 2000 השורות הראשונות לבדיקה.",
   "adminImportUsersScreenReviewEditInGrid": "בדיקה ועריכה בטבלה",
   "adminImportUsersScreenReviewEditHint": "פותח את לשונית הטבלה עם השורות האלו ממולאות מראש כדי שתוכלו לתקן טעויות לפני היצירה.",
-  "adminImportUsersScreenResultSummary": "✓ נוצרו {count} משתמשים · {links} קישורים",
+  "adminImportUsersScreenResultSummary": "✓ {count, plural, =1{נוצר משתמש אחד} other{נוצרו {count} משתמשים}} · {links, plural, =1{קישור אחד} other{{links} קישורים}}",
   "adminImportUsersScreenResultFailedSuffix": " · {failed} נכשלו",
   "adminImportUsersScreenFailedRows": "שורות שנכשלו",
   "adminImportUsersScreenFailedRow": "שורה {row}: {reason}",
@@ -2547,7 +2561,7 @@
   "teacherCohortsScreenEnterNameAndGrade": "הזינו שם ולפחות כיתה אחת",
   "teacherCohortsScreenCohortCreated": "הקבוצה נוצרה",
   "teacherCohortsScreenFailed": "נכשל",
-  "teacherCohortsScreenStudentsCount": "{count} תלמידים",
+  "teacherCohortsScreenStudentsCount": "{count, plural, =1{תלמיד אחד} other{{count} תלמידים}}",
   "teacherCohortsScreenRenameGrades": "שינוי שם / כיתות",
   "teacherCohortsScreenDeleteCohort": "מחיקת קבוצה",
   "teacherCohortsScreenAddStudents": "הוספת תלמידים",
@@ -2559,7 +2573,7 @@
   "teacherCohortsScreenDelete": "מחיקה",
   "teacherCohortsScreenDeleted": "נמחק",
   "teacherCohortsScreenLoadStudentsError": "לא ניתן לטעון את התלמידים",
-  "teacherCohortsScreenAddedNStudents": "נוספו {count} תלמידים",
+  "teacherCohortsScreenAddedNStudents": "{count, plural, =1{נוסף תלמיד אחד} other{נוספו {count} תלמידים}}",
   "teacherCohortsScreenNoStudentsYet": "אין תלמידים עדיין.",
   "adminSettingsScreenBulkTools": "כלי ייבוא מרובה",
   "adminSettingsScreenImportUsers": "ייבוא משתמשים",
@@ -2591,18 +2605,18 @@
   "adminScheduleGradeWithCohort": "כיתה {grade} · {cohort}",
   "adminScheduleDateOnLabel": "בתאריך",
   "adminScheduleDateStartsOnLabel": "מתחיל בתאריך",
-  "adminScheduleStudentCount": "{count} תלמידים",
+  "adminScheduleStudentCount": "{count, plural, =1{תלמיד אחד} other{{count} תלמידים}}",
   "adminScheduleAudienceNone": "—",
   "adminScheduleTeacherClashNamed": "ל{name} יהיו שני שיעורים באותו זמן.",
   "adminScheduleTeacherClash": "למורה זה יהיו שני שיעורים באותו זמן.",
   "adminScheduleStudentClashSingle": "ל{name} יהיו שני שיעורים באותו זמן:",
-  "adminScheduleStudentClashMany": "ל-{count} תלמידים יהיו שני שיעורים באותו זמן:",
+  "adminScheduleStudentClashMany": "{count, plural, =1{לתלמיד אחד יהיו שני שיעורים באותו זמן:} other{ל-{count} תלמידים יהיו שני שיעורים באותו זמן:}}",
   "adminScheduleAStudent": "תלמיד",
   "adminScheduleAffected": "מושפעים: {preview}",
   "adminScheduleResolvePrompt": "כיצד יש לפתור את זה?",
   "adminScheduleResolvePromptStudents": "כיצד יש לפתור את זה עבור התלמידים האלו?",
-  "adminScheduleStudentsInCohorts": "{count} תלמידים בקבוצות שנבחרו",
-  "adminScheduleStudentsInGrade": "{count} תלמידים בכיתה {grade}",
+  "adminScheduleStudentsInCohorts": "{count, plural, =1{תלמיד אחד בקבוצות שנבחרו} other{{count} תלמידים בקבוצות שנבחרו}}",
+  "adminScheduleStudentsInGrade": "{count, plural, =1{תלמיד אחד בכיתה {grade}} other{{count} תלמידים בכיתה {grade}}}",
   "adminScheduleCustomizedNote": "מותאם אישית — נשמר כתלמידים בודדים",
   "adminScheduleMoreCount": "+{count} נוספים",
   "adminScheduleAddStudentsTitle": "הוספת תלמידים",
@@ -2624,13 +2638,13 @@
   "teacherNewAnnouncementScreenLoadingStudents": "טוען תלמידים…",
   "teacherNewAnnouncementScreenNoGradeLevels": "לא נמצאו רמות כיתה עדיין.",
   "teacherNewAnnouncementScreenTapSelectCohorts": "הקישו לבחירת קבוצות…",
-  "teacherNewAnnouncementScreenCohortsSelected": "{count} קבוצות נבחרו",
+  "teacherNewAnnouncementScreenCohortsSelected": "{count, plural, =1{נבחרה קבוצה אחת} other{נבחרו {count} קבוצות}}",
   "teacherNewAnnouncementScreenTapSelectStudents": "הקישו לבחירת תלמידים…",
-  "teacherNewAnnouncementScreenStudentsSelected": "{count} תלמידים נבחרו",
+  "teacherNewAnnouncementScreenStudentsSelected": "{count, plural, =1{נבחר תלמיד אחד} other{נבחרו {count} תלמידים}}",
   "teacherNewAnnouncementScreenTapSelectParents": "הקישו לבחירת הורים…",
-  "teacherNewAnnouncementScreenParentsSelected": "{count} הורים נבחרו",
+  "teacherNewAnnouncementScreenParentsSelected": "{count, plural, =1{נבחר הורה אחד} other{נבחרו {count} הורים}}",
   "teacherNewAnnouncementScreenSelectedAudience": "קהל היעד שנבחר",
-  "teacherNewAnnouncementScreenStudentsInCohorts": "{count} תלמידים בקבוצות שנבחרו",
+  "teacherNewAnnouncementScreenStudentsInCohorts": "{count, plural, =1{תלמיד אחד בקבוצות שנבחרו} other{{count} תלמידים בקבוצות שנבחרו}}",
   "teacherNewAnnouncementScreenSelectParents": "בחירת הורים",
   "teacherNewAnnouncementScreenChildrenSummary": "{count} ילדים — {summary}",
   "teacherNewAnnouncementScreenNoLinkedChildren": "אין ילדים מקושרים",
@@ -2684,7 +2698,7 @@
   "formDetailScreenSubmitting": "שולח…",
   "formDetailScreenSubmitAgain": "שליחה שוב",
   "formDetailScreenSubmitForm": "שליחת הטופס",
-  "formDetailScreenQuestionCount": "{count} שאלות",
+  "formDetailScreenQuestionCount": "{count, plural, =1{שאלה אחת} other{{count} שאלות}}",
   "formDetailScreenMultiSubmit": "שליחה מרובה",
   "formDetailScreenOnePerStudent": "1 לכל תלמיד",
   "formDetailScreenRequired": "חובה",
@@ -2736,7 +2750,7 @@
   "secretaryStudentsScreenAvg": "ממוצע {grade}",
   "secretaryStudentsScreenIdentity": "זהות",
   "secretaryStudentsScreenUsername": "שם משתמש",
-  "secretaryStudentsScreenEmail": "אימייל",
+  "secretaryStudentsScreenEmail": "דוא\"ל",
   "secretaryStudentsScreenPhone": "טלפון",
   "secretaryStudentsScreenCohort": "קבוצה",
   "secretaryStudentsScreenGrade": "כיתה",
@@ -2850,7 +2864,7 @@
   "classroomDetailUntitled": "ללא כותרת",
   "typingDotsPaused": "מושהה",
   "cmAiMessageStartPracticeSession": "התחלת תרגול",
-  "cmAiMessageQuestionCount": "{count} שאלות",
+  "cmAiMessageQuestionCount": "{count, plural, =1{שאלה אחת} other{{count} שאלות}}",
   "cmAiMessageDifficultyEasy": "קל",
   "cmAiMessageDifficultyHard": "קשה",
   "cmAiMessageDifficultyOlympiad": "אולימפיאדה",
@@ -3125,7 +3139,7 @@
   "cmailDeleteTitle": "למחוק את הדואר?",
   "cmailDeleteForAll": "פעולה זו מוחקת את הדואר עבור כולם.",
   "cmailDeleteForMe": "פעולה זו מסירה את הדואר מתיבת הדואר הנכנס שלך.",
-  "cmailRecipients": "{count} נמענים",
+  "cmailRecipients": "{count, plural, =1{נמען אחד} other{{count} נמענים}}",
   "cmailReadStats": "{read} מתוך {total} קראו",
   "cmailSubjectRequired": "נדרש נושא",
   "cmailAudienceRequired": "בחר למי מיועד הדואר",
@@ -3237,7 +3251,7 @@
   "updatePromptLater": "לא עכשיו",
   "chatPublishAssignment": "מטלה חדשה",
   "chatPublishMaterial": "חומר לימוד חדש",
-  "chatPublishMeeting": "מפגש חדש",
+  "chatPublishMeeting": "פגישה חדשה",
   "chatPublishView": "צפייה",
   "settingsAppFont": "גופן האפליקציה",
   "settingsAppFontSubtitle": "בחרו את הגופן שישמש בכל האפליקציה",
@@ -3323,12 +3337,16 @@
   "permAssignmentsManageDesc": "יצירה, עריכה ומחיקה של משימות לכיתות שלהם.",
   "permExamsManage": "ניהול מבחנים",
   "permExamsManageDesc": "יצירה, תזמון, עריכה ומחיקה של מבחנים.",
-  "permMeetingsManage": "ניהול מפגשים מקוונים",
+  "permMeetingsManage": "ניהול פגישות מקוונות",
   "permMeetingsManageDesc": "תזמון וניהול של שיעורים חיים ומקוונים.",
   "permFormsManage": "ניהול טפסים",
   "permFormsManageDesc": "יצירה, עריכה ומחיקה של טפסים ואיסוף תשובות.",
   "permScheduleEdit": "עריכת מערכת השעות",
   "permScheduleEditDesc": "הוספה, שינוי והסרה של שיעורים במערכת, הגדרת שעות ברירת מחדל ושינויים חד-פעמיים.",
   "permAnnouncementsPost": "פרסום הודעות",
-  "permAnnouncementsPostDesc": "פרסום הודעות לכיתות, לשכבות או לכל בית הספר."
+  "permAnnouncementsPostDesc": "פרסום הודעות לכיתות, לשכבות או לכל בית הספר.",
+  "teacherLibraryAddMeeting": "הוספת פגישה",
+  "teacherLibraryCreateNewMeeting": "יצירת פגישה חדשה",
+  "solutionsAllQuestions": "כל השאלות",
+  "announcementsNoDetails": "לא צורפו פרטים נוספים."
 }

@@ -73,16 +73,17 @@ class _ClassroomLibraryPickerSheetState
   List<Map<String, dynamic>> _items = const [];
   String _query = '';
 
-  String get _title => switch (widget.kind) {
-        ClassroomLibraryKind.material => 'Add material',
-        ClassroomLibraryKind.assignment => 'Add assignment',
-        ClassroomLibraryKind.meeting => 'Add meeting',
+  String _titleOf(AppLocalizations l) => switch (widget.kind) {
+        ClassroomLibraryKind.material => l.teacherMaterialAddTitle,
+        ClassroomLibraryKind.assignment =>
+          l.teacherClassroomAddAssignmentScreenTitle,
+        ClassroomLibraryKind.meeting => l.teacherLibraryAddMeeting,
       };
 
-  String get _createNewLabel => switch (widget.kind) {
-        ClassroomLibraryKind.material => 'Create new material',
-        ClassroomLibraryKind.assignment => 'Create new assignment',
-        ClassroomLibraryKind.meeting => 'Create new meeting',
+  String _createNewLabelOf(AppLocalizations l) => switch (widget.kind) {
+        ClassroomLibraryKind.material => l.teacherSlotAttachmentsScreenCreateNew,
+        ClassroomLibraryKind.assignment => l.teacherCreateNewAssignment,
+        ClassroomLibraryKind.meeting => l.teacherLibraryCreateNewMeeting,
       };
 
   String get _createNewRoute => switch (widget.kind) {
@@ -194,7 +195,7 @@ class _ClassroomLibraryPickerSheetState
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                _title,
+                _titleOf(AppLocalizations.of(context)!),
                 style: theme.textTheme.titleLarge
                     ?.copyWith(fontWeight: FontWeight.w800),
               ),
@@ -247,7 +248,8 @@ class _ClassroomLibraryPickerSheetState
                                           color: cs.onPrimaryContainer),
                                       const SizedBox(width: 10),
                                       Text(
-                                        _createNewLabel,
+                                        _createNewLabelOf(
+                                            AppLocalizations.of(context)!),
                                         style: theme.textTheme.bodyLarge
                                             ?.copyWith(
                                           fontWeight: FontWeight.w800,

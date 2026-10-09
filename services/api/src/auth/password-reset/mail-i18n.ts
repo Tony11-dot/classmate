@@ -25,7 +25,7 @@ export function mailLocale(...candidates: (string | null | undefined)[]): MailLo
   return 'en';
 }
 
-/** First supported language in an Accept-Language header, in the browser's order. */
+/** First supported language in an Accept-Language header, in the browser’s order. */
 export function localeFromAcceptLanguage(header?: string | null): MailLocale | null {
   if (!header) return null;
   const ranked = header
@@ -148,47 +148,47 @@ const en: MailCopy = {
     useButton: (b, min) => `Use the button below to choose a new one. It works for the next ${b(min)}, once.`,
     useLink: (min) => `Open this link to choose a new one. It works for the next ${min}, once:`,
     button: 'Choose a new password',
-    note: "Didn't ask for this? Ignore this email. Your password stays the same.",
+    note: "Didn’t ask for this? Ignore this email. Your password stays the same.",
   },
   changed: {
     subject: (account) => `Your ${account} password was changed`,
     preheader: (admin) => `${admin} changed your password. Not expecting it? Set your own.`,
     title: 'Your password was changed',
     who: (admin, account) => `${admin}, an administrator at ${account}, just changed your password.`,
-    allSet: "If you asked them to, you're all set. Sign in with the new password they gave you.",
+    allSet: "If you asked them to, you’re all set. Sign in with the new password they gave you.",
     useButton: (b, min) =>
-      `${b("Wasn't expecting this,")} or want to pick your own? Use the button below within the next ${b(min)}.`,
-    useLink: (min) => `Wasn't expecting this, or want to pick your own? Use this link within the next ${min}:`,
+      `${b("Wasn’t expecting this,")} or want to pick your own? Use the button below within the next ${b(min)}.`,
+    useLink: (min) => `Wasn’t expecting this, or want to pick your own? Use this link within the next ${min}:`,
     button: 'Set my own password',
   },
   code: {
     subject: (code, label) => `${code} is your ${label} verification code`,
     preheader: (code, min) => `Your code is ${code}. It expires in ${min}.`,
     title: 'Your verification code',
-    enter: "Enter this code in the app to confirm it's you.",
+    enter: "Enter this code in the app to confirm it’s you.",
     after: (b, min) => `It expires in ${b(min)}. Asked for more than one? Any of your last three codes works.`,
-    note: "Didn't ask for a code? Ignore this email. Nothing changes until the code is entered.",
+    note: "Didn’t ask for a code? Ignore this email. Nothing changes until the code is entered.",
     textLine: (label, code) => `Your ${label} verification code is: ${code}`,
     textEnter: (min) => `Enter it in the app. It expires in ${min}.`,
   },
   sms: {
-    reset: (label, url, min) => `${label}: reset your password — ${url} (expires in ${min}). If you didn't ask, ignore this.`,
+    reset: (label, url, min) => `${label}: reset your password — ${url} (expires in ${min}). If you didn’t ask, ignore this.`,
     changed: (label, admin, url, min) =>
       `${label}: your password was changed by ${admin}. Set your own here: ${url} (expires in ${min}).`,
-    code: (label, code, min) => `${label} code: ${code} (expires in ${min}). If you didn't ask, ignore this.`,
+    code: (label, code, min) => `${label} code: ${code} (expires in ${min}). If you didn’t ask, ignore this.`,
   },
   forgot: {
     sentEmail: 'We just sent a reset link to your email. The link expires in 1 hour.',
     sentSms: 'We just sent a reset link to your phone. The link expires in 1 hour.',
-    noUser: "We couldn't find an account with that email or username. Double-check and try again.",
-    noEmail: "This account doesn't have an email on file. Try SMS, or ask an admin to reset your password.",
-    noPhone: "This account doesn't have a phone on file. Try email, or ask an admin to reset your password.",
-    emailNotVerified: "Your email isn't verified yet. Log in and verify it in Profile → Email → Verify, then try again.",
-    phoneNotVerified: "Your phone isn't verified yet. Log in and verify it in Profile → Phone → Verify, then try again.",
+    noUser: "We couldn’t find an account with that email or username. Double-check and try again.",
+    noEmail: "This account doesn’t have an email on file. Try SMS, or ask an admin to reset your password.",
+    noPhone: "This account doesn’t have a phone on file. Try email, or ask an admin to reset your password.",
+    emailNotVerified: "Your email isn’t verified yet. Log in and verify it in Profile → Email → Verify, then try again.",
+    phoneNotVerified: "Your phone isn’t verified yet. Log in and verify it in Profile → Phone → Verify, then try again.",
   },
   page: {
     title: 'Choose a new password',
-    sub: "For your ClassMate account. You'll use it to sign in on every device.",
+    sub: "For your ClassMate account. You’ll use it to sign in on every device.",
     newLabel: 'New password',
     confirmLabel: 'Confirm new password',
     chkLen: 'At least 8 characters',
@@ -198,7 +198,7 @@ const en: MailCopy = {
     show: 'Show password',
     hide: 'Hide password',
     errShort: 'Use at least 8 characters.',
-    errMatch: "The two passwords don't match.",
+    errMatch: "The two passwords don’t match.",
     errMissing: 'This link is missing its reset code. Open the link from your email or text again, or ask for a new one.',
     errTooMany: 'Too many tries with this link. Wait a few minutes, then try again.',
     errNetwork: 'No connection. Check your internet and try again.',
@@ -207,12 +207,12 @@ const en: MailCopy = {
     expiredBody: 'Reset links work for one hour. Ask for a new one and try again.',
     usedTitle: 'This link was already used',
     usedBody: 'Each reset link works once. If you already chose a new password, just sign in. If not, ask for a new link.',
-    invalidTitle: "This link doesn't work",
+    invalidTitle: "This link doesn’t work",
     invalidBody: 'It may have been copied only in part. Open it again from your email or text, or ask for a new one.',
     newLink: 'Get a new link',
     signIn: 'Sign in',
     doneTitle: 'Password updated',
-    doneBody: "Open the ClassMate app and sign in with your new password. You've been signed out on your other devices.",
+    doneBody: "Open the ClassMate app and sign in with your new password. You’ve been signed out on your other devices.",
     signInWeb: 'Sign in on the web',
     help: 'Need help?',
   },
@@ -413,14 +413,14 @@ const fr: MailCopy = {
     useButton: (b, min) => `Utilisez le bouton ci-dessous pour en choisir un nouveau. Il est valable ${b(min)}, une seule fois.`,
     useLink: (min) => `Ouvrez ce lien pour en choisir un nouveau. Il est valable ${min}, une seule fois :`,
     button: 'Choisir un nouveau mot de passe',
-    note: "Vous n'avez rien demandé ? Ignorez cet e-mail. Votre mot de passe reste inchangé.",
+    note: "Vous n’avez rien demandé ? Ignorez cet e-mail. Votre mot de passe reste inchangé.",
   },
   changed: {
     subject: (account) => `Votre mot de passe ${account} a été modifié`,
     preheader: (admin) => `${admin} a modifié votre mot de passe. Vous ne vous y attendiez pas ? Choisissez le vôtre.`,
     title: 'Votre mot de passe a été modifié',
-    who: (admin, account) => `${admin}, de l'administration de ${account}, vient de modifier votre mot de passe.`,
-    allSet: "Si vous l'avez demandé, tout est prêt. Connectez-vous avec le nouveau mot de passe qui vous a été remis.",
+    who: (admin, account) => `${admin}, de l’administration de ${account}, vient de modifier votre mot de passe.`,
+    allSet: "Si vous l’avez demandé, tout est prêt. Connectez-vous avec le nouveau mot de passe qui vous a été remis.",
     useButton: (b, min) =>
       `${b('Vous ne vous y attendiez pas,')} ou vous préférez choisir le vôtre ? Utilisez le bouton ci-dessous dans les ${b(min)}.`,
     useLink: (min) => `Vous ne vous y attendiez pas, ou vous préférez choisir le vôtre ? Utilisez ce lien dans les ${min} :`,
@@ -430,12 +430,12 @@ const fr: MailCopy = {
     subject: (code, label) => `${code} est votre code de vérification ${label}`,
     preheader: (code, min) => `Votre code est ${code}. Il expire dans ${min}.`,
     title: 'Votre code de vérification',
-    enter: "Saisissez ce code dans l'app pour confirmer qu'il s'agit bien de vous.",
+    enter: "Saisissez ce code dans l’app pour confirmer qu’il s’agit bien de vous.",
     after: (b, min) =>
-      `Il expire dans ${b(min)}. Vous en avez demandé plusieurs ? N'importe lequel de vos trois derniers codes fonctionne.`,
-    note: "Vous n'avez pas demandé de code ? Ignorez cet e-mail. Rien ne change tant que le code n'est pas saisi.",
+      `Il expire dans ${b(min)}. Vous en avez demandé plusieurs ? N’importe lequel de vos trois derniers codes fonctionne.`,
+    note: "Vous n’avez pas demandé de code ? Ignorez cet e-mail. Rien ne change tant que le code n’est pas saisi.",
     textLine: (label, code) => `Votre code de vérification ${label} : ${code}`,
-    textEnter: (min) => `Saisissez-le dans l'app. Il expire dans ${min}.`,
+    textEnter: (min) => `Saisissez-le dans l’app. Il expire dans ${min}.`,
   },
   sms: {
     reset: (label, url, min) =>
@@ -447,13 +447,13 @@ const fr: MailCopy = {
   forgot: {
     sentEmail: 'Nous venons d’envoyer un lien de réinitialisation à votre adresse e-mail. Il expire dans 1 heure.',
     sentSms: 'Nous venons d’envoyer un lien de réinitialisation sur votre téléphone. Il expire dans 1 heure.',
-    noUser: "Aucun compte ne correspond à cet e-mail ou nom d'utilisateur. Vérifiez et réessayez.",
+    noUser: "Aucun compte ne correspond à cet e-mail ou nom d’utilisateur. Vérifiez et réessayez.",
     noEmail:
-      "Ce compte n'a pas d'adresse e-mail enregistrée. Essayez par SMS, ou demandez à un administrateur de réinitialiser votre mot de passe.",
+      "Ce compte n’a pas d’adresse e-mail enregistrée. Essayez par SMS, ou demandez à un administrateur de réinitialiser votre mot de passe.",
     noPhone:
-      "Ce compte n'a pas de numéro de téléphone enregistré. Essayez par e-mail, ou demandez à un administrateur de réinitialiser votre mot de passe.",
-    emailNotVerified: "Votre e-mail n'est pas encore vérifié. Connectez-vous, vérifiez-le dans votre profil, puis réessayez.",
-    phoneNotVerified: "Votre téléphone n'est pas encore vérifié. Connectez-vous, vérifiez-le dans votre profil, puis réessayez.",
+      "Ce compte n’a pas de numéro de téléphone enregistré. Essayez par e-mail, ou demandez à un administrateur de réinitialiser votre mot de passe.",
+    emailNotVerified: "Votre e-mail n’est pas encore vérifié. Connectez-vous, vérifiez-le dans votre profil, puis réessayez.",
+    phoneNotVerified: "Votre téléphone n’est pas encore vérifié. Connectez-vous, vérifiez-le dans votre profil, puis réessayez.",
   },
   page: {
     title: 'Choisissez un nouveau mot de passe',
@@ -471,21 +471,21 @@ const fr: MailCopy = {
     errMissing: 'Il manque le code de réinitialisation dans ce lien. Rouvrez le lien depuis votre e-mail ou SMS, ou demandez-en un nouveau.',
     errTooMany: 'Trop de tentatives avec ce lien. Patientez quelques minutes, puis réessayez.',
     errNetwork: 'Pas de connexion. Vérifiez votre accès à Internet et réessayez.',
-    errGeneric: "Une erreur s'est produite. Réessayez.",
+    errGeneric: "Une erreur s’est produite. Réessayez.",
     expiredTitle: 'Ce lien a expiré',
     expiredBody: 'Les liens de réinitialisation sont valables une heure. Demandez-en un nouveau et réessayez.',
     usedTitle: 'Ce lien a déjà été utilisé',
     usedBody:
-      "Chaque lien ne fonctionne qu'une fois. Si vous avez déjà choisi un nouveau mot de passe, connectez-vous. Sinon, demandez un nouveau lien.",
-    invalidTitle: "Ce lien n'est pas valide",
+      "Chaque lien ne fonctionne qu’une fois. Si vous avez déjà choisi un nouveau mot de passe, connectez-vous. Sinon, demandez un nouveau lien.",
+    invalidTitle: "Ce lien n’est pas valide",
     invalidBody: "Il a peut-être été copié en partie. Rouvrez-le depuis votre e-mail ou SMS, ou demandez-en un nouveau.",
     newLink: 'Demander un nouveau lien',
     signIn: 'Se connecter',
     doneTitle: 'Mot de passe mis à jour',
     doneBody:
-      "Ouvrez l'app ClassMate et connectez-vous avec votre nouveau mot de passe. Vos autres appareils ont été déconnectés.",
+      "Ouvrez l’app ClassMate et connectez-vous avec votre nouveau mot de passe. Vos autres appareils ont été déconnectés.",
     signInWeb: 'Se connecter sur le web',
-    help: "Besoin d'aide ?",
+    help: "Besoin d’aide ?",
   },
 };
 

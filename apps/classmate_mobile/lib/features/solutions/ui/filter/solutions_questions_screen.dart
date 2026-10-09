@@ -218,7 +218,7 @@ class _SolutionsQuestionsScreenState
                 state.pageNumber.isEmpty ? '—' : state.pageNumber,
                 (state.questionNumber.isEmpty ||
                         state.questionNumber == 'all')
-                    ? 'All questions'
+                    ? l.solutionsAllQuestions
                     : state.questionNumber,
               ),
               style: Theme.of(

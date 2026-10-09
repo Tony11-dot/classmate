@@ -283,7 +283,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navAssignments => 'Задания';
 
   @override
-  String get navMeetings => 'Занятия';
+  String get navMeetings => 'Встречи';
 
   @override
   String get navAnnouncements => 'Объявления';
@@ -670,7 +670,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsThemeOcean => 'Океан';
 
   @override
-  String get settingsLanguageSearchHint => 'Поиск языка...';
+  String get settingsLanguageSearchHint => 'Поиск языка…';
 
   @override
   String get teacherQuickActions => 'Быстрые действия';
@@ -893,7 +893,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loginWelcomeSubtitle => 'Войдите в свой аккаунт ClassMate.';
 
   @override
-  String get loginEmailLabel => 'Email или имя пользователя';
+  String get loginEmailLabel => 'Эл. почта или имя пользователя';
 
   @override
   String get loginPasswordLabel => 'Пароль';
@@ -929,7 +929,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileUsernameHint => 'имя_пользователя';
 
   @override
-  String get profileContactEmail => 'Контактный email';
+  String get profileContactEmail => 'Контактная эл. почта';
 
   @override
   String get profileSecurity => 'Безопасность';
@@ -1057,8 +1057,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String examsMaterialsCount(Object count) {
-    return '$count материалов';
+  String examsMaterialsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count материала',
+      many: '$count материалов',
+      few: '$count материала',
+      one: '$count материал',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1068,8 +1076,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get examsClosedState => 'Закрыт';
 
   @override
-  String examsQuestionsCount(Object count) {
-    return '$count вопросов';
+  String examsQuestionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count вопроса',
+      many: '$count вопросов',
+      few: '$count вопроса',
+      one: '$count вопрос',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1642,8 +1658,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get notificationsSearchSourcesHint => 'Поиск источников';
 
   @override
-  String notificationsShowingSummary(Object shown, Object total) {
-    return 'Показано $shown из $total уведомлений.';
+  String notificationsShowingSummary(int shown, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total уведомлений',
+      one: '$total уведомления',
+    );
+    return 'Показано $shown из $_temp0.';
   }
 
   @override
@@ -1773,11 +1795,17 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String announcementsShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object sourceSegment,
     Object stateSegment,
   ) {
-    return 'Показано $shown из $total объявлений$sourceSegment$stateSegment.';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total объявлений',
+      one: '$total объявления',
+    );
+    return 'Показано $shown из $_temp0$sourceSegment$stateSegment.';
   }
 
   @override
@@ -1802,7 +1830,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get announcementsInboxSubtitle => 'Все объявления';
 
   @override
-  String get meetingsLoadError => 'Не удалось загрузить занятия';
+  String get meetingsLoadError => 'Не удалось загрузить встречи';
 
   @override
   String get meetingsLoadTimeout => 'Превышено время ожидания';
@@ -1811,7 +1839,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get meetingsLoadNetwork => 'Нет подключения';
 
   @override
-  String get meetingsHeroSubtitle => 'Онлайн-занятия';
+  String get meetingsHeroSubtitle => 'Онлайн-встречи';
 
   @override
   String get meetingsJoinReadyMetric => 'Доступно';
@@ -1820,10 +1848,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get meetingsNoLinkMetric => 'Без ссылки';
 
   @override
-  String get meetingsNoPostedTitle => 'Занятий пока нет';
+  String get meetingsNoPostedTitle => 'Встреч пока нет';
 
   @override
-  String get meetingsEmptyForAccount => 'Для вашего аккаунта занятий пока нет.';
+  String get meetingsEmptyForAccount => 'Для вашего аккаунта встреч пока нет.';
 
   @override
   String meetingsLatestBody(Object title, Object updatedAt) {
@@ -1840,7 +1868,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get meetingsAccessLabel => 'Доступ';
 
   @override
-  String get meetingsAllMeetings => 'Все занятия';
+  String get meetingsAllMeetings => 'Все встречи';
 
   @override
   String get meetingsAccessReady => 'Доступно';
@@ -1867,22 +1895,28 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String meetingsShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object subjectSegment,
     Object accessSegment,
   ) {
-    return 'Показано $shown из $total занятий$subjectSegment$accessSegment.';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total встреч',
+      one: '$total встречи',
+    );
+    return 'Показано $shown из $_temp0$subjectSegment$accessSegment.';
   }
 
   @override
-  String get meetingsNoMatchTitle => 'Занятий не найдено';
+  String get meetingsNoMatchTitle => 'Встреч не найдено';
 
   @override
   String get meetingsNoMatchSubtitle => 'Попробуйте изменить фильтры.';
 
   @override
   String get meetingsListSubtitle =>
-      'Нажмите на занятие для просмотра деталей и ссылки.';
+      'Нажмите на встречу для просмотра деталей и ссылки.';
 
   @override
   String meetingsSharedByValue(Object name) {
@@ -1891,46 +1925,46 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get meetingsPreviewFallback =>
-      'Откройте занятие для просмотра ссылки и деталей класса.';
+      'Откройте встречу для просмотра ссылки и деталей класса.';
 
   @override
   String get meetingsNoValidLinkAttached =>
-      'Действительной ссылки на занятие пока нет.';
+      'Действительной ссылки на встречу пока нет.';
 
   @override
   String get meetingsCouldNotOpenLink => 'Не удалось открыть ссылку.';
 
   @override
-  String get meetingsNoLinkToCopy => 'Ссылки на занятие пока нет.';
+  String get meetingsNoLinkToCopy => 'Ссылки на встречу пока нет.';
 
   @override
   String get meetingsLinkCopied => 'Ссылка скопирована.';
 
   @override
-  String get meetingsUnavailableTitle => 'Занятия недоступны';
+  String get meetingsUnavailableTitle => 'Встреча недоступна';
 
   @override
   String get meetingsUnavailableSubtitle =>
-      'Занятие не найдено. Возможно, оно было удалено или изменено.';
+      'Встреча не найдена. Возможно, она была удалена или изменена.';
 
   @override
-  String get meetingsUnavailableHint => 'Вернитесь и обновите список занятий.';
+  String get meetingsUnavailableHint => 'Вернитесь и обновите список встреч.';
 
   @override
   String get meetingsNoLinkAttachedYet => 'Ссылка ещё не добавлена';
 
   @override
-  String get meetingsAttachedLinkTitle => 'Ссылка на занятие';
+  String get meetingsAttachedLinkTitle => 'Ссылка на встречу';
 
   @override
   String get meetingsAttachedLinkMissingBody =>
-      'Ссылка на занятие пока не добавлена.';
+      'Ссылка на встречу пока не добавлена.';
 
   @override
   String get meetingsDetailsTitle => 'Подробности';
 
   @override
-  String get meetingsDetailsSubtitle => 'Информация о занятии';
+  String get meetingsDetailsSubtitle => 'Информация о встрече';
 
   @override
   String get meetingsDetailClassroomLabel => 'Класс';
@@ -1939,7 +1973,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get meetingsSharedByLabel => 'Поделился';
 
   @override
-  String get meetingsIdLabel => 'ID занятия';
+  String get meetingsIdLabel => 'ID встречи';
 
   @override
   String get meetingsAttachedLinkSubtitle =>
@@ -1955,7 +1989,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get meetingsCopyLink => 'Копировать ссылку';
 
   @override
-  String get meetingsAccessPanelTitle => 'Доступ к занятию';
+  String get meetingsAccessPanelTitle => 'Доступ к встрече';
 
   @override
   String get meetingsAccessPanelReadyBody =>
@@ -2053,13 +2087,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get classroomDetailMaterialFallback => 'Материал';
 
   @override
-  String get classroomDetailNoMeetingsTitle => 'Занятий пока нет';
+  String get classroomDetailNoMeetingsTitle => 'Встреч пока нет';
 
   @override
-  String get classroomDetailNoMeetingsSubtitle => 'В этом классе занятий нет.';
+  String get classroomDetailNoMeetingsSubtitle => 'В этом классе встреч нет.';
 
   @override
-  String get classroomDetailMeetingFallback => 'Занятие';
+  String get classroomDetailMeetingFallback => 'Встреча';
 
   @override
   String get classroomDetailCouldNotLoadPeople =>
@@ -2185,8 +2219,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get practiceSetupInfiniteLives => 'Бесконечные попытки';
 
   @override
-  String practiceSetupLivesCount(Object count) {
-    return '$count попыток';
+  String practiceSetupLivesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count попытки',
+      many: '$count попыток',
+      few: '$count попытки',
+      one: '$count попытка',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2198,8 +2240,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String practiceSetupQuestionsCount(Object count) {
-    return '$count вопросов';
+  String practiceSetupQuestionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count вопроса',
+      many: '$count вопросов',
+      few: '$count вопроса',
+      one: '$count вопрос',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -3007,8 +3057,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get assignmentsSearchStatuses => 'Поиск статусов';
 
   @override
-  String assignmentsShowingSummary(Object shown, Object total) {
-    return 'Показано $shown из $total заданий.';
+  String assignmentsShowingSummary(Object shown, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total заданий',
+      one: '$total задания',
+    );
+    return 'Показано $shown из $_temp0.';
   }
 
   @override
@@ -3118,11 +3174,17 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String attendanceShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object subject,
     Object range,
   ) {
-    return 'Показано $shown из $total записей по $subject за $range.';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total записей',
+      one: '$total записи',
+    );
+    return 'Показано $shown из $_temp0 по $subject за $range.';
   }
 
   @override
@@ -3226,8 +3288,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get attendanceLessonCountSingle => '1 урок';
 
   @override
-  String attendanceLessonCount(Object count) {
-    return '$count уроков';
+  String attendanceLessonCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count урока',
+      many: '$count уроков',
+      few: '$count урока',
+      one: '$count урок',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -3802,7 +3872,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mediaUnableToLoad => 'Не удалось загрузить изображение';
 
   @override
-  String get searchHint => 'Поиск...';
+  String get searchHint => 'Поиск…';
 
   @override
   String get teacherInsightsTitle => 'Успеваемость студентов';
@@ -3839,8 +3909,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherFormsEmpty => 'Форм пока нет. Нажмите + для создания.';
 
   @override
-  String teacherFormsResponses(Object count) {
-    return '$count ответов';
+  String teacherFormsResponses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ответа',
+      many: '$count ответов',
+      few: '$count ответа',
+      one: '$count ответ',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -4022,7 +4100,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String adminDeleteCohortConfirm(Object name) {
-    return 'Удалить \"$name\"? Все участники будут удалены.';
+    return 'Удалить «$name»? Все участники будут удалены.';
   }
 
   @override
@@ -4352,7 +4430,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get loginEmptyFieldsError =>
-      'Введите email или имя пользователя и пароль.';
+      'Введите эл. почту или имя пользователя и пароль.';
 
   @override
   String get loginConnectionError =>
@@ -4368,7 +4446,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get forgotPasswordTitle => 'Сброс пароля';
 
   @override
-  String get forgotPasswordModeEmail => 'Email';
+  String get forgotPasswordModeEmail => 'Эл. почта';
 
   @override
   String get forgotPasswordModeSms => 'SMS';
@@ -4379,10 +4457,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get forgotPasswordEmptyError =>
-      'Введите email или имя пользователя, чтобы продолжить.';
+      'Введите эл. почту или имя пользователя, чтобы продолжить.';
 
   @override
-  String get forgotPasswordEmailButton => 'Отправить ссылку по email';
+  String get forgotPasswordEmailButton => 'Отправить ссылку на эл. почту';
 
   @override
   String get forgotPasswordSmsButton => 'Отправить ссылку по SMS';
@@ -4393,11 +4471,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get forgotPasswordIntroEmail =>
-      'Введите email или имя пользователя, и мы отправим ссылку для сброса на почту.';
+      'Введите эл. почту или имя пользователя, и мы отправим ссылку для сброса на почту.';
 
   @override
   String get forgotPasswordIntroSms =>
-      'Введите email или имя пользователя, и мы отправим ссылку для сброса по SMS на телефон из вашего аккаунта.';
+      'Введите эл. почту или имя пользователя, и мы отправим ссылку для сброса по SMS на телефон из вашего аккаунта.';
 
   @override
   String get forgotPasswordExpiryNote =>
@@ -4646,7 +4724,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не нашли ответ ниже? Напишите нам, и мы ответим в течение рабочего дня.';
 
   @override
-  String get supportEmailLabel => 'Email';
+  String get supportEmailLabel => 'Эл. почта';
 
   @override
   String get supportPhoneLabel => 'Телефон';
@@ -4749,7 +4827,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminEditUser => 'Изменить пользователя';
 
   @override
-  String get adminNoEmailPlaceholder => '(нет email)';
+  String get adminNoEmailPlaceholder => '(нет эл. почты)';
 
   @override
   String get adminNameEnglishRequired => 'Требуется полное имя (на английском)';
@@ -4770,7 +4848,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminCredsUsername => 'Имя пользователя';
 
   @override
-  String get adminCredsEmail => 'Email';
+  String get adminCredsEmail => 'Эл. почта';
 
   @override
   String get adminCredsPassword => 'Пароль';
@@ -4976,7 +5054,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherMeetingEnterValidUrl =>
-      'Пожалуйста, введите корректный URL (например, https://zoom.us/j/...)';
+      'Пожалуйста, введите корректный URL (например, https://zoom.us/j/…)';
 
   @override
   String get teacherMeetingPickStartTime =>
@@ -5023,7 +5101,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String teacherClassroomCouldNotAdd(Object emails) {
-    return 'Не удалось добавить: $emails — проверьте их email.';
+    return 'Не удалось добавить: $emails — проверьте их адрес эл. почты.';
   }
 
   @override
@@ -5151,8 +5229,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherMaterialAddFile => 'Добавить файл';
 
   @override
-  String get teacherMaterialSearchStudentsGrade =>
-      'Поиск учеников или класса...';
+  String get teacherMaterialSearchStudentsGrade => 'Поиск учеников или класса…';
 
   @override
   String teacherMaterialDoneSelected(int count) {
@@ -5257,7 +5334,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminEditUserUsernameLabel => 'Имя пользователя';
 
   @override
-  String get adminEditUserEmailOptional => 'Email (необязательно)';
+  String get adminEditUserEmailOptional => 'Эл. почта (необязательно)';
 
   @override
   String get adminEditUserChangePassword => 'Сменить пароль';
@@ -5471,7 +5548,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherMaterialSubjectOther => 'Другой';
 
   @override
-  String get teacherMaterialSubjectSearch => 'Поиск предметов...';
+  String get teacherMaterialSubjectSearch => 'Поиск предметов…';
 
   @override
   String get teacherMaterialAttachmentsTitle => 'Вложения';
@@ -5713,7 +5790,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String classMaterialsFilesCount(int count) {
-    return '$count файлов';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count файла',
+      many: '$count файлов',
+      few: '$count файла',
+      one: '$count файл',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -6286,7 +6371,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get faqStartedA2 =>
-      'Аккаунты создаёт школьный администратор. Попросите его добавить вас — он выдаст имя пользователя или email и временный пароль.';
+      'Аккаунты создаёт школьный администратор. Попросите его добавить вас — он выдаст имя пользователя или эл. почту и временный пароль.';
 
   @override
   String get faqStartedQ3 =>
@@ -6309,7 +6394,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get faqAccountA1 =>
-      'Нажмите «Забыли пароль?» на экране входа. Мы отправим ссылку для сброса по email или в SMS, на вашем языке. Если ни email, ни телефон ещё не подтверждены, попросите школьного администратора задать новый временный пароль.';
+      'Нажмите «Забыли пароль?» на экране входа. Мы отправим ссылку для сброса по эл. почте или в SMS, на вашем языке. Если ни эл. почта, ни телефон ещё не подтверждены, попросите школьного администратора задать новый временный пароль.';
 
   @override
   String get faqAccountQ2 => 'Как сменить пароль?';
@@ -6431,7 +6516,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get faqAdminsA6 =>
-      'Откройте Пользователи, нажмите на человека и задайте новый пароль — он также получит письмо или SMS со ссылкой, чтобы выбрать свой. Если его email или телефон подтверждены, он может сбросить пароль сам через «Забыли пароль?».';
+      'Откройте Пользователи, нажмите на человека и задайте новый пароль — он также получит письмо или SMS со ссылкой, чтобы выбрать свой. Если его эл. почта или телефон подтверждены, он может сбросить пароль сам через «Забыли пароль?».';
 
   @override
   String get faqParentsQ1 => 'Как связать мой аккаунт с ребёнком?';
@@ -6459,7 +6544,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get faqPrivacyA2 =>
-      'Попросите школьного администратора удалить его в приложении администратора — это сотрёт ваш профиль, расписание и чаты. Можно также написать на support@classmateapp.org с email вашего аккаунта, и мы удалим его в течение 30 дней.';
+      'Попросите школьного администратора удалить его в приложении администратора — это сотрёт ваш профиль, расписание и чаты. Можно также написать на support@classmateapp.org с эл. почты вашего аккаунта, и мы удалим его в течение 30 дней.';
 
   @override
   String solutionsPagesCount(int count) {
@@ -7179,7 +7264,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String cohortStudentsCount(int count) {
-    return '$count учеников';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ученика',
+      many: '$count учеников',
+      few: '$count ученика',
+      one: '$count ученик',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7222,7 +7315,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String adminImportUsersScreenLoadedRows(int count) {
-    return 'Загружено строк: $count — проверьте и отредактируйте, затем нажмите «Создать»';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Загружено $count строки — проверьте и отредактируйте, затем нажмите «Создать»',
+      many:
+          'Загружено $count строк — проверьте и отредактируйте, затем нажмите «Создать»',
+      few:
+          'Загружено $count строки — проверьте и отредактируйте, затем нажмите «Создать»',
+      one:
+          'Загружена $count строка — проверьте и отредактируйте, затем нажмите «Создать»',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7293,7 +7398,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String adminImportUsersScreenDetectedRows(int count) {
-    return 'Обнаружено — строк: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count строки',
+      many: '$count строк',
+      few: '$count строки',
+      one: '$count строка',
+    );
+    return 'Обнаружено — $_temp0';
   }
 
   @override
@@ -7314,7 +7427,23 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String adminImportUsersScreenResultSummary(int count, int links) {
-    return '✓ Создано пользователей: $count · связей: $links';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Создано $count пользователя',
+      many: 'Создано $count пользователей',
+      few: 'Создано $count пользователя',
+      one: 'Создан $count пользователь',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      links,
+      locale: localeName,
+      other: '$links связи',
+      many: '$links связей',
+      few: '$links связи',
+      one: '$links связь',
+    );
+    return '✓ $_temp0 · $_temp1';
   }
 
   @override
@@ -7371,7 +7500,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String teacherCohortsScreenStudentsCount(int count) {
-    return 'Учеников: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ученика',
+      many: '$count учеников',
+      few: '$count ученика',
+      one: '$count ученик',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7413,7 +7550,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String teacherCohortsScreenAddedNStudents(int count) {
-    return 'Добавлено учеников: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Добавлено $count ученика',
+      many: 'Добавлено $count учеников',
+      few: 'Добавлено $count ученика',
+      one: 'Добавлен $count ученик',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7532,7 +7677,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String adminScheduleStudentCount(int count) {
-    return 'Учеников: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ученика',
+      many: '$count учеников',
+      few: '$count ученика',
+      one: '$count ученик',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7554,7 +7707,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String adminScheduleStudentClashMany(int count) {
-    return 'У $count учеников будет два урока одновременно:';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'У $count учеников будет два урока одновременно:',
+      one: 'У $count ученика будет два урока одновременно:',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7574,12 +7733,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String adminScheduleStudentsInCohorts(int count, int cohortCount) {
-    return 'Учеников в выбранных группах: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ученика в выбранных группах',
+      many: '$count учеников в выбранных группах',
+      few: '$count ученика в выбранных группах',
+      one: '$count ученик в выбранных группах',
+    );
+    return '$_temp0';
   }
 
   @override
   String adminScheduleStudentsInGrade(int count, String grade) {
-    return 'Учеников в классе $grade: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ученика в классе $grade',
+      many: '$count учеников в классе $grade',
+      few: '$count ученика в классе $grade',
+      one: '$count ученик в классе $grade',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7668,7 +7843,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenCohortsSelected(int count) {
-    return 'Выбрано групп: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выбрано $count группы',
+      many: 'Выбрано $count групп',
+      few: 'Выбрано $count группы',
+      one: 'Выбрана $count группа',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7677,7 +7860,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenStudentsSelected(int count) {
-    return 'Выбрано учеников: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выбрано $count ученика',
+      many: 'Выбрано $count учеников',
+      few: 'Выбрано $count ученика',
+      one: 'Выбран $count ученик',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7686,7 +7877,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenParentsSelected(int count) {
-    return 'Выбрано родителей: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Выбрано $count родителя',
+      many: 'Выбрано $count родителей',
+      few: 'Выбрано $count родителя',
+      one: 'Выбран $count родитель',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7695,7 +7894,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenStudentsInCohorts(int count) {
-    return 'Учеников в выбранных группах: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ученика в выбранных группах',
+      many: '$count учеников в выбранных группах',
+      few: '$count ученика в выбранных группах',
+      one: '$count ученик в выбранных группах',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7900,7 +8107,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String formDetailScreenQuestionCount(int count) {
-    return 'Вопросов: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count вопроса',
+      many: '$count вопросов',
+      few: '$count вопроса',
+      one: '$count вопрос',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -8600,7 +8815,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String cmAiMessageQuestionCount(int count) {
-    return 'Вопросов: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count вопроса',
+      many: '$count вопросов',
+      few: '$count вопроса',
+      one: '$count вопрос',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -8748,12 +8971,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String adminAddManyCreateParent(String name) {
-    return 'Создать нового родителя \"$name\"';
+    return 'Создать нового родителя «$name»';
   }
 
   @override
   String adminAddManyPastedRows(int count) {
-    return 'Добавлено строк: $count';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Добавлено $count строки',
+      many: 'Добавлено $count строк',
+      few: 'Добавлено $count строки',
+      one: 'Добавлена $count строка',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -9434,8 +9665,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cmailDeleteForMe => 'Письмо будет удалено из ваших входящих.';
 
   @override
-  String cmailRecipients(num count) {
-    return '$count получателей';
+  String cmailRecipients(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count получателя',
+      many: '$count получателей',
+      few: '$count получателя',
+      one: '$count получатель',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -9897,4 +10136,17 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get permAnnouncementsPostDesc =>
       'Публиковать объявления для классов, параллелей или всей школы.';
+
+  @override
+  String get teacherLibraryAddMeeting => 'Добавить встречу';
+
+  @override
+  String get teacherLibraryCreateNewMeeting => 'Создать новую встречу';
+
+  @override
+  String get solutionsAllQuestions => 'Все вопросы';
+
+  @override
+  String get announcementsNoDetails =>
+      'Дополнительные сведения не прикреплены.';
 }

@@ -530,7 +530,9 @@ class _ErrorBanner extends StatelessWidget {
             Icon(Icons.error_outline_rounded, color: cs.error, size: 18),
             const SizedBox(width: 8),
             Text(
-              _isUnavailable ? 'Plans aren\'t reachable' : 'Something went wrong',
+              _isUnavailable
+                  ? AppLocalizations.of(context)!.plansCouldntLoadPlans
+                  : AppLocalizations.of(context)!.commonError,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w800,
                 color: cs.onErrorContainer,

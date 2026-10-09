@@ -254,8 +254,32 @@ Update this file in the same commit as each screen's redesign.
   text inside Hebrew/Arabic screens keeps RTL punctuation placement (real content is in the
   school's language)
 
+## Round 15 (2026-10-10) — every letter: the strings themselves
+Audited all 2,820 strings in the five languages, plus the website and the account emails.
+- **Counts read right in every language:** 31 counters said "1 students", "1 questions", "Учеников: 3"
+  or used one Arabic form for every number → real plural forms (Russian one/few/many, Arabic
+  1/2/3–10/11+, Hebrew "תלמיד אחד"). Covers cohorts, schedule clashes, announcement audiences,
+  import rows, forms, exams, materials, lessons, CMail recipients and the "Showing X of Y" lines
+- **One word for "meeting":** Russian mixed "занятие" (lesson) and "встреча"; Arabic mixed "حصة"
+  (class period) and "اجتماع"; Hebrew mixed "מפגש" and "פגישה" → one term each
+- **One word for "email":** Russian mixed "Email" and "эл. почта"; Hebrew mixed "אימייל" and "דוא\"ל"
+- **English capitalisation:** 84 labels in Title Case ("Add Students", "Save Draft") → sentence case
+  like the other 788 ("Add students"). Brand names, Privacy Policy and Face ID kept
+- **Typography:** "..." → "…" everywhere; straight quotes → “ ” in English, « » with no-break spaces in
+  French and Russian; ’ for apostrophes in English and French, in the app, the website and the emails;
+  American spelling throughout ("Recognized", "canceled")
+- **English text that bypassed translation:** Admin cohorts "No students found", "Classroom
+  created!", the classroom library sheet ("Add meeting", "Create new …"), the paywall error title,
+  Solutions "All questions", attachment "Open link", empty announcement body
+- Hebrew "Showing X of Y" lines used four verb forms → agree with each noun; one sentence mixed
+  singular and plural address → plural (Hebrew keeps its gender-neutral plural where it uses it)
+- Website FAQ and app FAQ say "School tools" like the menu
+- Checked: analyzer at baseline, tests at baseline, all 103 rig screens pass in en/he/ar/fr/ru and at
+  2× text (en, ar); mail tests pass, API type-check clean
+- Left as is: the support assistant's knowledge base still writes "School Tools" (AI prompt only)
+
 ## Up next (in order)
-1. Every screen is ✅ or ➖ and has now been rendered at least once. Next: on-device QA pass of build 308 (TestFlight / Play internal), then fix anything found.
+1. Every screen is ✅ or ➖ and has now been rendered at least once. Next: on-device QA pass of build 309 (TestFlight / Play internal), then fix anything found.
 
 ## Known open items (not redesign)
 - Anthropic key: the second new key is live and NOVA answers (confirmed by Tony 2026-10-09). Still

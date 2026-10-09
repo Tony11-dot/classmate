@@ -873,7 +873,11 @@ class _MaterialsTabState extends ConsumerState<_MaterialsTab> {
                   onDelete: id.isNotEmpty ? () => _delete(id, source: source) : null,
                   chips: url.isNotEmpty ? [
                     _AttachmentPill(
-                      label: fileName.isNotEmpty ? fileName : (isValidUrl ? 'Open link' : url),
+                      label: fileName.isNotEmpty
+                          ? fileName
+                          : (isValidUrl
+                              ? AppLocalizations.of(context)!.meetingsOpenLink
+                              : url),
                       onTap: () => _openUrl(url),
                     ),
                   ] : [],

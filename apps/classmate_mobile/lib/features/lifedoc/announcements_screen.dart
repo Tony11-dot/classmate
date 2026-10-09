@@ -156,8 +156,12 @@ String _announcementTitleLocalized(BuildContext context, AnnouncementItem item) 
 
 String _announcementBodyLocalized(BuildContext context, AnnouncementItem item) {
   final t = item.template;
-  if (t == null) return item.body;
   final l = AppLocalizations.of(context)!;
+  if (t == null) {
+    // Free-form post with nothing attached → a translated placeholder rather
+    // than the English fallback the provider used to bake in.
+    return item.body.trim().isEmpty ? l.announcementsNoDetails : item.body;
+  }
   final args = item.templateArgs;
   switch (t) {
     case AnnouncementTemplate.gradeRisk:

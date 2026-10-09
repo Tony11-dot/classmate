@@ -416,7 +416,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get solutionsAddBookTitle => 'إضافة كتاب';
 
   @override
-  String get solutionsBookTitleHint => 'عنوان الكتاب...';
+  String get solutionsBookTitleHint => 'عنوان الكتاب…';
 
   @override
   String get solutionsAddBookAction => 'إضافة كتاب';
@@ -555,7 +555,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get solutionsUploadRetryFailedFiles => 'إعادة محاولة الملفات الفاشلة';
 
   @override
-  String get solutionsUploadSubmittingAction => 'جاري التحميل...';
+  String get solutionsUploadSubmittingAction => 'جاري التحميل…';
 
   @override
   String get solutionsUploadSubmitAction => 'تحميل الحل';
@@ -651,7 +651,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsThemeOcean => 'محيط';
 
   @override
-  String get settingsLanguageSearchHint => 'ابحث عن لغة...';
+  String get settingsLanguageSearchHint => 'ابحث عن لغة…';
 
   @override
   String get teacherQuickActions => 'إجراءات سريعة';
@@ -997,7 +997,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classroomsClassroomLabel => 'صف';
 
   @override
-  String get classroomsLoadingLatestMessage => 'جارٍ تحميل آخر رسالة...';
+  String get classroomsLoadingLatestMessage => 'جارٍ تحميل آخر رسالة…';
 
   @override
   String get classroomsTapToOpen => 'اضغط لفتح الصف';
@@ -1050,8 +1050,17 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String examsMaterialsCount(Object count) {
-    return '$count مواد';
+  String examsMaterialsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مادة',
+      many: '$count مادة',
+      few: '$count مواد',
+      two: 'مادتان',
+      one: 'مادة واحدة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1061,8 +1070,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get examsClosedState => 'مغلق';
 
   @override
-  String examsQuestionsCount(Object count) {
-    return '$count أسئلة';
+  String examsQuestionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سؤال',
+      many: '$count سؤالًا',
+      few: '$count أسئلة',
+      two: 'سؤالان',
+      one: 'سؤال واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1265,7 +1283,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatMediaPreviewRemoveAction => 'إزالة';
 
   @override
-  String get chatMediaPreviewCaptionHint => 'أضف تعليقًا...';
+  String get chatMediaPreviewCaptionHint => 'أضف تعليقًا…';
 
   @override
   String get tutorFailedToLoadChats => 'تعذر تحميل المحادثات';
@@ -1631,8 +1649,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get notificationsSearchSourcesHint => 'ابحث في المصادر';
 
   @override
-  String notificationsShowingSummary(Object shown, Object total) {
-    return 'يتم عرض $shown من أصل $total إشعارًا.';
+  String notificationsShowingSummary(int shown, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total إشعار',
+      many: '$total إشعارًا',
+      few: '$total إشعارات',
+      two: 'إشعارين',
+      one: 'إشعار واحد',
+    );
+    return 'يتم عرض $shown من أصل $_temp0.';
   }
 
   @override
@@ -1763,11 +1790,20 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String announcementsShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object sourceSegment,
     Object stateSegment,
   ) {
-    return 'عرض $shown من $total إعلان$sourceSegment$stateSegment.';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total إعلان',
+      many: '$total إعلانًا',
+      few: '$total إعلانات',
+      two: 'إعلانين',
+      one: 'إعلان واحد',
+    );
+    return 'عرض $shown من $_temp0$sourceSegment$stateSegment.';
   }
 
   @override
@@ -1809,7 +1845,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get meetingsHeroSubtitle =>
-      'كل حصص الفصل الدراسي في عرض واحد نظيف، مع الروابط المرفقة وصفحة تفاصيل ملء الشاشة عند الحاجة إلى السياق.';
+      'كل اجتماعات الفصل في عرض واحد واضح، مع الروابط المرفقة وصفحة تفاصيل بملء الشاشة عندما تحتاج إلى السياق.';
 
   @override
   String get meetingsJoinReadyMetric => 'جاهز للانضمام';
@@ -1818,11 +1854,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get meetingsNoLinkMetric => 'بدون رابط';
 
   @override
-  String get meetingsNoPostedTitle => 'لم يتم نشر أي حصص دراسية حتى الآن';
+  String get meetingsNoPostedTitle => 'لم تُنشر أي اجتماعات حتى الآن';
 
   @override
   String get meetingsEmptyForAccount =>
-      'لا توجد حصص دراسية في الفصل متاحة لحساب الطالب هذا الآن.';
+      'لا توجد اجتماعات مجدولة لك الآن. اسحب للأسفل للتحقق مرة أخرى.';
 
   @override
   String meetingsLatestBody(Object title, Object updatedAt) {
@@ -1834,13 +1870,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get meetingsFiltersSubtitle =>
-      'ضيق القائمة حسب المادة أو ما إذا كانت الحصة تتضمن بالفعل رابطاً يمكنك فتحه.';
+      'ضيّق القائمة حسب المادة أو حسب ما إذا كان الاجتماع يتضمن بالفعل رابطًا يمكنك فتحه.';
 
   @override
   String get meetingsAccessLabel => 'الوصول';
 
   @override
-  String get meetingsAllMeetings => 'جميع الحصص';
+  String get meetingsAllMeetings => 'جميع الاجتماعات';
 
   @override
   String get meetingsAccessReady => 'جاهز للانضمام';
@@ -1868,23 +1904,32 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String meetingsShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object subjectSegment,
     Object accessSegment,
   ) {
-    return 'عرض $shown من $total حصة$subjectSegment$accessSegment.';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total اجتماع',
+      many: '$total اجتماعًا',
+      few: '$total اجتماعات',
+      two: 'اجتماعين',
+      one: 'اجتماع واحد',
+    );
+    return 'عرض $shown من $_temp0$subjectSegment$accessSegment.';
   }
 
   @override
-  String get meetingsNoMatchTitle => 'لا توجد حصص تطابق هذه الفلاتر';
+  String get meetingsNoMatchTitle => 'لا توجد اجتماعات تطابق هذه الفلاتر';
 
   @override
   String get meetingsNoMatchSubtitle =>
-      'جرب جميع المواد أو أدرج حصصاً بدون روابط لجلب المزيد من النتائج إلى القائمة.';
+      'جرّب جميع المواد أو أدرج الاجتماعات بدون روابط لإعادة المزيد من النتائج إلى القائمة.';
 
   @override
   String get meetingsListSubtitle =>
-      'انقر على أي حصة لفتح عرض التفاصيل ملء الشاشة والقفز إلى رابطها المرفق عند توفره.';
+      'انقر على أي اجتماع لفتح عرض التفاصيل بملء الشاشة والانتقال إلى رابطه المرفق عند توفره.';
 
   @override
   String meetingsSharedByValue(Object name) {
@@ -1893,47 +1938,47 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get meetingsPreviewFallback =>
-      'افتح هذه الحصة لمشاهدة الرابط المرفق وأحدث تفاصيل الفصل الدراسي.';
+      'افتح هذا الاجتماع لمشاهدة الرابط المرفق وأحدث تفاصيل الفصل.';
 
   @override
   String get meetingsNoValidLinkAttached =>
-      'لم يتم إرفاق أي رابط حصة صالح حتى الآن.';
+      'لم يُرفق أي رابط اجتماع صالح حتى الآن.';
 
   @override
-  String get meetingsCouldNotOpenLink => 'لا يمكن فتح رابط الحصة.';
+  String get meetingsCouldNotOpenLink => 'تعذّر فتح رابط الاجتماع.';
 
   @override
-  String get meetingsNoLinkToCopy => 'لا توجد حصة رابط للنسخ حتى الآن.';
+  String get meetingsNoLinkToCopy => 'لا يوجد رابط اجتماع للنسخ حتى الآن.';
 
   @override
-  String get meetingsLinkCopied => 'تم نسخ رابط الحصة.';
+  String get meetingsLinkCopied => 'تم نسخ رابط الاجتماع.';
 
   @override
-  String get meetingsUnavailableTitle => 'الحصة غير متاحة';
+  String get meetingsUnavailableTitle => 'الاجتماع غير متاح';
 
   @override
   String get meetingsUnavailableSubtitle =>
-      'لم يمكن العثور على هذه الحصة في التغذية الحالية. قد تكون قد تم حذفها أو غير متاحة بدون اتصال.';
+      'لم يتم العثور على هذا الاجتماع في القائمة الحالية. ربما تمت إزالته أو أنه غير متاح دون اتصال.';
 
   @override
-  String get meetingsUnavailableHint => 'عد للخلف وقم بتحديث قائمة الحصص.';
+  String get meetingsUnavailableHint => 'ارجع وحدّث قائمة الاجتماعات.';
 
   @override
   String get meetingsNoLinkAttachedYet => 'لم يتم إرفاق رابط حتى الآن';
 
   @override
-  String get meetingsAttachedLinkTitle => 'رابط الحصة المرفق';
+  String get meetingsAttachedLinkTitle => 'رابط الاجتماع المرفق';
 
   @override
   String get meetingsAttachedLinkMissingBody =>
-      'هذه الحصة مرئية في تغذية فصلك الدراسي، لكن لا يوجد عنوان URL صالح مرفق في حمولة الطالب الحالية.';
+      'هذا الاجتماع ظاهر في خلاصة فصلك، لكن لا يوجد عنوان URL صالح مرفق به حتى الآن.';
 
   @override
-  String get meetingsDetailsTitle => 'تفاصيل الحصة';
+  String get meetingsDetailsTitle => 'تفاصيل الاجتماع';
 
   @override
   String get meetingsDetailsSubtitle =>
-      'كل ما يتعلق بالطالب والمتاح حالياً في حمولة الحصة الدراسية في الفصل.';
+      'كل ما يخص الطالب والمتاح حاليًا لهذا الاجتماع في الفصل.';
 
   @override
   String get meetingsDetailClassroomLabel => 'الصف';
@@ -1942,11 +1987,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get meetingsSharedByLabel => 'شاركها';
 
   @override
-  String get meetingsIdLabel => 'معرف الحصة';
+  String get meetingsIdLabel => 'معرّف الاجتماع';
 
   @override
   String get meetingsAttachedLinkSubtitle =>
-      'استخدم العنوان المرفق للانضمام أو نسخ رابط الحصة عندما يوفره فصلك الدراسي.';
+      'استخدم الرابط المرفق للانضمام، أو انسخ رابط الاجتماع عندما يوفّره فصلك.';
 
   @override
   String get meetingsOpening => 'جاري الفتح';
@@ -1958,7 +2003,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get meetingsCopyLink => 'نسخ الرابط';
 
   @override
-  String get meetingsAccessPanelTitle => 'وصول الحصة';
+  String get meetingsAccessPanelTitle => 'الوصول إلى الاجتماع';
 
   @override
   String get meetingsAccessPanelReadyBody =>
@@ -2186,8 +2231,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get practiceSetupInfiniteLives => 'محاولات لا نهائية';
 
   @override
-  String practiceSetupLivesCount(Object count) {
-    return '$count محاولات';
+  String practiceSetupLivesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count محاولة',
+      many: '$count محاولة',
+      few: '$count محاولات',
+      two: 'محاولتان',
+      one: 'محاولة واحدة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2199,8 +2253,17 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String practiceSetupQuestionsCount(Object count) {
-    return '$count أسئلة';
+  String practiceSetupQuestionsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سؤال',
+      many: '$count سؤالًا',
+      few: '$count أسئلة',
+      two: 'سؤالان',
+      one: 'سؤال واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -2640,13 +2703,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get practiceSetupStopGenerating => 'إيقاف التوليد';
 
   @override
-  String get practiceSetupGenerating => 'جارٍ التوليد...';
+  String get practiceSetupGenerating => 'جارٍ التوليد…';
 
   @override
   String get practiceSetupStartSession => 'ابدأ الجلسة';
 
   @override
-  String get practiceSetupSearchHint => 'ابحث...';
+  String get practiceSetupSearchHint => 'ابحث…';
 
   @override
   String get practiceSessionModeDescriptionPractice =>
@@ -3011,8 +3074,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get assignmentsSearchStatuses => 'البحث عن الحالات';
 
   @override
-  String assignmentsShowingSummary(Object shown, Object total) {
-    return 'عرض $shown من $total واجب.';
+  String assignmentsShowingSummary(Object shown, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total واجب',
+      many: '$total واجبًا',
+      few: '$total واجبات',
+      two: 'واجبين',
+      one: 'واجب واحد',
+    );
+    return 'عرض $shown من $_temp0.';
   }
 
   @override
@@ -3134,11 +3206,20 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String attendanceShowingSummary(
     Object shown,
-    Object total,
+    int total,
     Object subject,
     Object range,
   ) {
-    return 'عرض $shown من $total علامات في $subject في $range.';
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: '$total علامة',
+      many: '$total علامة',
+      few: '$total علامات',
+      two: 'علامتين',
+      one: 'علامة واحدة',
+    );
+    return 'عرض $shown من $_temp0 في $subject في $range.';
   }
 
   @override
@@ -3252,8 +3333,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get attendanceLessonCountSingle => 'درس واحد';
 
   @override
-  String attendanceLessonCount(Object count) {
-    return '$count دروس';
+  String attendanceLessonCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count درس',
+      many: '$count درسًا',
+      few: '$count دروس',
+      two: 'درسان',
+      one: 'درس واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -3814,7 +3904,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mediaUnableToLoad => 'تعذر تحميل الصورة';
 
   @override
-  String get searchHint => 'بحث...';
+  String get searchHint => 'بحث…';
 
   @override
   String get teacherInsightsTitle => 'رؤى الطلاب';
@@ -3850,8 +3940,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherFormsEmpty => 'لا توجد نماذج بعد. اضغط + لإنشاء نموذج.';
 
   @override
-  String teacherFormsResponses(Object count) {
-    return '$count استجابات';
+  String teacherFormsResponses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ردّ',
+      many: '$count ردًّا',
+      few: '$count ردود',
+      two: 'ردّان',
+      one: 'ردّ واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -4972,7 +5071,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherMeetingEnterValidUrl =>
-      'يرجى إدخال رابط صالح (مثال: https://zoom.us/j/...)';
+      'يرجى إدخال رابط صالح (مثال: https://zoom.us/j/…)';
 
   @override
   String get teacherMeetingPickStartTime => 'يرجى اختيار وقت البداية.';
@@ -5146,7 +5245,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherMaterialAddFile => 'إضافة ملف';
 
   @override
-  String get teacherMaterialSearchStudentsGrade => 'ابحث عن الطلاب أو الصف...';
+  String get teacherMaterialSearchStudentsGrade => 'ابحث عن الطلاب أو الصف…';
 
   @override
   String teacherMaterialDoneSelected(int count) {
@@ -5465,7 +5564,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherMaterialSubjectOther => 'أخرى';
 
   @override
-  String get teacherMaterialSubjectSearch => 'ابحث عن المواد...';
+  String get teacherMaterialSubjectSearch => 'ابحث عن المواد…';
 
   @override
   String get teacherMaterialAttachmentsTitle => 'المرفقات';
@@ -5701,7 +5800,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String classMaterialsFilesCount(int count) {
-    return '$count ملفات';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ملف',
+      many: '$count ملفًا',
+      few: '$count ملفات',
+      two: 'ملفان',
+      one: 'ملف واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7134,7 +7242,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String cohortStudentsCount(int count) {
-    return '$count طالب';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبان',
+      one: 'طالب واحد',
+      zero: 'لا طلاب',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7177,7 +7295,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String adminImportUsersScreenLoadedRows(int count) {
-    return 'تم تحميل $count صفوف — راجِع وعدِّل، ثم أنشئ';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صف',
+      many: '$count صفًا',
+      few: '$count صفوف',
+      two: 'صفين',
+      one: 'صف واحد',
+    );
+    return 'تم تحميل $_temp0 — راجِع وعدِّل، ثم أنشئ';
   }
 
   @override
@@ -7248,7 +7375,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String adminImportUsersScreenDetectedRows(int count) {
-    return 'تم الكشف — $count صفوف';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صف',
+      many: '$count صفًا',
+      few: '$count صفوف',
+      two: 'صفان',
+      one: 'صف واحد',
+    );
+    return 'تم الكشف — $_temp0';
   }
 
   @override
@@ -7269,7 +7405,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String adminImportUsersScreenResultSummary(int count, int links) {
-    return '✓ تم إنشاء $count مستخدمين · $links روابط';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مستخدم',
+      many: '$count مستخدمًا',
+      few: '$count مستخدمين',
+      two: 'مستخدمين',
+      one: 'مستخدم واحد',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      links,
+      locale: localeName,
+      other: '$links رابط',
+      many: '$links رابطًا',
+      few: '$links روابط',
+      two: 'رابطان',
+      one: 'رابط واحد',
+    );
+    return '✓ تم إنشاء $_temp0 · $_temp1';
   }
 
   @override
@@ -7326,7 +7480,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String teacherCohortsScreenStudentsCount(int count) {
-    return '$count طلاب';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبان',
+      one: 'طالب واحد',
+      zero: 'لا طلاب',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7367,7 +7531,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String teacherCohortsScreenAddedNStudents(int count) {
-    return 'تمت إضافة $count طلاب';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبين',
+      one: 'طالب واحد',
+    );
+    return 'تمت إضافة $_temp0';
   }
 
   @override
@@ -7485,7 +7658,17 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String adminScheduleStudentCount(int count) {
-    return '$count طلاب';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب',
+      many: '$count طالبًا',
+      few: '$count طلاب',
+      two: 'طالبان',
+      one: 'طالب واحد',
+      zero: 'لا طلاب',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7507,7 +7690,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String adminScheduleStudentClashMany(int count) {
-    return 'سيكون لدى $count طلاب حصتان في الوقت نفسه:';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'سيكون لدى $count طالب حصتان في الوقت نفسه:',
+      many: 'سيكون لدى $count طالبًا حصتان في الوقت نفسه:',
+      few: 'سيكون لدى $count طلاب حصتان في الوقت نفسه:',
+      two: 'سيكون لدى طالبين حصتان في الوقت نفسه:',
+      one: 'سيكون لدى طالب واحد حصتان في الوقت نفسه:',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7527,12 +7719,30 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String adminScheduleStudentsInCohorts(int count, int cohortCount) {
-    return '$count طلاب في المجموعات المحددة';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب في المجموعات المحددة',
+      many: '$count طالبًا في المجموعات المحددة',
+      few: '$count طلاب في المجموعات المحددة',
+      two: 'طالبان في المجموعات المحددة',
+      one: 'طالب واحد في المجموعات المحددة',
+    );
+    return '$_temp0';
   }
 
   @override
   String adminScheduleStudentsInGrade(int count, String grade) {
-    return '$count طلاب في الصف $grade';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب في الصف $grade',
+      many: '$count طالبًا في الصف $grade',
+      few: '$count طلاب في الصف $grade',
+      two: 'طالبان في الصف $grade',
+      one: 'طالب واحد في الصف $grade',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7620,7 +7830,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenCohortsSelected(int count) {
-    return '$count مجموعات محددة';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مجموعة محددة',
+      many: '$count مجموعة محددة',
+      few: '$count مجموعات محددة',
+      two: 'مجموعتان محددتان',
+      one: 'مجموعة واحدة محددة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7629,7 +7848,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenStudentsSelected(int count) {
-    return '$count طلاب محددون';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب محدد',
+      many: '$count طالبًا محددًا',
+      few: '$count طلاب محددون',
+      two: 'طالبان محددان',
+      one: 'طالب واحد محدد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7638,7 +7866,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenParentsSelected(int count) {
-    return '$count أولياء أمور محددون';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ولي أمر محدد',
+      many: '$count ولي أمر محددًا',
+      few: '$count أولياء أمور محددون',
+      two: 'وليّا أمر محددان',
+      one: 'ولي أمر واحد محدد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7646,7 +7883,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String teacherNewAnnouncementScreenStudentsInCohorts(int count) {
-    return '$count طلاب في المجموعات المحددة';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طالب في المجموعات المحددة',
+      many: '$count طالبًا في المجموعات المحددة',
+      few: '$count طلاب في المجموعات المحددة',
+      two: 'طالبان في المجموعات المحددة',
+      one: 'طالب واحد في المجموعات المحددة',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -7848,7 +8094,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String formDetailScreenQuestionCount(int count) {
-    return '$count أسئلة';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سؤال',
+      many: '$count سؤالًا',
+      few: '$count أسئلة',
+      two: 'سؤالان',
+      one: 'سؤال واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -8523,7 +8778,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String cmAiMessageQuestionCount(int count) {
-    return '$count أسئلة';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سؤال',
+      many: '$count سؤالًا',
+      few: '$count أسئلة',
+      two: 'سؤالان',
+      one: 'سؤال واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -8674,7 +8938,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String adminAddManyPastedRows(int count) {
-    return 'تمت إضافة $count صف';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count صف',
+      many: '$count صفًا',
+      few: '$count صفوف',
+      two: 'صفين',
+      one: 'صف واحد',
+    );
+    return 'تمت إضافة $_temp0';
   }
 
   @override
@@ -9344,8 +9617,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cmailDeleteForMe => 'هذا يزيل البريد من صندوق الوارد الخاص بك.';
 
   @override
-  String cmailRecipients(num count) {
-    return '$count مستلمين';
+  String cmailRecipients(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مستلم',
+      many: '$count مستلمًا',
+      few: '$count مستلمين',
+      two: 'مستلمان',
+      one: 'مستلم واحد',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -9777,7 +10059,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get permMeetingsManageDesc =>
-      'جدولة الحصص المباشرة وعبر الإنترنت وإدارتها.';
+      'جدولة الاجتماعات المباشرة وعبر الإنترنت وإدارتها.';
 
   @override
   String get permFormsManage => 'إدارة النماذج';
@@ -9799,4 +10081,16 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get permAnnouncementsPostDesc =>
       'نشر الإعلانات للصفوف أو المراحل أو المدرسة كلها.';
+
+  @override
+  String get teacherLibraryAddMeeting => 'إضافة اجتماع';
+
+  @override
+  String get teacherLibraryCreateNewMeeting => 'إنشاء اجتماع جديد';
+
+  @override
+  String get solutionsAllQuestions => 'كل الأسئلة';
+
+  @override
+  String get announcementsNoDetails => 'لم تُرفق تفاصيل إضافية.';
 }
