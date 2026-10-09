@@ -160,6 +160,9 @@ class _PhoneLinkScreenState extends ConsumerState<PhoneLinkScreen> {
                   decoration: InputDecoration(
                     labelText: l.phoneLinkFieldLabel,
                     hintText: '+972 50 123 4567',
+                    // The number reads left to right in Hebrew/Arabic too
+                    // (the hint came out as "4567 123 50 972+").
+                    hintTextDirection: TextDirection.ltr,
                     prefixIcon: const Icon(Icons.phone_rounded),
                   ),
                   onSubmitted: (_) => _sendCode(),

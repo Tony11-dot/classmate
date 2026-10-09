@@ -1698,6 +1698,7 @@
   "commonDownload": "‹‹Download››",
   "commonOpenExternally": "‹‹Open externally››",
   "commonSave": "‹‹Save››",
+  "commonPickDate": "‹‹Pick a date››",
   "commonCancel": "‹‹Cancel››",
   "commonDone": "‹‹Done››",
   "commonDelete": "‹‹Delete››",
@@ -1812,6 +1813,7 @@
   "adminReportsDismiss": "‹‹Dismiss››",
   "adminReportsResolve": "‹‹Resolve››",
   "adminReportsReason": "‹‹Reason: {reason}››",
+  "adminReportsReportedOn": "‹‹Reported {date}››",
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}

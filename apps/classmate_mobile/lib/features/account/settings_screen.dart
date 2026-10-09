@@ -851,7 +851,8 @@ class _ThemeTile extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  maxLines: 1,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         fontWeight:

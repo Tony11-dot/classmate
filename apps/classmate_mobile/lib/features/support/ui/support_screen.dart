@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../l10n/app_localizations.dart';
@@ -266,11 +267,24 @@ class AboutScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           // Tiny version stamp at the bottom — still discoverable, no longer
-          // a hero block stealing focus.
+          // a hero block stealing focus. Read from the installed package so
+          // it says the real version (the constructor default is only a
+          // fallback — it used to show "v1.0.0" on every build).
           Center(
-            child: Text(
-              l.aboutVersionLabel(version),
-              style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+            child: FutureBuilder<PackageInfo>(
+              future: PackageInfo.fromPlatform(),
+              builder: (context, snap) {
+                final info = snap.data;
+                final label = info == null || info.version.trim().isEmpty
+                    ? version
+                    : info.buildNumber.trim().isEmpty
+                        ? info.version
+                        : '${info.version} (${info.buildNumber})';
+                return Text(
+                  l.aboutVersionLabel(label),
+                  style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
+                );
+              },
             ),
           ),
         ],

@@ -1,10 +1,14 @@
 import 'package:intl/intl.dart';
 
+import 'bidi.dart';
+
 /// Shared date/time formatting so the app never shows raw ISO strings like
 /// `2026-06-20T00:00:00.000Z` to users. The app-wide format is:
-///   - date only      → `DD/MM/YYYY`            (e.g. 20/06/2026)
-///   - date + time    → `DD/MM/YYYY HH:MM:SS`   (e.g. 20/06/2026 14:30:05)
-///   - time only      → `HH:MM:SS`
+///   - date only      → `DD/MM/YYYY`         (e.g. 20/06/2026)
+///   - date + time    → `DD/MM/YYYY HH:MM`   (e.g. 20/06/2026 14:30)
+///   - time only      → `HH:MM`
+/// No seconds: a meeting, a due date or a notification is never precise to
+/// the second, and the chat/inbox times are `HH:MM` already.
 ///
 /// All helpers accept either a [DateTime] or a [String] (ISO-8601 or any value
 /// `DateTime.tryParse` understands) and render in the device's local time. When
@@ -16,8 +20,8 @@ class FriendlyDate {
   // Fixed, locale-independent patterns — the product wants one consistent
   // numeric format everywhere, not a locale-specific one.
   static final DateFormat _date = DateFormat('dd/MM/yyyy');
-  static final DateFormat _dateTime = DateFormat('dd/MM/yyyy HH:mm:ss');
-  static final DateFormat _time = DateFormat('HH:mm:ss');
+  static final DateFormat _dateTime = DateFormat('dd/MM/yyyy HH:mm');
+  static final DateFormat _time = DateFormat('HH:mm');
 
   static DateTime? _parse(Object? value) {
     if (value == null) return null;
@@ -35,14 +39,16 @@ class FriendlyDate {
     return _date.format(dt);
   }
 
-  /// `DD/MM/YYYY HH:MM:SS`. Falls back to the raw string if unparseable.
+  /// `DD/MM/YYYY HH:MM`. Falls back to the raw string if unparseable.
+  /// Kept left to right as one unit: in a Hebrew/Arabic paragraph the two
+  /// number runs otherwise swap into "17:00 10/10/2026".
   static String dateTime(Object? value, [String? locale]) {
     final dt = _parse(value);
     if (dt == null) return value?.toString().trim() ?? '';
-    return _dateTime.format(dt);
+    return ltrIsolate(_dateTime.format(dt));
   }
 
-  /// `HH:MM:SS` — time only.
+  /// `HH:MM` — time only.
   static String time(Object? value, [String? locale]) {
     final dt = _parse(value);
     if (dt == null) return value?.toString().trim() ?? '';

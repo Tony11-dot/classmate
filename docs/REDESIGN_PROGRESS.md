@@ -211,8 +211,51 @@ Update this file in the same commit as each screen's redesign.
   couldn't start", Reload, support@ and the details folded away (light + dark); installed-app colour
   was the old indigo → brand blue
 
+## Round 14 (2026-10-09) — every corner: the 49 screens no round had rendered
+- New rig sweep (`test/_mk/corners_test.dart` + `corners_api.dart`, ~30 demo endpoints): student
+  Assignments/Meetings/Exams/Materials/Saved questions/NOVA home/About/Practice history; Login,
+  Phone link, Reorder tools, Reorder classrooms, Blocked people, New chat, CMail compose, Theme
+  gallery; teacher Home/Assignments/Materials/Cohorts/Averages/Exams/Meetings/Forms/Attendance
+  history/Students/Certificates + the 9 create/add screens; admin School settings/Grade scales/Bell
+  schedule/Reports/Settings/Import users; secretary Home/Students; manager Schools/Managers/Bagrut/
+  New school. Each in en/he/ar/fr/ru, dark, and at 1.3× / 2× text (en + ar). Found and fixed:
+  - **Launch screen** (Tony's ask): just the animation on the plain theme surface — the gradient
+    blobs and floating symbols around it are gone. Measured the Lottie: its resting frame (mark +
+    wordmark) sat 28 px left and 5 px above the canvas centre → moved in the JSON (start frame still
+    centred, the mark's slide-left keyframes and the wordmark group shifted together). Backup of
+    the previous JSON: scratchpad only — it's in git history (commit before this round)
+  - **About** said "v1.0.0" on every build (constructor default) → real version + build from the
+    installed package ("v1.1.9 (308)")
+  - **Dates with seconds** everywhere `FriendlyDate.dateTime/time` was used (meeting chips
+    "10/10/2026 17:00:00", parent notification times "22:18:45", "Overdue … 23:59:00") → no
+    seconds, app-wide; and the date-time keeps left-to-right order in Hebrew/Arabic (was
+    "17:00 10/10/2026"). NOVA history dates were US "10/8/2026" → "08/10/2026" like the rest
+  - **Meetings**: "Mid-term review was updated Not available." when a meeting was never edited →
+    falls back to when it was posted
+  - **Reports**: "Reported 2026-10-09" (English + ISO) → "Reported 09/10/2026", translated
+  - **Hard-coded English** in every language: attendance history "1st period" → "Period 1";
+    "Grade 11"; New classroom "Select cohorts… / Select students…"; Create exam "Create" and
+    "Pick a date" (new key `commonPickDate`)
+  - **App-bar titles with two actions** ("New Assignment" + Save draft + Publish → "New Assi…"):
+    new `CmBarTitle` shrinks the title to at most 72 % before ellipsizing; used on the 9 create/edit
+    screens + the two reorder screens. French "Enregistrer un brouillon" → "Brouillon", Russian
+    "Сохранить черновик" → "Черновик" (the long button squeezed the title out of the bar)
+  - **French** called Materials three things (Supports de cours / Documents / Ressources) → one
+  - **Raw error text** ("not found" in red at the top-left) on Certificates (3 places), Blocked
+    people, Manager schools, Averages compute sheet, Slot attachments, Secretary students → the
+    shared illustrated `CmErrorState` (full-screen failures) or new `CmErrorBanner` with Retry
+    (inline, screen stays usable)
+  - **Overflows**: picker rows in Add grade (fr/ru at 1×: the "Tap to select students…" prompt
+    now wraps), Forms card (View responses drops under the count at large text), Secretary and
+    Manager Bagrut tiles grow with text size, teacher "Join meeting" pill wraps (ar 2×)
+  - Phone-number hint read "4567 123 50 972+" in Hebrew/Arabic → left-to-right
+  - Theme names in the gallery ("Par défaut du système", "ברירת מחדל של המערכת") get two lines
+- Known, left as is: the Manager console (platform owner only) is English-only; English demo
+  text inside Hebrew/Arabic screens keeps RTL punctuation placement (real content is in the
+  school's language)
+
 ## Up next (in order)
-1. Every screen is ✅ or ➖. Next: on-device QA pass of build 305 (TestFlight / Play internal), then fix anything found.
+1. Every screen is ✅ or ➖ and has now been rendered at least once. Next: on-device QA pass of build 308 (TestFlight / Play internal), then fix anything found.
 
 ## Known open items (not redesign)
 - Anthropic key: the second new key is live and NOVA answers (confirmed by Tony 2026-10-09). Still

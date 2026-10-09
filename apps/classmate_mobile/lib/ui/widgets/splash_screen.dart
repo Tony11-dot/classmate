@@ -7,7 +7,6 @@ import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/theme/theme_controller.dart';
-import 'ambient_symbols.dart';
 import 'cm_splash_screen.dart';
 
 /// Launch splash. If [assets/animations/splash.json] exists in the
@@ -17,9 +16,9 @@ import 'cm_splash_screen.dart';
 ///
 /// The splash runs BEFORE the MaterialApp mounts, so it resolves the
 /// user's saved theme straight from prefs and dresses itself to match:
-/// themed background, the animation's baked white canvas + navy mark
-/// recoloured to the theme's surface + primary, and soft decorative
-/// shapes filling the dead space around the centred animation.
+/// a plain themed background with the animation's baked white canvas +
+/// navy mark recoloured to the theme's surface + primary. Nothing else on
+/// the screen — the mark and wordmark sit on the exact centre.
 ///
 /// Used by main.dart before the main app mounts.
 class SplashScreen extends StatefulWidget {
@@ -41,7 +40,6 @@ class _SplashScreenState extends State<SplashScreen> {
   /// The user's saved theme, read directly from prefs (the theme
   /// controller hasn't loaded yet at splash time).
   AppTheme _theme = AppTheme.light;
-  bool _reduceMotion = false;
 
   @override
   void initState() {
@@ -56,17 +54,14 @@ class _SplashScreenState extends State<SplashScreen> {
       await rootBundle.load('assets/animations/splash.json');
       light = true;
     } catch (_) {}
-    bool reduceMotion = false;
     try {
       final prefs = await SharedPreferences.getInstance();
       theme = appThemeFromName(prefs.getString('ui_mode'));
-      reduceMotion = prefs.getBool('ui_reduce_motion') ?? false;
     } catch (_) {}
     if (mounted) {
       setState(() {
         _hasLottie = light;
         _theme = theme;
-        _reduceMotion = reduceMotion;
       });
     }
   }
@@ -92,7 +87,6 @@ class _SplashScreenState extends State<SplashScreen> {
         onComplete: widget.onComplete,
         scheme: scheme,
         background: bg,
-        animateDecor: !_reduceMotion,
       );
     }
     return CmSplashScreen(onDone: widget.onComplete);
@@ -105,14 +99,12 @@ class _LottieSplash extends StatefulWidget {
     required this.onComplete,
     required this.scheme,
     required this.background,
-    required this.animateDecor,
   });
 
   final String asset;
   final VoidCallback onComplete;
   final ColorScheme scheme;
   final Color background;
-  final bool animateDecor;
 
   @override
   State<_LottieSplash> createState() => _LottieSplashState();
@@ -256,30 +248,13 @@ class _LottieSplashState extends State<_LottieSplash>
 
   @override
   Widget build(BuildContext context) {
-    final s = widget.scheme;
     return Scaffold(
       backgroundColor: widget.background,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Living background filling the dead space around the animation —
-          // floating educational symbols, stars, curved lines, rings, dots
-          // and soft blobs in the theme's colours, each with its own motion.
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0, end: 1),
-            duration: const Duration(milliseconds: 1100),
-            curve: Curves.easeOutCubic,
-            builder: (context, t, child) =>
-                Opacity(opacity: t, child: child),
-            child: AmbientSymbols(
-              scheme: s,
-              animate: widget.animateDecor,
-              seed: 3,
-              density: 1.1,
-            ),
-          ),
-          if (_bytes != null)
-            Center(
+      // Just the animation on the plain theme surface — no blobs or floating
+      // symbols around it. The 16:9 canvas is centred on the screen.
+      body: _bytes == null
+          ? const SizedBox.expand()
+          : Center(
               child: Lottie.memory(
                 _bytes!,
                 controller: _ctrl,
@@ -294,8 +269,6 @@ class _LottieSplashState extends State<_LottieSplash>
                 },
               ),
             ),
-        ],
-      ),
     );
   }
 }

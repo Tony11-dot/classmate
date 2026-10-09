@@ -64,7 +64,7 @@ class _DrawerToolsOrderScreenState extends ConsumerState<DrawerToolsOrderScreen>
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
-        title: Text(l.reorderToolsTitle),
+        title: CmBarTitle(l.reorderToolsTitle),
         actions: [
           TextButton(
             onPressed: reset,

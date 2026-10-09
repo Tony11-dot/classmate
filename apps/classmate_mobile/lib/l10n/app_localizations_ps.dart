@@ -4271,6 +4271,9 @@ class AppLocalizationsPs extends AppLocalizations {
   String get commonSave => '‹‹Save››';
 
   @override
+  String get commonPickDate => '‹‹Pick a date››';
+
+  @override
   String get commonCancel => '‹‹Cancel››';
 
   @override
@@ -4593,6 +4596,11 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String adminReportsReason(Object reason) {
     return '‹‹Reason: $reason››';
+  }
+
+  @override
+  String adminReportsReportedOn(Object date) {
+    return '‹‹Reported $date››';
   }
 
   @override

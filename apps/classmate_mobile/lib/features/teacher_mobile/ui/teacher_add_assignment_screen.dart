@@ -489,25 +489,49 @@ class _TeacherAddAssignmentScreenState
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
-        title: Text(
+        title: CmBarTitle(
           _isEditing ? AppLocalizations.of(context)!.teacherAssignmentEditTitle : AppLocalizations.of(context)!.teacherAssignmentNewTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),
         actions: [
-          TextButton(
-            onPressed: _saving ? null : () => _save(published: false),
-            child: Text(AppLocalizations.of(context)!.teacherFormSaveDraft),
-          ),
+          // When the title + both labels can't share the bar (Russian, large
+          // text) the draft action becomes an icon so the title stays whole.
+          if (cmBarIsTight(context,
+              title: _isEditing ? AppLocalizations.of(context)!.teacherAssignmentEditTitle : AppLocalizations.of(context)!.teacherAssignmentNewTitle,
+              labels: [AppLocalizations.of(context)!.teacherFormSaveDraft, AppLocalizations.of(context)!.commonPublish]))
+            IconButton(
+              tooltip: AppLocalizations.of(context)!.teacherFormSaveDraft,
+              icon: const Icon(Icons.save_outlined),
+              onPressed: _saving ? null : () => _save(published: false),
+            )
+          else
+            TextButton(
+              onPressed: _saving ? null : () => _save(published: false),
+              child: Text(AppLocalizations.of(context)!.teacherFormSaveDraft),
+            ),
           const SizedBox(width: 6),
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),
-            child: FilledButton.icon(
-              onPressed: _saving ? null : () => _save(published: true),
-              icon: _saving
-                  ? const CmLoading(size: 16)
-                  : const Icon(Icons.send_rounded, size: 18),
-              label: Text(AppLocalizations.of(context)!.commonPublish),
-            ),
+            child: cmBarIsTight(context,
+                    title: _isEditing ? AppLocalizations.of(context)!.teacherAssignmentEditTitle : AppLocalizations.of(context)!.teacherAssignmentNewTitle,
+                    labels: [AppLocalizations.of(context)!.teacherFormSaveDraft, AppLocalizations.of(context)!.commonPublish])
+                ? FilledButton(
+                    onPressed: _saving ? null : () => _save(published: true),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    child: _saving
+                        ? const CmLoading(size: 16)
+                        : Text(AppLocalizations.of(context)!.commonPublish),
+                  )
+                : FilledButton.icon(
+                    onPressed: _saving ? null : () => _save(published: true),
+                    icon: _saving
+                        ? const CmLoading(size: 16)
+                        : const Icon(Icons.send_rounded, size: 18),
+                    label: Text(AppLocalizations.of(context)!.commonPublish),
+                  ),
           ),
         ],
       ),

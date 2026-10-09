@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/messages_repository_provider.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_error_state.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
@@ -122,14 +123,7 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  l.messagesBlockedPeopleLoadFailed(snapshot.error.toString()),
-                ),
-              ),
-            );
+            return CmErrorState.fromError(snapshot.error, onRetry: _reload);
           }
 
           final items = snapshot.data ?? const <Map<String, dynamic>>[];

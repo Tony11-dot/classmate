@@ -8,6 +8,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_error_state.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/semester_select_field.dart';
 import '../data/subject_average.dart';
@@ -346,7 +347,7 @@ class _ComputePreviewSheetState extends ConsumerState<_ComputePreviewSheet> {
             child: _loading
                 ? const Padding(padding: EdgeInsets.all(40), child: Center(child: CmLoading()))
                 : _error != null
-                    ? Padding(padding: const EdgeInsets.all(24), child: Text(_error!))
+                    ? CmErrorState.fromError(_error, compact: true, onRetry: _compute)
                     : _rows.isEmpty
                         ? Padding(
                             padding: const EdgeInsets.all(24),

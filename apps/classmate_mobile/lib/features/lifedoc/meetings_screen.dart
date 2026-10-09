@@ -459,9 +459,16 @@ class _MeetingsScreenState extends ConsumerState<MeetingsScreen> {
                           ? l.meetingsEmptyForAccount
                             : l.meetingsLatestBody(
                                 _displayMeetingTitle(context, activeMeeting),
+                                // A meeting that was never edited has no
+                                // updatedAt — fall back to when it was
+                                // posted, not "Not available" mid-sentence.
                                 _friendlyDateTimeLabel(
                                   context,
-                                  _stringValue(activeMeeting, 'updatedAt'),
+                                  _firstNonEmpty([
+                                    _stringValue(activeMeeting, 'updatedAt'),
+                                    _stringValue(activeMeeting, 'createdAt'),
+                                    _stringValue(activeMeeting, 'startsAt'),
+                                  ]),
                                 ),
                               ),
                       ),

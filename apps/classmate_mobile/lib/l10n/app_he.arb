@@ -1513,6 +1513,7 @@
   "commonDownload": "הורד",
   "commonOpenExternally": "פתח חיצונית",
   "commonSave": "שמור",
+  "commonPickDate": "בחר תאריך",
   "commonCancel": "ביטול",
   "commonDone": "סיום",
   "commonDelete": "מחק",
@@ -1612,6 +1613,7 @@
   "adminReportsDismiss": "דחה",
   "adminReportsResolve": "טפל",
   "adminReportsReason": "סיבה: {reason}",
+  "adminReportsReportedOn": "דווח ב-{date}",
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}

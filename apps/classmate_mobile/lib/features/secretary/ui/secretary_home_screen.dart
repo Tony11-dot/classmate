@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:classmate_mobile/core/theme/cm_tokens.dart';
 import 'package:classmate_mobile/ui/widgets/cm_press.dart';
 import 'package:flutter/material.dart';
@@ -123,26 +125,33 @@ class SecretaryHomeScreen extends ConsumerWidget {
             style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 12),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.45,
-            ),
-            itemCount: tiles.length,
-            itemBuilder: (ctx, i) {
-              final t = tiles[i];
-              return _ToolTile(
-                icon: t.icon,
-                label: t.label,
-                tone: i % 3,
-                onTap: () => context.push(t.route),
-              );
-            },
-          ),
+          // Same 1.45 shape, but never shorter than icon + two label lines —
+          // at large system text the fixed ratio clipped the label.
+          LayoutBuilder(builder: (context, c) {
+            final tileW = (c.maxWidth - 12) / 2;
+            final scale = MediaQuery.textScalerOf(context).scale(1);
+            final minHeight = 28 + 44 + 10 + 2 * 21 * scale;
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                mainAxisExtent: math.max(tileW / 1.45, minHeight),
+              ),
+              itemCount: tiles.length,
+              itemBuilder: (ctx, i) {
+                final t = tiles[i];
+                return _ToolTile(
+                  icon: t.icon,
+                  label: t.label,
+                  tone: i % 3,
+                  onTap: () => context.push(t.route),
+                );
+              },
+            );
+          }),
         ],
       ),
     );

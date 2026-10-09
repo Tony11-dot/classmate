@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
 import '../providers/tutor_providers.dart';
 import '../providers/tutor_repository_provider.dart';
@@ -860,11 +861,11 @@ String _sessionTimeLabel(BuildContext context, Map<String, dynamic> session) {
     final now = DateTime.now();
     final diff = now.difference(dt);
     final l = AppLocalizations.of(context)!;
-    final material = MaterialLocalizations.of(context);
 
     if (diff.inMinutes < 60) return l.tutorTimeMinutesShort(diff.inMinutes);
     if (diff.inHours < 24) return l.tutorTimeHoursShort(diff.inHours);
-    return material.formatCompactDate(dt);
+    // Same DD/MM/YYYY as every other date in the app (was M/D/YYYY here).
+    return FriendlyDate.date(dt);
   } catch (_) {
     return '';
   }

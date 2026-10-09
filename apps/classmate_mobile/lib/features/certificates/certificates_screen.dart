@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/cm_surfaces.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -530,7 +531,7 @@ class _CertificatesScreenState extends ConsumerState<CertificatesScreen> {
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: Text(_error!, style: TextStyle(color: cs.error)),
+              child: CmErrorBanner(message: _error!, onRetry: _loadCohorts),
             ),
           // Homeroom (cohort)
           LiquidGlassSelectField<String>(

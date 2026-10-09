@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -195,13 +196,31 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
         leading: IconButton(tooltip: l.a11yBack, icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () { if (context.canPop()) context.pop(); }),
-        title: Text(AppLocalizations.of(context)!.teacherCreateFormTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+        title: CmBarTitle(AppLocalizations.of(context)!.teacherCreateFormTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
-          TextButton(onPressed: _saving ? null : () => _save(published: false), child: Text(AppLocalizations.of(context)!.teacherFormSaveDraft)),
+          // Draft becomes an icon when the title + both labels can't share
+          // the bar (Russian, large text), so the title stays whole.
+          if (cmBarIsTight(context,
+              title: AppLocalizations.of(context)!.teacherCreateFormTitle,
+              labels: [AppLocalizations.of(context)!.teacherFormSaveDraft, AppLocalizations.of(context)!.commonPublish],
+              primaryHasIcon: false))
+            IconButton(
+              tooltip: AppLocalizations.of(context)!.teacherFormSaveDraft,
+              icon: const Icon(Icons.save_outlined),
+              onPressed: _saving ? null : () => _save(published: false),
+            )
+          else
+            TextButton(onPressed: _saving ? null : () => _save(published: false), child: Text(AppLocalizations.of(context)!.teacherFormSaveDraft)),
           const SizedBox(width: 6),
           Padding(padding: const EdgeInsetsDirectional.only(end: 12),
             child: FilledButton(
               onPressed: _saving ? null : () => _save(published: true),
+              style: cmBarIsTight(context,
+                      title: AppLocalizations.of(context)!.teacherCreateFormTitle,
+                      labels: [AppLocalizations.of(context)!.teacherFormSaveDraft, AppLocalizations.of(context)!.commonPublish],
+                      primaryHasIcon: false)
+                  ? FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 14), visualDensity: VisualDensity.compact)
+                  : null,
               child: _saving ? const CmLoading(size: 18, color: Colors.white) : Text(AppLocalizations.of(context)!.commonPublish))),
         ],
       ),

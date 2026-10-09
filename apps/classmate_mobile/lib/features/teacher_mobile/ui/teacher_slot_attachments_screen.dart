@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_error_state.dart';
 import '../data/teacher_mobile_repository.dart';
 
 /// Manages the materials attached to a single teacher schedule slot.
@@ -391,10 +392,7 @@ class _MaterialPickerSheetState extends ConsumerState<_MaterialPickerSheet> {
               child: _loading
                   ? const Center(child: CmLoading())
                   : _error != null
-                      ? Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Center(child: Text(_error!, style: TextStyle(color: cs.error))),
-                        )
+                      ? CmErrorState.fromError(_error, compact: true, onRetry: _load)
                       : ListView.separated(
                           controller: scrollCtrl,
                           padding: const EdgeInsets.fromLTRB(12, 4, 12, 20),

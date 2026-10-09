@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/cm_tokens.dart';
@@ -12,13 +14,16 @@ class ManagerBagrutManageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
+    // Tiles grow with the system text size instead of clipping the subject
+    // name (same rule as the student Bagrut grid).
+    final scale = MediaQuery.textScalerOf(context).scale(1);
     return Scaffold(
       appBar: AppBar(title: const Text('Bagrut')),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 220,
-          mainAxisExtent: 120,
+          mainAxisExtent: math.max(120, 32 + 46 + 10 + 2 * 20 * scale),
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),

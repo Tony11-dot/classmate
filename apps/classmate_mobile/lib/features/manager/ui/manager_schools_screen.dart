@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_error_state.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/manager_api.dart';
 import 'manager_shell.dart';
@@ -196,7 +197,7 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
               return const Center(child: CmLoading());
             }
             if (snap.hasError) {
-              return ListView(children: [Padding(padding: const EdgeInsets.all(24), child: Text('${snap.error}'))]);
+              return CmErrorState.fromError(snap.error, onRetry: _reload);
             }
             final schools = snap.data ?? const [];
             if (schools.isEmpty) {

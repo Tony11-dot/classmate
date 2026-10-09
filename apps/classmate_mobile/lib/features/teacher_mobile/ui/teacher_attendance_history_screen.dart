@@ -25,15 +25,6 @@ Color _subjectColor(String subject, ColorScheme cs) {
   return cs.secondary;
 }
 
-String _ordinalPeriod(int period) {
-  switch (period) {
-    case 1: return '1st';
-    case 2: return '2nd';
-    case 3: return '3rd';
-    default: return '${period}th';
-  }
-}
-
 String _ymd(DateTime d) =>
     '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
@@ -195,8 +186,11 @@ class _SessionCard extends StatelessWidget {
     final color = _subjectColor(session.subject, cs);
     final dateObj = DateTime.tryParse(session.date);
     final dayLabel = dateObj != null ? DateFormat('EEEE, MMM d', DateFormat.localeExists(Localizations.localeOf(context).languageCode) ? Localizations.localeOf(context).languageCode : 'en').format(dateObj) : session.date;
-    final periodLabel = '${_ordinalPeriod(session.period)} period';
-    final gradeLabel = session.grade != null ? 'Grade ${session.grade} · ' : '';
+    // Localized ("Period 1"), not the English "1st period" in every language.
+    final periodLabel = AppLocalizations.of(context)!.teacherPeriod(session.period);
+    final gradeLabel = session.grade != null
+        ? '${AppLocalizations.of(context)!.adminCohortGradeFormat(session.grade!)} · '
+        : '';
     final total = session.totalStudents;
     // Late students attended — count them as present in the rate (matches the
     // session-detail screen + admin dashboard; only Absent lowers it).

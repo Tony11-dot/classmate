@@ -1781,6 +1781,7 @@
   "commonDownload": "Download",
   "commonOpenExternally": "Open externally",
   "commonSave": "Save",
+  "commonPickDate": "Pick a date",
   "commonCancel": "Cancel",
   "commonDone": "Done",
   "commonDelete": "Delete",
@@ -1899,6 +1900,12 @@
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}
+    }
+  },
+  "adminReportsReportedOn": "Reported {date}",
+  "@adminReportsReportedOn": {
+    "placeholders": {
+      "date": {}
     }
   },
   "chatReportTitle": "Report message",

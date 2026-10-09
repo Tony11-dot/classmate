@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/realtime/realtime_listener.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_error_state.dart';
 import '../../admin/data/admin_repository.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
@@ -717,10 +718,7 @@ class _StudentDetailSheetState extends ConsumerState<_StudentDetailSheet> {
             child: _loading
                 ? const Center(child: CmLoading())
                 : _error != null
-                    ? Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Center(child: Text(_error!, style: TextStyle(color: cs.error))),
-                      )
+                    ? CmErrorState.fromError(_error, compact: true, onRetry: _load)
                     : _buildBody(scrollCtrl, theme, cs),
           ),
         ],

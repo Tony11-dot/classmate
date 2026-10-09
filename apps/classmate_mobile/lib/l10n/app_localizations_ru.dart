@@ -4220,6 +4220,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonSave => 'Сохранить';
 
   @override
+  String get commonPickDate => 'Выберите дату';
+
+  @override
   String get commonCancel => 'Отмена';
 
   @override
@@ -4542,6 +4545,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String adminReportsReason(Object reason) {
     return 'Причина: $reason';
+  }
+
+  @override
+  String adminReportsReportedOn(Object date) {
+    return 'Жалоба от $date';
   }
 
   @override
@@ -5043,7 +5051,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherCreateFormTitle => 'Создание формы';
 
   @override
-  String get teacherFormSaveDraft => 'Сохранить черновик';
+  String get teacherFormSaveDraft => 'Черновик';
 
   @override
   String get teacherFormTitleHint => 'Название формы *';

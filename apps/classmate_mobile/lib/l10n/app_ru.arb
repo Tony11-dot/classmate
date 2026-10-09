@@ -1615,6 +1615,7 @@
   "commonDownload": "Скачать",
   "commonOpenExternally": "Открыть внешне",
   "commonSave": "Сохранить",
+  "commonPickDate": "Выберите дату",
   "commonCancel": "Отмена",
   "commonDone": "Готово",
   "commonDelete": "Удалить",
@@ -1714,6 +1715,7 @@
   "adminReportsDismiss": "Отклонить",
   "adminReportsResolve": "Решить",
   "adminReportsReason": "Причина: {reason}",
+  "adminReportsReportedOn": "Жалоба от {date}",
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}
@@ -1937,7 +1939,7 @@
   "teacherCustomSubjectLabel": "Свой предмет *",
   "teacherCreateClassroomButton": "Создать класс",
   "teacherCreateFormTitle": "Создание формы",
-  "teacherFormSaveDraft": "Сохранить черновик",
+  "teacherFormSaveDraft": "Черновик",
   "teacherFormTitleHint": "Название формы *",
   "teacherFormDescriptionHint": "Описание (необязательно)",
   "teacherFormAcceptingResponses": "Принимает ответы",

@@ -12,6 +12,7 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
@@ -244,7 +245,12 @@ class _MeetingCard extends StatelessWidget {
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(Icons.video_call_rounded, size: 16, color: cs.onPrimary),
                     const SizedBox(width: 6),
-                    Text(AppLocalizations.of(context)!.teacherJoinMeeting, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: cs.onPrimary)),
+                    // Wraps at large text (Arabic at 2× ran past the card).
+                    Flexible(
+                      child: Text(AppLocalizations.of(context)!.teacherJoinMeeting,
+                          maxLines: 2,
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: cs.onPrimary)),
+                    ),
                   ]),
                 ),
               ),
@@ -586,7 +592,7 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
       appBar: AppBar(
         backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
         leading: IconButton(tooltip: AppLocalizations.of(context)!.a11yBack, icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => context.pop()),
-        title: Text(_isEditing ? AppLocalizations.of(context)!.teacherMeetingEditTitle : AppLocalizations.of(context)!.teacherMeetingNewTitle,
+        title: CmBarTitle(_isEditing ? AppLocalizations.of(context)!.teacherMeetingEditTitle : AppLocalizations.of(context)!.teacherMeetingNewTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
         actions: [
           Padding(padding: const EdgeInsetsDirectional.only(end: 12),

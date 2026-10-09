@@ -415,7 +415,7 @@ class _TeacherNewAnnouncementScreenState
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/announcements'),
         ),
-        title: Text(
+        title: CmBarTitle(
           l.teacherNewAnnouncementAction,
           style: theme.textTheme.titleLarge
               ?.copyWith(fontWeight: FontWeight.w800),

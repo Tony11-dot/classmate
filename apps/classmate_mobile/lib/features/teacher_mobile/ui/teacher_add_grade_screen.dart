@@ -605,7 +605,7 @@ class _TeacherAddGradeScreenState
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
-        title: Text(AppLocalizations.of(context)!.teacherAddGradeTitle,
+        title: CmBarTitle(AppLocalizations.of(context)!.teacherAddGradeTitle,
             style: theme.textTheme.titleLarge
                 ?.copyWith(fontWeight: FontWeight.w800)),
         actions: [

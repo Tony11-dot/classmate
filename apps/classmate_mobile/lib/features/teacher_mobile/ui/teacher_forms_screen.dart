@@ -330,30 +330,42 @@ class _FormCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              const SizedBox(width: 52),
-              Icon(Icons.people_outline_rounded, size: 15, color: cs.onSurfaceVariant),
-              const SizedBox(width: 5),
-              Text(
-                l.teacherFormsResponses(responsesCount),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
+          // Count on the left, button on the right; when the two don't fit
+          // on one line (large text) the button drops under the count.
+          Padding(
+            padding: const EdgeInsetsDirectional.only(start: 52),
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.people_outline_rounded, size: 15, color: cs.onSurfaceVariant),
+                    const SizedBox(width: 5),
+                    Text(
+                      l.teacherFormsResponses(responsesCount),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const Spacer(),
-              FilledButton.tonalIcon(
-                onPressed: onViewResponses,
-                icon: const Icon(Icons.visibility_outlined, size: 16),
-                label: Text(l.teacherFormsViewResponses, style: const TextStyle(fontSize: 12.5)),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  minimumSize: const Size(0, 36),
-                  visualDensity: VisualDensity.compact,
+                FilledButton.tonalIcon(
+                  onPressed: onViewResponses,
+                  icon: const Icon(Icons.visibility_outlined, size: 16),
+                  label: Text(l.teacherFormsViewResponses, style: const TextStyle(fontSize: 12.5)),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    minimumSize: const Size(0, 36),
+                    visualDensity: VisualDensity.compact,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../ui/widgets/cm_search_field.dart';
 import '../../ui/widgets/cm_loading.dart';
+import '../../ui/widgets/cm_surfaces.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -254,7 +255,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
           children: [
             if (_error != null)
-              Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: TextStyle(color: cs.error))),
+              Padding(padding: const EdgeInsets.only(bottom: 12), child: CmErrorBanner(message: _error!, onRetry: _load)),
             cohortField,
             if (_cohortFilter != null) ...[
               const SizedBox(height: 10),
@@ -310,7 +311,7 @@ class _CertificatesHomeScreenState extends ConsumerState<CertificatesHomeScreen>
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 120),
         children: [
           if (_error != null)
-            Padding(padding: const EdgeInsets.only(bottom: 12), child: Text(_error!, style: TextStyle(color: cs.error))),
+            Padding(padding: const EdgeInsets.only(bottom: 12), child: CmErrorBanner(message: _error!, onRetry: _load)),
           cohortField,
           const SizedBox(height: 12),
           CmSearchField(
@@ -477,7 +478,7 @@ class _StudentCertificatesStaffPageState extends ConsumerState<StudentCertificat
                     if (_error != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: Text(_error!, style: TextStyle(color: cs.error)),
+                        child: CmErrorBanner(message: _error!, onRetry: _load),
                       ),
                     Text('${widget.cohortName} · ${widget.student.name}',
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),

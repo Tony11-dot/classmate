@@ -455,7 +455,7 @@ class _TeacherAddMaterialScreenState
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
-        title: Text(
+        title: CmBarTitle(
           _isEditing ? l.teacherMaterialEditTitle : l.teacherMaterialAddTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),

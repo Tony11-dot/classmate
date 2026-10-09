@@ -4310,6 +4310,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonSave => 'Enregistrer';
 
   @override
+  String get commonPickDate => 'Choisir une date';
+
+  @override
   String get commonCancel => 'Annuler';
 
   @override
@@ -4379,7 +4382,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonError => 'Une erreur est survenue';
 
   @override
-  String get studentMaterialsTitle => 'Ressources';
+  String get studentMaterialsTitle => 'Supports de cours';
 
   @override
   String get studentMaterialsEmptyTitle =>
@@ -4634,6 +4637,11 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String adminReportsReason(Object reason) {
     return 'Motif : $reason';
+  }
+
+  @override
+  String adminReportsReportedOn(Object date) {
+    return 'Signalé le $date';
   }
 
   @override
@@ -5139,7 +5147,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherCreateFormTitle => 'Créer un formulaire';
 
   @override
-  String get teacherFormSaveDraft => 'Enregistrer un brouillon';
+  String get teacherFormSaveDraft => 'Brouillon';
 
   @override
   String get teacherFormTitleHint => 'Titre du formulaire *';
@@ -5577,7 +5585,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherMaterialDeleteTitle => 'Supprimer le document ?';
 
   @override
-  String get teacherMaterialListTitle => 'Documents';
+  String get teacherMaterialListTitle => 'Supports de cours';
 
   @override
   String teacherMaterialTotalCount(int count) {

@@ -64,7 +64,7 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        title: Text(AppLocalizations.of(context)!.classroomsReorderTitle),
+        title: CmBarTitle(AppLocalizations.of(context)!.classroomsReorderTitle),
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,

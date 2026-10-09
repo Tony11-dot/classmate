@@ -6,6 +6,7 @@ import '../../../core/auth/auth_session.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../core/util/friendly_date.dart';
 import '../../solutions/data/solutions_api.dart';
 import '../../solutions/data/solutions_live_mapper.dart';
 import '../../solutions/ui/widgets/solution_asset_preview_sheet.dart';
@@ -399,8 +400,9 @@ class _MessageReportCard extends ConsumerWidget {
                   ),
                 CmPill(
                   icon: Icons.schedule_rounded,
-                  label:
-                      'Reported ${report['createdAt']?.toString().split('T').first ?? ''}',
+                  label: AppLocalizations.of(context)!.adminReportsReportedOn(
+                    FriendlyDate.date(report['createdAt']),
+                  ),
                 ),
               ],
             ),

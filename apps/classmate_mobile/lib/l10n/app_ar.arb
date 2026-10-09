@@ -1476,6 +1476,7 @@
   "commonDownload": "تنزيل",
   "commonOpenExternally": "فتح خارجيًا",
   "commonSave": "حفظ",
+  "commonPickDate": "اختر تاريخًا",
   "commonCancel": "إلغاء",
   "commonDone": "تم",
   "commonDelete": "حذف",
@@ -1575,6 +1576,7 @@
   "adminReportsDismiss": "رفض",
   "adminReportsResolve": "حل",
   "adminReportsReason": "السبب: {reason}",
+  "adminReportsReportedOn": "تم الإبلاغ في {date}",
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}

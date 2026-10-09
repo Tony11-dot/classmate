@@ -337,7 +337,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           onPressed: () => context.pop(),
         ),
-        title: Text(
+        title: CmBarTitle(
           _isEditing ? AppLocalizations.of(context)!.teacherExamEditTitle : AppLocalizations.of(context)!.teacherExamNewTitle,
           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
         ),
@@ -349,7 +349,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
               icon: _saving
                   ? const CmLoading(size: 16)
                   : const Icon(Icons.check_rounded, size: 18),
-              label: Text(_isEditing ? 'Save' : 'Create'),
+              label: Text(_isEditing ? AppLocalizations.of(context)!.commonSave : AppLocalizations.of(context)!.commonCreate),
             ),
           ),
         ],
@@ -448,7 +448,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
                           child: Text(
                             _selectedDate != null
                                 ? FriendlyDate.date(_selectedDate!)
-                                : 'Pick a date',
+                                : AppLocalizations.of(context)!.commonPickDate,
                             style: TextStyle(color: _selectedDate != null ? cs.onSurface : cs.onSurfaceVariant),
                           ),
                         ),

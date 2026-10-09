@@ -271,7 +271,7 @@ class _TeacherCreateClassroomScreenState
                 const SizedBox(height: 10),
                 _DDLButton(
                   label: _selectedCohortIds.isEmpty
-                      ? 'Select cohorts…'
+                      ? '${AppLocalizations.of(context)!.pickerSelectCohorts}…'
                       : _allCohorts
                           .where((c) => _selectedCohortIds.contains(c['id']?.toString()))
                           .map((c) => (c['name'] ?? '').toString().replaceFirst(RegExp(r'^\d+\s*-\s*'), ''))
@@ -335,7 +335,7 @@ class _TeacherCreateClassroomScreenState
                 const SizedBox(height: 10),
                 _DDLButton(
                   label: _selectedStudentIds.isEmpty
-                      ? 'Select students…'
+                      ? '${AppLocalizations.of(context)!.pickerSelectStudents}…'
                       : _allStudents
                           .where((s) => _selectedStudentIds.contains(s.studentId))
                           .map((s) => s.name)

@@ -4201,6 +4201,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonSave => 'שמור';
 
   @override
+  String get commonPickDate => 'בחר תאריך';
+
+  @override
   String get commonCancel => 'ביטול';
 
   @override
@@ -4515,6 +4518,11 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String adminReportsReason(Object reason) {
     return 'סיבה: $reason';
+  }
+
+  @override
+  String adminReportsReportedOn(Object date) {
+    return 'דווח ב-$date';
   }
 
   @override

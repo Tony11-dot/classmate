@@ -4228,6 +4228,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonSave => 'حفظ';
 
   @override
+  String get commonPickDate => 'اختر تاريخًا';
+
+  @override
   String get commonCancel => 'إلغاء';
 
   @override
@@ -4546,6 +4549,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String adminReportsReason(Object reason) {
     return 'السبب: $reason';
+  }
+
+  @override
+  String adminReportsReportedOn(Object date) {
+    return 'تم الإبلاغ في $date';
   }
 
   @override

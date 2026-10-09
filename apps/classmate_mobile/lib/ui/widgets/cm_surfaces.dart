@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/theme/cm_tokens.dart';
+import '../../l10n/app_localizations.dart';
 import 'cm_press.dart';
 
 /// The redesign's standard card: low surface, hairline border, soft shadow.
@@ -353,6 +354,121 @@ class CmIconAction extends StatelessWidget {
   }
 }
 
+/// Inline "couldn't load" notice for screens that stay usable around the
+/// failure (a form whose picker didn't load, a list header). Full-screen
+/// failures use [CmErrorState] instead.
+class CmErrorBanner extends StatelessWidget {
+  const CmErrorBanner({super.key, required this.message, this.onRetry});
+
+  final String message;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: EdgeInsetsDirectional.fromSTEB(14, 8, onRetry == null ? 14 : 8, 8),
+      decoration: BoxDecoration(
+        color: cs.errorContainer,
+        borderRadius: BorderRadius.circular(CmTokens.radiusLg),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: cs.onErrorContainer),
+          const SizedBox(width: 10),
+          Expanded(child: Text(message, style: TextStyle(color: cs.onErrorContainer))),
+          if (onRetry != null)
+            TextButton(
+              onPressed: onRetry,
+              child: Text(AppLocalizations.of(context)!.commonRetry),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// True when an app bar can't show [title] (even at 72 %) next to text
+/// actions with these [labels] — Russian "Черновик" + "Опубликовать" left
+/// "Нов…". The screen then shows its secondary action as an icon button.
+bool cmBarIsTight(
+  BuildContext context, {
+  required String title,
+  required List<String> labels,
+  /// The last label is a filled button; does it carry a leading icon?
+  bool primaryHasIcon = true,
+}) {
+  final theme = Theme.of(context);
+  final scaler = MediaQuery.textScalerOf(context);
+  final direction = Directionality.of(context);
+  double measure(String s, TextStyle? style) {
+    final p = TextPainter(
+      text: TextSpan(text: s, style: style),
+      maxLines: 1,
+      textDirection: direction,
+      textScaler: scaler,
+    )..layout();
+    final w = p.width;
+    p.dispose();
+    return w;
+  }
+
+  final titleW = measure(
+        title,
+        theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+      ) *
+      CmBarTitle._minScale;
+  var actionsW = 0.0;
+  for (var i = 0; i < labels.length; i++) {
+    final isPrimary = i == labels.length - 1;
+    // Label + the button's own padding (M3: text 12+12; filled 24+24, or
+    // 16 + icon 18 + gap 8 + 24 with a leading icon).
+    actionsW += measure(labels[i], theme.textTheme.labelLarge) +
+        (isPrimary ? (primaryHasIcon ? 66 : 48) : 24);
+  }
+  // Back button, title spacing, the gap between actions, end padding.
+  const leadingAndGaps = 56 + 16 + 6 + 12;
+  return leadingAndGaps + titleW + actionsW > MediaQuery.sizeOf(context).width;
+}
+
+/// App-bar title that shrinks a little instead of ending in "…" when the
+/// actions take most of the bar ("Save draft" + "Publish" left "New Assi…").
+/// Shrinks at most to 64% — past that it ellipsizes, so a long French
+/// label can't squeeze the title into an unreadable sliver.
+class CmBarTitle extends StatelessWidget {
+  const CmBarTitle(this.text, {super.key, this.style});
+
+  final String text;
+  final TextStyle? style;
+
+  static const _minScale = 0.64;
+
+  @override
+  Widget build(BuildContext context) {
+    final base = style ?? DefaultTextStyle.of(context).style;
+    return LayoutBuilder(builder: (context, c) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: base),
+        maxLines: 1,
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout();
+      final natural = painter.width;
+      painter.dispose();
+      final scale = natural <= c.maxWidth
+          ? 1.0
+          : (c.maxWidth / natural).clamp(_minScale, 1.0);
+      final fontSize = base.fontSize ?? 20;
+      return Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: base.copyWith(fontSize: fontSize * scale),
+      );
+    });
+  }
+}
+
 /// Section label with an optional count pill and a hairline that runs to
 /// the end of the row.
 class CmSectionHeader extends StatelessWidget {
@@ -627,28 +743,45 @@ class CmPickerRow extends StatelessWidget {
           children: [
             CmIconTile(icon: icon, size: 36, filled: hasValue),
             const SizedBox(width: 12),
-            Text(
-              label,
-              style: t.bodyMedium?.copyWith(
-                color: hasValue ? cs.onSurface : cs.onSurfaceVariant,
-                fontWeight: hasValue ? FontWeight.w700 : FontWeight.w600,
+            // Empty state: the label is the whole prompt ("Tap to select
+            // students…") — let it take the row and wrap, instead of pushing
+            // the chevron off the edge in French/Russian or at large text.
+            // With a value the label is a short noun and the value gets the
+            // rest of the row.
+            if (!hasValue)
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: t.bodyMedium?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            else ...[
+              Text(
+                label,
+                style: t.bodyMedium?.copyWith(
+                  color: cs.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: hasValue
-                  ? Text(
-                      summary!,
-                      textAlign: TextAlign.end,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: t.bodyMedium?.copyWith(
-                        color: cs.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  summary!,
+                  textAlign: TextAlign.end,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: t.bodyMedium?.copyWith(
+                    color: cs.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(width: 4),
             Icon(trailingIcon, size: 22, color: cs.onSurfaceVariant),
           ],

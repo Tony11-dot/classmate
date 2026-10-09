@@ -7619,6 +7619,12 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get commonSave;
 
+  /// No description provided for @commonPickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date'**
+  String get commonPickDate;
+
   /// No description provided for @commonCancel.
   ///
   /// In en, this message translates to:
@@ -8218,6 +8224,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reason: {reason}'**
   String adminReportsReason(Object reason);
+
+  /// No description provided for @adminReportsReportedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported {date}'**
+  String adminReportsReportedOn(Object date);
 
   /// No description provided for @chatReportTitle.
   ///
