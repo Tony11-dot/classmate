@@ -176,6 +176,13 @@ Update this file in the same commit as each screen's redesign.
 - Website: emoji icons → line icons (features, FAQ groups, contact, download, theme toggle); Google Play
   badge was "Coming soon" though the app is live on Play → links to the listing
 - Verify-code SMS log line no longer prints the code and number when Twilio isn't configured
+- Teachers and parents saw Announcements twice in the drawer / desktop sidebar (Core + School Tools)
+  → once, in Core (found by the new desktop/iPad shots)
+- Wide screens: the shot rig now renders iPad (both orientations) and desktop web through the real
+  sidebar chrome — every rigged screen passes at all three sizes
+- Web app shell: a startup failure showed a raw red stack-trace page → a card with "ClassMate
+  couldn't start", Reload, support@ and the details folded away (light + dark); installed-app colour
+  was the old indigo → brand blue
 
 ## Up next (in order)
 1. Every screen is ✅ or ➖. Next: on-device QA pass of build 305 (TestFlight / Play internal), then fix anything found.

@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
-    "theme_color": "#1A237E",
+    "theme_color": "#011A96",
     "description": "ClassMate — Your Smart School Companion.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,

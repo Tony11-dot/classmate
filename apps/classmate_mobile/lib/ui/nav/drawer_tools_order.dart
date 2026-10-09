@@ -44,7 +44,8 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/teacher/cohorts', icon: Icons.groups_rounded, label: l.navCohorts),
         DrawerTool(route: '/teacher/attendance', icon: Icons.fact_check_rounded, label: l.navAttendance),
         DrawerTool(route: '/teacher/grades', icon: Icons.grade_rounded, label: l.navGrades),
-        DrawerTool(route: '/announcements', icon: Icons.campaign_rounded, label: l.navAnnouncements),
+        // Announcements is a Core item for teachers (a bottom-nav tab), so it
+        // isn't repeated here.
         DrawerTool(route: '/notifications', icon: Icons.notifications_rounded, label: l.navNotifications),
         DrawerTool(route: '/teacher/assignments', icon: Icons.assignment_rounded, label: l.navAssignments),
         DrawerTool(route: '/teacher/materials', icon: Icons.folder_shared_rounded, label: l.navMaterials),
@@ -66,7 +67,7 @@ List<DrawerTool> defaultDrawerTools(String roleKey, AppLocalizations l) {
         DrawerTool(route: '/parent/assignments', icon: Icons.assignment_rounded, label: l.navAssignments),
         DrawerTool(route: '/parent/meetings', icon: Icons.video_call_rounded, label: l.navMeetings),
         DrawerTool(route: '/parent/materials', icon: Icons.folder_rounded, label: l.navMaterials),
-        DrawerTool(route: '/announcements', icon: Icons.campaign_rounded, label: l.navAnnouncements),
+        // Announcements is a Core item for parents, so it isn't repeated here.
         DrawerTool(route: '/parent/notifications', icon: Icons.notifications_rounded, label: l.navNotifications),
         DrawerTool(route: '/cmail', icon: Icons.alternate_email_rounded, label: l.cmailTitle),
       ];
