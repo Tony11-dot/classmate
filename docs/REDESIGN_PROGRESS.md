@@ -125,6 +125,10 @@ Update this file in the same commit as each screen's redesign.
   outside English, day chips/"Yesterday" localized; schedule time ranges showed reversed
   ("08:45–08:00") → kept left-to-right; English messages in the Hebrew app (and vice versa) read
   in their own direction, so punctuation stays at the end; previews isolate name + text
+- Chips (choice/filter) and popup-menu items used the system font instead of the app font the
+  user picked — theme now passes the font, like buttons and tabs
+- Parent home tool tiles clipped the "No child linked yet" note on a standard iPhone — tiles keep
+  their shape but never get shorter than their content
 - Marketing shots come from a local rig (real AppShell + screens, demo data, fake HTTP via
   `http.runWithClient`) kept outside git; re-run it to refresh the site/video/deck shots
 

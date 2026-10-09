@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -216,27 +218,35 @@ class _ToolsGrid extends ConsumerWidget {
       ),
     ];
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.75,
-      ),
-      itemCount: tiles.length,
-      itemBuilder: (ctx, i) {
-        final t = tiles[i];
-        final blocked = !t.ignoreSelection && disabledMsg != null;
-        return _ToolTile(
-          icon: t.icon,
-          label: t.label,
-          disabledNote: blocked ? disabledMsg : null,
-          onTap: blocked ? null : () => context.push(t.route),
-        );
-      },
-    );
+    // Same 1.75 shape as before, but never shorter than the content: with the
+    // "pick a child" note under the label the fixed ratio clipped every tile
+    // on a standard iPhone (and with larger system text).
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    final minHeight = 26 + 40 + 8 + 38 * scale;
+    return LayoutBuilder(builder: (context, c) {
+      final tileW = (c.maxWidth - 12) / 2;
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          mainAxisExtent: math.max(tileW / 1.75, minHeight),
+        ),
+        itemCount: tiles.length,
+        itemBuilder: (ctx, i) {
+          final t = tiles[i];
+          final blocked = !t.ignoreSelection && disabledMsg != null;
+          return _ToolTile(
+            icon: t.icon,
+            label: t.label,
+            disabledNote: blocked ? disabledMsg : null,
+            onTap: blocked ? null : () => context.push(t.route),
+          );
+        },
+      );
+    });
   }
 }
 

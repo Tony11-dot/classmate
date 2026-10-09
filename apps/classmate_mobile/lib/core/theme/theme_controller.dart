@@ -1096,7 +1096,11 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
     chipTheme: ChipThemeData(
       shape: const StadiumBorder(),
       side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
-      labelStyle: TextStyle(fontWeight: FontWeight.w600, color: on),
+      labelStyle: TextStyle(
+        fontWeight: FontWeight.w600,
+        color: on,
+        fontFamily: s.font.family,
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
@@ -1200,7 +1204,11 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.5)),
       ),
-      textStyle: TextStyle(color: on, fontWeight: FontWeight.w600),
+      textStyle: TextStyle(
+        color: on,
+        fontWeight: FontWeight.w600,
+        fontFamily: s.font.family,
+      ),
     ),
     dropdownMenuTheme: DropdownMenuThemeData(
       menuStyle: MenuStyle(
