@@ -1708,7 +1708,8 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
           includeYear: true,
           fallback: l.earlier,
           today: l.today,
-          yesterday: l.yesterday);
+          yesterday: l.yesterday,
+          locale: Localizations.localeOf(context).toString());
 
   Widget _buildDaySeparatorChip(BuildContext context, String label) {
     final scheme = Theme.of(context).colorScheme;
@@ -1798,12 +1799,8 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
     );
   }
 
-  String _formatTime(DateTime dt) {
-    final hh = (dt.hour % 12 == 0 ? 12 : dt.hour % 12).toString();
-    final mm = dt.minute.toString().padLeft(2, '0');
-    final suffix = dt.hour >= 12 ? 'PM' : 'AM';
-    return '$hh:$mm $suffix';
-  }
+  String _formatTime(DateTime dt) =>
+      formatChatClock(dt, locale: Localizations.localeOf(context).toString());
 
   String _kindToString(ChatMessageKind kind) {
     switch (kind) {

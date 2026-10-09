@@ -21,6 +21,7 @@ import 'blocked_people_screen.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../core/realtime/realtime_listener.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
+import '../../../core/util/bidi.dart';
 
 class MessagesInboxScreen extends ConsumerStatefulWidget {
   const MessagesInboxScreen({super.key});
@@ -259,6 +260,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
       item.lastMessageDate,
       fallback: item.lastMessageAt.trim(),
       yesterday: l.yesterday,
+      locale: Localizations.localeOf(context).toString(),
     );
   }
 
@@ -899,7 +901,7 @@ class _InboxPreviewLine extends StatelessWidget {
         ],
         Expanded(
           child: Text(
-            '$prefix$body',
+            '$prefix${firstStrongIsolate(body)}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: style,

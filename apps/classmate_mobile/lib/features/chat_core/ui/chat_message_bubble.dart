@@ -16,6 +16,7 @@ import '../utils/chat_reply_codec.dart';
 import 'chat_bubble_tail.dart';
 import 'chat_ticks.dart';
 import 'chat_audio_bubble.dart';
+import '../../../core/util/bidi.dart';
 
 /// Width of the sender pointer, and of the strip reserved for it on bubbles
 /// that don't draw one — see [ChatBubbleTail].
@@ -1441,6 +1442,7 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
     final collapsedMaxLines = widget.previewMode ? 5 : 8;
     final plainStyle = const TextStyle(color: Colors.white);
     final hasUrl = _urlRegex.hasMatch(widget.text);
+    final dir = firstStrongDirection(widget.text, Directionality.of(context));
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1448,7 +1450,7 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
         final painter = TextPainter(
           text: measSpan,
           maxLines: collapsedMaxLines,
-          textDirection: Directionality.of(context),
+          textDirection: dir,
         )..layout(maxWidth: constraints.maxWidth);
         final exceeds = painter.didExceedMaxLines;
 
@@ -1459,11 +1461,13 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
             hasUrl
                 ? Text.rich(
                     _buildRichSpan(widget.text),
+                    textDirection: dir,
                     maxLines: _expanded ? null : collapsedMaxLines,
                     overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
                   )
                 : Text(
                     widget.text,
+                    textDirection: dir,
                     maxLines: _expanded ? null : collapsedMaxLines,
                     overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
                     style: plainStyle,

@@ -20,6 +20,7 @@ import '../../chat_core/utils/chat_time.dart';
 import '../../chat_core/utils/chat_reply_codec.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
+import '../../../core/util/bidi.dart';
 
 class ClassroomsHomeScreen extends ConsumerStatefulWidget {
   const ClassroomsHomeScreen({super.key});
@@ -456,7 +457,7 @@ class _ClassroomAppleCard extends ConsumerWidget {
                                 preview: latest == null
                                     ? l.classroomsNoMessagesYet
                                     : _previewText(context, latest),
-                                timeText: _previewTime(createdAtRaw),
+                                timeText: _previewTime(context, createdAtRaw),
                                 isUnread: isUnread,
                               );
                             },
@@ -738,13 +739,18 @@ String _previewText(BuildContext context, Map<String, dynamic> m) {
     labels: ChatPreviewLabels.of(AppLocalizations.of(context)!),
   );
   if (sender.isEmpty) {
-    return text;
+    return firstStrongIsolate(text);
   }
-  return '$sender: $text';
+  return '${firstStrongIsolate(sender)}: ${firstStrongIsolate(text)}';
 }
 
-String _previewTime(String raw) {
+String _previewTime(BuildContext context, String raw) {
   final dt = parseChatTimestamp(raw);
-  return formatChatInboxTrailingLabel(dt, fallback: '');
+  return formatChatInboxTrailingLabel(
+    dt,
+    fallback: '',
+    yesterday: AppLocalizations.of(context)!.yesterday,
+    locale: Localizations.localeOf(context).toString(),
+  );
 }
 

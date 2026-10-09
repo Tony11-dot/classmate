@@ -121,6 +121,10 @@ Update this file in the same commit as each screen's redesign.
   start with a lone "," or a stray space (LTR only; RTL unchanged)
 - Admin dashboard stat tiles overflowed by 2.4 pt on a standard iPhone (fixed-ratio grid) — now
   content-sized two columns
+- Hebrew/Arabic (RTL): chat + inbox times were English "AM 9:07" (flipped) → 24-hour "09:07"
+  outside English, day chips/"Yesterday" localized; schedule time ranges showed reversed
+  ("08:45–08:00") → kept left-to-right; English messages in the Hebrew app (and vice versa) read
+  in their own direction, so punctuation stays at the end; previews isolate name + text
 - Marketing shots come from a local rig (real AppShell + screens, demo data, fake HTTP via
   `http.runWithClient`) kept outside git; re-run it to refresh the site/video/deck shots
 

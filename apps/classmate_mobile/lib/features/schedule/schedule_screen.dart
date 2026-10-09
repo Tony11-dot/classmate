@@ -9,6 +9,7 @@ import 'providers/schedule_providers.dart';
 import 'schedule_empty_state_copy.dart';
 import '../../core/http/cm_api.dart';
 import '../../core/util/friendly_date.dart';
+import '../../core/util/bidi.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../class_materials/ui/class_materials_section.dart';
@@ -725,7 +726,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
   String _startsAt(Map<String, dynamic> item) => '${item['startsAt'] ?? ''}';
   String _timeLabel(Map<String, dynamic> item) =>
-      '${item['startsAt'] ?? '--:--'}–${item['endsAt'] ?? '--:--'}';
+      ltrIsolate('${item['startsAt'] ?? '--:--'}–${item['endsAt'] ?? '--:--'}');
   String _titleOf(BuildContext context, Map<String, dynamic> item) =>
       '${item['title'] ?? AppLocalizations.of(context)!.scheduleClassFallback}';
 }

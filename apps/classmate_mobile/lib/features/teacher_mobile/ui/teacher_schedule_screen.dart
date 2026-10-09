@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../l10n/app_localizations.dart';
+import '../../../core/util/bidi.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../data/teacher_mobile_repository.dart';
@@ -424,7 +425,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                             if ((nextUp['cohort'] as Map?)?['name'] != null)
                               (nextUp['cohort'] as Map)['name'].toString(),
                             if ((nextUp['startTime'] ?? '').toString().isNotEmpty)
-                              '${nextUp['startTime']} – ${nextUp['endTime'] ?? ''}',
+                              ltrIsolate('${nextUp['startTime']} – ${nextUp['endTime'] ?? ''}'),
                           ].where((s) => s.isNotEmpty).join('  ·  '),
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w800,
