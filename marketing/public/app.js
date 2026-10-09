@@ -308,7 +308,7 @@ if (window.gsap && document.querySelector('.hero-stage')) {
     if (!wrap || !box || !front || !back || !copies.length) return;
 
     const SRC = ['nova', 'schedule', 'classroom', 'solutions', 'grades', 'practice']
-      .map((n) => `assets/shot-${n}-light.png`);
+      .map((n) => `assets/shot-${n}-v2.webp`);
     const N = SRC.length, seg = N - 1;
     const ampX = () => Math.min(window.innerWidth * 0.26, 460);
 
