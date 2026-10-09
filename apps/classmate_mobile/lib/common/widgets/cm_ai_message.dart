@@ -298,29 +298,44 @@ class _ProseWidget extends StatelessWidget {
     // The regex matches inline math: $ not preceded or followed by $,
     // content may span multiple tokens but NOT multiple lines.
     final mathExprs = <String>[];
+    // Punctuation and the one space right after inline math ("between $a$
+    // and $b$, evaluate") are glued into the math box, so a wrap there can't
+    // leave a lone comma — or a stray leading space — at the start of the next
+    // line. LTR only: in RTL text the comma sits on the other side of the math.
+    final glue = textDirection == TextDirection.ltr;
+    String withSuffix(String expr, String? punct, String? space) {
+      if (!glue) return expr;
+      var out = expr;
+      if ((punct ?? '').isNotEmpty) out = '$out\\text{$punct}';
+      if ((space ?? '').isNotEmpty) out = '$out\\ ';
+      return out;
+    }
+
+    String keep(String? punct, String? space) =>
+        glue ? '' : '${punct ?? ''}${space ?? ''}';
     // First pull out any $$...$$ that survived into prose (e.g. inside a table
     // cell, where it can't be a standalone block). Render it inline within the
     // cell. Done BEFORE the $...$ pass so the inner single-$ logic never sees
     // these delimiters.
     final withBlock = text.replaceAllMapped(
-      RegExp(r'\$\$([\s\S]+?)\$\$'),
+      RegExp(r'\$\$([\s\S]+?)\$\$([,.;:!?]*)( ?)'),
       (m) {
         final raw = (m.group(1) ?? '').trim();
         if (raw.isEmpty) return m.group(0)!;
         final idx = mathExprs.length;
-        mathExprs.add(sanitizeMathLatex(raw));
-        return '\x02M$idx\x02';
+        mathExprs.add(withSuffix(sanitizeMathLatex(raw), m.group(2), m.group(3)));
+        return '\x02M$idx\x02${keep(m.group(2), m.group(3))}';
       },
     );
     final safeText = withBlock.replaceAllMapped(
-      RegExp(r'(?<!\$)\$(?!\$)((?:[^$\n\\]|\\.)+?)(?<!\$)\$(?!\$)'),
+      RegExp(r'(?<!\$)\$(?!\$)((?:[^$\n\\]|\\.)+?)(?<!\$)\$(?!\$)([,.;:!?]*)( ?)'),
       (m) {
         final raw = (m.group(1) ?? '').trim();
         if (raw.isEmpty) return m.group(0)!;
         final expr = sanitizeMathLatex(raw);
         final idx = mathExprs.length;
-        mathExprs.add(expr);
-        return '\x02M$idx\x02';
+        mathExprs.add(withSuffix(expr, m.group(2), m.group(3)));
+        return '\x02M$idx\x02${keep(m.group(2), m.group(3))}';
       },
     );
 

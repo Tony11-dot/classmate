@@ -110,15 +110,30 @@ Update this file in the same commit as each screen's redesign.
 | Legal site (classmate-legal: index, privacy, terms, accessibility, delete account) | ✅ shared site.css/site.js, light + dark, Hebrew RTL; text unchanged except Gmail → support@ |
 | Verify-code sheet (Profile → Verify) | ✅ |
 | ClassNotes reset page | ➖ separate product, own design + tests |
+| Website screenshots (classmateapp.org) | ✅ re-shot from the redesigned app (new logo); WebP, 6 × ~40–85 KB |
+| Website demo video | ✅ new white mark in both logo moments; re-encoded (10.9 MB, fast start); WebP poster |
+
+## Fixes found while re-shooting (2026-10-09, round 11)
+- Schedule header: "Next up" and "Upcoming exam" get full rows — on a 402 pt iPhone both were cut
+  off ("08:00–08:45…", "13/10/20…"); the two counts stay side by side
+- Chat bubbles stripped every comma from messages, reply quotes and NOVA prompts — fixed (+ test)
+- NOVA answers: punctuation (and the space) after inline math is glued to it, so a line can't
+  start with a lone "," or a stray space (LTR only; RTL unchanged)
+- Admin dashboard stat tiles overflowed by 2.4 pt on a standard iPhone (fixed-ratio grid) — now
+  content-sized two columns
+- Marketing shots come from a local rig (real AppShell + screens, demo data, fake HTTP via
+  `http.runWithClient`) kept outside git; re-run it to refresh the site/video/deck shots
 
 ## Up next (in order)
-1. Every screen is ✅ or ➖. Next: on-device QA pass of build 301 (TestFlight / Play internal), then fix anything found.
+1. Every screen is ✅ or ➖. Next: on-device QA pass of build 302 (TestFlight / Play internal), then fix anything found.
 
 ## Known open items (not redesign)
-- Rotate the Anthropic API key (live key is in this public repo's history, commit b49805ad)
+- Anthropic key: new key is live on Railway (2026-10-09). Still to do: confirm NOVA answers, then
+  delete the old key (not in the "ClassMate" Console org — check other orgs/workspaces)
+- ⚠ Any Railway variable change redeploys GitHub `main` and drops this branch's backend — use
+  `--skip-deploys`, then `railway up` from the repo root
 - Apple-review demo password is committed in 4 files of the public repo
-- Remove Railway vars RESEND_FROM_EMAIL / RESEND_REPLY_TO once the build with fixed addresses is live
-- Pitch deck screenshots are from June (old app look); re-shoot from the redesigned app
+- Pitch deck screenshots are from June (old app look); the new shots are ready to drop in
 - Secretary student create/delete UI not wired
 - 11 stale failing tests (also fail on `main`)
 - Composer mic/classroom bug report — waiting on repro details

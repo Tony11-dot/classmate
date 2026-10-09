@@ -265,9 +265,11 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          // 2×2 stat grid — same four facts as before, easier to scan.
+          // Counts side by side; "Next up" and the exam get full rows so
+          // the class name and exam date are never cut off on a phone.
           LayoutBuilder(builder: (context, c) {
             final w = (c.maxWidth - 10) / 2;
+            final full = c.maxWidth;
             return Wrap(
               spacing: 10,
               runSpacing: 10,
@@ -291,7 +293,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                   ),
                 ),
                 SizedBox(
-                  width: w,
+                  width: full,
                   child: _statPill(
                     context,
                     icon: Icons.schedule_rounded,
@@ -305,7 +307,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                 // Exams, drawer highlights Exams, bottom nav hides — all
                 // driven by the /exams route in the shell).
                 SizedBox(
-                  width: w,
+                  width: full,
                   child: _statPill(
                     context,
                     icon: Icons.quiz_rounded,
@@ -772,7 +774,7 @@ Widget _statPill(
               const SizedBox(height: 2),
               Text(
                 value,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,

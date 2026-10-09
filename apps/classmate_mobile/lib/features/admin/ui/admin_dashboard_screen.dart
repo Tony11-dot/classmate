@@ -445,40 +445,43 @@ class _StatsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 10,
-      crossAxisSpacing: 10,
-      childAspectRatio: 2.6,
-      children: [
-        _StatCard(
-          label: l.adminStudents,
-          value: '${overview.students}',
-          icon: Icons.school_rounded,
-          color: cs.primary,
-        ),
-        _StatCard(
-          label: l.adminTeachers,
-          value: '${overview.teachers}',
-          icon: Icons.co_present_rounded,
-          color: cs.secondary,
-        ),
-        _StatCard(
-          label: l.navCohorts,
-          value: '${overview.cohorts}',
-          icon: Icons.groups_rounded,
-          color: cs.tertiary,
-        ),
-        _StatCard(
-          label: l.navClassrooms,
-          value: '${overview.classrooms}',
-          icon: Icons.meeting_room_rounded,
-          color: Color.lerp(cs.primary, cs.tertiary, 0.5)!,
-        ),
-      ],
-    );
+    // Two columns whose height follows the content — a fixed aspect-ratio
+    // grid clipped the label on a standard iPhone width (and worse with
+    // larger system text).
+    final cards = [
+      _StatCard(
+        label: l.adminStudents,
+        value: '${overview.students}',
+        icon: Icons.school_rounded,
+        color: cs.primary,
+      ),
+      _StatCard(
+        label: l.adminTeachers,
+        value: '${overview.teachers}',
+        icon: Icons.co_present_rounded,
+        color: cs.secondary,
+      ),
+      _StatCard(
+        label: l.navCohorts,
+        value: '${overview.cohorts}',
+        icon: Icons.groups_rounded,
+        color: cs.tertiary,
+      ),
+      _StatCard(
+        label: l.navClassrooms,
+        value: '${overview.classrooms}',
+        icon: Icons.meeting_room_rounded,
+        color: Color.lerp(cs.primary, cs.tertiary, 0.5)!,
+      ),
+    ];
+    return LayoutBuilder(builder: (context, c) {
+      final w = (c.maxWidth - 10) / 2;
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: [for (final card in cards) SizedBox(width: w, child: card)],
+      );
+    });
   }
 }
 
