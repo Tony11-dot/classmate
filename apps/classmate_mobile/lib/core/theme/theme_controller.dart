@@ -1239,6 +1239,10 @@ ThemeData _buildTheme(_Palette p, ThemeState s) {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: scheme.onSurface.withValues(alpha: 0.045),
+      // Helper and error lines wrap instead of ending in "…" — translations
+      // and large text run longer than the English copy.
+      helperMaxLines: 3,
+      errorMaxLines: 3,
       // ONE state-aware border instead of enabled/focused/… slots: a field
       // that sets its own `border` (e.g. InputBorder.none in the chat
       // composer, or an underline) then fully overrides the theme. With

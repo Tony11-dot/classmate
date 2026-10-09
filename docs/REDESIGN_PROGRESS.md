@@ -184,6 +184,8 @@ Update this file in the same commit as each screen's redesign.
   called the admin user list "People" (the app says "Users") → matches the app
 - Tests: ClassNotes tests (feature gone since build 268) removed; the sidebar test follows the
   redesign's font weights → Flutter 58 pass / 5 known failures (was 57 / 11)
+- Form fields: helper and error lines ended in "…" when a translation ran long (e.g. the Forgot-
+  password SMS hint in Arabic) → wrap up to 3 lines, app-wide via the theme
 - Web app shell: a startup failure showed a raw red stack-trace page → a card with "ClassMate
   couldn't start", Reload, support@ and the details folded away (light + dark); installed-app colour
   was the old indigo → brand blue
