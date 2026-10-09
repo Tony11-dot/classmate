@@ -76,7 +76,7 @@ if (!existsSync(uploadsRoot)) {
   mkdirSync(uploadsRoot, { recursive: true });
 }
 
-// Project-bundled brand assets (e.g. logo_light.png used by email templates).
+// Project-bundled brand assets: brand/ (emails, reset page) and fonts/.
 // Served unconditionally because email recipients fetch these URLs regardless
 // of the SERVE_UPLOADS env gate that controls user-uploaded media.
 const assetsRoot = join(process.cwd(), 'assets');

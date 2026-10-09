@@ -266,6 +266,7 @@ export class ClassNotesAccountService {
         schoolName: null,
         resetUrl,
         expiresInMinutes: RESET_TTL_MINUTES,
+        product: 'ClassNotes',
       });
     } catch (error) {
       // A mail failure must not tell the caller whether the account exists, so
