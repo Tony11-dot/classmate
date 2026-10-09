@@ -67,19 +67,6 @@ class TeacherEmptyState extends StatelessWidget {
   }
 }
 
-String initialsForName(String name) {
-  final parts = name.trim().split(RegExp(r'\s+'));
-  if (parts.isEmpty || parts.first.isEmpty) return '?';
-  if (parts.length == 1) return parts[0][0].toUpperCase();
-  return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
-}
-
-Color avatarColorForName(String name, List<Color> palette) {
-  if (name.isEmpty) return palette[0];
-  final code = name.codeUnits.fold(0, (a, b) => a + b);
-  return palette[code % palette.length];
-}
-
 abstract final class AttendanceStatus {
   static const present = 'PRESENT';
   static const absent = 'ABSENT';

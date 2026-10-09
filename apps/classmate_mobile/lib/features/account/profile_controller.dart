@@ -11,7 +11,6 @@ final profileControllerProvider =
 
 const profilePasswordErrorNotAuthenticated = 'not_authenticated';
 const profilePasswordErrorWrongPassword = 'wrong_password';
-const profilePasswordErrorGeneric = 'generic_error';
 
 class ProfileState {
   const ProfileState({

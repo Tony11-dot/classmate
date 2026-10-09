@@ -265,30 +265,3 @@ class SolutionsFlowNotifier extends Notifier<SolutionsFlowState> {
   }
 }
 
-final liveSolutionsPreviewProvider = FutureProvider<Map<String, dynamic>>((
-  ref,
-) async {
-  final state = ref.watch(solutionsFlowProvider);
-  final api = ref.watch(solutionsApiProvider);
-
-  final subject = state.selectedSubject?.id;
-  final bookTitle = state.selectedBook?.title;
-  final pageNumber = int.tryParse(state.pageNumber.trim());
-  final questionNumber = state.questionNumber;
-
-  if ((subject ?? '').trim().isEmpty ||
-      (bookTitle ?? '').trim().isEmpty ||
-      pageNumber == null ||
-      questionNumber.trim().isEmpty) {
-    return <String, dynamic>{};
-  }
-
-  return api.fetchSolutions(
-    subject: subject,
-    bookTitle: bookTitle,
-    pageNumber: pageNumber,
-    questionNumber: questionNumber,
-    page: 1,
-    limit: 12,
-  );
-});

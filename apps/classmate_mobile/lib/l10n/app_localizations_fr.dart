@@ -307,9 +307,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navTeacherWorkspace => 'Espace enseignant';
 
   @override
-  String get navTeacherAssessments => 'Évaluations et notes';
-
-  @override
   String get navSavedQuestions => 'Questions sauvegardées';
 
   @override
@@ -439,11 +436,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get solutionsChooseSubjectFirst => 'Choisissez d\'abord un sujet.';
 
   @override
-  String solutionsNoBooksYetBody(Object action) {
-    return 'Aucun livre pour le moment.\nAppuyez sur \"$action\" pour en ajouter le premier.';
-  }
-
-  @override
   String solutionsNoBooksMatch(Object query) {
     return 'Aucun livre ne correspond à \"$query\".';
   }
@@ -452,20 +444,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get solutionsBookLabel => 'Livre';
 
   @override
-  String get solutionsPagesFilterHint =>
-      'Saisissez un numéro de page et de question pour filtrer, ou laissez vide pour tout afficher.';
-
-  @override
   String get solutionsPageNumberLabel => 'Numéro de page';
 
   @override
-  String get solutionsPageNumberHint => 'par ex. 42';
-
-  @override
   String get solutionsQuestionNumberLabel => 'Numéro de question';
-
-  @override
-  String get solutionsQuestionNumberHint => 'par ex. 3a ou 7';
 
   @override
   String get solutionsViewSolutionsAction => 'Afficher les solutions';
@@ -518,9 +500,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucun téléchargement à proximité sur cette page pour le moment. Un nouveau téléchargement ici serait vraiment utile.';
 
   @override
-  String get solutionsVerifiedByNova => 'Vérifié par NOVA';
-
-  @override
   String get solutionsUploadFileLimitReached =>
       'Limite de 10 fichiers atteinte.';
 
@@ -549,12 +528,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get solutionsUploadSuccess => 'Solution téléchargée !';
-
-  @override
-  String get solutionsUploadAddNewBookOption => '+ Ajouter un nouveau livre...';
-
-  @override
-  String get solutionsUploadAddBookShortAction => 'Ajouter';
 
   @override
   String get solutionsUploadTitle => 'Télécharger une solution';
@@ -615,15 +588,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get settingsLanguage => 'Langue';
-
-  @override
-  String get settingsLanguageSystem => 'Par défaut du système';
-
-  @override
-  String get settingsAccentColour => 'Couleur d\'accentuation';
-
-  @override
-  String get settingsAccentSubtitle => 'Teinte utilisée dans toute l\'app';
 
   @override
   String get settingsReduceMotion => 'Réduire les animations';
@@ -704,34 +668,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settingsLanguageSearchHint => 'Rechercher une langue...';
 
   @override
-  String get teacherWorkspaceSubtitle =>
-      'Gérez la présence, les groupes et l\'évaluation depuis l\'application mobile.';
-
-  @override
-  String get teacherMetricSessionsToday => 'Séances du jour';
-
-  @override
-  String get teacherMetricTeachingGroups => 'Groupes d\'enseignement';
-
-  @override
-  String get teacherMetricAssessments => 'Évaluations';
-
-  @override
   String get teacherQuickActions => 'Actions rapides';
 
   @override
-  String get teacherNoDateAvailable => 'Aucune date disponible';
-
-  @override
-  String get teacherNoTeachingSlotsToday =>
-      'Aucune séance prévue aujourd\'hui.';
-
-  @override
   String get teacherUpcomingAssessments => 'Évaluations à venir';
-
-  @override
-  String get teacherUpcomingAssessmentsSubtitle =>
-      'En direct du système de notation enseignant';
 
   @override
   String get teacherNoAssessmentsYet =>
@@ -768,39 +708,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'Les salles de classe n\'ont pas pu se connecter pour le moment. Vérifiez votre connexion et réessayez.';
 
   @override
-  String get teacherClassroomsSubtitle =>
-      'Ouvrez la liste et générez un code de participation en direct pour l\'entrée des étudiants.';
-
-  @override
   String get teacherClassroomsNoCohorts =>
       'Aucune cohorte de classe n\'est liée à cet enseignant pour l\'instant.';
-
-  @override
-  String teacherClassroomsCohort(Object cohortId) {
-    return 'Cohorte $cohortId';
-  }
-
-  @override
-  String get teacherClassroomsGeneratingJoinCode => 'Génération en cours…';
-
-  @override
-  String get teacherClassroomsCreateJoinCode =>
-      'Créer un code de participation';
-
-  @override
-  String get teacherClassroomsLiveJoinCode => 'Code de participation en direct';
-
-  @override
-  String teacherClassroomsExpiresAt(Object value) {
-    return 'Expire $value';
-  }
-
-  @override
-  String get teacherClassroomsRoster => 'Liste';
-
-  @override
-  String get teacherClassroomsNoStudents =>
-      'Aucun étudiant n\'est inscrit dans cette salle de classe pour l\'instant.';
 
   @override
   String get teacherAttendanceLoadError =>
@@ -830,12 +739,6 @@ class AppLocalizationsFr extends AppLocalizations {
   ) {
     return '$cohort • Classe $grade • $date • Cours $period';
   }
-
-  @override
-  String get teacherAttendanceChanged => 'Modifié';
-
-  @override
-  String get teacherAttendanceNoteLabel => 'Remarque';
 
   @override
   String get teacherAttendanceClassNotesLabel => 'Notes de cours';
@@ -916,29 +819,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get scheduleClassFallback => 'Cours';
 
   @override
-  String get scheduleNoSubjectLocation => 'Pas encore de matière ni de lieu';
-
-  @override
-  String get scheduleNotes => 'Notes';
-
-  @override
-  String get scheduleGoToClassroom => 'Aller à la classe';
-
-  @override
-  String get loginTitle => 'Connexion mobile pour élèves et enseignants';
-
-  @override
-  String get loginSubtitle =>
-      'Les comptes enseignants ouvrent l\'espace enseignant. Les comptes élèves restent dans l\'expérience élève.';
-
-  @override
   String get loginSignIn => 'Se connecter';
-
-  @override
-  String get biometricSignIn => 'Se connecter avec la biométrie';
-
-  @override
-  String get biometricEnable => 'Activer la connexion biométrique';
 
   @override
   String get biometricReason =>
@@ -947,13 +828,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get biometricEnableReason =>
       'Authentifiez-vous pour activer la connexion biométrique';
-
-  @override
-  String get biometricSignInFaceId => 'Se connecter avec Face ID';
-
-  @override
-  String get biometricSignInFingerprint =>
-      'Se connecter avec l\'empreinte digitale';
 
   @override
   String get biometricOrSignInWith => 'ou connectez-vous avec';
@@ -1013,34 +887,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible de vérifier votre biométrie. Assurez-vous que Face ID ou une empreinte digitale est configuré dans les réglages de votre appareil.';
 
   @override
-  String get biometricEnterCredsFirst =>
-      'Saisissez d\'abord votre e-mail et votre mot de passe, puis activez la connexion biométrique.';
-
-  @override
   String get biometricLoginFailed =>
       'Échec de la connexion biométrique. Veuillez vous connecter avec votre mot de passe.';
 
   @override
-  String get biometricEnrollTitle => 'Activer la connexion biométrique ?';
-
-  @override
-  String get biometricEnrollBody =>
-      'Utilisez Face ID ou votre empreinte digitale pour vous connecter plus vite la prochaine fois.';
-
-  @override
   String get biometricEnrollYes => 'Activer';
-
-  @override
-  String get biometricEnrollNo => 'Pas maintenant';
 
   @override
   String get loginWelcomeTitle => 'Bon retour';
 
   @override
   String get loginWelcomeSubtitle => 'Connectez-vous à votre compte ClassMate.';
-
-  @override
-  String get loginSigningIn => 'Connexion en cours...';
 
   @override
   String get loginEmailLabel => 'E-mail ou nom d\'utilisateur';
@@ -1064,9 +921,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileSchoolId => 'ID école';
 
   @override
-  String get profileCohortId => 'ID cohorte';
-
-  @override
   String get profileMyCohorts => 'Mes cohortes';
 
   @override
@@ -1086,19 +940,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileContactEmail => 'E-mail de contact';
 
   @override
-  String get profileEmailAddress => 'Adresse e-mail';
-
-  @override
-  String get profileEmailHint => 'you@example.com';
-
-  @override
-  String get profileBirthday => 'Date de naissance';
-
-  @override
   String get profileSecurity => 'Sécurité';
-
-  @override
-  String get profileSelectBirthday => 'Sélectionnez votre date de naissance';
 
   @override
   String get profilePasswordUpdated => 'Mot de passe mis à jour';
@@ -1143,38 +985,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profilePasswordIncorrect => 'Le mot de passe actuel est incorrect';
 
   @override
-  String get profilePasswordGenericError =>
-      'Une erreur s\'est produite. Réessayez.';
-
-  @override
-  String get editProfileTitle => 'Modifier le profil';
-
-  @override
   String get editProfileSchool => 'École';
-
-  @override
-  String get editProfileSchoolPublic => 'École visible';
-
-  @override
-  String get editProfileGradePublic => 'Niveau visible';
-
-  @override
-  String get editProfileMajors => 'Spécialités';
-
-  @override
-  String get editProfileMajorsPublic => 'Spécialités visibles';
-
-  @override
-  String get editProfileBio => 'Bio';
-
-  @override
-  String get editProfileBioPublic => 'Bio publique';
-
-  @override
-  String get editProfileStatus => 'Statut';
-
-  @override
-  String get editProfileStatusPublic => 'Statut public';
 
   @override
   String get classroomsYourClassrooms => 'Vos classes';
@@ -1206,13 +1017,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get classroomsNoMessagesYet => 'Pas encore de messages';
-
-  @override
-  String get classroomsMessageFallback => 'Message';
-
-  @override
-  String get examsLoadError =>
-      'Impossible de charger les examens ou les formulaires';
 
   @override
   String get examsAllFilter => 'Tous';
@@ -1276,87 +1080,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String examsResponsesCount(Object count) {
-    return '$count réponses';
-  }
-
-  @override
-  String get insightsTrendBaseline => 'Référence';
-
-  @override
-  String get insightsTrendImproving => 'En amélioration';
-
-  @override
-  String get insightsTrendDropping => 'En baisse';
-
-  @override
-  String get insightsTrendStable => 'Stable';
-
-  @override
-  String get insightsHeadlineIntervention =>
-      'La fenêtre d\'intervention est ouverte';
-
-  @override
-  String get insightsHeadlineSignals =>
-      'Plusieurs signaux doivent être resserrés';
-
-  @override
-  String get insightsHeadlineMomentum =>
-      'L\'élan peut se renforcer cette semaine';
-
-  @override
-  String get insightsBodyAttendance =>
-      'Protégez d\'abord l\'assiduité. Une meilleure présence maintenant fera progresser tous les autres signaux plus vite.';
-
-  @override
-  String insightsBodyWeakTrend(Object subject) {
-    return '$subject avec une baisse de la tendance de pratique est actuellement la combinaison de risque la plus forte. Corrigez cela avant d\'élargir.';
-  }
-
-  @override
-  String insightsBodyLeverage(Object subject) {
-    return '$subject est votre point d\'appui. Servez-vous-en pour gagner en confiance pendant que vous corrigez les points plus faibles.';
-  }
-
-  @override
-  String get insightsBodyConsistency =>
-      'Continuez à accumuler de courtes sessions ciblées. Les prochains jours comptent plus qu\'un plan parfait à long terme.';
-
-  @override
-  String get insightsInterventionScoreTitle => 'Score d\'intervention';
-
-  @override
-  String insightsInterventionScoreBody(Object count) {
-    return '$count signaux actifs orientent votre prochaine décision.';
-  }
-
-  @override
-  String get insightsRecoveryPathTitle => 'Chemin de reprise le plus rapide';
-
-  @override
-  String get insightsRecoveryPathDefault => 'Assiduité + régularité d\'abord.';
-
-  @override
-  String insightsRecoveryPathTopic(Object topic, Object subject) {
-    return 'Revenez sur $topic en $subject avant d\'accélérer davantage.';
-  }
-
-  @override
-  String get insightsProjectedDirectionTitle => 'Direction projetée';
-
-  @override
-  String insightsProjectedDirectionBody(Object trend) {
-    return '$trend selon le comportement récent de pratique sur 7 jours contre 30 jours.';
-  }
-
-  @override
-  String get insightsLoadingTitle => 'Chargement des analyses';
-
-  @override
-  String get insightsLoadingSubtitle =>
-      'Construction de votre tableau de bord prédictif.';
-
-  @override
   String get insightsNotReadyTitle => 'Les analyses ne sont pas encore prêtes';
 
   @override
@@ -1370,61 +1093,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get insightsGradeAverage => 'Moyenne';
 
   @override
-  String get insightsAccuracy => 'Précision';
-
-  @override
-  String get insightsOpenNova => 'Ouvrir NOVA';
-
-  @override
-  String get insightsOpenNovaPrompt =>
-      'Aide-moi à corriger mon point le plus faible en me basant sur mes dernières analyses ClassMate.';
-
-  @override
-  String get insightsPredictiveRecoveryPlanTitle => 'Plan de reprise prédictif';
-
-  @override
   String get insightsPracticeNow => 'S\'entraîner maintenant';
-
-  @override
-  String get insightsPredictiveModulesTitle => 'Modules prédictifs';
-
-  @override
-  String get insightsPredictiveModulesSubtitle =>
-      'Les signaux prospectifs les plus forts de vos données étudiantes actuelles.';
-
-  @override
-  String get insightsAnnouncementsPressureTitle => 'Pression des annonces';
-
-  @override
-  String get insightsAnnouncementsPressureSubtitle =>
-      'Le moteur d\'annonces alimente désormais directement le tableau de bord.';
-
-  @override
-  String get insightsAiCoachTitle => 'Résumé du coach IA';
-
-  @override
-  String get insightsAiCoachLoadingSubtitle => 'Chargement des conseils IA.';
-
-  @override
-  String get insightsAiCoachUnavailableSubtitle =>
-      'Les conseils IA ne sont pas disponibles pour ce compte actuellement.';
-
-  @override
-  String get insightsAskNova => 'Demander à NOVA';
-
-  @override
-  String get insightsAskNovaPrompt =>
-      'Construis-moi un plan de reprise à partir de mes dernières analyses.';
-
-  @override
-  String get insightsAiStudyCoachTitle => 'Coach d\'étude IA';
-
-  @override
-  String get insightsSchoolToolsTitle => 'Outils scolaires';
-
-  @override
-  String get insightsSchoolToolsSubtitle =>
-      'Accédez directement aux routes étudiantes qui comptent le plus maintenant.';
 
   @override
   String get tutorUntitledChat => 'Discussion sans titre';
@@ -1452,35 +1121,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tutorCancel => 'Annuler';
 
   @override
-  String get tutorHide => 'Masquer';
-
-  @override
-  String get tutorHideChatTitle => 'Masquer la discussion';
-
-  @override
-  String get tutorHideChatSubtitle =>
-      'Masque cette discussion sur cet appareil.';
-
-  @override
-  String get tutorHideChatConfirmTitle => 'Masquer la discussion ?';
-
-  @override
-  String get tutorHideChatConfirmBody =>
-      'Cela masque la discussion de la liste sur cet appareil. La session reste sur le backend.';
-
-  @override
   String get tutorTapToOpenHistory => 'Touchez pour ouvrir l\'historique';
-
-  @override
-  String get tutorAiTutorSubtitle => 'Votre tuteur IA';
-
-  @override
-  String get tutorHeroBody =>
-      'Historique réel des discussions, fils plus propres, accès plus rapide.';
-
-  @override
-  String get tutorStartFreshConversation =>
-      'Commencer une nouvelle conversation';
 
   @override
   String get tutorSearchHistoryHint => 'Rechercher dans l\'historique';
@@ -1497,55 +1138,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get chatComposerMicHint =>
       'Touchez pour une note vocale rapide ou maintenez pour enregistrer';
-
-  @override
-  String get chatComposerRecordingTitle => 'Enregistrement';
-
-  @override
-  String get chatComposerReleaseToSend => 'Relâchez pour envoyer';
-
-  @override
-  String get chatComposerCancelTitle => 'Annuler';
-
-  @override
-  String get chatComposerLockTitle => 'Verrouiller';
-
-  @override
-  String get chatComposerSlideLeftToCancel => 'Glissez à gauche pour annuler';
-
-  @override
-  String get chatComposerSlideUpToLock =>
-      'Glissez vers le haut pour verrouiller';
-
-  @override
-  String get chatComposerReleaseToCancel => 'Relâcher pour annuler';
-
-  @override
-  String get chatComposerKeepSlidingToCancel =>
-      'Continuez à glisser pour annuler';
-
-  @override
-  String get chatComposerReleaseToLock => 'Relâchez pour verrouiller';
-
-  @override
-  String get chatComposerRelease => 'Relâcher';
-
-  @override
-  String get chatComposerLock => 'Verrou';
-
-  @override
-  String get chatComposerRecordingPaused => 'Enregistrement en pause';
-
-  @override
-  String get chatComposerRecordingLocked => 'Enregistrement verrouillé';
-
-  @override
-  String get chatComposerResumeHint =>
-      'Reprenez quand vous êtes prêt à continuer';
-
-  @override
-  String get chatComposerLockedHint =>
-      'Touchez envoyer quand vous êtes prêt à partager';
 
   @override
   String get chatContextDismiss => 'Fermer';
@@ -1590,12 +1182,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chatMessageInfoVoiceDuration => 'Durée vocale';
 
   @override
-  String get chatMessageInfoSeenBy => 'Vu par';
-
-  @override
-  String get chatMessageInfoDeliveredTo => 'Distribué à';
-
-  @override
   String get chatMessageInfoEmptyBody => '(vide)';
 
   @override
@@ -1614,28 +1200,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chatMessageInfoNotDelivered => 'Non distribué';
 
   @override
-  String get chatMessageInfoSent => 'Envoyé';
-
-  @override
   String get chatMessageInfoPending => 'En attente';
-
-  @override
-  String get chatMessageInfoNotSeen => 'Non vu';
-
-  @override
-  String get chatMessageInfoType => 'Type';
-
-  @override
-  String get chatMessageInfoDuration => 'Durée';
 
   @override
   String get chatMessageInfoYes => 'Oui';
 
   @override
   String get chatMessageInfoNo => 'Non';
-
-  @override
-  String get chatMessageInfoDeleteState => 'État de suppression';
 
   @override
   String get chatReactionDetailsTitle => 'Réactions';
@@ -1684,25 +1255,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chatEmojiPickerEmptyState => 'Aucun emoji trouvé';
 
   @override
-  String get chatCameraTitle => 'Caméra';
-
-  @override
-  String get chatCameraUseAction => 'Utiliser';
-
-  @override
   String get chatCameraGalleryAction => 'Galerie';
-
-  @override
-  String chatCameraSelectedCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count sélectionnés',
-      one: '1 sélectionné',
-      zero: '0 sélectionné',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get chatMediaPreviewEmptyState => 'Rien à prévisualiser';
@@ -1729,11 +1282,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chatMediaPreviewCaptionHint => 'Ajouter une légende...';
 
   @override
-  String tutorPlanSelectedPlaceholder(Object plan) {
-    return '$plan sélectionné. Les paiements restent en mode fictif pour le moment.';
-  }
-
-  @override
   String get tutorFailedToLoadChats => 'Impossible de charger les discussions';
 
   @override
@@ -1750,123 +1298,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tutorPlansTitle => 'Forfaits NOVA';
 
   @override
-  String tutorPlansSubtitle(Object model) {
-    return 'Basé sur les hypothèses de coût de $model et des plafonds mensuels stricts pour que l\'usage reste rentable.';
-  }
-
-  @override
-  String get tutorPlanPriceFree => 'Gratuit';
-
-  @override
-  String tutorPlanPriceMonthly(Object price) {
-    return '\$$price/mois';
-  }
-
-  @override
-  String get tutorPromptsLeft => 'Prompts restants';
-
-  @override
-  String get tutorUploadsLeft => 'Envois restants';
-
-  @override
-  String get tutorVoiceLeft => 'Voix restante';
-
-  @override
-  String tutorUsageValue(Object remaining, Object total) {
-    return '$remaining/$total';
-  }
-
-  @override
-  String tutorVoiceUsageValue(Object remaining, Object total) {
-    return '$remaining/$total min';
-  }
-
-  @override
-  String get tutorPaymentMethodsTitle => 'Moyens de paiement';
-
-  @override
-  String tutorPaymentMethodsSubtitle(Object plan) {
-    return 'Le paiement reste fictif jusqu\'à ce que le compte bancaire et le processeur de ClassMate soient actifs. Le forfait sélectionné est $plan.';
-  }
-
-  @override
-  String get tutorCardCheckoutTitle => 'Paiement par carte';
-
-  @override
-  String get tutorCardCheckoutSubtitle =>
-      'Passerelle fictive Visa, Mastercard et AmEx.';
-
-  @override
-  String get tutorApplePayTitle => 'Apple Pay';
-
-  @override
-  String get tutorApplePaySubtitle =>
-      'Flux de portefeuille fictif pour iPhone et web.';
-
-  @override
-  String get tutorBankTransferTitle => 'Virement bancaire';
-
-  @override
-  String get tutorBankTransferSubtitle =>
-      'Compte bancaire ClassMate en attente. Les détails seront ajoutés une fois ouvert.';
-
-  @override
   String get tutorPlanStarterName => 'Starter';
-
-  @override
-  String get tutorPlanStarterTagline =>
-      'Suffisant pour un essai et une légère révision hebdomadaire.';
 
   @override
   String get tutorPlanPlusName => 'Plus';
 
   @override
-  String get tutorPlanPlusTagline =>
-      'Idéal pour un élève sérieux qui utilise NOVA la plupart des jours.';
-
-  @override
   String get tutorPlanProName => 'Pro';
 
   @override
-  String get tutorPlanProTagline =>
-      'Usage quotidien intensif, pleine saison d\'examens et longues sessions d\'étude.';
-
-  @override
   String get tutorPlanSchoolSeatName => 'Siège école';
-
-  @override
-  String get tutorPlanSchoolSeatTagline =>
-      'Pour un déploiement par élève ou membre du personnel dans une vraie école.';
-
-  @override
-  String tutorPlanBulletPromptsMonthly(Object count) {
-    return '$count prompts NOVA par mois';
-  }
-
-  @override
-  String tutorPlanBulletPromptsPerSeatMonthly(Object count) {
-    return '$count prompts NOVA par siège chaque mois';
-  }
-
-  @override
-  String tutorPlanBulletUploads(Object count) {
-    return '$count envois d\'image ou de fichier';
-  }
-
-  @override
-  String tutorPlanBulletVoiceMinutes(Object count) {
-    return '$count minutes de transcription vocale';
-  }
-
-  @override
-  String tutorEstimatedCostCeilingFree(Object cost) {
-    return 'Plafond de coût estimé : \$$cost/mois';
-  }
-
-  @override
-  String tutorEstimatedCostCeilingPaid(Object cost, Object margin) {
-    return 'Plafond de coût estimé : \$$cost/mois • marge $margin%';
-  }
 
   @override
   String tutorTimeMinutesShort(Object count) {
@@ -1900,16 +1341,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get tutorTakePhoto => 'Prendre une photo';
 
   @override
-  String get tutorRecordVideo => 'Enregistrer une vidéo';
-
-  @override
-  String get tutorChooseFromGallery => 'Choisir depuis la galerie';
-
-  @override
   String get tutorPreviewTitle => 'Aperçu';
-
-  @override
-  String get tutorThinking => 'Réflexion en cours...';
 
   @override
   String get tutorDone => 'Terminé.';
@@ -1936,10 +1368,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'La transcription a échoué. Veuillez réessayer.';
 
   @override
-  String get tutorMicrophonePermissionRequired =>
-      'L\'autorisation du micro est requise.';
-
-  @override
   String get tutorPlanLimitReachedTitle => 'Limite du forfait NOVA atteinte';
 
   @override
@@ -1958,9 +1386,6 @@ class AppLocalizationsFr extends AppLocalizations {
   ) {
     return 'Forfait actuel : $plan • $prompts prompts restants • $uploads envois restants • $voice minutes vocales restantes';
   }
-
-  @override
-  String get tutorReviewPlansInHome => 'Voir les forfaits dans l\'accueil NOVA';
 
   @override
   String get tutorCouldNotOpenAttachment =>
@@ -1986,31 +1411,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Demandez à NOVA d\'expliquer un concept, de transformer des notes en tableau, de comparer des idées ou de vous aider à réviser depuis un fichier importé.';
 
   @override
-  String get tutorPromptSuggestionSummarizeNotes => 'Résume mes notes de cours';
-
-  @override
-  String get tutorPromptSuggestionRevisionTable =>
-      'Fais un tableau de révision';
-
-  @override
-  String get tutorPromptSuggestionQuizMe => 'Interroge-moi sur ce sujet';
-
-  @override
   String get tutorMessageNovaHint => 'Message à NOVA';
-
-  @override
-  String get tutorHeaderSubtitleReady =>
-      'Réponses structurées, tableaux et aide à l\'étude';
-
-  @override
-  String get tutorYourNovaPlanTitle => 'Votre forfait NOVA';
-
-  @override
-  String get tutorYourNovaPlanMessage =>
-      'Consultez ici vos limites de prompts, d\'envois et de voix, puis revenez à l\'accueil NOVA si vous souhaitez changer de forfait.';
-
-  @override
-  String get tutorExplainTitle => 'NOVA explique';
 
   @override
   String get classroomsThreadTypeClassroom => 'Classe';
@@ -2020,9 +1421,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get classroomsThreadTypeDirectMessage => 'Message direct';
-
-  @override
-  String get classroomsThreadTypeDirectMessageShort => 'DM';
 
   @override
   String get messagesBlockedPeopleTitle => 'Personnes bloquées';
@@ -2066,11 +1464,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get messagesRequestReviewStatus => 'Voir';
-
-  @override
-  String messagesPeopleLoadFailed(Object error) {
-    return 'Impossible de charger les personnes : $error';
-  }
 
   @override
   String get messagesSearchPeopleHint => 'Rechercher des personnes';
@@ -2146,9 +1539,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'La discussion se déverrouille après que le destinataire a approuvé votre premier message.';
 
   @override
-  String get messagesThreadConversationFallback => 'Discussion';
-
-  @override
   String get messagesThreadLeaveGroupTitle => 'Quitter le groupe ?';
 
   @override
@@ -2163,53 +1553,17 @@ class AppLocalizationsFr extends AppLocalizations {
       'Vous ne pourrez plus échanger de messages avec cette personne.';
 
   @override
-  String get messagesThreadPersonFallback => 'Personne';
-
-  @override
   String get messagesThreadProfileInfoUnavailable =>
       'Informations du profil indisponibles';
-
-  @override
-  String get messagesThreadParticipants => 'Participants';
-
-  @override
-  String get messagesThreadPeople => 'Personnes';
-
-  @override
-  String get messagesThreadDeleteForMe => 'Supprimer pour moi';
-
-  @override
-  String get messagesThreadDeleteForEveryone => 'Supprimer pour tout le monde';
-
-  @override
-  String get messagesThreadDeleteForEveryoneSubtitle =>
-      'Supprime pour tous les participants';
-
-  @override
-  String get messagesThreadSending => 'Envoi en cours…';
 
   @override
   String get messagesThreadWaitingForApproval => 'En attente d\'approbation';
 
   @override
-  String get classroomsForwardSearchHint => 'Rechercher des discussions';
-
-  @override
   String get classroomsForwardNewChat => 'Nouvelle discussion';
 
   @override
-  String classroomsForwardLoadError(Object error) {
-    return 'Impossible de charger les discussions : $error';
-  }
-
-  @override
-  String get classroomsForwardNoChatsFound => 'Aucune discussion trouvée';
-
-  @override
   String get classroomsForwardSectionClassrooms => 'Classes';
-
-  @override
-  String get classroomsForwardSectionDirectMessages => 'Messages directs';
 
   @override
   String get classroomsForwardCancel => 'Annuler';
@@ -2266,9 +1620,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get earlier => 'Précédemment';
-
-  @override
-  String get openDetails => 'Voir les détails';
 
   @override
   String get total => 'Total';
@@ -2562,11 +1913,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Appuyez sur n\'importe quelle réunion pour ouvrir la vue de détails en plein écran et accéder à son lien joint si disponible.';
 
   @override
-  String meetingsDateTimeValue(Object date, Object time) {
-    return '$date • $time';
-  }
-
-  @override
   String meetingsSharedByValue(Object name) {
     return 'Partagée par $name';
   }
@@ -2675,27 +2021,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get announcementsDetailsTitle => 'Détails de l\'annonce';
-
-  @override
-  String get announcementsDetailsSubtitle =>
-      'Métadonnées publiées pour cette annonce et son état de lecture actuel.';
-
-  @override
-  String get announcementsSeverityLabel => 'Gravité';
-
-  @override
   String get announcementsCreatedLabel => 'Créé';
 
   @override
-  String get announcementsIdLabel => 'ID d\'annonce';
-
-  @override
   String get announcementsFullContentTitle => 'Contenu complet';
-
-  @override
-  String get announcementsFullContentSubtitle =>
-      'Le texte complet de l\'annonce s\'affiche ici après avoir ouvert l\'élément à partir de la boîte de réception.';
 
   @override
   String get announcementsReadStateTitle => 'État de lecture';
@@ -2709,113 +2038,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Cette annonce est toujours non lue sur cet appareil.';
 
   @override
-  String get alertsTitle => 'Alertes';
-
-  @override
-  String get alertsSubtitle =>
-      'Cette page regroupe ce qui demande une attention immédiate, pas seulement les mises à jour générales.';
-
-  @override
-  String get alertsAttendanceTitle => 'L\'assiduité demande de l\'attention';
-
-  @override
-  String alertsAttendanceBody(Object rate) {
-    return 'Votre taux de présence est de $rate%. Quelques cours manqués peuvent vite s\'accumuler.';
-  }
-
-  @override
-  String get alertsWeakestSubjectTitle => 'Signal de matière la plus faible';
-
-  @override
-  String alertsWeakestSubjectBody(Object subject) {
-    return '$subject demande actuellement le plus d\'attention selon vos dernières notes.';
-  }
-
-  @override
-  String get alertsPracticeWeakAreaTitle => 'Zone faible en pratique';
-
-  @override
-  String alertsPracticeWeakAreaBody(Object topic, Object subject) {
-    return '$topic en $subject est actuellement votre point faible le plus clair.';
-  }
-
-  @override
-  String get alertsPracticeTrendDroppedTitle =>
-      'La tendance de pratique baisse';
-
-  @override
-  String get alertsPracticeTrendDroppedBody =>
-      'Votre performance sur 7 jours est inférieure à votre base sur 30 jours. Ralentissez et revenez aux fondamentaux avant de pousser davantage.';
-
-  @override
-  String get alertsEmpty =>
-      'Tout est calme pour l\'instant. Si quelque chose demande une attention urgente, cela apparaîtra ici.';
-
-  @override
   String get student => 'Étudiant';
-
-  @override
-  String get classroomDetailPhoto => 'Photo';
-
-  @override
-  String get classroomDetailVoiceNote => 'Note vocale';
-
-  @override
-  String get classroomDetailVideo => 'Vidéo';
-
-  @override
-  String get classroomDetailFile => 'Fichier';
-
-  @override
-  String get classroomDetailEmptyValue => '(vide)';
-
-  @override
-  String get classroomDetailAttachmentUnavailable =>
-      'Pièce jointe indisponible.';
-
-  @override
-  String get classroomDetailAudioUnavailable => 'Audio indisponible.';
-
-  @override
-  String get classroomDetailCouldNotOpenAttachment =>
-      'Impossible d’ouvrir la pièce jointe.';
-
-  @override
-  String get classroomDetailVoiceMessage => 'Message vocal';
-
-  @override
-  String get classroomDetailVideoFile => 'Fichier vidéo';
-
-  @override
-  String get classroomDetailAttachedFile => 'Fichier joint';
-
-  @override
-  String get classroomDetailAttachment => 'Pièce jointe';
 
   @override
   String get classroomDetailPinAction => 'Épingler';
 
   @override
-  String get classroomDetailUnpinAction => 'Désépingler';
-
-  @override
   String get classroomDetailMessageInfoTitle => 'Infos du message';
-
-  @override
-  String get classroomDetailForwardedSingle => 'Transféré';
-
-  @override
-  String classroomDetailForwardedMultiple(Object count) {
-    return '$count messages transférés';
-  }
-
-  @override
-  String get classroomDetailCannotForwardPending =>
-      'Impossible de transférer dans une demande de chat avant son approbation';
-
-  @override
-  String get classroomDetailCouldNotForwardSelected =>
-      'Impossible de transférer les messages sélectionnés';
 
   @override
   String classroomDetailSelectedCount(Object count) {
@@ -2823,36 +2052,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String classroomDetailDeleteCount(Object count) {
-    return 'Supprimer ($count)';
-  }
-
-  @override
-  String get classroomDetailSelectAllTooltip => 'Tout sélectionner';
-
-  @override
   String get classroomDetailCancelTooltip => 'Annuler';
 
   @override
-  String get classroomDetailMicrophoneAccessTitle => 'Accès au micro requis';
-
-  @override
-  String get classroomDetailMicrophoneAccessBody =>
-      'Veuillez autoriser l’accès au micro dans Réglages -> ClassMate pour envoyer des notes vocales.';
-
-  @override
-  String get classroomDetailOpenSettingsAction => 'Ouvrir les réglages';
-
-  @override
-  String classroomDetailForwardTargetNext(Object label) {
-    return 'Sélecteur de transfert ensuite : $label';
-  }
-
-  @override
   String get classroomDetailEditMessageTitle => 'Modifier le message';
-
-  @override
-  String get classroomDetailEditMessageHint => 'Modifiez votre message...';
 
   @override
   String get classroomDetailLeaveClassroomTitle => 'Quitter la classe ?';
@@ -2915,27 +2118,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get classroomDetailTabPeople => 'Participants';
 
   @override
-  String get classroomChatMediaSendPhoto => 'Envoyer une photo';
-
-  @override
-  String get classroomChatMediaSendPhotoSubtitle =>
-      'Partager une image dans la discussion de la classe';
-
-  @override
-  String get classroomChatMediaSendVoiceMessage => 'Envoyer un message vocal';
-
-  @override
-  String get classroomChatMediaSendVoiceMessageSubtitle =>
-      'Enregistrer et envoyer une note vocale';
-
-  @override
   String get classroomDetailCouldNotLoadTab => 'Impossible de charger l’onglet';
-
-  @override
-  String get classroomDetailDeletedByYou => 'Vous avez supprimé ce message';
-
-  @override
-  String get classroomDetailDeletedMessage => 'Ce message a été supprimé';
 
   @override
   String get practiceSetupDifficultyEasy => 'Facile';
@@ -3058,41 +2241,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String practiceSetupSummarySubject(Object subject) {
-    return 'Matière : $subject';
-  }
-
-  @override
-  String practiceSetupSummaryTopic(Object topic) {
-    return 'Sujet : $topic';
-  }
-
-  @override
-  String practiceSetupSummaryMode(Object mode) {
-    return 'Mode : $mode';
-  }
-
-  @override
-  String practiceSetupSummaryDifficulty(Object difficulty) {
-    return 'Difficulté : $difficulty';
-  }
-
-  @override
-  String practiceSetupSummaryQuestions(Object count) {
-    return 'Questions : $count';
-  }
-
-  @override
-  String practiceSetupSummaryTiming(Object timing) {
-    return 'Timing : $timing';
-  }
-
-  @override
-  String practiceSetupSummaryLives(Object lives) {
-    return 'Vies : $lives';
-  }
-
-  @override
   String get practiceSetupSectionSubjectTopic => 'Matière et sujet';
 
   @override
@@ -3141,30 +2289,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get practiceSetupDialogEnterTopic => 'Saisir le sujet';
-
-  @override
-  String get practiceSubjectMath => 'Mathématiques';
-
-  @override
-  String get practiceSubjectPhysics => 'Physique';
-
-  @override
-  String get practiceSubjectComputerScience => 'Informatique';
-
-  @override
-  String get practiceSubjectChemistry => 'Chimie';
-
-  @override
-  String get practiceSubjectBiology => 'Biologie';
-
-  @override
-  String get practiceSubjectEnglish => 'Anglais';
-
-  @override
-  String get practiceSubjectArabic => 'Arabe';
-
-  @override
-  String get practiceSubjectHebrew => 'Hébreu';
 
   @override
   String get practiceSubjectGeneralKnowledge => 'Culture générale';
@@ -3452,10 +2576,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get practiceHistoryDeleteSession => 'Supprimer la session';
 
   @override
-  String get practiceHistoryDebugTitle =>
-      'Débogage de l’historique de pratique';
-
-  @override
   String get practiceAnalyticsTitle => 'Analyses de pratique';
 
   @override
@@ -3628,9 +2748,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Préparation de votre série Bagrut';
 
   @override
-  String get practiceSessionLoadingDefault => 'Préparation de votre session';
-
-  @override
   String practiceSessionCompleteTitle(Object mode) {
     return '$mode terminé';
   }
@@ -3649,9 +2766,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get practiceSessionMetricTotal => 'Total';
-
-  @override
-  String get practiceSessionMetricXp => 'XP';
 
   @override
   String get practiceSessionMetricStreak => 'Série';
@@ -3865,76 +2979,13 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucune explication disponible pour l’instant.';
 
   @override
-  String get teacherGradesAssessmentCreated => 'Évaluation créée';
-
-  @override
-  String get teacherGradesEditAssessmentTitle => 'Modifier l’évaluation';
-
-  @override
-  String get teacherGradesFieldTitle => 'Titre';
-
-  @override
-  String get teacherGradesFieldDate => 'Date (AAAA-MM-JJ)';
-
-  @override
-  String get teacherGradesFieldMaxGrade => 'Note maximale';
-
-  @override
-  String get teacherGradesAssessmentUpdated => 'Évaluation mise à jour';
-
-  @override
   String get teacherGradesDeleteAssessmentTitle => 'Supprimer l’évaluation ?';
-
-  @override
-  String teacherGradesDeleteAssessmentBody(Object title) {
-    return 'Cela supprimera $title et son entrée de notes de l’espace enseignant.';
-  }
 
   @override
   String get teacherGradesDeleteAction => 'Supprimer';
 
   @override
-  String get teacherGradesAssessmentDeleted => 'Évaluation supprimée';
-
-  @override
-  String get teacherGradesRosterLinkError =>
-      'Cette évaluation n’est pas liée à une liste de classe.';
-
-  @override
   String get teacherGradesSaved => 'Notes enregistrées';
-
-  @override
-  String get teacherGradesSubtitle =>
-      'Créez des évaluations et enregistrez les notes à partir de la liste de classe en direct.';
-
-  @override
-  String get teacherGradesCreateAssessmentTitle => 'Créer une évaluation';
-
-  @override
-  String get teacherGradesFieldCourse => 'Cours';
-
-  @override
-  String get teacherGradesCreateAction => 'Créer';
-
-  @override
-  String get teacherGradesNoStudentsLoaded =>
-      'Aucun élève chargé pour cette évaluation.';
-
-  @override
-  String get teacherGradesFieldGrade => 'Note';
-
-  @override
-  String teacherGradesMaxHint(Object grade) {
-    return 'Max $grade';
-  }
-
-  @override
-  String get teacherGradesSaving => 'Enregistrement…';
-
-  @override
-  String teacherGradesSaveCount(Object count) {
-    return 'Enregistrer $count notes';
-  }
 
   @override
   String get assignmentsNoDueDate => 'Aucune date limite';
@@ -3966,15 +3017,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get assignmentsPreviewFallback =>
       'Ouvrez ce devoir pour voir les instructions complètes et préparer votre travail.';
-
-  @override
-  String get assignmentsSubmissionPrepEmpty =>
-      'Placez votre note ou vos fichiers ici.';
-
-  @override
-  String assignmentsSubmissionPrepCount(Object count) {
-    return '$count fichier(s) joint(s) localement.';
-  }
 
   @override
   String get assignmentsHeroSubtitle =>
@@ -4044,17 +3086,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Appuyez sur un devoir pour ouvrir la vue détails en plein écran et préparer votre travail.';
 
   @override
-  String get assignmentsAddNoteBeforePrepare =>
-      'Ajoutez une note ou joignez un fichier avant de préparer votre travail.';
-
-  @override
-  String get assignmentsWorkDraftPrepared => 'Brouillon de travail préparé.';
-
-  @override
-  String get assignmentsWorkDraftPreparedWithFiles =>
-      'Brouillon de travail préparé. Les fichiers joints sont enregistrés sur cet appareil.';
-
-  @override
   String get assignmentsUnavailableTitle => 'Devoir indisponible';
 
   @override
@@ -4084,22 +3115,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get assignmentsDetailDueLabel => 'À rendre';
 
   @override
-  String get assignmentsDetailClassroomLabel => 'Classe';
-
-  @override
   String get assignmentsDetailTeacherLabel => 'Professeur';
 
   @override
-  String get assignmentsDetailPostedByLabel => 'Publié par';
-
-  @override
-  String get assignmentsDetailPublishedLabel => 'Publié';
-
-  @override
   String get assignmentsDetailUpdatedLabel => 'Mis à jour';
-
-  @override
-  String get assignmentsDetailIdLabel => 'ID du devoir';
 
   @override
   String get assignmentsInstructionsTitle => 'Instructions';
@@ -4107,44 +3126,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get assignmentsInstructionsSubtitle =>
       'Texte complet du devoir du flux de classe, avec le libellé d\'origine préservé.';
-
-  @override
-  String get assignmentsYourWorkTitle => 'Votre travail';
-
-  @override
-  String get assignmentsYourWorkSubtitle =>
-      'Organisez une note, joignez des fichiers ou des documents et gardez votre préparation de soumission dans un espace concentré.';
-
-  @override
-  String get assignmentsPrivateNoteLabel => 'Note de travail privée';
-
-  @override
-  String get assignmentsPrivateNoteHint =>
-      'Ajoutez ce que vous envisagez de soumettre, des rappels pour vous-même ou un résumé de document/lien.';
-
-  @override
-  String get assignmentsAddFiles => 'Ajouter des fichiers ou des documents';
-
-  @override
-  String get assignmentsClearFiles => 'Effacer les fichiers';
-
-  @override
-  String get assignmentsStagedDeviceHint =>
-      'Les fichiers sont organisés sur cet appareil. La soumission de fichiers de devoir n\'est pas disponible dans cette application.';
-
-  @override
-  String assignmentsLastPrepared(Object time) {
-    return 'Dernière préparation $time.';
-  }
-
-  @override
-  String get assignmentsSubmissionPrepTitle => 'Préparation de la soumission';
-
-  @override
-  String get assignmentsPreparing => 'Préparation en cours';
-
-  @override
-  String get assignmentsPrepareWork => 'Préparer le travail';
 
   @override
   String get assignmentsLoadingSubtitle =>
@@ -4159,9 +3140,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get assignmentsRemoveAttachment => 'Supprimer la pièce jointe';
-
-  @override
-  String get assignmentsSubmitted => 'Rendu';
 
   @override
   String get attendanceUndated => 'Sans date';
@@ -4376,93 +3354,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get attendanceRange90Short => '90 jours';
 
   @override
-  String get gradesLoadError =>
-      'Nous n\'avons pas pu charger les notes en ce moment. Tirez pour actualiser ou réessayez.';
-
-  @override
-  String get gradesLoadTimeout =>
-      'Les notes prennent trop longtemps à charger. Tirez pour actualiser ou réessayez dans un instant.';
-
-  @override
-  String get gradesLoadNetwork =>
-      'Les notes n\'ont pas pu se connecter en ce moment. Vérifiez votre connexion et réessayez.';
-
-  @override
   String get gradesGeneralSubject => 'Général';
-
-  @override
-  String get gradesBandBuilding => 'En construction';
-
-  @override
-  String get gradesBandExcellent => 'Excellent';
-
-  @override
-  String get gradesBandStrong => 'Fort';
-
-  @override
-  String get gradesBandOkay => 'Correct';
-
-  @override
-  String get gradesBandNeedsAttention => 'À surveiller';
-
-  @override
-  String get gradesBandRisk => 'À risque';
-
-  @override
-  String get gradesTrendRising => 'En hausse';
-
-  @override
-  String get gradesTrendDropping => 'En baisse';
-
-  @override
-  String get gradesTrendStable => 'Stable';
-
-  @override
-  String gradesShowingSummary(
-    Object shown,
-    Object total,
-    Object subject,
-    Object range,
-  ) {
-    return 'Affichage de $shown sur $total notes enregistrées pour $subject dans $range.';
-  }
-
-  @override
-  String get gradesLoadingSubtitle =>
-      'Chargement de vos derniers résultats académiques.';
-
-  @override
-  String get gradesUnavailableTitle => 'Notes indisponibles';
-
-  @override
-  String get gradesHeroSubtitle =>
-      'Un aperçu clair de votre moyenne, des évaluations récentes et des matières nécessitant une protection ou une récupération.';
-
-  @override
-  String get gradesMetricAverage => 'Moyenne';
-
-  @override
-  String get gradesMetricRecorded => 'Enregistré';
 
   @override
   String get gradesMetricBestSubject => 'Meilleure matière';
 
   @override
   String get gradesMetricNeedsWork => 'Nécessite du travail';
-
-  @override
-  String gradesLatestSignalBody(
-    Object assessment,
-    Object subject,
-    Object grade,
-    Object band,
-  ) {
-    return '$assessment en $subject a obtenu $grade. $band en ce moment.';
-  }
-
-  @override
-  String get gradesSummaryAvailableNoRecent =>
-      'Un résumé des notes est disponible, mais aucune évaluation récente n\'est visible dans cette vue pour l\'instant.';
 
   @override
   String get gradesEmptyTitle => 'Pas encore de notes';
@@ -4472,100 +3370,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucune note n\'a été publiée pour ce compte d\'étudiant pour l\'instant.';
 
   @override
-  String get gradesFiltersSubtitle =>
-      'Utilisez le même sélecteur consultable que dans les paramètres pour affiner les notes par matière ou période.';
-
-  @override
-  String get gradesNoFilteredTitle => 'Aucune note ne correspond à ces filtres';
-
-  @override
-  String get gradesNoFilteredSubtitle =>
-      'Essayez toutes les matières ou une période plus large pour ramener plus de notes enregistrées.';
-
-  @override
-  String get gradesQuickReadTitle => 'Lecture rapide';
-
-  @override
-  String get gradesQuickReadSubtitleFiltered =>
-      'Un résumé rapide des notes actuellement affichées.';
-
-  @override
-  String get gradesQuickReadSubtitleAll =>
-      'La lecture la plus rapide de ce qu\'il faut protéger et récupérer.';
-
-  @override
-  String get gradesWeakSpotLabel => 'Point faible actuel';
-
-  @override
-  String get gradesNoWeakSignal => 'Pas encore de signal de matière faible';
-
-  @override
-  String gradesWeakSpotValue(Object subject) {
-    return '$subject a besoin du premier bloc de récupération.';
-  }
-
-  @override
-  String get gradesStrengthLabel => 'Force actuelle';
-
-  @override
-  String get gradesNoStrengthSignal => 'Pas encore de signal de matière forte';
-
-  @override
-  String gradesStrengthValue(Object subject) {
-    return '$subject est votre point d\'ancrage de confiance en ce moment.';
-  }
-
-  @override
-  String get gradesBandLabel => 'Bande';
-
-  @override
-  String get gradesInViewLabel => 'En vue';
-
-  @override
-  String gradesInViewCount(Object count) {
-    return '$count notes enregistrées dans ce filtre.';
-  }
-
-  @override
-  String gradesInViewAverage(Object count, Object average) {
-    return '$count notes enregistrées avec une moyenne de $average.';
-  }
-
-  @override
-  String get gradesLatestAssessmentsTitle => 'Dernières évaluations';
-
-  @override
-  String get gradesLatestAssessmentsSubtitleFiltered =>
-      'Notes enregistrées les plus récentes dans la vue filtrée actuelle.';
-
-  @override
-  String get gradesLatestAssessmentsSubtitleAll =>
-      'Notes enregistrées les plus récentes par ordre chronologique.';
-
-  @override
-  String get gradesSubjectDrilldownTitle => 'Détail de la matière';
-
-  @override
-  String get gradesSubjectDrilldownSubtitleFiltered =>
-      'Regroupées par matière pour les notes actuellement affichées.';
-
-  @override
-  String get gradesSubjectDrilldownSubtitleAll =>
-      'Regroupées par matière pour que la tendance et la pression ressortent plus rapidement.';
-
-  @override
   String get gradesAssessmentFallback => 'Évaluation';
-
-  @override
-  String get gradesChipBest => 'Meilleur';
-
-  @override
-  String get gradesNoAverageYet => 'Pas de moyenne pour l\'instant';
-
-  @override
-  String gradesRecentAverage(Object average) {
-    return 'Moyenne récente : $average';
-  }
 
   @override
   String get actionCancel => 'Annuler';
@@ -4583,12 +3388,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get actionBlock => 'Bloquer';
 
   @override
-  String get actionCreate => 'Créer';
-
-  @override
-  String get actionShare => 'Partager';
-
-  @override
   String get actionScheduleVerb => 'Planifier';
 
   @override
@@ -4596,18 +3395,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get actionKeep => 'Conserver';
-
-  @override
-  String get actionOpen => 'Ouvrir';
-
-  @override
-  String get actionPublish => 'Publier';
-
-  @override
-  String get actionPublishing => 'Publication en cours…';
-
-  @override
-  String get actionRefresh => 'Actualiser';
 
   @override
   String get msgBlockTitle => 'Bloquer cette personne ?';
@@ -4710,9 +3497,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get examStudyWithNova => 'Étudier avec NOVA';
 
   @override
-  String get examOpenInsights => 'Ouvrir les analyses';
-
-  @override
   String get examAddToCalendar => 'Ajouter au calendrier';
 
   @override
@@ -4728,22 +3512,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get formClosed => 'Fermé';
 
   @override
-  String get formCompletion => 'Complétion';
-
-  @override
-  String get formNoTextResponses => 'Aucune réponse textuelle pour l\'instant.';
-
-  @override
   String get meetingsCouldNotLoad => 'Impossible de charger les réunions';
 
   @override
   String get meetingCouldNotLoad => 'Impossible de charger la réunion';
-
-  @override
-  String get insightsGenerateAction => 'Générer des analyses';
-
-  @override
-  String get insightsRefreshAction => 'Actualiser';
 
   @override
   String get teacherGoToClassroom => 'Aller en classe';
@@ -4756,9 +3528,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherNewAnnouncementAction => 'Nouvelle annonce';
-
-  @override
-  String get teacherViewFullWeekSchedule => 'Voir le planning de la semaine';
 
   @override
   String get teacherGroupsLabel => 'Groupes';
@@ -4788,13 +3557,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherAudienceSectionTitle => 'Audience';
 
   @override
-  String get teacherPinAnnouncement => 'Épingler l\'annonce';
-
-  @override
-  String get teacherPinnedAtTop =>
-      'Les annonces épinglées apparaissent en haut';
-
-  @override
   String get teacherPublishAction => 'Publier';
 
   @override
@@ -4819,12 +3581,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherSearchStudents => 'Rechercher des élèves…';
 
   @override
-  String get teacherNoStudentsLoaded => 'Aucun élève trouvé dans cette école.';
-
-  @override
-  String get teacherActions => 'ACTIONS RAPIDES';
-
-  @override
   String get teacherParentsLabel => 'Parents';
 
   @override
@@ -4832,9 +3588,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherWeekScheduleTitle => 'Planning de la semaine';
-
-  @override
-  String get teacherCouldNotLoadSchedule => 'Impossible de charger le planning';
 
   @override
   String get teacherAttendanceLast30 => 'Présence (30 derniers jours)';
@@ -4887,9 +3640,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherNoGradesEntered => 'Aucune note saisie pour l\'instant';
 
   @override
-  String get teacherNewAssignment => 'Nouveau devoir';
-
-  @override
   String get teacherDeleteAssignment => 'Supprimer le devoir ?';
 
   @override
@@ -4918,9 +3668,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherJoinMeeting => 'Rejoindre la réunion';
 
   @override
-  String get teacherAddStudentTitle => 'Ajouter un élève';
-
-  @override
   String teacherRemoveStudentTitle(Object name) {
     return 'Retirer $name ?';
   }
@@ -4931,12 +3678,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherStudentAdded => 'Élève ajouté';
-
-  @override
-  String get teacherClassroomAnalyticsTitle => 'Analyses de la classe';
-
-  @override
-  String get teacherOpenAnalyticsAction => 'Ouvrir les analyses';
 
   @override
   String teacherStudentsCount(Object count) {
@@ -4955,9 +3696,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get teacherSelectSessionPrompt =>
       'Sélectionnez une session ci-dessous pour commencer à marquer les présences';
-
-  @override
-  String get teacherOpenAction => 'Ouvrir';
 
   @override
   String get chatDeleteForMe => 'Supprimer pour moi';
@@ -5005,9 +3743,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chatEditPlaceholder => 'Modifier le message…';
 
   @override
-  String get chatMessageHint => 'Message';
-
-  @override
   String get chatPin => 'Épingler';
 
   @override
@@ -5045,10 +3780,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get chatJoinGroupTooltip => 'Rejoindre un groupe par code';
-
-  @override
-  String get chatForwardNoChatAvailable =>
-      'Aucune discussion approuvée disponible';
 
   @override
   String get chatFilterAll => 'Tous';
@@ -5091,12 +3822,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get classroomsNoClassroomsToReorder => 'Aucune classe à réorganiser.';
 
   @override
-  String get teacherPostAnnouncementAction => 'Publier une annonce';
-
-  @override
-  String get announcementAudienceEveryone => 'Tout le monde';
-
-  @override
   String get teacherGreetingMorning => 'Bonjour';
 
   @override
@@ -5115,38 +3840,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherUpcomingTestsSubtitle => 'Prochains tests et contrôles';
 
   @override
-  String get teacherNoClassesThisWeek => 'Aucun cours cette semaine';
-
-  @override
-  String get teacherNoClassesThisWeekSub =>
-      'Votre emploi du temps de cette semaine est vide';
-
-  @override
-  String get teacherTitleFieldLabel => 'Titre *';
-
-  @override
-  String get teacherInstructionsLabel => 'Instructions';
-
-  @override
-  String get teacherLinkUrlLabel => 'Lien / URL *';
-
-  @override
-  String get teacherLinkUrlHint => 'https://...';
-
-  @override
-  String get teacherDescriptionLabel => 'Description';
-
-  @override
-  String get teacherMeetingTitleLabel => 'Titre de la réunion *';
-
-  @override
-  String get teacherMeetingLinkLabel => 'Lien de la réunion *';
-
-  @override
   String get teacherMeetingLinkHint => 'Lien Zoom / Meet / Teams';
-
-  @override
-  String get teacherStudentEmailLabel => 'E-mail ou ID de l\'élève';
 
   @override
   String get teacherTooltipRemoveStudent => 'Retirer de la classe';
@@ -5207,9 +3901,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navDiplomas => 'Diplômes';
 
   @override
-  String get diplomasComingSoon => 'La gestion des diplômes arrive bientôt.';
-
-  @override
   String get teacherExamsTitle => 'Examens';
 
   @override
@@ -5221,11 +3912,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get teacherExamsEmpty =>
       'Aucune évaluation pour l\'instant. Appuyez sur + pour en créer une.';
-
-  @override
-  String teacherExamsGraded(Object count) {
-    return '$count noté(s)';
-  }
 
   @override
   String get teacherFormsTitle => 'Formulaires';
@@ -5246,52 +3932,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherFormsDraft => 'Brouillon';
 
   @override
-  String get teacherFormsCreateTitle => 'Créer un formulaire';
-
-  @override
-  String get teacherFormsAddQuestion => 'Ajouter une question';
-
-  @override
-  String get teacherFormsQuestionHint => 'Texte de la question';
-
-  @override
   String get teacherFormsViewResponses => 'Voir les réponses';
 
   @override
   String get teacherFormsNoResponses => 'Aucune réponse pour l\'instant.';
 
   @override
-  String get diplomasTitle => 'Certificats';
-
-  @override
-  String get diplomasEmpty =>
-      'Aucun certificat émis. Appuyez sur + pour en émettre un.';
-
-  @override
-  String get diplomasIssueTo => 'Émettre pour';
-
-  @override
-  String get diplomasStudentName => 'Nom de l\'élève';
-
-  @override
-  String get diplomasCertificateType => 'Type de certificat';
-
-  @override
-  String get diplomasIssueDiploma => 'Émettre le certificat';
-
-  @override
-  String diplomasIssuedOn(Object date) {
-    return 'Émis le $date';
-  }
-
-  @override
   String get examDetailsSection => 'Détails';
 
   @override
   String get examInfoTeacher => 'Professeur';
-
-  @override
-  String get examInfoAudience => 'Audience';
 
   @override
   String get examInfoDate => 'Date';
@@ -5301,9 +3951,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get examInfoPeriod => 'Période';
-
-  @override
-  String get examInfoDuration => 'Durée';
 
   @override
   String get examInfoSubject => 'Matière';
@@ -5326,9 +3973,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get examViewGradeAction => 'Ouvrir les notes';
-
-  @override
-  String get teacherGradesSaveAction => 'Enregistrer';
 
   @override
   String get teacherGradesNothingToSave => 'Aucune modification à enregistrer.';
@@ -5364,16 +4008,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucune réunion pour l\'instant.\nAppuyez sur + pour en planifier une.';
 
   @override
-  String get teacherStudentsNoMatch => 'Aucun élève ne correspond';
-
-  @override
   String get teacherMaterialsTitle => 'Supports de cours';
 
   @override
   String get profileNamesTitle => 'Nom en langues';
-
-  @override
-  String get profileDisplayNameLang => 'Langue d\'affichage';
 
   @override
   String get navDashboard => 'Tableau de bord';
@@ -5433,9 +4071,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminAdmins => 'Administrateurs';
 
   @override
-  String get adminTodaySessions => 'Sessions d\'aujourd\'hui';
-
-  @override
   String get adminQuickActions => 'Actions rapides';
 
   @override
@@ -5452,33 +4087,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminCreateUser => 'Créer';
 
   @override
-  String get adminFullName => 'Nom complet';
-
-  @override
-  String get adminEmailAddress => 'Adresse e-mail';
-
-  @override
   String get adminRoleLabel => 'Rôle';
 
   @override
   String get adminUserCreated => 'Utilisateur créé';
 
   @override
-  String get adminTempPassword => 'Mot de passe temporaire';
-
-  @override
   String get adminCopied => 'Copié dans le presse-papiers';
-
-  @override
-  String get adminResetPassword => 'Réinitialiser le mot de passe';
-
-  @override
-  String get adminPasswordReset => 'Réinitialisation du mot de passe';
-
-  @override
-  String adminTempPasswordFor(Object name) {
-    return 'Mot de passe temporaire pour $name';
-  }
 
   @override
   String get adminDeleteUser => 'Supprimer l\'utilisateur';
@@ -5500,9 +4115,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminAddCohort => 'Ajouter une cohorte';
 
   @override
-  String get adminNewCohort => 'Nouvelle cohorte';
-
-  @override
   String get adminCohortName => 'Nom (ex. 10ème-2)';
 
   @override
@@ -5513,11 +4125,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminAddStudents => 'Ajouter des élèves';
-
-  @override
-  String adminAddTo(Object name) {
-    return 'Ajouter à $name';
-  }
 
   @override
   String get adminRemoveStudent => 'Retirer l\'élève';
@@ -5534,17 +4141,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminNoStudentsInCohort => 'Aucun élève dans cette cohorte';
 
   @override
-  String adminStudentCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count élèves',
-      one: '1 élève',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get adminSearchStudents => 'Rechercher des élèves…';
 
   @override
@@ -5554,27 +4150,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminScheduleAddPeriod => 'Ajouter une période';
 
   @override
-  String get adminScheduleNewPeriod => 'Nouveau cours';
-
-  @override
-  String get adminScheduleDayLabel => 'Jour';
-
-  @override
   String adminSchedulePeriodLabel(Object period) {
     return 'P$period';
   }
-
-  @override
-  String get adminScheduleTeacherLabel => 'Enseignant';
-
-  @override
-  String get adminScheduleNoneTeacher => 'Aucun enseignant';
-
-  @override
-  String get adminScheduleCohortLabel => 'Cohorte / Élèves';
-
-  @override
-  String get adminScheduleFrequencyLabel => 'Fréquence';
 
   @override
   String get adminScheduleFreqWeekly => 'Chaque semaine';
@@ -5589,15 +4167,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminScheduleFreqCustom => 'Personnalisé';
 
   @override
-  String adminScheduleFreqCustomLabel(int n) {
-    return 'Toutes les $n semaines';
-  }
-
-  @override
   String get adminScheduleAddSlot => 'Ajouter un créneau';
-
-  @override
-  String get adminScheduleAddAnother => 'Ajouter un autre jour / cours';
 
   @override
   String get adminScheduleSave => 'Enregistrer';
@@ -5609,19 +4179,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminScheduleSearchCohort => 'Rechercher des cohortes…';
 
   @override
-  String get adminScheduleSelectTeacher => 'Sélectionner un enseignant';
-
-  @override
-  String get adminScheduleSelectCohort => 'Sélectionner une cohorte';
-
-  @override
-  String get adminScheduleOrStudents =>
-      'Ou choisir des élèves individuellement';
-
-  @override
-  String get adminScheduleNoSlots => 'Aucun cours pour l\'instant';
-
-  @override
   String get adminScheduleNoSlotsHint =>
       'Appuyez sur + pour ajouter le premier cours';
 
@@ -5630,12 +4187,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminSchoolName => 'Nom de l\'école';
-
-  @override
-  String get adminSchoolLogoUrl => 'URL du logo (optionnel)';
-
-  @override
-  String get adminSchoolLogoHint => 'https://…';
 
   @override
   String get adminSchoolSaved => 'Enregistré';
@@ -5649,16 +4200,10 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get adminSubjectsAddHint => 'Ajouter une matière…';
-
-  @override
   String get adminSubjectsNoSubjects => 'Aucune matière configurée';
 
   @override
   String get adminSubjectsAdd => 'Ajouter';
-
-  @override
-  String get adminSubjectsRemove => 'Retirer';
 
   @override
   String get adminSettingsTitle => 'Paramètres';
@@ -5682,12 +4227,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get permissionsColTeacher => 'Teachers';
-
-  @override
-  String get permissionsDefaultOn => 'On by default';
-
-  @override
-  String get permissionsDefaultOff => 'Off by default';
 
   @override
   String get permissionsChangedBadge => 'Changed';
@@ -5717,27 +4256,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get permissionsResetChanges => 'Discard changes';
 
   @override
-  String get permissionsUnsavedTitle => 'Discard changes?';
-
-  @override
-  String get permissionsUnsavedBody =>
-      'You have unsaved permission changes. Leave without saving?';
-
-  @override
-  String get permissionsLeave => 'Leave';
-
-  @override
-  String get permissionsStay => 'Keep editing';
-
-  @override
   String get adminSettingsBellSchedule => 'Sonnerie';
 
   @override
   String get adminSettingsPeriodDefaults => 'Horaires par défaut';
-
-  @override
-  String get adminSettingsPeriodDefaultsSubtitle =>
-      'Définir les horaires de chaque cours';
 
   @override
   String get adminDeleteConfirmCancel => 'Annuler';
@@ -5753,16 +4275,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminSearchPeople => 'Rechercher par nom…';
-
-  @override
-  String adminNoResults(Object query) {
-    return 'Aucun résultat pour \"$query\"';
-  }
-
-  @override
-  String adminNoPeopleYet(Object role) {
-    return 'Aucun $role pour l\'instant';
-  }
 
   @override
   String get commonRetry => 'Réessayer';
@@ -5813,9 +4325,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonNoResults => 'No results';
 
   @override
-  String get commonShare => 'Partager';
-
-  @override
   String get inboxActionPin => 'Épingler la discussion';
 
   @override
@@ -5864,13 +4373,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cmailDeleteConfirm => 'Supprimer ce courrier de votre boîte ?';
 
   @override
-  String get commonLoading => 'Chargement…';
-
-  @override
   String get commonError => 'Une erreur est survenue';
-
-  @override
-  String get commonTryAgain => 'Réessayer';
 
   @override
   String get studentMaterialsTitle => 'Ressources';
@@ -5902,24 +4405,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get studentAssignmentHandedInBadge => 'Remis';
 
   @override
-  String get studentAssignmentSubmitButton => 'Remettre';
-
-  @override
-  String get studentAssignmentSubmitting => 'Envoi en cours…';
-
-  @override
-  String get studentAssignmentAttachFile => 'Joindre un fichier';
-
-  @override
-  String get studentAssignmentAddMoreFiles => 'Ajouter d\'autres fichiers';
-
-  @override
-  String get studentAssignmentYourSubmission => 'Votre remise';
-
-  @override
-  String get studentAssignmentTeacherAttachments => 'Pièces jointes';
-
-  @override
   String secretaryWelcomeGreeting(Object name) {
     return 'Bonjour $name 👋';
   }
@@ -5932,9 +4417,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get secretaryExportData => 'Exporter les données';
-
-  @override
-  String get secretaryHomeTile => 'Accueil';
 
   @override
   String parentHomeGreeting(Object name) {
@@ -5996,22 +4478,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'We\'ll text the link to the phone number on this account.';
 
   @override
-  String get forgotPasswordLinkExpires =>
-      'Le lien expire dans 1 heure et ne peut être utilisé qu\'une seule fois.';
-
-  @override
-  String get pushPermissionTitle => 'Restez informé';
-
-  @override
-  String get pushPermissionBody =>
-      'Activez les notifications pour ne rien manquer des notes, messages ou changements d\'emploi du temps.';
-
-  @override
-  String commonRequiredField(Object field) {
-    return '$field requis';
-  }
-
-  @override
   String get commonAttachments => 'Pièces jointes';
 
   @override
@@ -6027,18 +4493,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonPublish => 'Publier';
 
   @override
-  String get commonContinue => 'Continuer';
-
-  @override
-  String get commonNext => 'Suivant';
-
-  @override
-  String get commonStart => 'Début';
-
-  @override
-  String get commonEnd => 'Fin';
-
-  @override
   String get commonRefresh => 'Actualiser';
 
   @override
@@ -6048,22 +4502,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonOpen => 'Ouvrir';
 
   @override
-  String get commonView => 'Voir';
-
-  @override
-  String get commonCopy => 'Copier';
-
-  @override
   String get commonAdd => 'Ajouter';
-
-  @override
-  String get commonOptional => 'Optionnel';
-
-  @override
-  String get commonRequired => 'Obligatoire';
-
-  @override
-  String get commonAuto => 'Auto';
 
   @override
   String get teacherShareButton => 'Partager';
@@ -6109,19 +4548,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Date et heure de début requises';
 
   @override
-  String get teacherMeetingStartDate => 'Date de début *';
-
-  @override
   String get teacherMeetingStartTime => 'Heure de début *';
 
   @override
-  String get teacherMeetingEndDate => 'Date de fin (optionnel)';
-
-  @override
   String get teacherMeetingEndTime => 'Heure de fin (optionnel)';
-
-  @override
-  String get teacherClearEndTime => 'Effacer l\'heure de fin';
 
   @override
   String get teacherAssignmentTitleField => 'Titre *';
@@ -6148,9 +4578,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherCreateAssignment => 'Créer';
 
   @override
-  String get teacherExamSubject => 'Matière *';
-
-  @override
   String get teacherExamDate => 'Date de l\'examen *';
 
   @override
@@ -6169,16 +4596,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherSearchMaterials => 'Rechercher des ressources…';
 
   @override
-  String get teacherClassroomName => 'Nom de la classe *';
-
-  @override
-  String get adminReportsOpenTab => 'Ouvert';
-
-  @override
   String get adminReportsResolvedTab => 'Résolu';
-
-  @override
-  String get adminReportsDismissedTab => 'Rejeté';
 
   @override
   String get adminReportsNoOpen => 'Aucun signalement ouvert';
@@ -6216,11 +4634,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String chatReportFailed(Object error) {
     return 'Échec du signalement : $error';
-  }
-
-  @override
-  String chatSendError(Object message) {
-    return 'Impossible d\'envoyer : $message';
   }
 
   @override
@@ -6461,10 +4874,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminInCohortBadge => 'Dans le groupe';
 
   @override
-  String get adminNoStudentsFoundCohort =>
-      'Aucun élève trouvé dans les niveaux de ce groupe';
-
-  @override
   String get adminScheduleByCohort => 'Par groupe ▾';
 
   @override
@@ -6492,17 +4901,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminScheduleClearFilters => 'Effacer';
 
   @override
-  String get adminSchedulePickSubjectRequired =>
-      'Choisissez une matière avant d\'enregistrer le créneau.';
-
-  @override
   String get adminSchedulePickDateOnce =>
       'Choisissez une date pour un créneau ponctuel.';
-
-  @override
-  String adminSchedulePickDateRecurring(Object freq) {
-    return 'Choisissez une date de début pour le planning toutes les $freq semaines.';
-  }
 
   @override
   String get adminSchoolLogoLabel => 'Logo de l\'école';
@@ -6530,10 +4930,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminSchoolGradeRangeLabel => 'Plage de niveaux';
 
   @override
-  String get adminSchoolGradeRangeDescription =>
-      'Niveaux disponibles dans les groupes, élèves et sélecteurs.';
-
-  @override
   String get adminSchoolLowestGrade => 'Plus bas';
 
   @override
@@ -6545,10 +4941,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get adminSchoolSubjectsDescription =>
       'Disponibles à tous les enseignants lors de la création de devoirs.';
-
-  @override
-  String get adminSchoolNoTranslations =>
-      'Appuyez pour ajouter des traductions';
 
   @override
   String get adminSchoolBellHint =>
@@ -6566,15 +4958,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminSchoolEndTime => 'Fin';
-
-  @override
-  String get adminExportStudentsTab => 'Élèves';
-
-  @override
-  String get adminExportCohortsTab => 'Groupes';
-
-  @override
-  String get adminExportGradesTab => 'Niveaux';
 
   @override
   String get adminExportOptionsTitle => 'Options d\'export';
@@ -6648,17 +5031,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get studentFormAlreadySubmittedButton => 'Déjà soumis';
 
   @override
-  String get studentDiplomaEditTitle => 'Modifier le certificat';
-
-  @override
-  String get studentDiplomaDeleteTitle => 'Supprimer le certificat ?';
-
-  @override
-  String studentDiplomaDeleteConfirm(Object name) {
-    return 'Retirer le certificat de « $name » ?';
-  }
-
-  @override
   String teacherDeleteItemConfirm(Object title) {
     return 'Supprimer « $title » ?';
   }
@@ -6682,11 +5054,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherMeetingVisibleToEveryone => 'Visible par tous';
-
-  @override
-  String teacherMeetingDoneCount(int count) {
-    return 'Terminé ($count sélectionné(s))';
-  }
 
   @override
   String get teacherDeleteAssignmentTitle => 'Supprimer le devoir ?';
@@ -6717,9 +5084,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get teacherClassroomFileUnavailable =>
       'Ce fichier n\'est pas disponible — l\'enseignant doit le réimporter.';
-
-  @override
-  String get teacherClassroomCodeLabel => 'Code de la classe';
 
   @override
   String get teacherClassroomCodeCopied => 'Code copié';
@@ -6803,11 +5167,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherFormEnterTitle => 'Veuillez saisir un titre de formulaire.';
 
   @override
-  String teacherExamUploadFailedSkipped(Object name) {
-    return 'Échec de l\'envoi de $name. Fichier ignoré.';
-  }
-
-  @override
   String get teacherExamEnterTitle => 'Veuillez saisir un titre.';
 
   @override
@@ -6831,24 +5190,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherSlotDetachTooltip => 'Détacher';
-
-  @override
-  String get teacherDiplomaSelectStudent => 'Sélectionnez d\'abord un élève.';
-
-  @override
-  String get teacherDiplomaUploadingWait =>
-      'Veuillez patienter — les fichiers sont encore en cours d\'envoi.';
-
-  @override
-  String teacherDiplomaIssueFailed(Object error) {
-    return 'Impossible de délivrer le certificat : $error';
-  }
-
-  @override
-  String get teacherDiplomaCertTitleLabel => 'Titre du certificat';
-
-  @override
-  String get teacherDiplomaSearchStudent => 'Rechercher un élève…';
 
   @override
   String get teacherProfileChatError =>
@@ -6918,27 +5259,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucun parent trouvé dans cette école.';
 
   @override
-  String get teacherGradesToGrade => 'À noter';
-
-  @override
-  String get teacherGradesGraded => 'Notée';
-
-  @override
   String get teacherSaveGradesButton => 'Enregistrer les notes';
-
-  @override
-  String get teacherAllowResubmitLabel => 'Autoriser la re-soumission';
-
-  @override
-  String get teacherAllowResubmitTitle => 'Autoriser la re-soumission ?';
-
-  @override
-  String teacherAllowResubmitBody(Object name) {
-    return 'Cela supprimera la remise de $name pour qu\'il puisse remettre à nouveau.';
-  }
-
-  @override
-  String get teacherAllowButton => 'Autoriser';
 
   @override
   String get teacherGradeFieldLabel => 'Note';
@@ -6947,21 +5268,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherFeedbackOptionalLabel => 'Commentaire (optionnel)';
 
   @override
-  String get teacherCreateClassroomFabLabel => 'Créer';
-
-  @override
-  String get teacherLoadingStudents => 'Chargement des élèves…';
-
-  @override
   String get teacherSearchHintShort => 'Rechercher…';
-
-  @override
-  String get teacherCreateClassroomTitle => 'Nouvelle classe';
-
-  @override
-  String teacherAssignmentUploadFailed(Object name) {
-    return 'Impossible d\'envoyer $name';
-  }
 
   @override
   String get teacherAssignmentEnterTitle => 'Veuillez saisir un titre.';
@@ -6971,9 +5278,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherAssignmentInstructionsLabel => 'Instructions / Description';
-
-  @override
-  String get teacherAttachFilesButton => 'Joindre des fichiers';
 
   @override
   String get tutorDeleteConversationTitle => 'Supprimer la conversation ?';
@@ -7008,19 +5312,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get accountContinueButton => 'Continuer';
 
   @override
-  String get studentClassroomFileUnavailable =>
-      'Ce fichier n\'est pas encore disponible.';
-
-  @override
-  String get studentClassroomDeleteMaterial => 'Supprimer la ressource ?';
-
-  @override
-  String get studentClassroomCodeLabel => 'Code de la classe';
-
-  @override
-  String get studentClassroomLeaveTooltip => 'Quitter la classe';
-
-  @override
   String get adminEditUserEnglishNameRequired => 'Le nom en anglais est requis';
 
   @override
@@ -7045,9 +5336,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminEditUserNameSection => 'Nom';
-
-  @override
-  String get adminEditUserAtLeastEnglish => 'L\'anglais est au moins requis.';
 
   @override
   String get adminEditUserGradeSection => 'Niveau';
@@ -7190,19 +5478,8 @@ class AppLocalizationsFr extends AppLocalizations {
       'L\'export réinitialisera et inclura les mots de passe';
 
   @override
-  String get adminExportAnyway => 'Exporter quand même';
-
-  @override
-  String get adminExportPdfStudentDirectory => 'Annuaire des élèves';
-
-  @override
   String adminExportPdfBy(String name) {
     return 'Par : $name';
-  }
-
-  @override
-  String adminExportPdfStudentsCount(int count) {
-    return '$count élèves';
   }
 
   @override
@@ -7234,32 +5511,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminExportColumnPassword => 'Mot de passe';
-
-  @override
-  String get adminExportColumnNameEn => 'Nom (EN)';
-
-  @override
-  String get adminExportColumnNameAr => 'Nom (AR)';
-
-  @override
-  String get adminExportColumnNameHe => 'Nom (HE)';
-
-  @override
-  String get adminExportColumnNameFr => 'Nom (FR)';
-
-  @override
-  String get adminExportColumnNameRu => 'Nom (RU)';
-
-  @override
-  String adminExportStudentsSelected(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count élèves sélectionnés',
-      one: '$count élève sélectionné',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get teacherMaterialEditTitle => 'Modifier le document';
@@ -7484,9 +5735,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonCreate => 'Créer';
-
-  @override
-  String get commonAttachStudyMaterials => 'Joindre des supports de cours';
 
   @override
   String get teacherCreateClassroomNewTitle => 'Nouvelle classe';
@@ -7846,9 +6094,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonTitle => 'Titre';
 
   @override
-  String get commonNotes => 'Notes';
-
-  @override
   String get commonEmail => 'E-mail';
 
   @override
@@ -7948,14 +6193,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get drawerSwitchChild => 'Changer d\'enfant';
 
   @override
-  String get shellAssessmentCreated => 'Évaluation créée';
-
-  @override
-  String commonCouldNotOpenLink(String scheme) {
-    return 'Impossible d\'ouvrir le lien $scheme';
-  }
-
-  @override
   String commonCouldntSend(String error) {
     return 'Échec de l\'envoi : $error';
   }
@@ -7983,9 +6220,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherGradeTypeSection => 'Type de note';
-
-  @override
-  String get teacherOtherGradeSection => 'Autre note';
 
   @override
   String get teacherEnterGradesSection => 'Saisir les notes';
@@ -8064,38 +6298,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get novaDisclaimerYourPrivacy => 'Votre vie privée';
 
   @override
-  String profileNameInLanguage(String language) {
-    return 'Nom en $language';
-  }
-
-  @override
   String get adminSettingsScheduleSubtitle =>
       'Assigner enseignants et groupes aux créneaux hebdomadaires';
-
-  @override
-  String get practiceModeBalancedSubtitle => 'Pratique quotidienne équilibrée';
-
-  @override
-  String get practiceModeRevealSubtitle => 'Révéler et auto-restituer';
-
-  @override
-  String get practiceModeFastSubtitle => 'Exercice rapide sous pression';
-
-  @override
-  String get practiceModeExamSubtitle => 'Flux calme façon examen';
-
-  @override
-  String get practiceModeConceptSubtitle =>
-      'Concept d\'abord, résolution ensuite';
-
-  @override
-  String get practiceModeAdaptiveSubtitle => 'La difficulté change en direct';
-
-  @override
-  String get practiceModeStrictSubtitle => 'Style officiel strict';
-
-  @override
-  String get commonCall => 'Appeler';
 
   @override
   String get tooltipClearEndTime => 'Effacer l\'heure de fin';
@@ -8395,9 +6599,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonReadLess => 'Lire moins';
 
   @override
-  String get chatComposerSlideToCancel => 'Glisser pour annuler';
-
-  @override
   String adminNoRoleYet(String role) {
     return 'Aucun $role pour l\'instant';
   }
@@ -8414,12 +6615,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonAdding => 'Ajout en cours…';
-
-  @override
-  String get teacherDiplomaIssuing => 'Émission…';
-
-  @override
-  String get teacherDiplomaIssue => 'Émettre';
 
   @override
   String get formAccepting => 'Accepte';
@@ -8475,9 +6670,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get adminExportEmptyState =>
       'Ajoutez un filtre pour commencer : choisissez un rôle, un groupe, un niveau ou des utilisateurs spécifiques.';
-
-  @override
-  String get adminExportFilterRolesTab => 'Rôles';
 
   @override
   String get adminExportFilterCohortsTab => 'Groupes';
@@ -8595,12 +6787,6 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get teacherAttachFromMaterials => 'Depuis les supports';
-
-  @override
-  String get teacherUploadFiles => 'Téléverser des fichiers';
 
   @override
   String get solSubjectMathematics => 'Mathématiques';
@@ -8779,9 +6965,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String solutionsGradeLabel(int grade) {
     return 'Niveau $grade';
   }
-
-  @override
-  String get solutionsReportsTitle => 'Solutions signalées';
 
   @override
   String get solutionsReportsEmpty => 'Aucun signalement à examiner.';
@@ -8967,35 +7150,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonSubjectOptional => 'Matière (facultatif)';
 
   @override
-  String get colorBlue => 'Bleu';
-
-  @override
-  String get colorIndigo => 'Indigo';
-
-  @override
-  String get colorViolet => 'Violet';
-
-  @override
-  String get colorTeal => 'Sarcelle';
-
-  @override
-  String get colorGreen => 'Vert';
-
-  @override
-  String get colorOrange => 'Orange';
-
-  @override
-  String get colorRose => 'Rose';
-
-  @override
   String get teacherAddClassNotes => 'Ajouter des notes de cours';
-
-  @override
-  String get teacherStudentsWithGrades => 'Élèves avec notes';
-
-  @override
-  String get teacherOtherStudentsSameGrade =>
-      'Autres élèves de la même classe/cohorte';
 
   @override
   String get teacherChooseExam => 'Choisir un examen';
@@ -9036,35 +7191,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'L\'utilisateur se connectera avec ce mot de passe à sa prochaine connexion. Tout lien de réinitialisation en attente sera invalidé.';
 
   @override
-  String get nameInEnglish => 'Nom en anglais';
-
-  @override
-  String get nameInArabic => 'Nom en arabe';
-
-  @override
-  String get nameInHebrew => 'Nom en hébreu';
-
-  @override
-  String get nameInFrench => 'Nom en français';
-
-  @override
-  String get nameInRussian => 'Nom en russe';
-
-  @override
   String get passwordMinChars => 'Au moins 8 caractères.';
 
   @override
   String get passwordsDoNotMatch => 'Les mots de passe ne correspondent pas.';
-
-  @override
-  String get adminWelcomeHeading => 'Bienvenue sur ClassMate';
-
-  @override
-  String get diplomasNoFilesAttached => 'Aucun fichier joint à ce certificat.';
-
-  @override
-  String get diplomasFilesProcessing =>
-      'Impossible d\'ouvrir les fichiers — ils sont peut-être encore en traitement.';
 
   @override
   String get novaOutOfTokens =>
@@ -9114,39 +7244,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String cohortStudentsCount(int count) {
     return '$count élèves';
-  }
-
-  @override
-  String diplomasIssuedCount(Object count) {
-    return '$count certificats délivrés';
-  }
-
-  @override
-  String get adminExportImportantHeading => 'Important';
-
-  @override
-  String get adminExportWelcomeBodyWithPw =>
-      'Voici les détails de votre compte ClassMate. Connectez-vous à l\'application ClassMate sur iOS ou Android avec le nom d\'utilisateur et le mot de passe ci-dessous. Vous pourrez changer votre mot de passe dans l\'application.';
-
-  @override
-  String get adminExportWelcomeBodyNoPw =>
-      'Voici les détails de votre compte ClassMate. Connectez-vous à l\'application ClassMate sur iOS ou Android avec votre nom d\'utilisateur.';
-
-  @override
-  String get adminExportNotePrivate =>
-      'Gardez ces identifiants confidentiels. Ne partagez pas votre mot de passe.';
-
-  @override
-  String get adminExportNoteChangePw =>
-      'Changez votre mot de passe après la première connexion dans Paramètres → Compte.';
-
-  @override
-  String get adminExportNoteLegal =>
-      'En utilisant ClassMate, vous acceptez nos Conditions d\'utilisation et notre Politique de confidentialité.';
-
-  @override
-  String adminExportNoteHelp(String email) {
-    return 'Besoin d\'aide ? Contactez l\'administrateur de votre école ou $email.';
   }
 
   @override
@@ -9232,13 +7329,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminImportUsersScreenGrade => 'Classe';
 
   @override
-  String get adminImportUsersScreenParentUsername =>
-      'Nom d\'utilisateur du parent';
-
-  @override
-  String get adminImportUsersScreenParentUsernameHint => 'lien (facultatif)';
-
-  @override
   String get adminImportUsersScreenCouldNotReadFile =>
       'Impossible de lire ce fichier.';
 
@@ -9309,9 +7399,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Identifiants (remettez-les à vos utilisateurs)';
 
   @override
-  String get teacherCohortsScreenTitle => 'Groupes';
-
-  @override
   String get teacherCohortsScreenNewCohort => 'Nouveau groupe';
 
   @override
@@ -9330,9 +7417,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherCohortsScreenGradesLabel => 'Classe(s)';
-
-  @override
-  String get teacherCohortsScreenGradesHint => 'ex. 10  ou  7,8';
 
   @override
   String get teacherCohortsScreenCancel => 'Annuler';
@@ -9391,11 +7475,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get teacherCohortsScreenLoadStudentsError =>
       'Impossible de charger les élèves';
-
-  @override
-  String teacherCohortsScreenAddNStudents(int count) {
-    return 'Ajouter $count élèves';
-  }
 
   @override
   String teacherCohortsScreenAddedNStudents(int count) {
@@ -10291,10 +8370,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherClassroomAddAssignmentScreenDetails => 'Détails du devoir';
 
   @override
-  String get teacherClassroomAddAssignmentScreenDueDateOptional =>
-      'Date d\'échéance (facultatif)';
-
-  @override
   String get teacherClassroomAddAssignmentScreenNotifyStudents =>
       'Notifier les élèves';
 
@@ -10310,49 +8385,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Ajouter d\'autres fichiers';
 
   @override
-  String get diplomasScreenCertificate => 'Certificat';
-
-  @override
-  String diplomasScreenIssuedDate(String date) {
-    return 'Délivré le $date';
-  }
-
-  @override
-  String get diplomasScreenNoCertificatesReceived =>
-      'Aucun certificat reçu pour le moment.';
-
-  @override
-  String diplomasScreenFileCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count fichiers',
-      one: '$count fichier',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get gradesScreenOutOf100 => '/ 100';
-
-  @override
-  String gradesScreenShowMore(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 's',
-      one: '',
-    );
-    return 'Afficher $count note$_temp0 de plus';
-  }
-
-  @override
-  String get gradesScreenShowLess => 'Afficher moins';
-
-  @override
-  String gradesScreenScoreOutOf100(String score) {
-    return '$score / 100';
-  }
 
   @override
   String get adminSchoolSettingsStart => 'Début';
@@ -10365,13 +8398,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminExportLayoutTable => 'Compact table';
-
-  @override
-  String get adminExportScreenEachUserAlone => 'Chaque utilisateur séparément';
-
-  @override
-  String get adminExportScreenEachUserAloneOn =>
-      'Une page complète par utilisateur, grande mise en page lisible sous forme de fiche.';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
@@ -10450,20 +8476,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get teacherAddMaterialScreenFileFallback => 'Fichier';
-
-  @override
-  String get teacherCreateDiplomaScreenTitle => 'Délivrer un certificat';
-
-  @override
-  String get teacherCreateDiplomaScreenGradePrefix => 'Classe';
-
-  @override
-  String get teacherCreateDiplomaScreenAttachFiles =>
-      'Joindre le(s) fichier(s) du certificat';
-
-  @override
-  String get teacherCreateDiplomaScreenAddMoreFiles =>
-      'Ajouter d\'autres fichiers';
 
   @override
   String get teacherAssignmentDetailScreenTitle => 'Devoir';
@@ -10730,9 +8742,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get examDetailScreenCountdownToday => 'C\'est aujourd\'hui !';
 
   @override
-  String get teacherCreateDiplomaScreenDefaultTitle => 'Certificat de réussite';
-
-  @override
   String teacherMaterialAddedBy(String name) {
     return 'Ajouté par $name';
   }
@@ -10846,9 +8855,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get averagesSave => 'Enregistrer';
 
   @override
-  String get certificatesTitle => 'Certificats';
-
-  @override
   String get certHomeroom => 'Classe (titulaire)';
 
   @override
@@ -10876,17 +8882,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get certLanguage => 'Langue du certificat';
 
   @override
-  String get certGenerate => 'Générer le PDF';
-
-  @override
   String get certWeightsMustBe100 =>
       'La somme des pondérations des semestres doit être 100 %.';
 
   @override
   String get certSelectStudentFirst => 'Sélectionnez d\'abord un élève.';
-
-  @override
-  String get certSaved => 'Certificat généré.';
 
   @override
   String get certSaveAndPublish => 'Enregistrer et publier';
@@ -10913,9 +8913,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get certDraftSaved => 'Enregistré comme brouillon.';
 
   @override
-  String get certPublishing => 'Publication…';
-
-  @override
   String get certDownload => 'Télécharger';
 
   @override
@@ -10926,21 +8923,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'This certificate is still a draft — publish it first to open its PDF.';
 
   @override
-  String get certMine => 'Mes certificats';
-
-  @override
-  String get certNoHomeroom =>
-      'Vous n\'êtes encore professeur principal d\'aucune classe.';
-
-  @override
   String get certGrin => 'Notes';
 
   @override
   String get certPrintAll => 'Tout imprimer';
-
-  @override
-  String get certSelectCohortToPrint =>
-      'Sélectionnez une classe pour imprimer tous ses certificats.';
 
   @override
   String get certEditTitle => 'Modifier le certificat';
@@ -10956,9 +8942,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get certPdfOverall => 'Moyenne générale';
-
-  @override
-  String get certPdfAverage => 'Moyenne';
 
   @override
   String get certPdfAbsences => 'Absences';
@@ -11074,19 +9057,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get gradesSubjectNoGrades => 'Aucune note dans cette matière.';
 
   @override
-  String get gradesPublishedShort => 'Publié';
-
-  @override
-  String get gradesDraftShort => 'Brouillon';
-
-  @override
   String gradesPublishTitle(Object title) {
     return 'Publier « $title »';
-  }
-
-  @override
-  String gradesUnpublishTitle(Object title) {
-    return 'Dépublier « $title »';
   }
 
   @override
@@ -11312,16 +9284,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get averagesHintGrade => 'Choisissez une note';
 
   @override
-  String get adminInsightsSearchHint => 'Rechercher des élèves par nom…';
-
-  @override
-  String get adminInsightsNoStudents => 'Aucun élève trouvé.';
-
-  @override
-  String get adminInsightsNoGrades =>
-      'Aucune note enregistrée pour l\'instant.';
-
-  @override
   String get gradesEditGradeTitle => 'Modifier la note';
 
   @override
@@ -11343,11 +9305,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'Ajouter une plage';
-
-  @override
-  String certPdfSemesterCertificate(String sem) {
-    return 'Certificat de semestre — $sem';
-  }
 
   @override
   String get certPdfRemarks => 'Remarques du professeur principal';
@@ -11408,14 +9365,6 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get gradesAvgFilterAll => 'Toutes';
-
-  @override
-  String gradesAvgFilterCohort(String name) {
-    return 'Classe — $name';
-  }
-
-  @override
   String get gradesAvgSearchHint => 'Rechercher des notes';
 
   @override
@@ -11433,18 +9382,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get notesNoStudents => 'Aucun élève trouvé';
-
-  @override
-  String notesCount(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count notes',
-      one: '1 note',
-      zero: 'Aucune note',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get notesNewNote => 'Nouvelle note';
@@ -11470,11 +9407,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get notesBodyHint => 'Commencez à écrire…';
-
-  @override
-  String notesEditedBy(String name) {
-    return 'Par $name';
-  }
 
   @override
   String get cmailTitle => 'CMail';
@@ -11581,11 +9513,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cmailAttachments => 'Pièces jointes';
 
   @override
-  String cmailFrom(String name) {
-    return 'De $name';
-  }
-
-  @override
   String get phoneLinkTitle => 'Ajoutez votre téléphone';
 
   @override
@@ -11597,9 +9524,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get phoneLinkSend => 'Envoyer le code';
-
-  @override
-  String get phoneLinkCodeLabel => 'Code à 6 chiffres';
 
   @override
   String phoneLinkCodeSent(String phone) {
@@ -11658,9 +9582,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get hubUnpublished => 'Brouillon';
 
   @override
-  String get hubClass => 'Classe';
-
-  @override
   String get a11yBack => 'Retour';
 
   @override
@@ -11668,12 +9589,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get a11yCancel => 'Annuler';
-
-  @override
-  String get a11yDone => 'Terminé';
-
-  @override
-  String get a11ySave => 'Enregistrer';
 
   @override
   String get a11yEdit => 'Modifier';
@@ -11688,58 +9603,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get a11yAdd => 'Ajouter';
 
   @override
-  String get a11yCreate => 'Créer';
-
-  @override
-  String get a11ySend => 'Envoyer';
-
-  @override
-  String get a11ySearch => 'Rechercher';
-
-  @override
   String get a11yClear => 'Effacer';
-
-  @override
-  String get a11yFilter => 'Filtrer';
-
-  @override
-  String get a11ySort => 'Trier';
 
   @override
   String get a11yMore => 'Plus d\'options';
 
   @override
-  String get a11yMenu => 'Menu';
-
-  @override
-  String get a11yRefresh => 'Actualiser';
-
-  @override
-  String get a11yRetry => 'Réessayer';
-
-  @override
-  String get a11yShare => 'Partager';
-
-  @override
   String get a11yCopy => 'Copier';
 
   @override
-  String get a11yDownload => 'Télécharger';
-
-  @override
-  String get a11yUpload => 'Envoyer';
-
-  @override
-  String get a11yAttach => 'Joindre un fichier';
-
-  @override
-  String get a11yAddPhoto => 'Ajouter une photo';
-
-  @override
   String get a11yCamera => 'Appareil photo';
-
-  @override
-  String get a11yMicrophone => 'Saisie vocale';
 
   @override
   String get a11yPlay => 'Lire';
@@ -11760,73 +9633,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get a11yCollapse => 'Réduire';
 
   @override
-  String get a11yShow => 'Afficher';
-
-  @override
-  String get a11yHide => 'Masquer';
-
-  @override
-  String get a11ySettings => 'Paramètres';
-
-  @override
-  String get a11yProfile => 'Profil';
-
-  @override
-  String get a11yNotifications => 'Notifications';
-
-  @override
-  String get a11yHelp => 'Aide';
-
-  @override
   String get a11yInfo => 'Détails';
-
-  @override
-  String get a11yFavorite => 'Favori';
-
-  @override
-  String get a11yPin => 'Épingler';
-
-  @override
-  String get a11yUnpin => 'Détacher';
-
-  @override
-  String get a11yMute => 'Muet';
-
-  @override
-  String get a11yUnmute => 'Réactiver le son';
-
-  @override
-  String get a11yMarkRead => 'Marquer comme lu';
-
-  @override
-  String get a11yNewChat => 'Nouvelle discussion';
-
-  @override
-  String get a11yNewMessage => 'Nouveau message';
-
-  @override
-  String get a11yEmoji => 'Émoji';
-
-  @override
-  String get a11ySelectDate => 'Sélectionner une date';
-
-  @override
-  String get a11yLogout => 'Se déconnecter';
-
-  @override
-  String get a11yAddAccount => 'Ajouter un compte';
 
   @override
   String get a11yShowPassword => 'Afficher le mot de passe';
 
   @override
   String get a11yHidePassword => 'Masquer le mot de passe';
-
-  @override
-  String get a11yScrollToBottom => 'Aller en bas';
-
-  @override
-  String get a11yOpen => 'Ouvrir';
 
   @override
   String get errStateOfflineTitle => 'Vous êtes hors ligne';
@@ -11943,10 +9756,6 @@ class AppLocalizationsFr extends AppLocalizations {
       'Voyez les cours du jour dès l\'ouverture, consultez une note dès sa publication, suivez votre assiduité et gardez toutes les échéances dans une liste — avec un rappel avant la date limite.';
 
   @override
-  String get onbDeepClassNotes =>
-      'Écrivez à la main avec l\'Apple Pencil sur iPad — couvertures, papiers, rubans, photos et notes vocales — puis relisez ici, zoomez sur l\'écriture, écoutez les enregistrements et ouvrez vos pièces jointes.';
-
-  @override
   String get onbDeepConnect =>
       'Écrivez directement à un enseignant ou un camarade, suivez les annonces, rejoignez une réunion en ligne depuis sa carte et utilisez votre adresse CMail — sans quitter l\'application.';
 
@@ -12017,160 +9826,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String settingsDeleteThemeBody(String name) {
     return '“$name” will be removed. This can\'t be undone.';
   }
-
-  @override
-  String get cnMoveToShelf => 'Déplacer vers une étagère';
-
-  @override
-  String get cnNotOnShelf => 'Sur aucune étagère';
-
-  @override
-  String get cnDownloadAsPdf => 'Télécharger en PDF';
-
-  @override
-  String get cnOpenPagesPng => 'Ouvrir les pages en PNG';
-
-  @override
-  String get cnDownloadPagesPng => 'Télécharger les pages en PNG';
-
-  @override
-  String get cnDeleteNotebookSubtitle =>
-      'Le supprime de ClassNotes sur tous vos appareils';
-
-  @override
-  String get cnRenameNotebook => 'Renommer le carnet';
-
-  @override
-  String get cnNotebookTitleHint => 'Titre du carnet';
-
-  @override
-  String get cnRenamed => 'Renommé';
-
-  @override
-  String get cnTakenOffShelf => 'Retiré de l\'étagère';
-
-  @override
-  String get cnMoved => 'Déplacé';
-
-  @override
-  String get cnBuildingPdf => 'Création du PDF…';
-
-  @override
-  String get cnPreparingPages => 'Préparation des pages…';
-
-  @override
-  String get cnNoSyncedPages =>
-      'Ce carnet n\'a pas encore de pages synchronisées — ouvrez-le une fois sur votre iPad.';
-
-  @override
-  String cnExportFailed(String error) {
-    return 'Échec de l\'export : $error';
-  }
-
-  @override
-  String get cnDeleteNotebookTitle => 'Supprimer ce carnet ?';
-
-  @override
-  String cnDeleteNotebookBody(String title, num count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$countString pages',
-      one: '1 page',
-    );
-    return '«$title» et ses $_temp0 seront supprimés de ClassNotes sur tous les appareils. Cette action est irréversible.';
-  }
-
-  @override
-  String get cnDeleted => 'Supprimé';
-
-  @override
-  String get cnRenameShelf => 'Renommer l\'étagère';
-
-  @override
-  String get cnShelfNameHint => 'Nom de l\'étagère';
-
-  @override
-  String get cnDeleteShelf => 'Supprimer l\'étagère';
-
-  @override
-  String get cnDeleteShelfSubtitle =>
-      'Les carnets restent — ils quittent seulement l\'étagère';
-
-  @override
-  String get cnShelfDeleted => 'Étagère supprimée';
-
-  @override
-  String cnReorderFailed(String error) {
-    return 'Impossible d\'enregistrer le nouvel ordre : $error';
-  }
-
-  @override
-  String cnGenericError(String error) {
-    return 'Ça n\'a pas marché : $error';
-  }
-
-  @override
-  String get cnAllShelf => 'Tout';
-
-  @override
-  String get cnDragToReorder => 'Faites glisser pour réorganiser vos carnets';
-
-  @override
-  String get cnManageHint =>
-      'Touchez ⋮ sur un carnet pour le renommer, le télécharger ou le supprimer';
-
-  @override
-  String get cnArrange => 'Organiser';
-
-  @override
-  String get cnManage => 'Gérer';
-
-  @override
-  String cnManageNamed(String title) {
-    return 'Gérer $title';
-  }
-
-  @override
-  String get cnNotebookWord => 'carnet';
-
-  @override
-  String cnPageCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count pages',
-      one: '1 page',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get cnEmptyTitle => 'Aucun carnet pour l\'instant';
-
-  @override
-  String get cnEmptyBody =>
-      'Vos carnets ClassNotes apparaissent ici — couvertures, papier et encre suivent votre thème.';
-
-  @override
-  String get cnLoading => 'Chargement de vos carnets…';
-
-  @override
-  String get cnSignedOutTitle => 'Connectez-vous pour voir vos carnets';
-
-  @override
-  String get cnSignedOutBody =>
-      'Votre bibliothèque ClassNotes est liée à votre compte ClassMate.';
-
-  @override
-  String get cnErrorTitle => 'Impossible de charger vos carnets';
-
-  @override
-  String get cnErrorBody => 'Vérifiez votre connexion et réessayez.';
 
   @override
   String teacherFormsCount(num count) {

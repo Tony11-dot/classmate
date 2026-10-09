@@ -463,6 +463,3 @@ Future<void> shareCertificatePdf(Uint8List bytes, String filename) async {
   await Printing.sharePdf(bytes: bytes, filename: filename);
 }
 
-Future<void> printCertificatePdf(Uint8List bytes) async {
-  await Printing.layoutPdf(onLayout: (_) async => bytes);
-}

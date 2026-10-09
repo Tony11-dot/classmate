@@ -293,9 +293,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get navTeacherWorkspace => 'סביבת המורה';
 
   @override
-  String get navTeacherAssessments => 'הערכות וציונים';
-
-  @override
   String get navSavedQuestions => 'שאלות שמורות';
 
   @override
@@ -427,11 +424,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get solutionsChooseSubjectFirst => 'בחר נושא קודם.';
 
   @override
-  String solutionsNoBooksYetBody(Object action) {
-    return 'אין ספרים עדיין.\nהקש על \"$action\" כדי להוסיף את הראשון.';
-  }
-
-  @override
   String solutionsNoBooksMatch(Object query) {
     return 'אין ספרים תואמים \"$query\".';
   }
@@ -440,20 +432,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get solutionsBookLabel => 'ספר';
 
   @override
-  String get solutionsPagesFilterHint =>
-      'הכנס מספר עמוד ומספר שאלה כדי לסנן, או השאר ריק כדי לראות הכל.';
-
-  @override
   String get solutionsPageNumberLabel => 'מספר עמוד';
 
   @override
-  String get solutionsPageNumberHint => 'למשל 42';
-
-  @override
   String get solutionsQuestionNumberLabel => 'מספר שאלה';
-
-  @override
-  String get solutionsQuestionNumberHint => 'למשל 3a או 7';
 
   @override
   String get solutionsViewSolutionsAction => 'הצג פתרונות';
@@ -504,9 +486,6 @@ class AppLocalizationsHe extends AppLocalizations {
       'עדיין אין העלאות קרובות בעמוד זה. העלאה חדשה כאן תעזור מאוד.';
 
   @override
-  String get solutionsVerifiedByNova => 'אומת על ידי NOVA';
-
-  @override
   String get solutionsUploadFileLimitReached => 'הגבול של 10 קבצים הושג.';
 
   @override
@@ -532,12 +511,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get solutionsUploadSuccess => 'הפתרון הועלה!';
-
-  @override
-  String get solutionsUploadAddNewBookOption => '+ הוסף ספר חדש...';
-
-  @override
-  String get solutionsUploadAddBookShortAction => 'הוסף';
 
   @override
   String get solutionsUploadTitle => 'העלה פתרון';
@@ -595,15 +568,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get settingsLanguage => 'שפה';
-
-  @override
-  String get settingsLanguageSystem => 'ברירת מחדל של מערכת';
-
-  @override
-  String get settingsAccentColour => 'צבע הדגשה';
-
-  @override
-  String get settingsAccentSubtitle => 'הגוון בכל רחבי האפליקציה';
 
   @override
   String get settingsReduceMotion => 'הפחת תנועה';
@@ -684,33 +648,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get settingsLanguageSearchHint => 'חפש שפה...';
 
   @override
-  String get teacherWorkspaceSubtitle =>
-      'נהלו נוכחות, רשימות וציונים מתוך האפליקציה.';
-
-  @override
-  String get teacherMetricSessionsToday => 'שיעורים היום';
-
-  @override
-  String get teacherMetricTeachingGroups => 'קבוצות הוראה';
-
-  @override
-  String get teacherMetricAssessments => 'הערכות';
-
-  @override
   String get teacherQuickActions => 'פעולות מהירות';
 
   @override
-  String get teacherNoDateAvailable => 'אין תאריך זמין';
-
-  @override
-  String get teacherNoTeachingSlotsToday => 'אין שיעורי הוראה מתוזמנים היום.';
-
-  @override
   String get teacherUpcomingAssessments => 'הערכות קרובות';
-
-  @override
-  String get teacherUpcomingAssessmentsSubtitle =>
-      'ישירות ממערכת הציונים של המורים';
 
   @override
   String get teacherNoAssessmentsYet => 'עדיין לא נוצרו הערכות.';
@@ -745,37 +686,8 @@ class AppLocalizationsHe extends AppLocalizations {
       'כיתות לא יכלו להתחבר עכשיו. בדוק את החיבור שלך ונסה שוב.';
 
   @override
-  String get teacherClassroomsSubtitle =>
-      'פתח את רשימת התלמידים וצור קוד הצטרפות חי לכניסת תלמידים.';
-
-  @override
   String get teacherClassroomsNoCohorts =>
       'עדיין לא קושרו קבוצות כיתות למורה זה.';
-
-  @override
-  String teacherClassroomsCohort(Object cohortId) {
-    return 'קבוצה $cohortId';
-  }
-
-  @override
-  String get teacherClassroomsGeneratingJoinCode => 'מייצר…';
-
-  @override
-  String get teacherClassroomsCreateJoinCode => 'יצור קוד הצטרפות';
-
-  @override
-  String get teacherClassroomsLiveJoinCode => 'קוד הצטרפות חי';
-
-  @override
-  String teacherClassroomsExpiresAt(Object value) {
-    return 'פג תוקף $value';
-  }
-
-  @override
-  String get teacherClassroomsRoster => 'רשימה';
-
-  @override
-  String get teacherClassroomsNoStudents => 'עדיין לא נרשמו תלמידים בכיתה זו.';
 
   @override
   String get teacherAttendanceLoadError =>
@@ -805,12 +717,6 @@ class AppLocalizationsHe extends AppLocalizations {
   ) {
     return '$cohort • כיתה $grade • $date • שיעור $period';
   }
-
-  @override
-  String get teacherAttendanceChanged => 'שונה';
-
-  @override
-  String get teacherAttendanceNoteLabel => 'הערה';
 
   @override
   String get teacherAttendanceClassNotesLabel => 'הערות שיעור';
@@ -889,41 +795,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get scheduleClassFallback => 'שיעור';
 
   @override
-  String get scheduleNoSubjectLocation => 'אין עדיין מקצוע או מיקום';
-
-  @override
-  String get scheduleNotes => 'הערות';
-
-  @override
-  String get scheduleGoToClassroom => 'מעבר לכיתה';
-
-  @override
-  String get loginTitle => 'התחברות בנייד לתלמידים ומורים';
-
-  @override
-  String get loginSubtitle =>
-      'חשבונות מורים פותחים את סביבת המורה. חשבונות תלמידים נשארים בחוויית התלמיד.';
-
-  @override
   String get loginSignIn => 'התחבר';
-
-  @override
-  String get biometricSignIn => 'התחברות באמצעות ביומטריה';
-
-  @override
-  String get biometricEnable => 'הפעלת התחברות ביומטרית';
 
   @override
   String get biometricReason => 'אימות כדי להתחבר ל-ClassMate';
 
   @override
   String get biometricEnableReason => 'אימות כדי להפעיל התחברות ביומטרית';
-
-  @override
-  String get biometricSignInFaceId => 'התחברות באמצעות Face ID';
-
-  @override
-  String get biometricSignInFingerprint => 'התחברות באמצעות טביעת אצבע';
 
   @override
   String get biometricOrSignInWith => 'או התחבר באמצעות';
@@ -980,34 +858,17 @@ class AppLocalizationsHe extends AppLocalizations {
       'לא ניתן לאמת את הביומטריה. ודא שהוגדר Face ID או טביעת אצבע בהגדרות המכשיר.';
 
   @override
-  String get biometricEnterCredsFirst =>
-      'הזן תחילה אימייל וסיסמה, ולאחר מכן הפעל התחברות ביומטרית.';
-
-  @override
   String get biometricLoginFailed =>
       'ההתחברות הביומטרית נכשלה. התחבר באמצעות הסיסמה.';
 
   @override
-  String get biometricEnrollTitle => 'להפעיל התחברות ביומטרית?';
-
-  @override
-  String get biometricEnrollBody =>
-      'השתמש ב-Face ID או בטביעת אצבע כדי להתחבר מהר יותר בפעם הבאה.';
-
-  @override
   String get biometricEnrollYes => 'הפעל';
-
-  @override
-  String get biometricEnrollNo => 'לא עכשיו';
 
   @override
   String get loginWelcomeTitle => 'ברוך שובך';
 
   @override
   String get loginWelcomeSubtitle => 'התחבר לחשבון ClassMate שלך.';
-
-  @override
-  String get loginSigningIn => 'מתחבר...';
 
   @override
   String get loginEmailLabel => 'דוא\"ל או שם משתמש';
@@ -1031,9 +892,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get profileSchoolId => 'מזהה בית ספר';
 
   @override
-  String get profileCohortId => 'מזהה קבוצה';
-
-  @override
   String get profileMyCohorts => 'הקבוצות שלי';
 
   @override
@@ -1052,19 +910,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get profileContactEmail => 'אימייל ליצירת קשר';
 
   @override
-  String get profileEmailAddress => 'כתובת אימייל';
-
-  @override
-  String get profileEmailHint => 'you@example.com';
-
-  @override
-  String get profileBirthday => 'יום הולדת';
-
-  @override
   String get profileSecurity => 'אבטחה';
-
-  @override
-  String get profileSelectBirthday => 'בחר את יום ההולדת שלך';
 
   @override
   String get profilePasswordUpdated => 'הסיסמה עודכנה';
@@ -1107,37 +953,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get profilePasswordIncorrect => 'הסיסמה הנוכחית שגויה';
 
   @override
-  String get profilePasswordGenericError => 'משהו השתבש. נסה שוב.';
-
-  @override
-  String get editProfileTitle => 'עריכת פרופיל';
-
-  @override
   String get editProfileSchool => 'בית ספר';
-
-  @override
-  String get editProfileSchoolPublic => 'בית הספר ציבורי';
-
-  @override
-  String get editProfileGradePublic => 'הכיתה ציבורית';
-
-  @override
-  String get editProfileMajors => 'מגמות';
-
-  @override
-  String get editProfileMajorsPublic => 'המגמות ציבוריות';
-
-  @override
-  String get editProfileBio => 'ביוגרפיה';
-
-  @override
-  String get editProfileBioPublic => 'הביוגרפיה ציבורית';
-
-  @override
-  String get editProfileStatus => 'סטטוס';
-
-  @override
-  String get editProfileStatusPublic => 'הסטטוס ציבורי';
 
   @override
   String get classroomsYourClassrooms => 'הכיתות שלך';
@@ -1167,12 +983,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get classroomsNoMessagesYet => 'אין הודעות עדיין';
-
-  @override
-  String get classroomsMessageFallback => 'הודעה';
-
-  @override
-  String get examsLoadError => 'לא ניתן לטעון מבחנים או טפסים';
 
   @override
   String get examsAllFilter => 'הכול';
@@ -1235,83 +1045,6 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String examsResponsesCount(Object count) {
-    return '$count תגובות';
-  }
-
-  @override
-  String get insightsTrendBaseline => 'קו בסיס';
-
-  @override
-  String get insightsTrendImproving => 'במגמת שיפור';
-
-  @override
-  String get insightsTrendDropping => 'בירידה';
-
-  @override
-  String get insightsTrendStable => 'יציב';
-
-  @override
-  String get insightsHeadlineIntervention => 'חלון ההתערבות פתוח';
-
-  @override
-  String get insightsHeadlineSignals => 'כמה אותות צריכים הידוק';
-
-  @override
-  String get insightsHeadlineMomentum => 'המומנטום יכול להתחזק השבוע';
-
-  @override
-  String get insightsBodyAttendance =>
-      'שמרו קודם על נוכחות. נוכחות טובה יותר עכשיו תרים כל אות אחר מהר יותר.';
-
-  @override
-  String insightsBodyWeakTrend(Object subject) {
-    return '$subject יחד עם ירידת מגמת התרגול הוא כרגע שילוב הסיכון הגדול ביותר. תקנו את זה לפני שמרחיבים.';
-  }
-
-  @override
-  String insightsBodyLeverage(Object subject) {
-    return '$subject היא נקודת המינוף שלך. השתמשו בה כדי לבנות ביטחון בזמן שאתם מחזקים את התחומים החלשים יותר.';
-  }
-
-  @override
-  String get insightsBodyConsistency =>
-      'המשיכו לצבור מפגשים קצרים וממוקדים. הימים הקרובים חשובים יותר מתוכנית מושלמת לטווח ארוך.';
-
-  @override
-  String get insightsInterventionScoreTitle => 'ציון התערבות';
-
-  @override
-  String insightsInterventionScoreBody(Object count) {
-    return '$count אותות פעילים מעצבים את הצעד הבא שלך.';
-  }
-
-  @override
-  String get insightsRecoveryPathTitle => 'מסלול ההתאוששות המהיר ביותר';
-
-  @override
-  String get insightsRecoveryPathDefault => 'נוכחות + עקביות קודם.';
-
-  @override
-  String insightsRecoveryPathTopic(Object topic, Object subject) {
-    return 'חזרו אל $topic ב-$subject לפני שמגבירים את הקצב.';
-  }
-
-  @override
-  String get insightsProjectedDirectionTitle => 'כיוון צפוי';
-
-  @override
-  String insightsProjectedDirectionBody(Object trend) {
-    return '$trend לפי התנהגות התרגול האחרונה של 7 ימים מול 30 ימים.';
-  }
-
-  @override
-  String get insightsLoadingTitle => 'טוען תובנות';
-
-  @override
-  String get insightsLoadingSubtitle => 'בונה את לוח המחוונים התחזיתי שלך.';
-
-  @override
   String get insightsNotReadyTitle => 'התובנות עדיין לא מוכנות';
 
   @override
@@ -1325,61 +1058,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get insightsGradeAverage => 'ממוצע ציונים';
 
   @override
-  String get insightsAccuracy => 'דיוק';
-
-  @override
-  String get insightsOpenNova => 'פתח את נובה';
-
-  @override
-  String get insightsOpenNovaPrompt =>
-      'עזור לי לשפר את התחום החלש ביותר שלי על בסיס התובנות האחרונות של ClassMate.';
-
-  @override
-  String get insightsPredictiveRecoveryPlanTitle => 'תוכנית התאוששות תחזיתית';
-
-  @override
   String get insightsPracticeNow => 'תרגל עכשיו';
-
-  @override
-  String get insightsPredictiveModulesTitle => 'מודולים תחזיתיים';
-
-  @override
-  String get insightsPredictiveModulesSubtitle =>
-      'האותות הצופים פני עתיד החזקים ביותר מנתוני התלמיד הנוכחיים שלך.';
-
-  @override
-  String get insightsAnnouncementsPressureTitle => 'לחץ ההודעות';
-
-  @override
-  String get insightsAnnouncementsPressureSubtitle =>
-      'מנוע ההודעות מזין עכשיו את לוח המחוונים ישירות.';
-
-  @override
-  String get insightsAiCoachTitle => 'סיכום מאמן ה-AI';
-
-  @override
-  String get insightsAiCoachLoadingSubtitle => 'טוען הנחיות AI.';
-
-  @override
-  String get insightsAiCoachUnavailableSubtitle =>
-      'הנחיות AI אינן זמינות כרגע עבור החשבון הזה.';
-
-  @override
-  String get insightsAskNova => 'שאל את נובה';
-
-  @override
-  String get insightsAskNovaPrompt =>
-      'בנה לי תוכנית התאוששות מהתובנות האחרונות שלי.';
-
-  @override
-  String get insightsAiStudyCoachTitle => 'מאמן לימוד AI';
-
-  @override
-  String get insightsSchoolToolsTitle => 'כלי בית ספר';
-
-  @override
-  String get insightsSchoolToolsSubtitle =>
-      'עברו ישירות למסלולי התלמיד שהכי חשובים עכשיו.';
 
   @override
   String get tutorUntitledChat => 'צ\'אט ללא כותרת';
@@ -1407,33 +1086,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get tutorCancel => 'ביטול';
 
   @override
-  String get tutorHide => 'הסתר';
-
-  @override
-  String get tutorHideChatTitle => 'הסתר צ\'אט';
-
-  @override
-  String get tutorHideChatSubtitle => 'מסתיר את הצ\'אט הזה במכשיר הזה.';
-
-  @override
-  String get tutorHideChatConfirmTitle => 'להסתיר את הצ\'אט?';
-
-  @override
-  String get tutorHideChatConfirmBody =>
-      'הפעולה תסתיר את הצ\'אט מהרשימה במכשיר הזה. הסשן יישאר בשרת.';
-
-  @override
   String get tutorTapToOpenHistory => 'הקשו כדי לפתוח היסטוריה';
-
-  @override
-  String get tutorAiTutorSubtitle => 'המורה ה-AI שלך';
-
-  @override
-  String get tutorHeroBody =>
-      'היסטוריית צ\'אט אמיתית, שרשורים נקיים יותר וגישה מהירה יותר.';
-
-  @override
-  String get tutorStartFreshConversation => 'התחל שיחה חדשה';
 
   @override
   String get tutorSearchHistoryHint => 'חיפוש בהיסטוריית הצ\'אט';
@@ -1450,51 +1103,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get chatComposerMicHint =>
       'הקישו להודעה קולית מהירה או לחצו לחיצה ארוכה כדי להקליט';
-
-  @override
-  String get chatComposerRecordingTitle => 'מקליט';
-
-  @override
-  String get chatComposerReleaseToSend => 'שחררו כדי לשלוח';
-
-  @override
-  String get chatComposerCancelTitle => 'ביטול';
-
-  @override
-  String get chatComposerLockTitle => 'נעילה';
-
-  @override
-  String get chatComposerSlideLeftToCancel => 'החליקו שמאלה כדי לבטל';
-
-  @override
-  String get chatComposerSlideUpToLock => 'החליקו למעלה כדי לנעול';
-
-  @override
-  String get chatComposerReleaseToCancel => 'שחרר לביטול';
-
-  @override
-  String get chatComposerKeepSlidingToCancel => 'המשיכו להחליק כדי לבטל';
-
-  @override
-  String get chatComposerReleaseToLock => 'שחררו כדי לנעול';
-
-  @override
-  String get chatComposerRelease => 'שחרור';
-
-  @override
-  String get chatComposerLock => 'נעילה';
-
-  @override
-  String get chatComposerRecordingPaused => 'ההקלטה מושהית';
-
-  @override
-  String get chatComposerRecordingLocked => 'ההקלטה נעולה';
-
-  @override
-  String get chatComposerResumeHint => 'המשיכו כשתהיו מוכנים להמשיך להקליט';
-
-  @override
-  String get chatComposerLockedHint => 'הקישו על שליחה כשתהיו מוכנים לשתף';
 
   @override
   String get chatContextDismiss => 'סגירה';
@@ -1539,12 +1147,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get chatMessageInfoVoiceDuration => 'משך קולי';
 
   @override
-  String get chatMessageInfoSeenBy => 'נצפה על ידי';
-
-  @override
-  String get chatMessageInfoDeliveredTo => 'נמסר אל';
-
-  @override
   String get chatMessageInfoEmptyBody => '(ריק)';
 
   @override
@@ -1563,28 +1165,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get chatMessageInfoNotDelivered => 'לא נמסר';
 
   @override
-  String get chatMessageInfoSent => 'נשלח';
-
-  @override
   String get chatMessageInfoPending => 'ממתין';
-
-  @override
-  String get chatMessageInfoNotSeen => 'לא נצפה';
-
-  @override
-  String get chatMessageInfoType => 'סוג';
-
-  @override
-  String get chatMessageInfoDuration => 'משך';
 
   @override
   String get chatMessageInfoYes => 'כן';
 
   @override
   String get chatMessageInfoNo => 'לא';
-
-  @override
-  String get chatMessageInfoDeleteState => 'מצב מחיקה';
 
   @override
   String get chatReactionDetailsTitle => 'תגובות';
@@ -1633,25 +1220,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get chatEmojiPickerEmptyState => 'לא נמצא אימוג\'י';
 
   @override
-  String get chatCameraTitle => 'מצלמה';
-
-  @override
-  String get chatCameraUseAction => 'שימוש';
-
-  @override
   String get chatCameraGalleryAction => 'גלריה';
-
-  @override
-  String chatCameraSelectedCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count נבחרו',
-      one: '1 נבחר',
-      zero: '0 נבחרו',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get chatMediaPreviewEmptyState => 'אין מה להציג בתצוגה מקדימה';
@@ -1678,11 +1247,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get chatMediaPreviewCaptionHint => 'הוסיפו כיתוב...';
 
   @override
-  String tutorPlanSelectedPlaceholder(Object plan) {
-    return 'התוכנית $plan נבחרה. התשלומים נשארים כרגע במצב דמה.';
-  }
-
-  @override
   String get tutorFailedToLoadChats => 'טעינת הצ\'אטים נכשלה';
 
   @override
@@ -1698,121 +1262,16 @@ class AppLocalizationsHe extends AppLocalizations {
   String get tutorPlansTitle => 'תוכניות NOVA';
 
   @override
-  String tutorPlansSubtitle(Object model) {
-    return 'מבוסס על הנחות עלות של $model ומכסות חודשיות קשיחות כדי שהשימוש יישאר רווחי.';
-  }
-
-  @override
-  String get tutorPlanPriceFree => 'חינם';
-
-  @override
-  String tutorPlanPriceMonthly(Object price) {
-    return '\$$price/לחודש';
-  }
-
-  @override
-  String get tutorPromptsLeft => 'פרומפטים שנותרו';
-
-  @override
-  String get tutorUploadsLeft => 'העלאות שנותרו';
-
-  @override
-  String get tutorVoiceLeft => 'דקות קול שנותרו';
-
-  @override
-  String tutorUsageValue(Object remaining, Object total) {
-    return '$remaining/$total';
-  }
-
-  @override
-  String tutorVoiceUsageValue(Object remaining, Object total) {
-    return '$remaining/$total דק\'';
-  }
-
-  @override
-  String get tutorPaymentMethodsTitle => 'אמצעי תשלום';
-
-  @override
-  String tutorPaymentMethodsSubtitle(Object plan) {
-    return 'התשלום נשאר במצב דמה עד שחשבון הבנק והמעבד של ClassMate יהיו פעילים. התוכנית שנבחרה היא $plan.';
-  }
-
-  @override
-  String get tutorCardCheckoutTitle => 'תשלום בכרטיס';
-
-  @override
-  String get tutorCardCheckoutSubtitle =>
-      'שער דמה עבור Visa, Mastercard ו-AmEx.';
-
-  @override
-  String get tutorApplePayTitle => 'Apple Pay';
-
-  @override
-  String get tutorApplePaySubtitle => 'זרימת ארנק דמה עבור iPhone והווב.';
-
-  @override
-  String get tutorBankTransferTitle => 'העברה בנקאית';
-
-  @override
-  String get tutorBankTransferSubtitle =>
-      'חשבון הבנק של ClassMate עדיין ממתין. הפרטים יתווספו לאחר פתיחתו.';
-
-  @override
   String get tutorPlanStarterName => 'Starter';
-
-  @override
-  String get tutorPlanStarterTagline => 'מספיק לניסיון ולחזרה שבועית קלה.';
 
   @override
   String get tutorPlanPlusName => 'Plus';
 
   @override
-  String get tutorPlanPlusTagline =>
-      'הכי מתאים לתלמיד רציני שמשתמש ב-NOVA ברוב הימים.';
-
-  @override
   String get tutorPlanProName => 'Pro';
 
   @override
-  String get tutorPlanProTagline =>
-      'לשימוש יומי כבד, עונת מבחנים מלאה ומפגשי לימוד ארוכים.';
-
-  @override
   String get tutorPlanSchoolSeatName => 'מושב בית ספרי';
-
-  @override
-  String get tutorPlanSchoolSeatTagline =>
-      'לפריסה לכל תלמיד או איש צוות בתוך בית ספר אמיתי.';
-
-  @override
-  String tutorPlanBulletPromptsMonthly(Object count) {
-    return '$count פרומפטים של NOVA בכל חודש';
-  }
-
-  @override
-  String tutorPlanBulletPromptsPerSeatMonthly(Object count) {
-    return '$count פרומפטים של NOVA לכל מושב בכל חודש';
-  }
-
-  @override
-  String tutorPlanBulletUploads(Object count) {
-    return '$count העלאות תמונה או קובץ';
-  }
-
-  @override
-  String tutorPlanBulletVoiceMinutes(Object count) {
-    return '$count דקות תמלול קולי';
-  }
-
-  @override
-  String tutorEstimatedCostCeilingFree(Object cost) {
-    return 'תקרת עלות משוערת: \$$cost/לחודש';
-  }
-
-  @override
-  String tutorEstimatedCostCeilingPaid(Object cost, Object margin) {
-    return 'תקרת עלות משוערת: \$$cost/לחודש • מרווח $margin%';
-  }
 
   @override
   String tutorTimeMinutesShort(Object count) {
@@ -1846,16 +1305,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get tutorTakePhoto => 'צלם תמונה';
 
   @override
-  String get tutorRecordVideo => 'הקלט וידאו';
-
-  @override
-  String get tutorChooseFromGallery => 'בחר מהגלריה';
-
-  @override
   String get tutorPreviewTitle => 'תצוגה מקדימה';
-
-  @override
-  String get tutorThinking => 'חושב...';
 
   @override
   String get tutorDone => 'בוצע.';
@@ -1881,9 +1331,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get tutorTranscriptionFailed => 'התמלול נכשל. נסו שוב.';
 
   @override
-  String get tutorMicrophonePermissionRequired => 'נדרשת הרשאת מיקרופון.';
-
-  @override
   String get tutorPlanLimitReachedTitle => 'הגעת למגבלת תוכנית NOVA';
 
   @override
@@ -1902,9 +1349,6 @@ class AppLocalizationsHe extends AppLocalizations {
   ) {
     return 'תוכנית נוכחית: $plan • $prompts פרומפטים נותרו • $uploads העלאות נותרו • $voice דקות קול נותרו';
   }
-
-  @override
-  String get tutorReviewPlansInHome => 'עבור על התוכניות בבית של NOVA';
 
   @override
   String get tutorCouldNotOpenAttachment => 'לא ניתן לפתוח את הקובץ המצורף.';
@@ -1929,29 +1373,7 @@ class AppLocalizationsHe extends AppLocalizations {
       'בקשו מ-NOVA להסביר מושג, להפוך הערות לטבלה, להשוות רעיונות או לעזור לכם לחזור מחומר שהועלה.';
 
   @override
-  String get tutorPromptSuggestionSummarizeNotes => 'סכם את הערות השיעור שלי';
-
-  @override
-  String get tutorPromptSuggestionRevisionTable => 'הכן טבלת חזרה';
-
-  @override
-  String get tutorPromptSuggestionQuizMe => 'בחן אותי על הנושא הזה';
-
-  @override
   String get tutorMessageNovaHint => 'שלחו הודעה ל-NOVA';
-
-  @override
-  String get tutorHeaderSubtitleReady => 'תשובות מובנות, טבלאות ועזרת לימוד';
-
-  @override
-  String get tutorYourNovaPlanTitle => 'תוכנית ה-NOVA שלך';
-
-  @override
-  String get tutorYourNovaPlanMessage =>
-      'בדקו כאן את מגבלות הפרומפטים, ההעלאות והקול, ואז חזרו לבית של NOVA אם תרצו להחליף תוכנית.';
-
-  @override
-  String get tutorExplainTitle => 'NOVA מסביר';
 
   @override
   String get classroomsThreadTypeClassroom => 'כיתה';
@@ -1961,9 +1383,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get classroomsThreadTypeDirectMessage => 'הודעה ישירה';
-
-  @override
-  String get classroomsThreadTypeDirectMessageShort => 'DM';
 
   @override
   String get messagesBlockedPeopleTitle => 'אנשים חסומים';
@@ -2007,11 +1426,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get messagesRequestReviewStatus => 'סקירה';
-
-  @override
-  String messagesPeopleLoadFailed(Object error) {
-    return 'טעינת האנשים נכשלה: $error';
-  }
 
   @override
   String get messagesSearchPeopleHint => 'חיפוש אנשים';
@@ -2086,9 +1500,6 @@ class AppLocalizationsHe extends AppLocalizations {
       'הצ\'אט ייפתח אחרי שהנמען יאשר את ההודעה הראשונה שלך.';
 
   @override
-  String get messagesThreadConversationFallback => 'שיחה';
-
-  @override
   String get messagesThreadLeaveGroupTitle => 'לעזוב את הקבוצה?';
 
   @override
@@ -2103,51 +1514,16 @@ class AppLocalizationsHe extends AppLocalizations {
       'לא תוכלו עוד להחליף הודעות עם האדם הזה.';
 
   @override
-  String get messagesThreadPersonFallback => 'אדם';
-
-  @override
   String get messagesThreadProfileInfoUnavailable => 'פרטי הפרופיל לא זמינים';
-
-  @override
-  String get messagesThreadParticipants => 'משתתפים';
-
-  @override
-  String get messagesThreadPeople => 'אנשים';
-
-  @override
-  String get messagesThreadDeleteForMe => 'מחיקה בשבילי';
-
-  @override
-  String get messagesThreadDeleteForEveryone => 'מחיקה לכולם';
-
-  @override
-  String get messagesThreadDeleteForEveryoneSubtitle => 'הסרה עבור כל המשתתפים';
-
-  @override
-  String get messagesThreadSending => 'שולח…';
 
   @override
   String get messagesThreadWaitingForApproval => 'ממתין לאישור';
 
   @override
-  String get classroomsForwardSearchHint => 'חיפוש שיחות';
-
-  @override
   String get classroomsForwardNewChat => 'צ\'אט חדש';
 
   @override
-  String classroomsForwardLoadError(Object error) {
-    return 'טעינת הצ\'אטים נכשלה: $error';
-  }
-
-  @override
-  String get classroomsForwardNoChatsFound => 'לא נמצאו צ\'אטים';
-
-  @override
   String get classroomsForwardSectionClassrooms => 'כיתות';
-
-  @override
-  String get classroomsForwardSectionDirectMessages => 'הודעות ישירות';
 
   @override
   String get classroomsForwardCancel => 'ביטול';
@@ -2204,9 +1580,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get earlier => 'קודם לכן';
-
-  @override
-  String get openDetails => 'פתח פרטים';
 
   @override
   String get total => 'סה\"כ';
@@ -2490,11 +1863,6 @@ class AppLocalizationsHe extends AppLocalizations {
       'הקש על כל פגישה כדי לפתוח את תצוגת הפרטים במסך מלא והקפוץ לקישור המצורף שלה כשהוא זמין.';
 
   @override
-  String meetingsDateTimeValue(Object date, Object time) {
-    return '$date • $time';
-  }
-
-  @override
   String meetingsSharedByValue(Object name) {
     return 'שותף על ידי $name';
   }
@@ -2598,27 +1966,10 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get announcementsDetailsTitle => 'פרטי הודעה';
-
-  @override
-  String get announcementsDetailsSubtitle =>
-      'מטא נתונים שפורסמו עבור הודעה זו ומצב הקריאה הנוכחי שלה.';
-
-  @override
-  String get announcementsSeverityLabel => 'חומרה';
-
-  @override
   String get announcementsCreatedLabel => 'נוצר';
 
   @override
-  String get announcementsIdLabel => 'מזהה הודעה';
-
-  @override
   String get announcementsFullContentTitle => 'תוכן מלא';
-
-  @override
-  String get announcementsFullContentSubtitle =>
-      'הטקסט המלא של ההודעה מופיע כאן לאחר פתיחת הפריט מתיבת הדואר.';
 
   @override
   String get announcementsReadStateTitle => 'מצב קריאה';
@@ -2632,111 +1983,13 @@ class AppLocalizationsHe extends AppLocalizations {
       'הודעה זו עדיין לא נקראת על התקן זה.';
 
   @override
-  String get alertsTitle => 'התראות';
-
-  @override
-  String get alertsSubtitle =>
-      'זה המסך לדברים שדורשים תשומת לב עכשיו, לא רק עדכונים כלליים.';
-
-  @override
-  String get alertsAttendanceTitle => 'הנוכחות דורשת תשומת לב';
-
-  @override
-  String alertsAttendanceBody(Object rate) {
-    return 'שיעור הנוכחות שלך הוא $rate%. כמה שיעורים שהוחמצו יכולים להצטבר מהר.';
-  }
-
-  @override
-  String get alertsWeakestSubjectTitle => 'סימן למקצוע החלש ביותר';
-
-  @override
-  String alertsWeakestSubjectBody(Object subject) {
-    return '$subject דורש כרגע את מירב תשומת הלב לפי הציונים האחרונים שלך.';
-  }
-
-  @override
-  String get alertsPracticeWeakAreaTitle => 'אזור חולשה בתרגול';
-
-  @override
-  String alertsPracticeWeakAreaBody(Object topic, Object subject) {
-    return '$topic ב-$subject הוא נושא החולשה הברור ביותר שלך כרגע.';
-  }
-
-  @override
-  String get alertsPracticeTrendDroppedTitle => 'מגמת התרגול ירדה';
-
-  @override
-  String get alertsPracticeTrendDroppedBody =>
-      'הביצועים שלך ב-7 הימים האחרונים נמוכים מקו הבסיס של 30 הימים. האטו וחזרו ליסודות לפני שמגבירים קצב.';
-
-  @override
-  String get alertsEmpty =>
-      'כרגע הכול רגוע. אם משהו ידרוש תשומת לב דחופה, הוא יופיע כאן.';
-
-  @override
   String get student => 'תלמיד';
-
-  @override
-  String get classroomDetailPhoto => 'תמונה';
-
-  @override
-  String get classroomDetailVoiceNote => 'הודעה קולית';
-
-  @override
-  String get classroomDetailVideo => 'וידאו';
-
-  @override
-  String get classroomDetailFile => 'קובץ';
-
-  @override
-  String get classroomDetailEmptyValue => '(ריק)';
-
-  @override
-  String get classroomDetailAttachmentUnavailable => 'הקובץ המצורף לא זמין.';
-
-  @override
-  String get classroomDetailAudioUnavailable => 'האודיו לא זמין.';
-
-  @override
-  String get classroomDetailCouldNotOpenAttachment =>
-      'לא ניתן לפתוח את הקובץ המצורף.';
-
-  @override
-  String get classroomDetailVoiceMessage => 'הודעה קולית';
-
-  @override
-  String get classroomDetailVideoFile => 'קובץ וידאו';
-
-  @override
-  String get classroomDetailAttachedFile => 'קובץ מצורף';
-
-  @override
-  String get classroomDetailAttachment => 'קובץ מצורף';
 
   @override
   String get classroomDetailPinAction => 'נעץ';
 
   @override
-  String get classroomDetailUnpinAction => 'בטל נעיצה';
-
-  @override
   String get classroomDetailMessageInfoTitle => 'פרטי הודעה';
-
-  @override
-  String get classroomDetailForwardedSingle => 'הועבר';
-
-  @override
-  String classroomDetailForwardedMultiple(Object count) {
-    return '$count הודעות הועברו';
-  }
-
-  @override
-  String get classroomDetailCannotForwardPending =>
-      'אי אפשר להעביר לצ\'אט בקשה לפני אישור';
-
-  @override
-  String get classroomDetailCouldNotForwardSelected =>
-      'לא ניתן היה להעביר את ההודעות שנבחרו';
 
   @override
   String classroomDetailSelectedCount(Object count) {
@@ -2744,36 +1997,10 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String classroomDetailDeleteCount(Object count) {
-    return 'מחק ($count)';
-  }
-
-  @override
-  String get classroomDetailSelectAllTooltip => 'בחר הכל';
-
-  @override
   String get classroomDetailCancelTooltip => 'ביטול';
 
   @override
-  String get classroomDetailMicrophoneAccessTitle => 'נדרשת גישה למיקרופון';
-
-  @override
-  String get classroomDetailMicrophoneAccessBody =>
-      'נא לאפשר גישה למיקרופון בהגדרות -> ClassMate כדי לשלוח הודעות קוליות.';
-
-  @override
-  String get classroomDetailOpenSettingsAction => 'פתח הגדרות';
-
-  @override
-  String classroomDetailForwardTargetNext(Object label) {
-    return 'יעד ההעברה הבא: $label';
-  }
-
-  @override
   String get classroomDetailEditMessageTitle => 'עריכת הודעה';
-
-  @override
-  String get classroomDetailEditMessageHint => 'ערוך את ההודעה שלך...';
 
   @override
   String get classroomDetailLeaveClassroomTitle => 'לעזוב את הכיתה?';
@@ -2832,26 +2059,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get classroomDetailTabPeople => 'אנשים';
 
   @override
-  String get classroomChatMediaSendPhoto => 'שליחת תמונה';
-
-  @override
-  String get classroomChatMediaSendPhotoSubtitle => 'שתפו תמונה בצ\'אט הכיתה';
-
-  @override
-  String get classroomChatMediaSendVoiceMessage => 'שליחת הודעה קולית';
-
-  @override
-  String get classroomChatMediaSendVoiceMessageSubtitle =>
-      'הקליטו ושלחו הודעה קולית';
-
-  @override
   String get classroomDetailCouldNotLoadTab => 'לא ניתן לטעון את הלשונית';
-
-  @override
-  String get classroomDetailDeletedByYou => 'מחקת את ההודעה הזו';
-
-  @override
-  String get classroomDetailDeletedMessage => 'ההודעה הזו נמחקה';
 
   @override
   String get practiceSetupDifficultyEasy => 'קל';
@@ -2970,41 +2178,6 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String practiceSetupSummarySubject(Object subject) {
-    return 'נושא לימוד: $subject';
-  }
-
-  @override
-  String practiceSetupSummaryTopic(Object topic) {
-    return 'תת-נושא: $topic';
-  }
-
-  @override
-  String practiceSetupSummaryMode(Object mode) {
-    return 'מצב: $mode';
-  }
-
-  @override
-  String practiceSetupSummaryDifficulty(Object difficulty) {
-    return 'קושי: $difficulty';
-  }
-
-  @override
-  String practiceSetupSummaryQuestions(Object count) {
-    return 'שאלות: $count';
-  }
-
-  @override
-  String practiceSetupSummaryTiming(Object timing) {
-    return 'תזמון: $timing';
-  }
-
-  @override
-  String practiceSetupSummaryLives(Object lives) {
-    return 'חיים: $lives';
-  }
-
-  @override
   String get practiceSetupSectionSubjectTopic => 'מקצוע ונושא';
 
   @override
@@ -3051,30 +2224,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get practiceSetupDialogEnterTopic => 'הזן נושא';
-
-  @override
-  String get practiceSubjectMath => 'מתמטיקה';
-
-  @override
-  String get practiceSubjectPhysics => 'פיזיקה';
-
-  @override
-  String get practiceSubjectComputerScience => 'מדעי המחשב';
-
-  @override
-  String get practiceSubjectChemistry => 'כימיה';
-
-  @override
-  String get practiceSubjectBiology => 'ביולוגיה';
-
-  @override
-  String get practiceSubjectEnglish => 'אנגלית';
-
-  @override
-  String get practiceSubjectArabic => 'ערבית';
-
-  @override
-  String get practiceSubjectHebrew => 'עברית';
 
   @override
   String get practiceSubjectGeneralKnowledge => 'ידע כללי';
@@ -3357,9 +2506,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get practiceHistoryDeleteSession => 'מחק פעילות';
 
   @override
-  String get practiceHistoryDebugTitle => 'ניפוי היסטוריית תרגול';
-
-  @override
   String get practiceAnalyticsTitle => 'ניתוחי תרגול';
 
   @override
@@ -3525,9 +2671,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get practiceSessionLoadingBagrut => 'מכין את סט הבגרות שלך';
 
   @override
-  String get practiceSessionLoadingDefault => 'מכין את הסשן שלך';
-
-  @override
   String practiceSessionCompleteTitle(Object mode) {
     return '$mode הושלם';
   }
@@ -3546,9 +2689,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get practiceSessionMetricTotal => 'סה״כ';
-
-  @override
-  String get practiceSessionMetricXp => 'XP';
 
   @override
   String get practiceSessionMetricStreak => 'רצף';
@@ -3759,74 +2899,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get practiceModeNoExplanationYet => 'עדיין אין הסבר זמין.';
 
   @override
-  String get teacherGradesAssessmentCreated => 'הערכת הישגים נוצרה';
-
-  @override
-  String get teacherGradesEditAssessmentTitle => 'עריכת הערכה';
-
-  @override
-  String get teacherGradesFieldTitle => 'כותרת';
-
-  @override
-  String get teacherGradesFieldDate => 'תאריך (YYYY-MM-DD)';
-
-  @override
-  String get teacherGradesFieldMaxGrade => 'ציון מקסימלי';
-
-  @override
-  String get teacherGradesAssessmentUpdated => 'הערכת הישגים עודכנה';
-
-  @override
   String get teacherGradesDeleteAssessmentTitle => 'למחוק את ההערכה?';
-
-  @override
-  String teacherGradesDeleteAssessmentBody(Object title) {
-    return 'הפעולה תסיר את $title ואת רשומת הציונים שלה ממרחב המורה.';
-  }
 
   @override
   String get teacherGradesDeleteAction => 'מחיקה';
 
   @override
-  String get teacherGradesAssessmentDeleted => 'הערכת הישגים נמחקה';
-
-  @override
-  String get teacherGradesRosterLinkError => 'הערכה זו אינה מקושרת לסגל כיתה.';
-
-  @override
   String get teacherGradesSaved => 'הציונים נשמרו';
-
-  @override
-  String get teacherGradesSubtitle =>
-      'צור הערכות ושמור ציונים מול סגל הכיתה החי.';
-
-  @override
-  String get teacherGradesCreateAssessmentTitle => 'יצירת הערכה';
-
-  @override
-  String get teacherGradesFieldCourse => 'קורס';
-
-  @override
-  String get teacherGradesCreateAction => 'יצירה';
-
-  @override
-  String get teacherGradesNoStudentsLoaded => 'לא נטענו תלמידים עבור הערכה זו.';
-
-  @override
-  String get teacherGradesFieldGrade => 'ציון';
-
-  @override
-  String teacherGradesMaxHint(Object grade) {
-    return 'מקסימום $grade';
-  }
-
-  @override
-  String get teacherGradesSaving => 'שומר…';
-
-  @override
-  String teacherGradesSaveCount(Object count) {
-    return 'שמור $count ציונים';
-  }
 
   @override
   String get assignmentsNoDueDate => 'אין תאריך סיום';
@@ -3858,15 +2937,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get assignmentsPreviewFallback =>
       'פתח משימה זו כדי לראות את ההנחיות המלאות ולהכין את עבודתך.';
-
-  @override
-  String get assignmentsSubmissionPrepEmpty =>
-      'שלח את ההערה או הקבצים שלך כאן.';
-
-  @override
-  String assignmentsSubmissionPrepCount(Object count) {
-    return '$count קובץ(ים) מוצמדים באופן מקומי.';
-  }
 
   @override
   String get assignmentsHeroSubtitle =>
@@ -3933,17 +3003,6 @@ class AppLocalizationsHe extends AppLocalizations {
       'הקש על משימה כלשהי כדי לפתוח את תצוגת הפרטים במסך מלא ולהכין את עבודתך.';
 
   @override
-  String get assignmentsAddNoteBeforePrepare =>
-      'הוסף הערה או צרף קובץ לפני הכנת עבודתך.';
-
-  @override
-  String get assignmentsWorkDraftPrepared => 'טיוטת עבודה מוכנה.';
-
-  @override
-  String get assignmentsWorkDraftPreparedWithFiles =>
-      'טיוטת עבודה מוכנה. קבצים מצורפים נשמרים בהתקן זה.';
-
-  @override
   String get assignmentsUnavailableTitle => 'משימה לא זמינה';
 
   @override
@@ -3972,22 +3031,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get assignmentsDetailDueLabel => 'תאריך סיום';
 
   @override
-  String get assignmentsDetailClassroomLabel => 'כיתה';
-
-  @override
   String get assignmentsDetailTeacherLabel => 'מורה';
 
   @override
-  String get assignmentsDetailPostedByLabel => 'פורסם על ידי';
-
-  @override
-  String get assignmentsDetailPublishedLabel => 'פורסם';
-
-  @override
   String get assignmentsDetailUpdatedLabel => 'עודכן';
-
-  @override
-  String get assignmentsDetailIdLabel => 'מזהה משימה';
 
   @override
   String get assignmentsInstructionsTitle => 'הוראות';
@@ -3995,44 +3042,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get assignmentsInstructionsSubtitle =>
       'טקסט משימה מלא מזרם הכיתה, כשהנוסח המקורי נשמר.';
-
-  @override
-  String get assignmentsYourWorkTitle => 'עבודתך';
-
-  @override
-  String get assignmentsYourWorkSubtitle =>
-      'ארגן הערה, צרף קבצים או מסמכים והשאיר את הכנת ההגשה שלך במקום ממוקד.';
-
-  @override
-  String get assignmentsPrivateNoteLabel => 'הערת עבודה פרטית';
-
-  @override
-  String get assignmentsPrivateNoteHint =>
-      'הוסף מה שאתה מתכנן להגיש, תזכורות לעצמך או תקציר מסמך/קישור.';
-
-  @override
-  String get assignmentsAddFiles => 'הוסף קבצים או מסמכים';
-
-  @override
-  String get assignmentsClearFiles => 'נקה קבצים';
-
-  @override
-  String get assignmentsStagedDeviceHint =>
-      'קבצים מסודרים בהתקן זה. הגשת קובץ משימה אינה זמינה באפליקציה זו.';
-
-  @override
-  String assignmentsLastPrepared(Object time) {
-    return 'הוכן לאחרונה $time.';
-  }
-
-  @override
-  String get assignmentsSubmissionPrepTitle => 'הכנת הגשה';
-
-  @override
-  String get assignmentsPreparing => 'בהכנה';
-
-  @override
-  String get assignmentsPrepareWork => 'הכן עבודה';
 
   @override
   String get assignmentsLoadingSubtitle => 'טעינת משימות הכיתה שלך.';
@@ -4045,9 +3054,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get assignmentsRemoveAttachment => 'הסר קובץ מצורף';
-
-  @override
-  String get assignmentsSubmitted => 'הוגש';
 
   @override
   String get attendanceUndated => 'ללא תאריך';
@@ -4260,72 +3266,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get attendanceRange90Short => '90 ימים';
 
   @override
-  String get gradesLoadError =>
-      'לא היה ניתן לטעון ציונים כרגע. משוך כדי לרענן או נסה שוב.';
-
-  @override
-  String get gradesLoadTimeout =>
-      'ציונים לוקחים יותר מדי זמן לטעינה. משוך כדי לרענן או נסה שוב בעוד רגע.';
-
-  @override
-  String get gradesLoadNetwork =>
-      'לא הצליח להתחבר לציונים כרגע. בדוק את החיבור שלך ונסה שוב.';
-
-  @override
   String get gradesGeneralSubject => 'כללי';
-
-  @override
-  String get gradesBandBuilding => 'עדיין בבניה';
-
-  @override
-  String get gradesBandExcellent => 'מעולה';
-
-  @override
-  String get gradesBandStrong => 'חזק';
-
-  @override
-  String get gradesBandOkay => 'בסדר';
-
-  @override
-  String get gradesBandNeedsAttention => 'צריך תשומת לב';
-
-  @override
-  String get gradesBandRisk => 'בסיכון';
-
-  @override
-  String get gradesTrendRising => 'עולה';
-
-  @override
-  String get gradesTrendDropping => 'יורד';
-
-  @override
-  String get gradesTrendStable => 'יציב';
-
-  @override
-  String gradesShowingSummary(
-    Object shown,
-    Object total,
-    Object subject,
-    Object range,
-  ) {
-    return 'מציג $shown מתוך $total ציונים שנרשמו עבור $subject ב-$range.';
-  }
-
-  @override
-  String get gradesLoadingSubtitle => 'טוען את התוצאות האקדמיות העדכניות שלך.';
-
-  @override
-  String get gradesUnavailableTitle => 'ציונים לא זמינים';
-
-  @override
-  String get gradesHeroSubtitle =>
-      'קריאה ברורה של הממוצע שלך, הערכות אחרונות, ואילו מקצועות צריכים הגנה או התאוששות.';
-
-  @override
-  String get gradesMetricAverage => 'ממוצע';
-
-  @override
-  String get gradesMetricRecorded => 'נרשם';
 
   @override
   String get gradesMetricBestSubject => 'המקצוע הטוב ביותר';
@@ -4334,120 +3275,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get gradesMetricNeedsWork => 'צריך עבודה';
 
   @override
-  String gradesLatestSignalBody(
-    Object assessment,
-    Object subject,
-    Object grade,
-    Object band,
-  ) {
-    return '$assessment ב-$subject קיבל $grade. $band כרגע.';
-  }
-
-  @override
-  String get gradesSummaryAvailableNoRecent =>
-      'סיכום ציונים זמין, אך אין הערכות אחרונות גלויות בתצוגה זו כרגע.';
-
-  @override
   String get gradesEmptyTitle => 'עדיין אין ציונים';
 
   @override
   String get gradesEmptySubtitle => 'לא פורסמו ציונים לחשבון התלמיד הזה עדיין.';
 
   @override
-  String get gradesFiltersSubtitle =>
-      'השתמש באותו סגנון בורר שניתן לחיפוש כמו בהגדרות כדי לצמצם ציונים לפי מקצוע או חלון זמן.';
-
-  @override
-  String get gradesNoFilteredTitle => 'אין ציונים התואמים לסנני אלה';
-
-  @override
-  String get gradesNoFilteredSubtitle =>
-      'נסה את כל המקצועות או טווח זמן רחב יותר כדי להחזיר יותר ציונים שנרשמו.';
-
-  @override
-  String get gradesQuickReadTitle => 'קריאה מהירה';
-
-  @override
-  String get gradesQuickReadSubtitleFiltered =>
-      'סיכום מהיר של הציונים כרגע בתצוגה.';
-
-  @override
-  String get gradesQuickReadSubtitleAll =>
-      'הקריאה המהירה ביותר על מה להגן ומה להחזיר.';
-
-  @override
-  String get gradesWeakSpotLabel => 'נקודת חולשה נוכחית';
-
-  @override
-  String get gradesNoWeakSignal => 'אין עדיין אות מקצוע חלוש';
-
-  @override
-  String gradesWeakSpotValue(Object subject) {
-    return '$subject צריך את בלוק ההתאוששות הראשון.';
-  }
-
-  @override
-  String get gradesStrengthLabel => 'כוח נוכחי';
-
-  @override
-  String get gradesNoStrengthSignal => 'אין עדיין אות מקצוע חזק';
-
-  @override
-  String gradesStrengthValue(Object subject) {
-    return '$subject הוא עוגן הביטחון שלך כרגע.';
-  }
-
-  @override
-  String get gradesBandLabel => 'טווח';
-
-  @override
-  String get gradesInViewLabel => 'בתצוגה';
-
-  @override
-  String gradesInViewCount(Object count) {
-    return '$count ציונים שנרשמו בסנן זה.';
-  }
-
-  @override
-  String gradesInViewAverage(Object count, Object average) {
-    return '$count ציונים שנרשמו בממוצע $average.';
-  }
-
-  @override
-  String get gradesLatestAssessmentsTitle => 'הערכות אחרונות';
-
-  @override
-  String get gradesLatestAssessmentsSubtitleFiltered =>
-      'ציונים שנרשמו לאחרונה בתצוגה המסוננת הנוכחית.';
-
-  @override
-  String get gradesLatestAssessmentsSubtitleAll =>
-      'ציונים שנרשמו לאחרונה בסדר כרונולוגי.';
-
-  @override
-  String get gradesSubjectDrilldownTitle => 'פירוט מקצוע';
-
-  @override
-  String get gradesSubjectDrilldownSubtitleFiltered =>
-      'מקובץ לפי מקצוע עבור הציונים כרגע בתצוגה.';
-
-  @override
-  String get gradesSubjectDrilldownSubtitleAll =>
-      'מקובץ לפי מקצוע כדי שמגמה ולחץ יתבררו יותר מהר.';
-
-  @override
   String get gradesAssessmentFallback => 'הערכה';
-
-  @override
-  String get gradesChipBest => 'הטוב ביותר';
-
-  @override
-  String get gradesNoAverageYet => 'אין ממוצע עדיין';
-
-  @override
-  String gradesRecentAverage(Object average) {
-    return 'ממוצע אחרון: $average';
-  }
 
   @override
   String get actionCancel => 'ביטול';
@@ -4465,12 +3299,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get actionBlock => 'חסום';
 
   @override
-  String get actionCreate => 'צור';
-
-  @override
-  String get actionShare => 'שתף';
-
-  @override
   String get actionScheduleVerb => 'תזמן';
 
   @override
@@ -4478,18 +3306,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get actionKeep => 'שמור';
-
-  @override
-  String get actionOpen => 'פתח';
-
-  @override
-  String get actionPublish => 'פרסם';
-
-  @override
-  String get actionPublishing => 'מפרסם…';
-
-  @override
-  String get actionRefresh => 'רענן';
 
   @override
   String get msgBlockTitle => 'לחסום משתמש זה?';
@@ -4591,9 +3407,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get examStudyWithNova => 'לימוד עם NOVA';
 
   @override
-  String get examOpenInsights => 'פתח תובנות';
-
-  @override
   String get examAddToCalendar => 'הוסף ליומן';
 
   @override
@@ -4609,22 +3422,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get formClosed => 'סגור';
 
   @override
-  String get formCompletion => 'השלמה';
-
-  @override
-  String get formNoTextResponses => 'אין תשובות טקסט עדיין.';
-
-  @override
   String get meetingsCouldNotLoad => 'לא ניתן לטעון פגישות';
 
   @override
   String get meetingCouldNotLoad => 'לא ניתן לטעון פגישה';
-
-  @override
-  String get insightsGenerateAction => 'צור תובנות';
-
-  @override
-  String get insightsRefreshAction => 'רענן';
 
   @override
   String get teacherGoToClassroom => 'עבור לכיתה';
@@ -4637,9 +3438,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherNewAnnouncementAction => 'הודעה חדשה';
-
-  @override
-  String get teacherViewFullWeekSchedule => 'הצג לוח שבועי מלא';
 
   @override
   String get teacherGroupsLabel => 'קבוצות';
@@ -4668,12 +3466,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherAudienceSectionTitle => 'קהל יעד';
 
   @override
-  String get teacherPinAnnouncement => 'נעץ הודעה';
-
-  @override
-  String get teacherPinnedAtTop => 'הודעות מנועצות מופיעות בראש';
-
-  @override
   String get teacherPublishAction => 'פרסם';
 
   @override
@@ -4698,12 +3490,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherSearchStudents => 'חפש תלמידים…';
 
   @override
-  String get teacherNoStudentsLoaded => 'לא נמצאו תלמידים בבית ספר זה.';
-
-  @override
-  String get teacherActions => 'פעולות מהירות';
-
-  @override
   String get teacherParentsLabel => 'הורים';
 
   @override
@@ -4711,9 +3497,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherWeekScheduleTitle => 'לוח שבועי';
-
-  @override
-  String get teacherCouldNotLoadSchedule => 'לא ניתן לטעון את הלוח';
 
   @override
   String get teacherAttendanceLast30 => 'נוכחות (30 הימים האחרונים)';
@@ -4765,9 +3548,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherNoGradesEntered => 'לא הוזנו ציונים עדיין';
 
   @override
-  String get teacherNewAssignment => 'מטלה חדשה';
-
-  @override
   String get teacherDeleteAssignment => 'למחוק מטלה?';
 
   @override
@@ -4796,9 +3576,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherJoinMeeting => 'הצטרף לפגישה';
 
   @override
-  String get teacherAddStudentTitle => 'הוסף תלמיד';
-
-  @override
   String teacherRemoveStudentTitle(Object name) {
     return 'להסיר את $name?';
   }
@@ -4808,12 +3585,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherStudentAdded => 'התלמיד נוסף';
-
-  @override
-  String get teacherClassroomAnalyticsTitle => 'ניתוחי כיתה';
-
-  @override
-  String get teacherOpenAnalyticsAction => 'פתח ניתוחים';
 
   @override
   String teacherStudentsCount(Object count) {
@@ -4832,9 +3603,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get teacherSelectSessionPrompt =>
       'בחר סשן למטה כדי להתחיל לסמן נוכחות';
-
-  @override
-  String get teacherOpenAction => 'פתח';
 
   @override
   String get chatDeleteForMe => 'מחק עבורי';
@@ -4881,9 +3649,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get chatEditPlaceholder => 'ערוך הודעה…';
 
   @override
-  String get chatMessageHint => 'הודעה';
-
-  @override
   String get chatPin => 'נעץ';
 
   @override
@@ -4923,9 +3688,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get chatJoinGroupTooltip => 'הצטרף לקבוצה עם קוד';
 
   @override
-  String get chatForwardNoChatAvailable => 'אין שיחות מאושרות זמינות';
-
-  @override
   String get chatFilterAll => 'הכל';
 
   @override
@@ -4963,12 +3725,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get classroomsNoClassroomsToReorder => 'אין כיתות לסידור מחדש.';
 
   @override
-  String get teacherPostAnnouncementAction => 'פרסם הודעה';
-
-  @override
-  String get announcementAudienceEveryone => 'כולם';
-
-  @override
   String get teacherGreetingMorning => 'בוקר טוב';
 
   @override
@@ -4987,37 +3743,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherUpcomingTestsSubtitle => 'מבחנים וחידונים הבאים';
 
   @override
-  String get teacherNoClassesThisWeek => 'אין שיעורים השבוע';
-
-  @override
-  String get teacherNoClassesThisWeekSub => 'לוח הזמנים שלך לשבוע זה ריק';
-
-  @override
-  String get teacherTitleFieldLabel => 'כותרת *';
-
-  @override
-  String get teacherInstructionsLabel => 'הוראות';
-
-  @override
-  String get teacherLinkUrlLabel => 'קישור / כתובת URL *';
-
-  @override
-  String get teacherLinkUrlHint => 'https://...';
-
-  @override
-  String get teacherDescriptionLabel => 'תיאור';
-
-  @override
-  String get teacherMeetingTitleLabel => 'כותרת הפגישה *';
-
-  @override
-  String get teacherMeetingLinkLabel => 'קישור לפגישה *';
-
-  @override
   String get teacherMeetingLinkHint => 'קישור Zoom / Meet / Teams';
-
-  @override
-  String get teacherStudentEmailLabel => 'אימייל או מזהה של תלמיד';
 
   @override
   String get teacherTooltipRemoveStudent => 'הסר מהכיתה';
@@ -5075,9 +3801,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get navDiplomas => 'דיפלומות';
 
   @override
-  String get diplomasComingSoon => 'ניהול תעודות בקרוב.';
-
-  @override
   String get teacherExamsTitle => 'בחינות';
 
   @override
@@ -5088,11 +3811,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherExamsEmpty => 'אין הערכות עדיין. הקש + כדי ליצור.';
-
-  @override
-  String teacherExamsGraded(Object count) {
-    return '$count עם ציון';
-  }
 
   @override
   String get teacherFormsTitle => 'טפסים';
@@ -5112,51 +3830,16 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherFormsDraft => 'טיוטה';
 
   @override
-  String get teacherFormsCreateTitle => 'צור טופס';
-
-  @override
-  String get teacherFormsAddQuestion => 'הוסף שאלה';
-
-  @override
-  String get teacherFormsQuestionHint => 'טקסט השאלה';
-
-  @override
   String get teacherFormsViewResponses => 'צפה בתגובות';
 
   @override
   String get teacherFormsNoResponses => 'אין תגובות עדיין.';
 
   @override
-  String get diplomasTitle => 'תעודות';
-
-  @override
-  String get diplomasEmpty => 'טרם הונפקו תעודות. הקש + להנפקת תעודה.';
-
-  @override
-  String get diplomasIssueTo => 'הנפק עבור';
-
-  @override
-  String get diplomasStudentName => 'שם התלמיד';
-
-  @override
-  String get diplomasCertificateType => 'סוג התעודה';
-
-  @override
-  String get diplomasIssueDiploma => 'הנפק תעודה';
-
-  @override
-  String diplomasIssuedOn(Object date) {
-    return 'הונפק בתאריך $date';
-  }
-
-  @override
   String get examDetailsSection => 'פרטים';
 
   @override
   String get examInfoTeacher => 'מורה';
-
-  @override
-  String get examInfoAudience => 'קהל יעד';
 
   @override
   String get examInfoDate => 'תאריך';
@@ -5166,9 +3849,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get examInfoPeriod => 'שיעור';
-
-  @override
-  String get examInfoDuration => 'משך';
 
   @override
   String get examInfoSubject => 'מקצוע';
@@ -5191,9 +3871,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get examViewGradeAction => 'פתח ציונים';
-
-  @override
-  String get teacherGradesSaveAction => 'שמור';
 
   @override
   String get teacherGradesNothingToSave => 'אין שינויים לשמירה.';
@@ -5227,16 +3904,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherMeetingsEmpty => 'אין פגישות עדיין.\nלחץ + לתזמון אחת.';
 
   @override
-  String get teacherStudentsNoMatch => 'אין תלמידים תואמים';
-
-  @override
   String get teacherMaterialsTitle => 'חומרים';
 
   @override
   String get profileNamesTitle => 'שם בשפות';
-
-  @override
-  String get profileDisplayNameLang => 'שפת הצגת שם';
 
   @override
   String get navDashboard => 'לוח בקרה';
@@ -5296,9 +3967,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminAdmins => 'מנהלים';
 
   @override
-  String get adminTodaySessions => 'שיעורים היום';
-
-  @override
   String get adminQuickActions => 'פעולות מהירות';
 
   @override
@@ -5314,33 +3982,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminCreateUser => 'צור';
 
   @override
-  String get adminFullName => 'שם מלא';
-
-  @override
-  String get adminEmailAddress => 'כתובת דוא\"ל';
-
-  @override
   String get adminRoleLabel => 'תפקיד';
 
   @override
   String get adminUserCreated => 'משתמש נוצר';
 
   @override
-  String get adminTempPassword => 'סיסמה זמנית';
-
-  @override
   String get adminCopied => 'הועתק ללוח';
-
-  @override
-  String get adminResetPassword => 'אפס סיסמה';
-
-  @override
-  String get adminPasswordReset => 'איפוס סיסמה';
-
-  @override
-  String adminTempPasswordFor(Object name) {
-    return 'סיסמה זמנית עבור $name';
-  }
 
   @override
   String get adminDeleteUser => 'מחק משתמש';
@@ -5362,9 +4010,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminAddCohort => 'הוסף קבוצה';
 
   @override
-  String get adminNewCohort => 'קבוצה חדשה';
-
-  @override
   String get adminCohortName => 'שם הקבוצה (למשל י׳א)';
 
   @override
@@ -5375,11 +4020,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminAddStudents => 'הוסף תלמידים';
-
-  @override
-  String adminAddTo(Object name) {
-    return 'הוסף ל-$name';
-  }
 
   @override
   String get adminRemoveStudent => 'הסר תלמיד';
@@ -5396,17 +4036,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminNoStudentsInCohort => 'אין תלמידים בקבוצה זו';
 
   @override
-  String adminStudentCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count תלמידים',
-      one: 'תלמיד אחד',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get adminSearchStudents => 'חפש תלמידים…';
 
   @override
@@ -5416,27 +4045,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminScheduleAddPeriod => 'הוסף שיעור';
 
   @override
-  String get adminScheduleNewPeriod => 'שיעור חדש';
-
-  @override
-  String get adminScheduleDayLabel => 'יום';
-
-  @override
   String adminSchedulePeriodLabel(Object period) {
     return 'ש$period';
   }
-
-  @override
-  String get adminScheduleTeacherLabel => 'מורה';
-
-  @override
-  String get adminScheduleNoneTeacher => 'ללא מורה';
-
-  @override
-  String get adminScheduleCohortLabel => 'קבוצה / תלמידים';
-
-  @override
-  String get adminScheduleFrequencyLabel => 'תדירות';
 
   @override
   String get adminScheduleFreqWeekly => 'כל שבוע';
@@ -5451,15 +4062,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminScheduleFreqCustom => 'מותאם';
 
   @override
-  String adminScheduleFreqCustomLabel(int n) {
-    return 'כל $n שבועות';
-  }
-
-  @override
   String get adminScheduleAddSlot => 'הוסף משבצת';
-
-  @override
-  String get adminScheduleAddAnother => 'הוסף יום / שיעור נוסף';
 
   @override
   String get adminScheduleSave => 'שמור';
@@ -5471,18 +4074,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminScheduleSearchCohort => 'חפש קבוצות…';
 
   @override
-  String get adminScheduleSelectTeacher => 'בחר מורה';
-
-  @override
-  String get adminScheduleSelectCohort => 'בחר קבוצה';
-
-  @override
-  String get adminScheduleOrStudents => 'או בחר תלמידים בנפרד';
-
-  @override
-  String get adminScheduleNoSlots => 'אין שיעורים עדיין';
-
-  @override
   String get adminScheduleNoSlotsHint => 'לחץ + להוספת שיעור ראשון';
 
   @override
@@ -5490,12 +4081,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminSchoolName => 'שם בית הספר';
-
-  @override
-  String get adminSchoolLogoUrl => 'כתובת לוגו (אופציונלי)';
-
-  @override
-  String get adminSchoolLogoHint => 'https://…';
 
   @override
   String get adminSchoolSaved => 'נשמר';
@@ -5509,16 +4094,10 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get adminSubjectsAddHint => 'הוסף מקצוע…';
-
-  @override
   String get adminSubjectsNoSubjects => 'לא הוגדרו מקצועות';
 
   @override
   String get adminSubjectsAdd => 'הוסף';
-
-  @override
-  String get adminSubjectsRemove => 'הסר';
 
   @override
   String get adminSettingsTitle => 'הגדרות';
@@ -5542,12 +4121,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get permissionsColTeacher => 'Teachers';
-
-  @override
-  String get permissionsDefaultOn => 'On by default';
-
-  @override
-  String get permissionsDefaultOff => 'Off by default';
 
   @override
   String get permissionsChangedBadge => 'Changed';
@@ -5577,26 +4150,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get permissionsResetChanges => 'Discard changes';
 
   @override
-  String get permissionsUnsavedTitle => 'Discard changes?';
-
-  @override
-  String get permissionsUnsavedBody =>
-      'You have unsaved permission changes. Leave without saving?';
-
-  @override
-  String get permissionsLeave => 'Leave';
-
-  @override
-  String get permissionsStay => 'Keep editing';
-
-  @override
   String get adminSettingsBellSchedule => 'פעמון בית הספר';
 
   @override
   String get adminSettingsPeriodDefaults => 'ברירות מחדל לשיעורים';
-
-  @override
-  String get adminSettingsPeriodDefaultsSubtitle => 'הגדר זמנים לכל שיעור';
 
   @override
   String get adminDeleteConfirmCancel => 'ביטול';
@@ -5612,16 +4169,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminSearchPeople => 'חפש לפי שם…';
-
-  @override
-  String adminNoResults(Object query) {
-    return 'אין תוצאות עבור \"$query\"';
-  }
-
-  @override
-  String adminNoPeopleYet(Object role) {
-    return 'אין $role עדיין';
-  }
 
   @override
   String get commonRetry => 'נסה שוב';
@@ -5668,9 +4215,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get commonNoResults => 'No results';
-
-  @override
-  String get commonShare => 'שתף';
 
   @override
   String get inboxActionPin => 'הצמד צ\'אט';
@@ -5721,13 +4265,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get cmailDeleteConfirm => 'למחוק את הדואר הזה מתיבת הדואר שלך?';
 
   @override
-  String get commonLoading => 'טוען…';
-
-  @override
   String get commonError => 'משהו השתבש';
-
-  @override
-  String get commonTryAgain => 'נסה שוב';
 
   @override
   String get studentMaterialsTitle => 'חומרים';
@@ -5754,24 +4292,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get studentAssignmentHandedInBadge => 'הוגש';
 
   @override
-  String get studentAssignmentSubmitButton => 'הגשה';
-
-  @override
-  String get studentAssignmentSubmitting => 'מגיש…';
-
-  @override
-  String get studentAssignmentAttachFile => 'צרף קובץ';
-
-  @override
-  String get studentAssignmentAddMoreFiles => 'הוסף קבצים נוספים';
-
-  @override
-  String get studentAssignmentYourSubmission => 'ההגשה שלך';
-
-  @override
-  String get studentAssignmentTeacherAttachments => 'קבצים מצורפים';
-
-  @override
   String secretaryWelcomeGreeting(Object name) {
     return 'שלום $name 👋';
   }
@@ -5784,9 +4304,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get secretaryExportData => 'ייצוא נתונים';
-
-  @override
-  String get secretaryHomeTile => 'בית';
 
   @override
   String parentHomeGreeting(Object name) {
@@ -5845,22 +4362,6 @@ class AppLocalizationsHe extends AppLocalizations {
       'We\'ll text the link to the phone number on this account.';
 
   @override
-  String get forgotPasswordLinkExpires =>
-      'תוקף הקישור יפוג בעוד שעה וניתן לשימוש פעם אחת בלבד.';
-
-  @override
-  String get pushPermissionTitle => 'הישאר מעודכן';
-
-  @override
-  String get pushPermissionBody =>
-      'הפעל התראות כדי שלא תפספס ציונים, הודעות או שינויים במערכת השעות.';
-
-  @override
-  String commonRequiredField(Object field) {
-    return '$field נדרש';
-  }
-
-  @override
   String get commonAttachments => 'קבצים מצורפים';
 
   @override
@@ -5876,18 +4377,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonPublish => 'פרסם';
 
   @override
-  String get commonContinue => 'המשך';
-
-  @override
-  String get commonNext => 'הבא';
-
-  @override
-  String get commonStart => 'התחלה';
-
-  @override
-  String get commonEnd => 'סיום';
-
-  @override
   String get commonRefresh => 'רענן';
 
   @override
@@ -5897,22 +4386,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonOpen => 'פתח';
 
   @override
-  String get commonView => 'הצג';
-
-  @override
-  String get commonCopy => 'העתק';
-
-  @override
   String get commonAdd => 'הוסף';
-
-  @override
-  String get commonOptional => 'אופציונלי';
-
-  @override
-  String get commonRequired => 'חובה';
-
-  @override
-  String get commonAuto => 'אוטומטי';
 
   @override
   String get teacherShareButton => 'שתף';
@@ -5956,19 +4430,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherMeetingDateTimeRequired => 'נדרשים תאריך ושעת התחלה';
 
   @override
-  String get teacherMeetingStartDate => 'תאריך התחלה *';
-
-  @override
   String get teacherMeetingStartTime => 'שעת התחלה *';
 
   @override
-  String get teacherMeetingEndDate => 'תאריך סיום (אופציונלי)';
-
-  @override
   String get teacherMeetingEndTime => 'שעת סיום (אופציונלי)';
-
-  @override
-  String get teacherClearEndTime => 'נקה שעת סיום';
 
   @override
   String get teacherAssignmentTitleField => 'כותרת *';
@@ -5995,9 +4460,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherCreateAssignment => 'צור';
 
   @override
-  String get teacherExamSubject => 'מקצוע *';
-
-  @override
   String get teacherExamDate => 'תאריך מבחן *';
 
   @override
@@ -6016,16 +4478,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherSearchMaterials => 'חפש חומרים…';
 
   @override
-  String get teacherClassroomName => 'שם הכיתה *';
-
-  @override
-  String get adminReportsOpenTab => 'פתוחים';
-
-  @override
   String get adminReportsResolvedTab => 'טופלו';
-
-  @override
-  String get adminReportsDismissedTab => 'נדחו';
 
   @override
   String get adminReportsNoOpen => 'אין דיווחים פתוחים';
@@ -6062,11 +4515,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String chatReportFailed(Object error) {
     return 'הדיווח נכשל: $error';
-  }
-
-  @override
-  String chatSendError(Object message) {
-    return 'לא ניתן לשלוח: $message';
   }
 
   @override
@@ -6300,10 +4748,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminInCohortBadge => 'בקבוצה';
 
   @override
-  String get adminNoStudentsFoundCohort =>
-      'לא נמצאו תלמידים בשכבות של קבוצה זו';
-
-  @override
   String get adminScheduleByCohort => 'לפי קבוצה ▾';
 
   @override
@@ -6331,15 +4775,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminScheduleClearFilters => 'נקה';
 
   @override
-  String get adminSchedulePickSubjectRequired => 'בחר מקצוע לפני שמירת השיעור.';
-
-  @override
   String get adminSchedulePickDateOnce => 'בחר תאריך לשיעור חד-פעמי.';
-
-  @override
-  String adminSchedulePickDateRecurring(Object freq) {
-    return 'בחר תאריך התחלה ללוז של כל $freq שבועות.';
-  }
 
   @override
   String get adminSchoolLogoLabel => 'לוגו בית הספר';
@@ -6367,10 +4803,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminSchoolGradeRangeLabel => 'טווח שכבות';
 
   @override
-  String get adminSchoolGradeRangeDescription =>
-      'שכבות זמינות בקבוצות, תלמידים ובתפריטים.';
-
-  @override
   String get adminSchoolLowestGrade => 'נמוכה ביותר';
 
   @override
@@ -6382,9 +4814,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get adminSchoolSubjectsDescription =>
       'זמינים לכל המורים בעת יצירת מטלות.';
-
-  @override
-  String get adminSchoolNoTranslations => 'הקש להוספת תרגומים';
 
   @override
   String get adminSchoolBellHint =>
@@ -6402,15 +4831,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminSchoolEndTime => 'סיום';
-
-  @override
-  String get adminExportStudentsTab => 'תלמידים';
-
-  @override
-  String get adminExportCohortsTab => 'קבוצות';
-
-  @override
-  String get adminExportGradesTab => 'שכבות';
 
   @override
   String get adminExportOptionsTitle => 'אפשרויות ייצוא';
@@ -6484,17 +4904,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get studentFormAlreadySubmittedButton => 'כבר הוגש';
 
   @override
-  String get studentDiplomaEditTitle => 'ערוך תעודה';
-
-  @override
-  String get studentDiplomaDeleteTitle => 'למחוק תעודה?';
-
-  @override
-  String studentDiplomaDeleteConfirm(Object name) {
-    return 'להסיר את התעודה של \"$name\"?';
-  }
-
-  @override
   String teacherDeleteItemConfirm(Object title) {
     return 'למחוק את \"$title\"?';
   }
@@ -6517,11 +4926,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherMeetingVisibleToEveryone => 'גלוי לכולם';
-
-  @override
-  String teacherMeetingDoneCount(int count) {
-    return 'סיום ($count נבחרו)';
-  }
 
   @override
   String get teacherDeleteAssignmentTitle => 'למחוק את המטלה?';
@@ -6552,9 +4956,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get teacherClassroomFileUnavailable =>
       'הקובץ אינו זמין — המורה צריך להעלות אותו מחדש.';
-
-  @override
-  String get teacherClassroomCodeLabel => 'קוד הכיתה';
 
   @override
   String get teacherClassroomCodeCopied => 'הקוד הועתק';
@@ -6637,11 +5038,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherFormEnterTitle => 'אנא הזן כותרת לטופס.';
 
   @override
-  String teacherExamUploadFailedSkipped(Object name) {
-    return 'העלאה נכשלה עבור $name. הקובץ דולג.';
-  }
-
-  @override
   String get teacherExamEnterTitle => 'אנא הזן כותרת.';
 
   @override
@@ -6665,23 +5061,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherSlotDetachTooltip => 'נתק';
-
-  @override
-  String get teacherDiplomaSelectStudent => 'בחר תלמיד תחילה.';
-
-  @override
-  String get teacherDiplomaUploadingWait => 'אנא המתן — קבצים עדיין מועלים.';
-
-  @override
-  String teacherDiplomaIssueFailed(Object error) {
-    return 'לא ניתן להנפיק תעודה: $error';
-  }
-
-  @override
-  String get teacherDiplomaCertTitleLabel => 'כותרת התעודה';
-
-  @override
-  String get teacherDiplomaSearchStudent => 'חפש תלמיד…';
 
   @override
   String get teacherProfileChatError => 'לא ניתן להתחיל צ\'אט';
@@ -6748,27 +5127,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherAnnounceNoParents => 'לא נמצאו הורים בבית ספר זה.';
 
   @override
-  String get teacherGradesToGrade => 'לציון';
-
-  @override
-  String get teacherGradesGraded => 'צוין';
-
-  @override
   String get teacherSaveGradesButton => 'שמור ציונים';
-
-  @override
-  String get teacherAllowResubmitLabel => 'אפשר הגשה חוזרת';
-
-  @override
-  String get teacherAllowResubmitTitle => 'לאפשר הגשה חוזרת?';
-
-  @override
-  String teacherAllowResubmitBody(Object name) {
-    return 'פעולה זו תמחק את ההגשה של $name כדי שיוכל להגיש שוב.';
-  }
-
-  @override
-  String get teacherAllowButton => 'אפשר';
 
   @override
   String get teacherGradeFieldLabel => 'ציון';
@@ -6777,21 +5136,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherFeedbackOptionalLabel => 'משוב (אופציונלי)';
 
   @override
-  String get teacherCreateClassroomFabLabel => 'צור';
-
-  @override
-  String get teacherLoadingStudents => 'טוען תלמידים…';
-
-  @override
   String get teacherSearchHintShort => 'חיפוש…';
-
-  @override
-  String get teacherCreateClassroomTitle => 'כיתה חדשה';
-
-  @override
-  String teacherAssignmentUploadFailed(Object name) {
-    return 'לא ניתן להעלות את $name';
-  }
 
   @override
   String get teacherAssignmentEnterTitle => 'אנא הזן כותרת.';
@@ -6801,9 +5146,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherAssignmentInstructionsLabel => 'הוראות / תיאור';
-
-  @override
-  String get teacherAttachFilesButton => 'צרף קבצים';
 
   @override
   String get tutorDeleteConversationTitle => 'למחוק שיחה?';
@@ -6838,18 +5180,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get accountContinueButton => 'המשך';
 
   @override
-  String get studentClassroomFileUnavailable => 'הקובץ אינו זמין כעת.';
-
-  @override
-  String get studentClassroomDeleteMaterial => 'למחוק חומר?';
-
-  @override
-  String get studentClassroomCodeLabel => 'קוד הכיתה';
-
-  @override
-  String get studentClassroomLeaveTooltip => 'עזוב כיתה';
-
-  @override
   String get adminEditUserEnglishNameRequired => 'שם באנגלית נדרש';
 
   @override
@@ -6874,9 +5204,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminEditUserNameSection => 'שם';
-
-  @override
-  String get adminEditUserAtLeastEnglish => 'אנגלית נדרשת לפחות.';
 
   @override
   String get adminEditUserGradeSection => 'שכבה';
@@ -7014,19 +5341,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminExportIncludesPasswords => 'הייצוא יאפס ויכלול סיסמאות';
 
   @override
-  String get adminExportAnyway => 'ייצא בכל זאת';
-
-  @override
-  String get adminExportPdfStudentDirectory => 'ספריית תלמידים';
-
-  @override
   String adminExportPdfBy(String name) {
     return 'ע\"י: $name';
-  }
-
-  @override
-  String adminExportPdfStudentsCount(int count) {
-    return '$count תלמידים';
   }
 
   @override
@@ -7058,32 +5374,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminExportColumnPassword => 'סיסמה';
-
-  @override
-  String get adminExportColumnNameEn => 'שם (EN)';
-
-  @override
-  String get adminExportColumnNameAr => 'שם (AR)';
-
-  @override
-  String get adminExportColumnNameHe => 'שם (HE)';
-
-  @override
-  String get adminExportColumnNameFr => 'שם (FR)';
-
-  @override
-  String get adminExportColumnNameRu => 'שם (RU)';
-
-  @override
-  String adminExportStudentsSelected(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count תלמידים נבחרו',
-      one: 'תלמיד אחד נבחר',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get teacherMaterialEditTitle => 'ערוך חומר';
@@ -7305,9 +5595,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get commonCreate => 'צור';
-
-  @override
-  String get commonAttachStudyMaterials => 'צרף חומרי לימוד';
 
   @override
   String get teacherCreateClassroomNewTitle => 'כיתה חדשה';
@@ -7657,9 +5944,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonTitle => 'כותרת';
 
   @override
-  String get commonNotes => 'הערות';
-
-  @override
   String get commonEmail => 'דוא\"ל';
 
   @override
@@ -7759,14 +6043,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get drawerSwitchChild => 'החלף ילד';
 
   @override
-  String get shellAssessmentCreated => 'ההערכה נוצרה';
-
-  @override
-  String commonCouldNotOpenLink(String scheme) {
-    return 'לא ניתן לפתוח קישור $scheme';
-  }
-
-  @override
   String commonCouldntSend(String error) {
     return 'לא ניתן לשלוח: $error';
   }
@@ -7793,9 +6069,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherGradeTypeSection => 'סוג ציון';
-
-  @override
-  String get teacherOtherGradeSection => 'ציון אחר';
 
   @override
   String get teacherEnterGradesSection => 'הזן ציונים';
@@ -7870,37 +6143,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get novaDisclaimerYourPrivacy => 'הפרטיות שלך';
 
   @override
-  String profileNameInLanguage(String language) {
-    return 'שם ב$language';
-  }
-
-  @override
   String get adminSettingsScheduleSubtitle =>
       'שייך מורים וקבוצות למשבצות זמן שבועיות';
-
-  @override
-  String get practiceModeBalancedSubtitle => 'תרגול יומי מאוזן';
-
-  @override
-  String get practiceModeRevealSubtitle => 'חשיפה והיזכרות עצמית';
-
-  @override
-  String get practiceModeFastSubtitle => 'אימון מהיר בלחץ';
-
-  @override
-  String get practiceModeExamSubtitle => 'זרימה רגועה בסגנון מבחן';
-
-  @override
-  String get practiceModeConceptSubtitle => 'מושג קודם, פתרון אחר כך';
-
-  @override
-  String get practiceModeAdaptiveSubtitle => 'הקושי משתנה בזמן אמת';
-
-  @override
-  String get practiceModeStrictSubtitle => 'סגנון רשמי מחמיר';
-
-  @override
-  String get commonCall => 'התקשר';
 
   @override
   String get tooltipClearEndTime => 'נקה שעת סיום';
@@ -8194,9 +6438,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonReadLess => 'קרא פחות';
 
   @override
-  String get chatComposerSlideToCancel => 'החלק לביטול';
-
-  @override
   String adminNoRoleYet(String role) {
     return 'אין עדיין $role';
   }
@@ -8212,12 +6453,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get commonAdding => 'מוסיף…';
-
-  @override
-  String get teacherDiplomaIssuing => 'מנפיק…';
-
-  @override
-  String get teacherDiplomaIssue => 'הנפק';
 
   @override
   String get formAccepting => 'מקבל';
@@ -8273,9 +6508,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get adminExportEmptyState =>
       'הוסף סנן להתחלה: בחר תפקיד, קבוצה, כיתה או משתמשים ספציפיים.';
-
-  @override
-  String get adminExportFilterRolesTab => 'תפקידים';
 
   @override
   String get adminExportFilterCohortsTab => 'קבוצות';
@@ -8391,12 +6623,6 @@ class AppLocalizationsHe extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get teacherAttachFromMaterials => 'מחומרים';
-
-  @override
-  String get teacherUploadFiles => 'העלה קבצים';
 
   @override
   String get solSubjectMathematics => 'מתמטיקה';
@@ -8567,9 +6793,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String solutionsGradeLabel(int grade) {
     return 'כיתה $grade';
   }
-
-  @override
-  String get solutionsReportsTitle => 'פתרונות שדווחו';
 
   @override
   String get solutionsReportsEmpty => 'אין דיווחים לבדיקה.';
@@ -8750,34 +6973,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get commonSubjectOptional => 'מקצוע (אופציונלי)';
 
   @override
-  String get colorBlue => 'כחול';
-
-  @override
-  String get colorIndigo => 'אינדיגו';
-
-  @override
-  String get colorViolet => 'סגול';
-
-  @override
-  String get colorTeal => 'טורקיז';
-
-  @override
-  String get colorGreen => 'ירוק';
-
-  @override
-  String get colorOrange => 'כתום';
-
-  @override
-  String get colorRose => 'ורוד';
-
-  @override
   String get teacherAddClassNotes => 'הוספת הערות שיעור';
-
-  @override
-  String get teacherStudentsWithGrades => 'תלמידים עם ציונים';
-
-  @override
-  String get teacherOtherStudentsSameGrade => 'תלמידים אחרים באותה שכבה/קבוצה';
 
   @override
   String get teacherChooseExam => 'בחירת מבחן';
@@ -8818,35 +7014,10 @@ class AppLocalizationsHe extends AppLocalizations {
       'המשתמש יתחבר עם סיסמה זו בכניסה הבאה. כל קישור לאיפוס סיסמה שממתין יבוטל.';
 
   @override
-  String get nameInEnglish => 'שם באנגלית';
-
-  @override
-  String get nameInArabic => 'שם בערבית';
-
-  @override
-  String get nameInHebrew => 'שם בעברית';
-
-  @override
-  String get nameInFrench => 'שם בצרפתית';
-
-  @override
-  String get nameInRussian => 'שם ברוסית';
-
-  @override
   String get passwordMinChars => 'לפחות 8 תווים.';
 
   @override
   String get passwordsDoNotMatch => 'הסיסמאות אינן תואמות.';
-
-  @override
-  String get adminWelcomeHeading => 'ברוך הבא ל-ClassMate';
-
-  @override
-  String get diplomasNoFilesAttached => 'אין קבצים מצורפים לתעודה זו.';
-
-  @override
-  String get diplomasFilesProcessing =>
-      'לא ניתן לפתוח את הקבצים — ייתכן שהם עדיין בעיבוד.';
 
   @override
   String get novaOutOfTokens =>
@@ -8893,39 +7064,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String cohortStudentsCount(int count) {
     return '$count תלמידים';
-  }
-
-  @override
-  String diplomasIssuedCount(Object count) {
-    return 'הונפקו $count תעודות';
-  }
-
-  @override
-  String get adminExportImportantHeading => 'חשוב';
-
-  @override
-  String get adminExportWelcomeBodyWithPw =>
-      'אלה פרטי חשבון ClassMate שלך. היכנס לאפליקציית ClassMate ב-iOS או ב-Android עם שם המשתמש והסיסמה שלהלן. ניתן לשנות את הסיסמה באפליקציה.';
-
-  @override
-  String get adminExportWelcomeBodyNoPw =>
-      'אלה פרטי חשבון ClassMate שלך. היכנס לאפליקציית ClassMate ב-iOS או ב-Android עם שם המשתמש שלך.';
-
-  @override
-  String get adminExportNotePrivate =>
-      'שמור על פרטי הכניסה בסוד. אל תשתף את הסיסמה.';
-
-  @override
-  String get adminExportNoteChangePw =>
-      'שנה את הסיסמה לאחר הכניסה הראשונה דרך הגדרות → חשבון.';
-
-  @override
-  String get adminExportNoteLegal =>
-      'השימוש ב-ClassMate מהווה הסכמה לתנאי השימוש ולמדיניות הפרטיות.';
-
-  @override
-  String adminExportNoteHelp(String email) {
-    return 'צריך עזרה? פנה למנהל בית הספר או אל $email.';
   }
 
   @override
@@ -9010,12 +7148,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get adminImportUsersScreenGrade => 'כיתה';
 
   @override
-  String get adminImportUsersScreenParentUsername => 'שם משתמש של הורה';
-
-  @override
-  String get adminImportUsersScreenParentUsernameHint => 'קישור (אופציונלי)';
-
-  @override
   String get adminImportUsersScreenCouldNotReadFile =>
       'לא ניתן לקרוא את הקובץ הזה.';
 
@@ -9084,9 +7216,6 @@ class AppLocalizationsHe extends AppLocalizations {
       'פרטי כניסה (מסרו אותם למשתמשים שלכם)';
 
   @override
-  String get teacherCohortsScreenTitle => 'קבוצות';
-
-  @override
   String get teacherCohortsScreenNewCohort => 'קבוצה חדשה';
 
   @override
@@ -9104,9 +7233,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherCohortsScreenGradesLabel => 'כיתה/כיתות';
-
-  @override
-  String get teacherCohortsScreenGradesHint => 'למשל 10  או  7,8';
 
   @override
   String get teacherCohortsScreenCancel => 'ביטול';
@@ -9165,11 +7291,6 @@ class AppLocalizationsHe extends AppLocalizations {
   @override
   String get teacherCohortsScreenLoadStudentsError =>
       'לא ניתן לטעון את התלמידים';
-
-  @override
-  String teacherCohortsScreenAddNStudents(int count) {
-    return 'הוספת $count תלמידים';
-  }
 
   @override
   String teacherCohortsScreenAddedNStudents(int count) {
@@ -10041,10 +8162,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherClassroomAddAssignmentScreenDetails => 'פרטי המטלה';
 
   @override
-  String get teacherClassroomAddAssignmentScreenDueDateOptional =>
-      'מועד הגשה (אופציונלי)';
-
-  @override
   String get teacherClassroomAddAssignmentScreenNotifyStudents =>
       'יידוע התלמידים';
 
@@ -10059,42 +8176,7 @@ class AppLocalizationsHe extends AppLocalizations {
       'הוספת קבצים נוספים';
 
   @override
-  String get diplomasScreenCertificate => 'תעודה';
-
-  @override
-  String diplomasScreenIssuedDate(String date) {
-    return 'הונפק ב-$date';
-  }
-
-  @override
-  String get diplomasScreenNoCertificatesReceived => 'לא התקבלו תעודות עדיין.';
-
-  @override
-  String diplomasScreenFileCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count קבצים',
-      one: 'קובץ אחד',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get gradesScreenOutOf100 => '/ 100';
-
-  @override
-  String gradesScreenShowMore(int count) {
-    return 'הצגת $count ציונים נוספים';
-  }
-
-  @override
-  String get gradesScreenShowLess => 'הצג פחות';
-
-  @override
-  String gradesScreenScoreOutOf100(String score) {
-    return '$score / 100';
-  }
 
   @override
   String get adminSchoolSettingsStart => 'התחלה';
@@ -10107,13 +8189,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminExportLayoutTable => 'Compact table';
-
-  @override
-  String get adminExportScreenEachUserAlone => 'כל משתמש לחוד';
-
-  @override
-  String get adminExportScreenEachUserAloneOn =>
-      'עמוד מלא לכל משתמש, פריסת כרטיס גדולה וקריאה.';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
@@ -10190,18 +8265,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get teacherAddMaterialScreenFileFallback => 'קובץ';
-
-  @override
-  String get teacherCreateDiplomaScreenTitle => 'הנפקת תעודה';
-
-  @override
-  String get teacherCreateDiplomaScreenGradePrefix => 'כיתה';
-
-  @override
-  String get teacherCreateDiplomaScreenAttachFiles => 'צירוף קבצי תעודה';
-
-  @override
-  String get teacherCreateDiplomaScreenAddMoreFiles => 'הוספת קבצים נוספים';
 
   @override
   String get teacherAssignmentDetailScreenTitle => 'מטלה';
@@ -10460,9 +8523,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get examDetailScreenCountdownToday => 'זה היום!';
 
   @override
-  String get teacherCreateDiplomaScreenDefaultTitle => 'תעודת הצטיינות';
-
-  @override
   String teacherMaterialAddedBy(String name) {
     return 'נוסף על ידי $name';
   }
@@ -10574,9 +8634,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get averagesSave => 'שמור';
 
   @override
-  String get certificatesTitle => 'תעודות';
-
-  @override
   String get certHomeroom => 'כיתה (מחנך)';
 
   @override
@@ -10604,16 +8661,10 @@ class AppLocalizationsHe extends AppLocalizations {
   String get certLanguage => 'שפת התעודה';
 
   @override
-  String get certGenerate => 'צור PDF';
-
-  @override
   String get certWeightsMustBe100 => 'סכום משקלי הסמסטרים חייב להיות 100%.';
 
   @override
   String get certSelectStudentFirst => 'בחר תלמיד תחילה.';
-
-  @override
-  String get certSaved => 'התעודה נוצרה.';
 
   @override
   String get certSaveAndPublish => 'שמור ופרסם';
@@ -10640,9 +8691,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get certDraftSaved => 'נשמר כטיוטה.';
 
   @override
-  String get certPublishing => 'מפרסם…';
-
-  @override
   String get certDownload => 'הורד';
 
   @override
@@ -10653,20 +8701,10 @@ class AppLocalizationsHe extends AppLocalizations {
       'This certificate is still a draft — publish it first to open its PDF.';
 
   @override
-  String get certMine => 'התעודות שלי';
-
-  @override
-  String get certNoHomeroom => 'אינך עדיין מחנך של אף כיתה.';
-
-  @override
   String get certGrin => 'ציונים';
 
   @override
   String get certPrintAll => 'הדפס הכל';
-
-  @override
-  String get certSelectCohortToPrint =>
-      'בחר כיתה כדי להדפיס את כל התעודות שלה.';
 
   @override
   String get certEditTitle => 'עריכת תעודה';
@@ -10682,9 +8720,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get certPdfOverall => 'ממוצע כללי';
-
-  @override
-  String get certPdfAverage => 'ממוצע';
 
   @override
   String get certPdfAbsences => 'היעדרויות';
@@ -10798,19 +8833,8 @@ class AppLocalizationsHe extends AppLocalizations {
   String get gradesSubjectNoGrades => 'אין ציונים במקצוע זה עדיין.';
 
   @override
-  String get gradesPublishedShort => 'פורסם';
-
-  @override
-  String get gradesDraftShort => 'טיוטה';
-
-  @override
   String gradesPublishTitle(Object title) {
     return 'פרסום “$title”';
-  }
-
-  @override
-  String gradesUnpublishTitle(Object title) {
-    return 'ביטול פרסום “$title”';
   }
 
   @override
@@ -11035,15 +9059,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get averagesHintGrade => 'בחר ציון';
 
   @override
-  String get adminInsightsSearchHint => 'חפש תלמידים לפי שם…';
-
-  @override
-  String get adminInsightsNoStudents => 'לא נמצאו תלמידים.';
-
-  @override
-  String get adminInsightsNoGrades => 'עדיין לא נרשמו ציונים.';
-
-  @override
   String get gradesEditGradeTitle => 'עריכת ציון';
 
   @override
@@ -11065,11 +9080,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'הוסף טווח';
-
-  @override
-  String certPdfSemesterCertificate(String sem) {
-    return 'תעודת סמסטר — $sem';
-  }
 
   @override
   String get certPdfRemarks => 'הערות המחנך/ת';
@@ -11129,14 +9139,6 @@ class AppLocalizationsHe extends AppLocalizations {
   }
 
   @override
-  String get gradesAvgFilterAll => 'הכל';
-
-  @override
-  String gradesAvgFilterCohort(String name) {
-    return 'כיתה — $name';
-  }
-
-  @override
   String get gradesAvgSearchHint => 'חפש ציונים';
 
   @override
@@ -11153,19 +9155,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get notesNoStudents => 'לא נמצאו תלמידים';
-
-  @override
-  String notesCount(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count הערות',
-      two: '$count הערות',
-      one: 'הערה אחת',
-      zero: 'אין הערות',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get notesNewNote => 'הערה חדשה';
@@ -11191,11 +9180,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get notesBodyHint => 'התחל לכתוב…';
-
-  @override
-  String notesEditedBy(String name) {
-    return 'מאת $name';
-  }
 
   @override
   String get cmailTitle => 'CMail';
@@ -11299,11 +9283,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get cmailAttachments => 'קבצים מצורפים';
 
   @override
-  String cmailFrom(String name) {
-    return 'מאת $name';
-  }
-
-  @override
   String get phoneLinkTitle => 'הוסף את הטלפון שלך';
 
   @override
@@ -11315,9 +9294,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get phoneLinkSend => 'שלח קוד';
-
-  @override
-  String get phoneLinkCodeLabel => 'קוד בן 6 ספרות';
 
   @override
   String phoneLinkCodeSent(String phone) {
@@ -11376,9 +9352,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get hubUnpublished => 'טיוטה';
 
   @override
-  String get hubClass => 'כיתה';
-
-  @override
   String get a11yBack => 'חזרה';
 
   @override
@@ -11386,12 +9359,6 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get a11yCancel => 'ביטול';
-
-  @override
-  String get a11yDone => 'סיום';
-
-  @override
-  String get a11ySave => 'שמירה';
 
   @override
   String get a11yEdit => 'עריכה';
@@ -11406,58 +9373,16 @@ class AppLocalizationsHe extends AppLocalizations {
   String get a11yAdd => 'הוספה';
 
   @override
-  String get a11yCreate => 'יצירה';
-
-  @override
-  String get a11ySend => 'שליחה';
-
-  @override
-  String get a11ySearch => 'חיפוש';
-
-  @override
   String get a11yClear => 'ניקוי';
-
-  @override
-  String get a11yFilter => 'סינון';
-
-  @override
-  String get a11ySort => 'מיון';
 
   @override
   String get a11yMore => 'אפשרויות נוספות';
 
   @override
-  String get a11yMenu => 'תפריט';
-
-  @override
-  String get a11yRefresh => 'רענון';
-
-  @override
-  String get a11yRetry => 'נסה שוב';
-
-  @override
-  String get a11yShare => 'שיתוף';
-
-  @override
   String get a11yCopy => 'העתקה';
 
   @override
-  String get a11yDownload => 'הורדה';
-
-  @override
-  String get a11yUpload => 'העלאה';
-
-  @override
-  String get a11yAttach => 'צירוף קובץ';
-
-  @override
-  String get a11yAddPhoto => 'הוספת תמונה';
-
-  @override
   String get a11yCamera => 'מצלמה';
-
-  @override
-  String get a11yMicrophone => 'קלט קולי';
 
   @override
   String get a11yPlay => 'הפעלה';
@@ -11478,73 +9403,13 @@ class AppLocalizationsHe extends AppLocalizations {
   String get a11yCollapse => 'כיווץ';
 
   @override
-  String get a11yShow => 'הצגה';
-
-  @override
-  String get a11yHide => 'הסתרה';
-
-  @override
-  String get a11ySettings => 'הגדרות';
-
-  @override
-  String get a11yProfile => 'פרופיל';
-
-  @override
-  String get a11yNotifications => 'התראות';
-
-  @override
-  String get a11yHelp => 'עזרה';
-
-  @override
   String get a11yInfo => 'פרטים';
-
-  @override
-  String get a11yFavorite => 'מועדף';
-
-  @override
-  String get a11yPin => 'הצמדה';
-
-  @override
-  String get a11yUnpin => 'ביטול הצמדה';
-
-  @override
-  String get a11yMute => 'השתקה';
-
-  @override
-  String get a11yUnmute => 'ביטול השתקה';
-
-  @override
-  String get a11yMarkRead => 'סמן כנקרא';
-
-  @override
-  String get a11yNewChat => 'צ\'אט חדש';
-
-  @override
-  String get a11yNewMessage => 'הודעה חדשה';
-
-  @override
-  String get a11yEmoji => 'אימוג\'י';
-
-  @override
-  String get a11ySelectDate => 'בחירת תאריך';
-
-  @override
-  String get a11yLogout => 'התנתקות';
-
-  @override
-  String get a11yAddAccount => 'הוספת חשבון';
 
   @override
   String get a11yShowPassword => 'הצג סיסמה';
 
   @override
   String get a11yHidePassword => 'הסתר סיסמה';
-
-  @override
-  String get a11yScrollToBottom => 'גלול למטה';
-
-  @override
-  String get a11yOpen => 'פתיחה';
 
   @override
   String get errStateOfflineTitle => 'אין חיבור לאינטרנט';
@@ -11657,10 +9522,6 @@ class AppLocalizationsHe extends AppLocalizations {
       'ראו את השיעורים של היום ברגע שנכנסים, בדקו ציון מיד כשהוא מתפרסם, עקבו אחר הנוכחות, ורכזו כל תאריך הגשה ברשימה אחת — עם תזכורת לפני המועד.';
 
   @override
-  String get onbDeepClassNotes =>
-      'כתבו בכתב יד עם ה-Apple Pencil באייפד — כריכות, סוגי דף, מסקינג טייפ, תמונות והקלטות — ואז קראו כאן, התקרבו לכתב היד, נגנו את ההקלטות ופתחו כל קובץ שצירפתם.';
-
-  @override
   String get onbDeepConnect =>
       'שלחו הודעה למורה או לחבר, עקבו אחר הודעות הכיתה, הצטרפו לפגישה מקוונת מהכרטיס שלה והשתמשו בכתובת ה-CMail של בית הספר — הכול מתוך האפליקציה.';
 
@@ -11731,158 +9592,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String settingsDeleteThemeBody(String name) {
     return '“$name” will be removed. This can\'t be undone.';
   }
-
-  @override
-  String get cnMoveToShelf => 'העברה למדף';
-
-  @override
-  String get cnNotOnShelf => 'לא במדף';
-
-  @override
-  String get cnDownloadAsPdf => 'הורדה כ‑PDF';
-
-  @override
-  String get cnOpenPagesPng => 'פתיחת העמודים כ‑PNG';
-
-  @override
-  String get cnDownloadPagesPng => 'הורדת העמודים כ‑PNG';
-
-  @override
-  String get cnDeleteNotebookSubtitle =>
-      'מסיר אותו מ‑ClassNotes בכל המכשירים שלך';
-
-  @override
-  String get cnRenameNotebook => 'שינוי שם המחברת';
-
-  @override
-  String get cnNotebookTitleHint => 'שם המחברת';
-
-  @override
-  String get cnRenamed => 'השם שונה';
-
-  @override
-  String get cnTakenOffShelf => 'הוסר מהמדף';
-
-  @override
-  String get cnMoved => 'הועבר';
-
-  @override
-  String get cnBuildingPdf => 'יוצר PDF…';
-
-  @override
-  String get cnPreparingPages => 'מכין את העמודים…';
-
-  @override
-  String get cnNoSyncedPages =>
-      'אין עדיין עמודים מסונכרנים במחברת הזו — פתחו אותה פעם אחת ב‑iPad.';
-
-  @override
-  String cnExportFailed(String error) {
-    return 'הייצוא נכשל: $error';
-  }
-
-  @override
-  String get cnDeleteNotebookTitle => 'למחוק את המחברת הזו?';
-
-  @override
-  String cnDeleteNotebookBody(String title, num count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$countString עמודים',
-    );
-    return '«$title» ו$_temp0 יימחקו מ‑ClassNotes בכל המכשירים. אי אפשר לבטל את הפעולה.';
-  }
-
-  @override
-  String get cnDeleted => 'נמחק';
-
-  @override
-  String get cnRenameShelf => 'שינוי שם המדף';
-
-  @override
-  String get cnShelfNameHint => 'שם המדף';
-
-  @override
-  String get cnDeleteShelf => 'מחיקת המדף';
-
-  @override
-  String get cnDeleteShelfSubtitle => 'המחברות נשארות — הן רק יוצאות מהמדף';
-
-  @override
-  String get cnShelfDeleted => 'המדף נמחק';
-
-  @override
-  String cnReorderFailed(String error) {
-    return 'לא ניתן היה לשמור את הסדר החדש: $error';
-  }
-
-  @override
-  String cnGenericError(String error) {
-    return 'זה לא עבד: $error';
-  }
-
-  @override
-  String get cnAllShelf => 'הכול';
-
-  @override
-  String get cnDragToReorder => 'גררו כדי לסדר מחדש את המחברות';
-
-  @override
-  String get cnManageHint =>
-      'הקישו על ⋮ שליד מחברת כדי לשנות שם, להוריד או למחוק';
-
-  @override
-  String get cnArrange => 'סידור';
-
-  @override
-  String get cnManage => 'ניהול';
-
-  @override
-  String cnManageNamed(String title) {
-    return 'ניהול $title';
-  }
-
-  @override
-  String get cnNotebookWord => 'מחברת';
-
-  @override
-  String cnPageCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count עמודים',
-      one: 'עמוד אחד',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get cnEmptyTitle => 'אין עדיין מחברות';
-
-  @override
-  String get cnEmptyBody =>
-      'מחברות ClassNotes שלך יופיעו כאן — כריכות, נייר ודיו עוקבים אחר ערכת הנושא שלך.';
-
-  @override
-  String get cnLoading => 'טוען את המחברות שלך…';
-
-  @override
-  String get cnSignedOutTitle => 'היכנסו כדי לראות את המחברות שלכם';
-
-  @override
-  String get cnSignedOutBody =>
-      'ספריית ClassNotes מקושרת לחשבון ClassMate שלכם.';
-
-  @override
-  String get cnErrorTitle => 'לא ניתן היה לטעון את המחברות שלך';
-
-  @override
-  String get cnErrorBody => 'בדקו את החיבור ונסו שוב.';
 
   @override
   String teacherFormsCount(num count) {

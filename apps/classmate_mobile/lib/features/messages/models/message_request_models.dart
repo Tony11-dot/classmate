@@ -1,9 +1,3 @@
-enum MessageRequestDecision {
-  approve,
-  block,
-  pending,
-}
-
 class MessageRequestBannerData {
   final String threadId;
   final String senderName;

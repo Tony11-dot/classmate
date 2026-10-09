@@ -296,9 +296,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navTeacherWorkspace => 'مساحة المعلم';
 
   @override
-  String get navTeacherAssessments => 'التقييمات والدرجات';
-
-  @override
   String get navSavedQuestions => 'الأسئلة المحفوظة';
 
   @override
@@ -431,11 +428,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get solutionsChooseSubjectFirst => 'اختر موضوعًا أولاً.';
 
   @override
-  String solutionsNoBooksYetBody(Object action) {
-    return 'لا توجد كتب حتى الآن.\nاضغط على \"$action\" لإضافة الأول.';
-  }
-
-  @override
   String solutionsNoBooksMatch(Object query) {
     return 'لا توجد كتب تطابق \"$query\".';
   }
@@ -444,20 +436,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get solutionsBookLabel => 'كتاب';
 
   @override
-  String get solutionsPagesFilterHint =>
-      'أدخل رقم الصفحة ورقم السؤال للتصفية، أو اترك حقل فارغًا لرؤية الكل.';
-
-  @override
   String get solutionsPageNumberLabel => 'رقم الصفحة';
 
   @override
-  String get solutionsPageNumberHint => 'مثال: 42';
-
-  @override
   String get solutionsQuestionNumberLabel => 'رقم السؤال';
-
-  @override
-  String get solutionsQuestionNumberHint => 'مثال: 3a أو 7';
 
   @override
   String get solutionsViewSolutionsAction => 'عرض الحلول';
@@ -508,9 +490,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا توجد تحميلات قريبة على هذه الصفحة حتى الآن. سيكون التحميل الجديد هنا مفيداً جداً.';
 
   @override
-  String get solutionsVerifiedByNova => 'تم التحقق من قبل NOVA';
-
-  @override
   String get solutionsUploadFileLimitReached => 'تم الوصول إلى حد 10 ملفات.';
 
   @override
@@ -538,12 +517,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get solutionsUploadSuccess => 'تم تحميل الحل!';
-
-  @override
-  String get solutionsUploadAddNewBookOption => '+ إضافة كتاب جديد...';
-
-  @override
-  String get solutionsUploadAddBookShortAction => 'إضافة';
 
   @override
   String get solutionsUploadTitle => 'تحميل حل';
@@ -601,15 +574,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsLanguage => 'اللغة';
-
-  @override
-  String get settingsLanguageSystem => 'النظام الافتراضي';
-
-  @override
-  String get settingsAccentColour => 'لون التمييز';
-
-  @override
-  String get settingsAccentSubtitle => 'اللون المستخدم في التطبيق';
 
   @override
   String get settingsReduceMotion => 'تقليل الحركة';
@@ -690,33 +654,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get settingsLanguageSearchHint => 'ابحث عن لغة...';
 
   @override
-  String get teacherWorkspaceSubtitle =>
-      'شغّل الحضور والقوائم والتقييم من تطبيق الجوال.';
-
-  @override
-  String get teacherMetricSessionsToday => 'حصص اليوم';
-
-  @override
-  String get teacherMetricTeachingGroups => 'المجموعات التعليمية';
-
-  @override
-  String get teacherMetricAssessments => 'التقييمات';
-
-  @override
   String get teacherQuickActions => 'إجراءات سريعة';
 
   @override
-  String get teacherNoDateAvailable => 'لا يوجد تاريخ متاح';
-
-  @override
-  String get teacherNoTeachingSlotsToday => 'لا توجد حصص تدريس مجدولة اليوم.';
-
-  @override
   String get teacherUpcomingAssessments => 'التقييمات القادمة';
-
-  @override
-  String get teacherUpcomingAssessmentsSubtitle =>
-      'مباشرة من نظام درجات المعلم';
 
   @override
   String get teacherNoAssessmentsYet => 'لم يتم إنشاء تقييمات بعد.';
@@ -751,38 +692,8 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يمكن الاتصال بالصفوف الآن. تحقق من الاتصال وحاول مجددًا.';
 
   @override
-  String get teacherClassroomsSubtitle =>
-      'افتح قائمة الطلاب وأنشئ رمز دخول حي لدخول الطلاب.';
-
-  @override
   String get teacherClassroomsNoCohorts =>
       'لم يتم ربط أي مجموعات دراسية بهذا المعلم بعد.';
-
-  @override
-  String teacherClassroomsCohort(Object cohortId) {
-    return 'المجموعة $cohortId';
-  }
-
-  @override
-  String get teacherClassroomsGeneratingJoinCode => 'جاري التوليد…';
-
-  @override
-  String get teacherClassroomsCreateJoinCode => 'إنشاء رمز الدخول';
-
-  @override
-  String get teacherClassroomsLiveJoinCode => 'رمز الدخول الحي';
-
-  @override
-  String teacherClassroomsExpiresAt(Object value) {
-    return 'ينتهي $value';
-  }
-
-  @override
-  String get teacherClassroomsRoster => 'قائمة الطلاب';
-
-  @override
-  String get teacherClassroomsNoStudents =>
-      'لم يتم تسجيل أي طلاب في هذا الصف بعد.';
 
   @override
   String get teacherAttendanceLoadError =>
@@ -812,12 +723,6 @@ class AppLocalizationsAr extends AppLocalizations {
   ) {
     return '$cohort • الصف $grade • $date • الفترة $period';
   }
-
-  @override
-  String get teacherAttendanceChanged => 'تم التغيير';
-
-  @override
-  String get teacherAttendanceNoteLabel => 'ملاحظة';
 
   @override
   String get teacherAttendanceClassNotesLabel => 'ملاحظات الحصة';
@@ -899,29 +804,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scheduleClassFallback => 'حصة';
 
   @override
-  String get scheduleNoSubjectLocation => 'لا يوجد موضوع أو موقع بعد';
-
-  @override
-  String get scheduleNotes => 'ملاحظات';
-
-  @override
-  String get scheduleGoToClassroom => 'الذهاب إلى الصف';
-
-  @override
-  String get loginTitle => 'تسجيل الدخول للجوال للطلاب والمعلمين';
-
-  @override
-  String get loginSubtitle =>
-      'حسابات المعلمين تفتح مساحة المعلم. حسابات الطلاب تبقى في تجربة الطالب.';
-
-  @override
   String get loginSignIn => 'تسجيل الدخول';
-
-  @override
-  String get biometricSignIn => 'تسجيل الدخول بالبصمة الحيوية';
-
-  @override
-  String get biometricEnable => 'تفعيل تسجيل الدخول بالبصمة الحيوية';
 
   @override
   String get biometricReason => 'تحقّق من هويتك لتسجيل الدخول إلى ClassMate';
@@ -929,12 +812,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get biometricEnableReason =>
       'تحقّق من هويتك لتفعيل تسجيل الدخول بالبصمة الحيوية';
-
-  @override
-  String get biometricSignInFaceId => 'تسجيل الدخول باستخدام Face ID';
-
-  @override
-  String get biometricSignInFingerprint => 'تسجيل الدخول ببصمة الإصبع';
 
   @override
   String get biometricOrSignInWith => 'أو سجّل الدخول باستخدام';
@@ -992,34 +869,17 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذّر التحقّق من بصمتك الحيوية. تأكّد من إعداد Face ID أو بصمة إصبع في إعدادات جهازك.';
 
   @override
-  String get biometricEnterCredsFirst =>
-      'أدخل بريدك الإلكتروني وكلمة المرور أولاً، ثم فعّل تسجيل الدخول بالبصمة الحيوية.';
-
-  @override
   String get biometricLoginFailed =>
       'فشل تسجيل الدخول بالبصمة الحيوية. يُرجى تسجيل الدخول بكلمة المرور.';
 
   @override
-  String get biometricEnrollTitle => 'تفعيل تسجيل الدخول بالبصمة الحيوية؟';
-
-  @override
-  String get biometricEnrollBody =>
-      'استخدم Face ID أو بصمة إصبعك لتسجيل الدخول بشكل أسرع في المرة القادمة.';
-
-  @override
   String get biometricEnrollYes => 'تفعيل';
-
-  @override
-  String get biometricEnrollNo => 'ليس الآن';
 
   @override
   String get loginWelcomeTitle => 'مرحبًا بعودتك';
 
   @override
   String get loginWelcomeSubtitle => 'سجّل الدخول إلى حسابك في ClassMate.';
-
-  @override
-  String get loginSigningIn => 'جارٍ تسجيل الدخول...';
 
   @override
   String get loginEmailLabel => 'البريد الإلكتروني أو اسم المستخدم';
@@ -1043,9 +903,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileSchoolId => 'معرّف المدرسة';
 
   @override
-  String get profileCohortId => 'معرّف المجموعة';
-
-  @override
   String get profileMyCohorts => 'مجموعاتي';
 
   @override
@@ -1064,19 +921,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profileContactEmail => 'بريد التواصل';
 
   @override
-  String get profileEmailAddress => 'عنوان البريد الإلكتروني';
-
-  @override
-  String get profileEmailHint => 'you@example.com';
-
-  @override
-  String get profileBirthday => 'تاريخ الميلاد';
-
-  @override
   String get profileSecurity => 'الأمان';
-
-  @override
-  String get profileSelectBirthday => 'اختر تاريخ ميلادك';
 
   @override
   String get profilePasswordUpdated => 'تم تحديث كلمة المرور';
@@ -1119,37 +964,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profilePasswordIncorrect => 'كلمة المرور الحالية غير صحيحة';
 
   @override
-  String get profilePasswordGenericError => 'حدث خطأ ما. حاول مرة أخرى.';
-
-  @override
-  String get editProfileTitle => 'تعديل الملف الشخصي';
-
-  @override
   String get editProfileSchool => 'المدرسة';
-
-  @override
-  String get editProfileSchoolPublic => 'المدرسة عامة';
-
-  @override
-  String get editProfileGradePublic => 'الصف عام';
-
-  @override
-  String get editProfileMajors => 'التخصصات';
-
-  @override
-  String get editProfileMajorsPublic => 'التخصصات عامة';
-
-  @override
-  String get editProfileBio => 'نبذة';
-
-  @override
-  String get editProfileBioPublic => 'النبذة عامة';
-
-  @override
-  String get editProfileStatus => 'الحالة';
-
-  @override
-  String get editProfileStatusPublic => 'الحالة عامة';
 
   @override
   String get classroomsYourClassrooms => 'صفوفك';
@@ -1179,12 +994,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get classroomsNoMessagesYet => 'لا توجد رسائل بعد';
-
-  @override
-  String get classroomsMessageFallback => 'رسالة';
-
-  @override
-  String get examsLoadError => 'تعذر تحميل الاختبارات أو النماذج';
 
   @override
   String get examsAllFilter => 'الكل';
@@ -1247,83 +1056,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String examsResponsesCount(Object count) {
-    return '$count ردود';
-  }
-
-  @override
-  String get insightsTrendBaseline => 'الأساس';
-
-  @override
-  String get insightsTrendImproving => 'يتحسن';
-
-  @override
-  String get insightsTrendDropping => 'يتراجع';
-
-  @override
-  String get insightsTrendStable => 'مستقر';
-
-  @override
-  String get insightsHeadlineIntervention => 'نافذة التدخل مفتوحة';
-
-  @override
-  String get insightsHeadlineSignals => 'عدة مؤشرات تحتاج إلى ضبط';
-
-  @override
-  String get insightsHeadlineMomentum => 'الزخم يمكن أن يتضاعف هذا الأسبوع';
-
-  @override
-  String get insightsBodyAttendance =>
-      'احمِ الحضور أولاً. الحضور الأفضل الآن سيرفع كل مؤشر آخر بشكل أسرع.';
-
-  @override
-  String insightsBodyWeakTrend(Object subject) {
-    return '$subject مع تراجع اتجاه التدريب هو أكبر مزيج خطورة الآن. أصلح ذلك قبل التوسع.';
-  }
-
-  @override
-  String insightsBodyLeverage(Object subject) {
-    return '$subject هي نقطة قوتك. استخدمها لبناء الثقة بينما تعالج الجوانب الأضعف.';
-  }
-
-  @override
-  String get insightsBodyConsistency =>
-      'واصل الجلسات القصيرة المركزة. الأيام القليلة القادمة أهم من خطة طويلة مثالية.';
-
-  @override
-  String get insightsInterventionScoreTitle => 'مؤشر التدخل';
-
-  @override
-  String insightsInterventionScoreBody(Object count) {
-    return 'هناك $count إشارات نشطة تشكل خطوتك التالية.';
-  }
-
-  @override
-  String get insightsRecoveryPathTitle => 'أسرع مسار للتعافي';
-
-  @override
-  String get insightsRecoveryPathDefault => 'الحضور + الاستمرارية أولاً.';
-
-  @override
-  String insightsRecoveryPathTopic(Object topic, Object subject) {
-    return 'راجع $topic في $subject قبل أن تضغط أكثر.';
-  }
-
-  @override
-  String get insightsProjectedDirectionTitle => 'الاتجاه المتوقع';
-
-  @override
-  String insightsProjectedDirectionBody(Object trend) {
-    return '$trend بناءً على سلوك التدريب الأخير خلال 7 أيام مقابل 30 يومًا.';
-  }
-
-  @override
-  String get insightsLoadingTitle => 'جارٍ تحميل الرؤى';
-
-  @override
-  String get insightsLoadingSubtitle => 'جارٍ بناء لوحتك التنبؤية.';
-
-  @override
   String get insightsNotReadyTitle => 'الرؤى غير جاهزة بعد';
 
   @override
@@ -1337,61 +1069,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get insightsGradeAverage => 'متوسط الدرجات';
 
   @override
-  String get insightsAccuracy => 'الدقة';
-
-  @override
-  String get insightsOpenNova => 'افتح NOVA';
-
-  @override
-  String get insightsOpenNovaPrompt =>
-      'ساعدني في إصلاح أضعف نقطة لدي بناءً على أحدث رؤى ClassMate.';
-
-  @override
-  String get insightsPredictiveRecoveryPlanTitle => 'خطة تعافٍ تنبؤية';
-
-  @override
   String get insightsPracticeNow => 'تدرّب الآن';
-
-  @override
-  String get insightsPredictiveModulesTitle => 'الوحدات التنبؤية';
-
-  @override
-  String get insightsPredictiveModulesSubtitle =>
-      'أقوى الإشارات المستقبلية من بياناتك الطلابية الحالية.';
-
-  @override
-  String get insightsAnnouncementsPressureTitle => 'ضغط الإعلانات';
-
-  @override
-  String get insightsAnnouncementsPressureSubtitle =>
-      'محرك الإعلانات يغذي اللوحة الآن مباشرة.';
-
-  @override
-  String get insightsAiCoachTitle => 'ملخص المدرب الذكي';
-
-  @override
-  String get insightsAiCoachLoadingSubtitle =>
-      'جارٍ تحميل إرشادات الذكاء الاصطناعي.';
-
-  @override
-  String get insightsAiCoachUnavailableSubtitle =>
-      'إرشادات الذكاء الاصطناعي غير متاحة لهذا الحساب الآن.';
-
-  @override
-  String get insightsAskNova => 'اسأل NOVA';
-
-  @override
-  String get insightsAskNovaPrompt => 'ابنِ لي خطة تعافٍ من أحدث رؤاي.';
-
-  @override
-  String get insightsAiStudyCoachTitle => 'مدرب الدراسة الذكي';
-
-  @override
-  String get insightsSchoolToolsTitle => 'أدوات المدرسة';
-
-  @override
-  String get insightsSchoolToolsSubtitle =>
-      'انتقل مباشرة إلى مسارات الطالب التي تهم الآن أكثر.';
 
   @override
   String get tutorUntitledChat => 'محادثة بلا عنوان';
@@ -1419,32 +1097,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tutorCancel => 'إلغاء';
 
   @override
-  String get tutorHide => 'إخفاء';
-
-  @override
-  String get tutorHideChatTitle => 'إخفاء المحادثة';
-
-  @override
-  String get tutorHideChatSubtitle => 'يخفي هذه المحادثة على هذا الجهاز.';
-
-  @override
-  String get tutorHideChatConfirmTitle => 'إخفاء المحادثة؟';
-
-  @override
-  String get tutorHideChatConfirmBody =>
-      'سيؤدي هذا إلى إخفاء المحادثة من القائمة على هذا الجهاز. ستبقى الجلسة على الخادم.';
-
-  @override
   String get tutorTapToOpenHistory => 'اضغط لفتح السجل';
-
-  @override
-  String get tutorAiTutorSubtitle => 'معلّمك بالذكاء الاصطناعي';
-
-  @override
-  String get tutorHeroBody => 'سجل محادثات حقيقي، سلاسل أنظف، ووصول أسرع.';
-
-  @override
-  String get tutorStartFreshConversation => 'ابدأ محادثة جديدة';
 
   @override
   String get tutorSearchHistoryHint => 'ابحث في سجل المحادثات';
@@ -1461,52 +1114,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get chatComposerMicHint =>
       'اضغط لرسالة صوتية سريعة أو استمر بالضغط للتسجيل';
-
-  @override
-  String get chatComposerRecordingTitle => 'جارٍ التسجيل';
-
-  @override
-  String get chatComposerReleaseToSend => 'اترك للإرسال';
-
-  @override
-  String get chatComposerCancelTitle => 'إلغاء';
-
-  @override
-  String get chatComposerLockTitle => 'قفل';
-
-  @override
-  String get chatComposerSlideLeftToCancel => 'اسحب لليسار للإلغاء';
-
-  @override
-  String get chatComposerSlideUpToLock => 'اسحب للأعلى للقفل';
-
-  @override
-  String get chatComposerReleaseToCancel => 'حرر للإلغاء';
-
-  @override
-  String get chatComposerKeepSlidingToCancel => 'استمر بالسحب للإلغاء';
-
-  @override
-  String get chatComposerReleaseToLock => 'اترك للقفل';
-
-  @override
-  String get chatComposerRelease => 'اترك';
-
-  @override
-  String get chatComposerLock => 'قفل';
-
-  @override
-  String get chatComposerRecordingPaused => 'التسجيل متوقف مؤقتًا';
-
-  @override
-  String get chatComposerRecordingLocked => 'التسجيل مقفل';
-
-  @override
-  String get chatComposerResumeHint =>
-      'استأنف عندما تكون جاهزًا لمتابعة التسجيل';
-
-  @override
-  String get chatComposerLockedHint => 'اضغط إرسال عندما تكون جاهزًا للمشاركة';
 
   @override
   String get chatContextDismiss => 'إغلاق';
@@ -1551,12 +1158,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatMessageInfoVoiceDuration => 'مدة الصوت';
 
   @override
-  String get chatMessageInfoSeenBy => 'شاهده';
-
-  @override
-  String get chatMessageInfoDeliveredTo => 'تم التسليم إلى';
-
-  @override
   String get chatMessageInfoEmptyBody => '(فارغ)';
 
   @override
@@ -1575,28 +1176,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatMessageInfoNotDelivered => 'لم يتم التسليم';
 
   @override
-  String get chatMessageInfoSent => 'أُرسلت';
-
-  @override
   String get chatMessageInfoPending => 'قيد الانتظار';
-
-  @override
-  String get chatMessageInfoNotSeen => 'لم تتم المشاهدة';
-
-  @override
-  String get chatMessageInfoType => 'النوع';
-
-  @override
-  String get chatMessageInfoDuration => 'المدة';
 
   @override
   String get chatMessageInfoYes => 'نعم';
 
   @override
   String get chatMessageInfoNo => 'لا';
-
-  @override
-  String get chatMessageInfoDeleteState => 'حالة الحذف';
 
   @override
   String get chatReactionDetailsTitle => 'التفاعلات';
@@ -1645,25 +1231,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatEmojiPickerEmptyState => 'لم يتم العثور على رموز تعبيرية';
 
   @override
-  String get chatCameraTitle => 'الكاميرا';
-
-  @override
-  String get chatCameraUseAction => 'استخدام';
-
-  @override
   String get chatCameraGalleryAction => 'المعرض';
-
-  @override
-  String chatCameraSelectedCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count محدد',
-      one: '1 محدد',
-      zero: '0 محدد',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get chatMediaPreviewEmptyState => 'لا يوجد شيء للمعاينة';
@@ -1690,11 +1258,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatMediaPreviewCaptionHint => 'أضف تعليقًا...';
 
   @override
-  String tutorPlanSelectedPlaceholder(Object plan) {
-    return 'تم اختيار $plan. ستبقى المدفوعات في الوضع التجريبي حاليًا.';
-  }
-
-  @override
   String get tutorFailedToLoadChats => 'تعذر تحميل المحادثات';
 
   @override
@@ -1710,122 +1273,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tutorPlansTitle => 'خطط NOVA';
 
   @override
-  String tutorPlansSubtitle(Object model) {
-    return 'تعتمد على افتراضات تكلفة $model وحدود شهرية صارمة حتى يبقى الاستخدام مربحًا.';
-  }
-
-  @override
-  String get tutorPlanPriceFree => 'مجاني';
-
-  @override
-  String tutorPlanPriceMonthly(Object price) {
-    return '\$$price/شهريًا';
-  }
-
-  @override
-  String get tutorPromptsLeft => 'الطلبات المتبقية';
-
-  @override
-  String get tutorUploadsLeft => 'التحميلات المتبقية';
-
-  @override
-  String get tutorVoiceLeft => 'الدقائق الصوتية المتبقية';
-
-  @override
-  String tutorUsageValue(Object remaining, Object total) {
-    return '$remaining/$total';
-  }
-
-  @override
-  String tutorVoiceUsageValue(Object remaining, Object total) {
-    return '$remaining/$total دقيقة';
-  }
-
-  @override
-  String get tutorPaymentMethodsTitle => 'طرق الدفع';
-
-  @override
-  String tutorPaymentMethodsSubtitle(Object plan) {
-    return 'الدفع ما زال تجريبيًا حتى يصبح حساب ClassMate البنكي ومعالج الدفع جاهزين. الخطة المختارة هي $plan.';
-  }
-
-  @override
-  String get tutorCardCheckoutTitle => 'الدفع بالبطاقة';
-
-  @override
-  String get tutorCardCheckoutSubtitle =>
-      'بوابة تجريبية لبطاقات Visa وMastercard وAmEx.';
-
-  @override
-  String get tutorApplePayTitle => 'Apple Pay';
-
-  @override
-  String get tutorApplePaySubtitle => 'تدفق محفظة تجريبي للآيفون والويب.';
-
-  @override
-  String get tutorBankTransferTitle => 'تحويل بنكي';
-
-  @override
-  String get tutorBankTransferSubtitle =>
-      'حساب ClassMate البنكي قيد الانتظار. ستُستكمل التفاصيل عند فتحه.';
-
-  @override
   String get tutorPlanStarterName => 'البداية';
-
-  @override
-  String get tutorPlanStarterTagline =>
-      'يكفي للتجربة والمراجعة الأسبوعية الخفيفة.';
 
   @override
   String get tutorPlanPlusName => 'بلس';
 
   @override
-  String get tutorPlanPlusTagline =>
-      'الأفضل لطالب جاد يستخدم NOVA معظم الأيام.';
-
-  @override
   String get tutorPlanProName => 'برو';
 
   @override
-  String get tutorPlanProTagline =>
-      'لاستخدام يومي كثيف وموسم اختبارات كامل وجلسات دراسة طويلة.';
-
-  @override
   String get tutorPlanSchoolSeatName => 'مقعد مدرسي';
-
-  @override
-  String get tutorPlanSchoolSeatTagline =>
-      'للتعميم لكل طالب أو موظف داخل مدرسة حقيقية.';
-
-  @override
-  String tutorPlanBulletPromptsMonthly(Object count) {
-    return '$count طلبات NOVA كل شهر';
-  }
-
-  @override
-  String tutorPlanBulletPromptsPerSeatMonthly(Object count) {
-    return '$count طلبات NOVA لكل مقعد شهريًا';
-  }
-
-  @override
-  String tutorPlanBulletUploads(Object count) {
-    return '$count تحميلات صور أو ملفات';
-  }
-
-  @override
-  String tutorPlanBulletVoiceMinutes(Object count) {
-    return '$count دقائق تفريغ صوتي';
-  }
-
-  @override
-  String tutorEstimatedCostCeilingFree(Object cost) {
-    return 'السقف التقديري للتكلفة: \$$cost/شهريًا';
-  }
-
-  @override
-  String tutorEstimatedCostCeilingPaid(Object cost, Object margin) {
-    return 'السقف التقديري للتكلفة: \$$cost/شهريًا • هامش $margin%';
-  }
 
   @override
   String tutorTimeMinutesShort(Object count) {
@@ -1859,16 +1316,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tutorTakePhoto => 'التقط صورة';
 
   @override
-  String get tutorRecordVideo => 'سجل فيديو';
-
-  @override
-  String get tutorChooseFromGallery => 'اختر من المعرض';
-
-  @override
   String get tutorPreviewTitle => 'معاينة';
-
-  @override
-  String get tutorThinking => 'جارٍ التفكير...';
 
   @override
   String get tutorDone => 'تم.';
@@ -1894,9 +1342,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tutorTranscriptionFailed => 'فشل التفريغ. حاول مرة أخرى.';
 
   @override
-  String get tutorMicrophonePermissionRequired => 'يلزم إذن الميكروفون.';
-
-  @override
   String get tutorPlanLimitReachedTitle => 'تم بلوغ حد خطة NOVA';
 
   @override
@@ -1915,9 +1360,6 @@ class AppLocalizationsAr extends AppLocalizations {
   ) {
     return 'الخطة الحالية: $plan • المتبقي $prompts طلبات • المتبقي $uploads تحميلات • المتبقي $voice دقائق صوت';
   }
-
-  @override
-  String get tutorReviewPlansInHome => 'راجع الخطط في NOVA الرئيسية';
 
   @override
   String get tutorCouldNotOpenAttachment => 'تعذر فتح المرفق.';
@@ -1942,29 +1384,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'اطلب من NOVA شرح مفهوم، أو تحويل ملاحظاتك إلى جدول، أو مقارنة أفكار، أو مساعدتك على المراجعة من ملف مرفوع.';
 
   @override
-  String get tutorPromptSuggestionSummarizeNotes => 'لخّص ملاحظات درسي';
-
-  @override
-  String get tutorPromptSuggestionRevisionTable => 'أنشئ جدول مراجعة';
-
-  @override
-  String get tutorPromptSuggestionQuizMe => 'اختبرني في هذا الموضوع';
-
-  @override
   String get tutorMessageNovaHint => 'راسل NOVA';
-
-  @override
-  String get tutorHeaderSubtitleReady => 'إجابات منظمة، جداول، ومساعدة دراسية';
-
-  @override
-  String get tutorYourNovaPlanTitle => 'خطتك في NOVA';
-
-  @override
-  String get tutorYourNovaPlanMessage =>
-      'راجع حدود الطلبات والتحميلات والصوت هنا، ثم ارجع إلى NOVA الرئيسية إذا أردت تبديل الخطة.';
-
-  @override
-  String get tutorExplainTitle => 'شرح NOVA';
 
   @override
   String get classroomsThreadTypeClassroom => 'صف';
@@ -1974,9 +1394,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get classroomsThreadTypeDirectMessage => 'رسالة مباشرة';
-
-  @override
-  String get classroomsThreadTypeDirectMessageShort => 'مباشر';
 
   @override
   String get messagesBlockedPeopleTitle => 'الأشخاص المحظورون';
@@ -2020,11 +1437,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get messagesRequestReviewStatus => 'مراجعة';
-
-  @override
-  String messagesPeopleLoadFailed(Object error) {
-    return 'تعذر تحميل الأشخاص: $error';
-  }
 
   @override
   String get messagesSearchPeopleHint => 'ابحث عن أشخاص';
@@ -2099,9 +1511,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'يتم فتح الدردشة بعد أن يوافق المستلم على رسالتك الأولى.';
 
   @override
-  String get messagesThreadConversationFallback => 'محادثة';
-
-  @override
   String get messagesThreadLeaveGroupTitle => 'مغادرة المجموعة؟';
 
   @override
@@ -2116,53 +1525,17 @@ class AppLocalizationsAr extends AppLocalizations {
       'لن تتمكن بعد الآن من تبادل الرسائل مع هذا الشخص.';
 
   @override
-  String get messagesThreadPersonFallback => 'شخص';
-
-  @override
   String get messagesThreadProfileInfoUnavailable =>
       'معلومات الملف الشخصي غير متاحة';
-
-  @override
-  String get messagesThreadParticipants => 'المشاركون';
-
-  @override
-  String get messagesThreadPeople => 'الأشخاص';
-
-  @override
-  String get messagesThreadDeleteForMe => 'حذف لي فقط';
-
-  @override
-  String get messagesThreadDeleteForEveryone => 'حذف للجميع';
-
-  @override
-  String get messagesThreadDeleteForEveryoneSubtitle =>
-      'يزيلها لجميع المشاركين';
-
-  @override
-  String get messagesThreadSending => 'جارٍ الإرسال…';
 
   @override
   String get messagesThreadWaitingForApproval => 'بانتظار الموافقة';
 
   @override
-  String get classroomsForwardSearchHint => 'ابحث في المحادثات';
-
-  @override
   String get classroomsForwardNewChat => 'محادثة جديدة';
 
   @override
-  String classroomsForwardLoadError(Object error) {
-    return 'تعذر تحميل المحادثات: $error';
-  }
-
-  @override
-  String get classroomsForwardNoChatsFound => 'لم يتم العثور على محادثات';
-
-  @override
   String get classroomsForwardSectionClassrooms => 'الصفوف';
-
-  @override
-  String get classroomsForwardSectionDirectMessages => 'الرسائل المباشرة';
 
   @override
   String get classroomsForwardCancel => 'إلغاء';
@@ -2219,9 +1592,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get earlier => 'سابقاً';
-
-  @override
-  String get openDetails => 'فتح التفاصيل';
 
   @override
   String get total => 'الإجمالي';
@@ -2507,11 +1877,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'انقر على أي حصة لفتح عرض التفاصيل ملء الشاشة والقفز إلى رابطها المرفق عند توفره.';
 
   @override
-  String meetingsDateTimeValue(Object date, Object time) {
-    return '$date • $time';
-  }
-
-  @override
   String meetingsSharedByValue(Object name) {
     return 'شاركها $name';
   }
@@ -2617,27 +1982,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get announcementsDetailsTitle => 'تفاصيل الإعلان';
-
-  @override
-  String get announcementsDetailsSubtitle =>
-      'البيانات الوصفية المنشورة لهذا الإعلان وحالة القراءة الحالية.';
-
-  @override
-  String get announcementsSeverityLabel => 'الخطورة';
-
-  @override
   String get announcementsCreatedLabel => 'تم الإنشاء';
 
   @override
-  String get announcementsIdLabel => 'معرّف الإعلان';
-
-  @override
   String get announcementsFullContentTitle => 'المحتوى الكامل';
-
-  @override
-  String get announcementsFullContentSubtitle =>
-      'يظهر نص الإعلان كاملاً هنا بعد فتح العنصر من صندوق الوارد.';
 
   @override
   String get announcementsReadStateTitle => 'حالة القراءة';
@@ -2651,110 +1999,13 @@ class AppLocalizationsAr extends AppLocalizations {
       'هذا الإعلان لا يزال غير مقروء على هذا الجهاز.';
 
   @override
-  String get alertsTitle => 'التنبيهات';
-
-  @override
-  String get alertsSubtitle =>
-      'هذه الصفحة مخصصة للأشياء التي تحتاج إلى اهتمام الآن، وليس مجرد تحديثات عامة.';
-
-  @override
-  String get alertsAttendanceTitle => 'الحضور يحتاج إلى انتباه';
-
-  @override
-  String alertsAttendanceBody(Object rate) {
-    return 'معدل حضورك هو $rate%. بضع حصص مفقودة قد تتراكم بسرعة.';
-  }
-
-  @override
-  String get alertsWeakestSubjectTitle => 'إشارة أضعف مادة';
-
-  @override
-  String alertsWeakestSubjectBody(Object subject) {
-    return 'تحتاج مادة $subject إلى أكبر قدر من الانتباه الآن بناءً على أحدث درجاتك.';
-  }
-
-  @override
-  String get alertsPracticeWeakAreaTitle => 'منطقة ضعف في التدريب';
-
-  @override
-  String alertsPracticeWeakAreaBody(Object topic, Object subject) {
-    return '$topic في $subject هو أوضح موضوع ضعيف لديك الآن.';
-  }
-
-  @override
-  String get alertsPracticeTrendDroppedTitle => 'انخفض اتجاه التدريب';
-
-  @override
-  String get alertsPracticeTrendDroppedBody =>
-      'أداؤك خلال 7 أيام أقل من خط الأساس خلال 30 يومًا. تمهّل وراجع الأساسيات قبل زيادة الضغط.';
-
-  @override
-  String get alertsEmpty =>
-      'أنت بخير الآن. عندما يظهر شيء يحتاج إلى اهتمام عاجل، سيظهر هنا.';
-
-  @override
   String get student => 'طالب';
-
-  @override
-  String get classroomDetailPhoto => 'صورة';
-
-  @override
-  String get classroomDetailVoiceNote => 'ملاحظة صوتية';
-
-  @override
-  String get classroomDetailVideo => 'فيديو';
-
-  @override
-  String get classroomDetailFile => 'ملف';
-
-  @override
-  String get classroomDetailEmptyValue => '(فارغ)';
-
-  @override
-  String get classroomDetailAttachmentUnavailable => 'المرفق غير متاح.';
-
-  @override
-  String get classroomDetailAudioUnavailable => 'الصوت غير متاح.';
-
-  @override
-  String get classroomDetailCouldNotOpenAttachment => 'تعذر فتح المرفق.';
-
-  @override
-  String get classroomDetailVoiceMessage => 'رسالة صوتية';
-
-  @override
-  String get classroomDetailVideoFile => 'ملف فيديو';
-
-  @override
-  String get classroomDetailAttachedFile => 'ملف مرفق';
-
-  @override
-  String get classroomDetailAttachment => 'مرفق';
 
   @override
   String get classroomDetailPinAction => 'تثبيت';
 
   @override
-  String get classroomDetailUnpinAction => 'إلغاء التثبيت';
-
-  @override
   String get classroomDetailMessageInfoTitle => 'معلومات الرسالة';
-
-  @override
-  String get classroomDetailForwardedSingle => 'تمت إعادة التوجيه';
-
-  @override
-  String classroomDetailForwardedMultiple(Object count) {
-    return 'تمت إعادة توجيه $count رسائل';
-  }
-
-  @override
-  String get classroomDetailCannotForwardPending =>
-      'لا يمكن إعادة التوجيه إلى دردشة طلب قبل الموافقة عليها';
-
-  @override
-  String get classroomDetailCouldNotForwardSelected =>
-      'تعذر إعادة توجيه الرسائل المحددة';
 
   @override
   String classroomDetailSelectedCount(Object count) {
@@ -2762,37 +2013,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String classroomDetailDeleteCount(Object count) {
-    return 'حذف ($count)';
-  }
-
-  @override
-  String get classroomDetailSelectAllTooltip => 'تحديد الكل';
-
-  @override
   String get classroomDetailCancelTooltip => 'إلغاء';
 
   @override
-  String get classroomDetailMicrophoneAccessTitle =>
-      'يلزم الوصول إلى الميكروفون';
-
-  @override
-  String get classroomDetailMicrophoneAccessBody =>
-      'يرجى السماح بالوصول إلى الميكروفون من الإعدادات -> ClassMate لإرسال الملاحظات الصوتية.';
-
-  @override
-  String get classroomDetailOpenSettingsAction => 'فتح الإعدادات';
-
-  @override
-  String classroomDetailForwardTargetNext(Object label) {
-    return 'اختيار جهة إعادة التوجيه التالية: $label';
-  }
-
-  @override
   String get classroomDetailEditMessageTitle => 'تعديل الرسالة';
-
-  @override
-  String get classroomDetailEditMessageHint => 'عدّل رسالتك...';
 
   @override
   String get classroomDetailLeaveClassroomTitle => 'مغادرة الصف؟';
@@ -2852,26 +2076,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classroomDetailTabPeople => 'الأشخاص';
 
   @override
-  String get classroomChatMediaSendPhoto => 'إرسال صورة';
-
-  @override
-  String get classroomChatMediaSendPhotoSubtitle => 'شارك صورة في دردشة الصف';
-
-  @override
-  String get classroomChatMediaSendVoiceMessage => 'إرسال رسالة صوتية';
-
-  @override
-  String get classroomChatMediaSendVoiceMessageSubtitle =>
-      'سجل وأرسل ملاحظة صوتية';
-
-  @override
   String get classroomDetailCouldNotLoadTab => 'تعذر تحميل علامة التبويب';
-
-  @override
-  String get classroomDetailDeletedByYou => 'لقد حذفت هذه الرسالة';
-
-  @override
-  String get classroomDetailDeletedMessage => 'تم حذف هذه الرسالة';
 
   @override
   String get practiceSetupDifficultyEasy => 'سهل';
@@ -2989,41 +2194,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String practiceSetupSummarySubject(Object subject) {
-    return 'المادة: $subject';
-  }
-
-  @override
-  String practiceSetupSummaryTopic(Object topic) {
-    return 'الموضوع: $topic';
-  }
-
-  @override
-  String practiceSetupSummaryMode(Object mode) {
-    return 'الوضع: $mode';
-  }
-
-  @override
-  String practiceSetupSummaryDifficulty(Object difficulty) {
-    return 'الصعوبة: $difficulty';
-  }
-
-  @override
-  String practiceSetupSummaryQuestions(Object count) {
-    return 'الأسئلة: $count';
-  }
-
-  @override
-  String practiceSetupSummaryTiming(Object timing) {
-    return 'التوقيت: $timing';
-  }
-
-  @override
-  String practiceSetupSummaryLives(Object lives) {
-    return 'المحاولات: $lives';
-  }
-
-  @override
   String get practiceSetupSectionSubjectTopic => 'المادة والموضوع';
 
   @override
@@ -3070,30 +2240,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get practiceSetupDialogEnterTopic => 'أدخل الموضوع';
-
-  @override
-  String get practiceSubjectMath => 'الرياضيات';
-
-  @override
-  String get practiceSubjectPhysics => 'الفيزياء';
-
-  @override
-  String get practiceSubjectComputerScience => 'علوم الحاسوب';
-
-  @override
-  String get practiceSubjectChemistry => 'الكيمياء';
-
-  @override
-  String get practiceSubjectBiology => 'الأحياء';
-
-  @override
-  String get practiceSubjectEnglish => 'الإنجليزية';
-
-  @override
-  String get practiceSubjectArabic => 'العربية';
-
-  @override
-  String get practiceSubjectHebrew => 'العبرية';
 
   @override
   String get practiceSubjectGeneralKnowledge => 'معرفة عامة';
@@ -3377,9 +2523,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get practiceHistoryDeleteSession => 'حذف الجلسة';
 
   @override
-  String get practiceHistoryDebugTitle => 'تصحيح سجل الممارسة';
-
-  @override
   String get practiceAnalyticsTitle => 'تحليلات الممارسة';
 
   @override
@@ -3545,9 +2688,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get practiceSessionLoadingBagrut => 'جارٍ تجهيز مجموعة البجروت';
 
   @override
-  String get practiceSessionLoadingDefault => 'جارٍ تجهيز الجلسة';
-
-  @override
   String practiceSessionCompleteTitle(Object mode) {
     return 'اكتمل $mode';
   }
@@ -3566,9 +2706,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get practiceSessionMetricTotal => 'الإجمالي';
-
-  @override
-  String get practiceSessionMetricXp => 'XP';
 
   @override
   String get practiceSessionMetricStreak => 'السلسلة';
@@ -3780,75 +2917,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get practiceModeNoExplanationYet => 'لا يوجد شرح متاح بعد.';
 
   @override
-  String get teacherGradesAssessmentCreated => 'تم إنشاء التقييم';
-
-  @override
-  String get teacherGradesEditAssessmentTitle => 'تعديل التقييم';
-
-  @override
-  String get teacherGradesFieldTitle => 'العنوان';
-
-  @override
-  String get teacherGradesFieldDate => 'التاريخ (YYYY-MM-DD)';
-
-  @override
-  String get teacherGradesFieldMaxGrade => 'الدرجة القصوى';
-
-  @override
-  String get teacherGradesAssessmentUpdated => 'تم تحديث التقييم';
-
-  @override
   String get teacherGradesDeleteAssessmentTitle => 'حذف التقييم؟';
-
-  @override
-  String teacherGradesDeleteAssessmentBody(Object title) {
-    return 'سيؤدي هذا إلى إزالة $title وسجل درجاته من مساحة المعلم.';
-  }
 
   @override
   String get teacherGradesDeleteAction => 'حذف';
 
   @override
-  String get teacherGradesAssessmentDeleted => 'تم حذف التقييم';
-
-  @override
-  String get teacherGradesRosterLinkError => 'هذا التقييم غير مرتبط بقائمة صف.';
-
-  @override
   String get teacherGradesSaved => 'تم حفظ الدرجات';
-
-  @override
-  String get teacherGradesSubtitle =>
-      'أنشئ التقييمات واحفظ الدرجات مقابل قائمة الصف المباشرة.';
-
-  @override
-  String get teacherGradesCreateAssessmentTitle => 'إنشاء تقييم';
-
-  @override
-  String get teacherGradesFieldCourse => 'المقرر';
-
-  @override
-  String get teacherGradesCreateAction => 'إنشاء';
-
-  @override
-  String get teacherGradesNoStudentsLoaded =>
-      'لم يتم تحميل أي طلاب لهذا التقييم.';
-
-  @override
-  String get teacherGradesFieldGrade => 'الدرجة';
-
-  @override
-  String teacherGradesMaxHint(Object grade) {
-    return 'الحد الأقصى $grade';
-  }
-
-  @override
-  String get teacherGradesSaving => 'جارٍ الحفظ…';
-
-  @override
-  String teacherGradesSaveCount(Object count) {
-    return 'حفظ $count درجات';
-  }
 
   @override
   String get assignmentsNoDueDate => 'لا توجد موعد نهائي';
@@ -3880,14 +2955,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get assignmentsPreviewFallback =>
       'افتح هذا الواجب لرؤية الإرشادات كاملة والتحضير لعملك.';
-
-  @override
-  String get assignmentsSubmissionPrepEmpty => 'ضع ملاحظتك أو ملفاتك هنا.';
-
-  @override
-  String assignmentsSubmissionPrepCount(Object count) {
-    return '$count ملف(ات) مرفقة محلياً.';
-  }
 
   @override
   String get assignmentsHeroSubtitle =>
@@ -3955,17 +3022,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'انقر على أي واجب لفتح عرض التفاصيل بملء الشاشة والتحضير لعملك.';
 
   @override
-  String get assignmentsAddNoteBeforePrepare =>
-      'أضف ملاحظة أو أرفق ملف قبل التحضير.';
-
-  @override
-  String get assignmentsWorkDraftPrepared => 'تم تحضير مسودة العمل.';
-
-  @override
-  String get assignmentsWorkDraftPreparedWithFiles =>
-      'تم تحضير مسودة العمل. يتم حفظ الملفات المرفقة على هذا الجهاز.';
-
-  @override
   String get assignmentsUnavailableTitle => 'الواجب غير متاح';
 
   @override
@@ -3994,22 +3050,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get assignmentsDetailDueLabel => 'الموعد النهائي';
 
   @override
-  String get assignmentsDetailClassroomLabel => 'الصف';
-
-  @override
   String get assignmentsDetailTeacherLabel => 'المعلم';
 
   @override
-  String get assignmentsDetailPostedByLabel => 'منشور بواسطة';
-
-  @override
-  String get assignmentsDetailPublishedLabel => 'منشور';
-
-  @override
   String get assignmentsDetailUpdatedLabel => 'محدّث';
-
-  @override
-  String get assignmentsDetailIdLabel => 'معرّف الواجب';
 
   @override
   String get assignmentsInstructionsTitle => 'الإرشادات';
@@ -4017,44 +3061,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get assignmentsInstructionsSubtitle =>
       'نص الواجب الكامل من خلاصة الفصل الدراسي، مع الحفاظ على الصيغة الأصلية.';
-
-  @override
-  String get assignmentsYourWorkTitle => 'عملك';
-
-  @override
-  String get assignmentsYourWorkSubtitle =>
-      'جرّب ملاحظة أو أرفق ملفات أو مستندات وحافظ على تحضير الإرسال في مساحة مركزة واحدة.';
-
-  @override
-  String get assignmentsPrivateNoteLabel => 'ملاحظة عمل خاصة';
-
-  @override
-  String get assignmentsPrivateNoteHint =>
-      'أضف ما تخطط لتقديمه أو تذكيرات لنفسك أو ملخص المستند/الرابط.';
-
-  @override
-  String get assignmentsAddFiles => 'إضافة ملفات أو مستندات';
-
-  @override
-  String get assignmentsClearFiles => 'امسح الملفات';
-
-  @override
-  String get assignmentsStagedDeviceHint =>
-      'يتم تجميع الملفات على هذا الجهاز. لا يتوفر تقديم ملف الواجب في هذا التطبيق.';
-
-  @override
-  String assignmentsLastPrepared(Object time) {
-    return 'آخر تحضير $time.';
-  }
-
-  @override
-  String get assignmentsSubmissionPrepTitle => 'تحضير الإرسال';
-
-  @override
-  String get assignmentsPreparing => 'جاري التحضير';
-
-  @override
-  String get assignmentsPrepareWork => 'تحضير العمل';
 
   @override
   String get assignmentsLoadingSubtitle =>
@@ -4069,9 +3075,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get assignmentsRemoveAttachment => 'إزالة الملف';
-
-  @override
-  String get assignmentsSubmitted => 'تم التسليم';
 
   @override
   String get attendanceUndated => 'غير مؤرخة';
@@ -4286,92 +3289,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get attendanceRange90Short => '90 يوماً';
 
   @override
-  String get gradesLoadError =>
-      'لم نتمكن من تحميل الدرجات الآن. اسحب للتحديث أو حاول مجددًا.';
-
-  @override
-  String get gradesLoadTimeout =>
-      'استغرقت الدرجات وقتًا طويلًا جدًا للتحميل. اسحب للتحديث أو حاول مرة أخرى بعد قليل.';
-
-  @override
-  String get gradesLoadNetwork =>
-      'لم نتمكن من الاتصال بالدرجات الآن. تحقق من اتصالك وحاول مجددًا.';
-
-  @override
   String get gradesGeneralSubject => 'عام';
-
-  @override
-  String get gradesBandBuilding => 'قيد الإنشاء';
-
-  @override
-  String get gradesBandExcellent => 'ممتاز';
-
-  @override
-  String get gradesBandStrong => 'قوي';
-
-  @override
-  String get gradesBandOkay => 'حسن';
-
-  @override
-  String get gradesBandNeedsAttention => 'يحتاج إلى اهتمام';
-
-  @override
-  String get gradesBandRisk => 'في خطر';
-
-  @override
-  String get gradesTrendRising => 'صاعد';
-
-  @override
-  String get gradesTrendDropping => 'هابط';
-
-  @override
-  String get gradesTrendStable => 'مستقر';
-
-  @override
-  String gradesShowingSummary(
-    Object shown,
-    Object total,
-    Object subject,
-    Object range,
-  ) {
-    return 'عرض $shown من $total درجات مسجلة لـ $subject في $range.';
-  }
-
-  @override
-  String get gradesLoadingSubtitle => 'جاري تحميل أحدث نتائجك الأكاديمية.';
-
-  @override
-  String get gradesUnavailableTitle => 'الدرجات غير متاحة';
-
-  @override
-  String get gradesHeroSubtitle =>
-      'قراءة واضحة لمتوسطك والتقييمات الحديثة والمواضيع التي تحتاج حماية أو استعادة.';
-
-  @override
-  String get gradesMetricAverage => 'المتوسط';
-
-  @override
-  String get gradesMetricRecorded => 'مسجل';
 
   @override
   String get gradesMetricBestSubject => 'أفضل مادة';
 
   @override
   String get gradesMetricNeedsWork => 'يحتاج إلى عمل';
-
-  @override
-  String gradesLatestSignalBody(
-    Object assessment,
-    Object subject,
-    Object grade,
-    Object band,
-  ) {
-    return '$assessment في $subject حصل على $grade. $band الآن.';
-  }
-
-  @override
-  String get gradesSummaryAvailableNoRecent =>
-      'ملخص الدرجات متاح، لكن لا توجد تقييمات حديثة مرئية في هذا العرض حتى الآن.';
 
   @override
   String get gradesEmptyTitle => 'لا توجد درجات بعد';
@@ -4381,100 +3305,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'لم يتم نشر أي درجات لحساب هذا الطالب حتى الآن.';
 
   @override
-  String get gradesFiltersSubtitle =>
-      'استخدم نفس أداة الاختيار القابلة للبحث مثل الإعدادات لتضييق الدرجات حسب المادة أو نافذة زمنية.';
-
-  @override
-  String get gradesNoFilteredTitle => 'لا توجد درجات تطابق هذه المرشحات';
-
-  @override
-  String get gradesNoFilteredSubtitle =>
-      'جرب جميع المواضيع أو نطاق زمني أوسع لإعادة مزيد من الدرجات المسجلة.';
-
-  @override
-  String get gradesQuickReadTitle => 'قراءة سريعة';
-
-  @override
-  String get gradesQuickReadSubtitleFiltered =>
-      'ملخص سريع للدرجات الحالية في العرض.';
-
-  @override
-  String get gradesQuickReadSubtitleAll =>
-      'أسرع قراءة لما يجب حمايته واسترجاعه.';
-
-  @override
-  String get gradesWeakSpotLabel => 'نقطة ضعف حالية';
-
-  @override
-  String get gradesNoWeakSignal => 'لا توجد إشارة مادة ضعيفة حتى الآن';
-
-  @override
-  String gradesWeakSpotValue(Object subject) {
-    return '$subject يحتاج إلى كتلة الاسترجاع الأولى.';
-  }
-
-  @override
-  String get gradesStrengthLabel => 'نقطة قوة حالية';
-
-  @override
-  String get gradesNoStrengthSignal => 'لا توجد إشارة مادة قوية حتى الآن';
-
-  @override
-  String gradesStrengthValue(Object subject) {
-    return '$subject هو مرساك الثقة الآن.';
-  }
-
-  @override
-  String get gradesBandLabel => 'النطاق';
-
-  @override
-  String get gradesInViewLabel => 'في العرض';
-
-  @override
-  String gradesInViewCount(Object count) {
-    return '$count درجات مسجلة في هذا المرشح.';
-  }
-
-  @override
-  String gradesInViewAverage(Object count, Object average) {
-    return '$count درجات مسجلة بمتوسط $average.';
-  }
-
-  @override
-  String get gradesLatestAssessmentsTitle => 'أحدث التقييمات';
-
-  @override
-  String get gradesLatestAssessmentsSubtitleFiltered =>
-      'أحدث الدرجات المسجلة في العرض المفلتر الحالي.';
-
-  @override
-  String get gradesLatestAssessmentsSubtitleAll =>
-      'أحدث الدرجات المسجلة بترتيب زمني.';
-
-  @override
-  String get gradesSubjectDrilldownTitle => 'تفصيل المادة';
-
-  @override
-  String get gradesSubjectDrilldownSubtitleFiltered =>
-      'مجمعة حسب المادة للدرجات الحالية في العرض.';
-
-  @override
-  String get gradesSubjectDrilldownSubtitleAll =>
-      'مجمعة حسب المادة لتبرز الاتجاهات والضغط بشكل أسرع.';
-
-  @override
   String get gradesAssessmentFallback => 'التقييم';
-
-  @override
-  String get gradesChipBest => 'الأفضل';
-
-  @override
-  String get gradesNoAverageYet => 'لا يوجد متوسط حتى الآن';
-
-  @override
-  String gradesRecentAverage(Object average) {
-    return 'المتوسط الأخير: $average';
-  }
 
   @override
   String get actionCancel => 'إلغاء';
@@ -4492,12 +3323,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get actionBlock => 'حظر';
 
   @override
-  String get actionCreate => 'إنشاء';
-
-  @override
-  String get actionShare => 'مشاركة';
-
-  @override
   String get actionScheduleVerb => 'جدولة';
 
   @override
@@ -4505,18 +3330,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get actionKeep => 'الإبقاء';
-
-  @override
-  String get actionOpen => 'فتح';
-
-  @override
-  String get actionPublish => 'نشر';
-
-  @override
-  String get actionPublishing => 'جارٍ النشر…';
-
-  @override
-  String get actionRefresh => 'تحديث';
 
   @override
   String get msgBlockTitle => 'حظر هذا الشخص؟';
@@ -4617,9 +3430,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get examStudyWithNova => 'الدراسة مع NOVA';
 
   @override
-  String get examOpenInsights => 'فتح الرؤى';
-
-  @override
   String get examAddToCalendar => 'إضافة إلى التقويم';
 
   @override
@@ -4635,22 +3445,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get formClosed => 'مغلق';
 
   @override
-  String get formCompletion => 'الإكمال';
-
-  @override
-  String get formNoTextResponses => 'لا توجد ردود نصية بعد.';
-
-  @override
   String get meetingsCouldNotLoad => 'تعذر تحميل الاجتماعات';
 
   @override
   String get meetingCouldNotLoad => 'تعذر تحميل الاجتماع';
-
-  @override
-  String get insightsGenerateAction => 'إنشاء رؤى';
-
-  @override
-  String get insightsRefreshAction => 'تحديث';
 
   @override
   String get teacherGoToClassroom => 'الذهاب إلى الصف';
@@ -4663,9 +3461,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherNewAnnouncementAction => 'إعلان جديد';
-
-  @override
-  String get teacherViewFullWeekSchedule => 'عرض جدول الأسبوع كاملاً';
 
   @override
   String get teacherGroupsLabel => 'المجموعات';
@@ -4694,12 +3489,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherAudienceSectionTitle => 'الجمهور';
 
   @override
-  String get teacherPinAnnouncement => 'تثبيت الإعلان';
-
-  @override
-  String get teacherPinnedAtTop => 'تظهر الإعلانات المثبتة في الأعلى';
-
-  @override
   String get teacherPublishAction => 'نشر';
 
   @override
@@ -4724,12 +3513,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherSearchStudents => 'ابحث عن الطلاب…';
 
   @override
-  String get teacherNoStudentsLoaded => 'لا يوجد طلاب في هذه المدرسة.';
-
-  @override
-  String get teacherActions => 'إجراءات سريعة';
-
-  @override
   String get teacherParentsLabel => 'أولياء الأمور';
 
   @override
@@ -4737,9 +3520,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherWeekScheduleTitle => 'جدول الأسبوع';
-
-  @override
-  String get teacherCouldNotLoadSchedule => 'تعذر تحميل الجدول';
 
   @override
   String get teacherAttendanceLast30 => 'الحضور (آخر 30 يومًا)';
@@ -4791,9 +3571,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherNoGradesEntered => 'لم يتم إدخال درجات بعد';
 
   @override
-  String get teacherNewAssignment => 'مهمة جديدة';
-
-  @override
   String get teacherDeleteAssignment => 'حذف المهمة؟';
 
   @override
@@ -4821,9 +3598,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherJoinMeeting => 'الانضمام إلى الاجتماع';
 
   @override
-  String get teacherAddStudentTitle => 'إضافة طالب';
-
-  @override
   String teacherRemoveStudentTitle(Object name) {
     return 'إزالة $name؟';
   }
@@ -4834,12 +3608,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherStudentAdded => 'تمت إضافة الطالب';
-
-  @override
-  String get teacherClassroomAnalyticsTitle => 'تحليلات الصف';
-
-  @override
-  String get teacherOpenAnalyticsAction => 'فتح التحليلات';
 
   @override
   String teacherStudentsCount(Object count) {
@@ -4857,9 +3625,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherSelectSessionPrompt => 'اختر جلسة أدناه لبدء تسجيل الحضور';
-
-  @override
-  String get teacherOpenAction => 'فتح';
 
   @override
   String get chatDeleteForMe => 'حذف بالنسبة لي';
@@ -4906,9 +3671,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatEditPlaceholder => 'تحرير الرسالة…';
 
   @override
-  String get chatMessageHint => 'رسالة';
-
-  @override
   String get chatPin => 'تثبيت';
 
   @override
@@ -4948,9 +3710,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chatJoinGroupTooltip => 'الانضمام إلى مجموعة برمز';
 
   @override
-  String get chatForwardNoChatAvailable => 'لا توجد محادثات موافق عليها';
-
-  @override
   String get chatFilterAll => 'الكل';
 
   @override
@@ -4988,12 +3747,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get classroomsNoClassroomsToReorder => 'لا توجد صفوف لإعادة ترتيبها.';
 
   @override
-  String get teacherPostAnnouncementAction => 'نشر إعلان';
-
-  @override
-  String get announcementAudienceEveryone => 'الجميع';
-
-  @override
   String get teacherGreetingMorning => 'صباح الخير';
 
   @override
@@ -5012,37 +3765,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherUpcomingTestsSubtitle => 'الاختبارات القادمة';
 
   @override
-  String get teacherNoClassesThisWeek => 'لا توجد صفوف هذا الأسبوع';
-
-  @override
-  String get teacherNoClassesThisWeekSub => 'جدولك لهذا الأسبوع فارغ';
-
-  @override
-  String get teacherTitleFieldLabel => 'العنوان *';
-
-  @override
-  String get teacherInstructionsLabel => 'التعليمات';
-
-  @override
-  String get teacherLinkUrlLabel => 'الرابط / الرابط الإلكتروني *';
-
-  @override
-  String get teacherLinkUrlHint => 'https://...';
-
-  @override
-  String get teacherDescriptionLabel => 'الوصف';
-
-  @override
-  String get teacherMeetingTitleLabel => 'عنوان الاجتماع *';
-
-  @override
-  String get teacherMeetingLinkLabel => 'رابط الاجتماع *';
-
-  @override
   String get teacherMeetingLinkHint => 'رابط Zoom / Meet / Teams';
-
-  @override
-  String get teacherStudentEmailLabel => 'بريد الطالب الإلكتروني أو معرفه';
 
   @override
   String get teacherTooltipRemoveStudent => 'إزالة من الصف';
@@ -5099,9 +3822,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get navDiplomas => 'الدبلومات';
 
   @override
-  String get diplomasComingSoon => 'إدارة الشهادات قادمة قريباً.';
-
-  @override
   String get teacherExamsTitle => 'الامتحانات';
 
   @override
@@ -5112,11 +3832,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherExamsEmpty => 'لا توجد تقييمات بعد. اضغط + لإنشاء واحد.';
-
-  @override
-  String teacherExamsGraded(Object count) {
-    return '$count مُقيَّم';
-  }
 
   @override
   String get teacherFormsTitle => 'النماذج';
@@ -5136,52 +3851,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherFormsDraft => 'مسودة';
 
   @override
-  String get teacherFormsCreateTitle => 'إنشاء نموذج';
-
-  @override
-  String get teacherFormsAddQuestion => 'إضافة سؤال';
-
-  @override
-  String get teacherFormsQuestionHint => 'نص السؤال';
-
-  @override
   String get teacherFormsViewResponses => 'عرض الردود';
 
   @override
   String get teacherFormsNoResponses => 'لا توجد ردود بعد.';
 
   @override
-  String get diplomasTitle => 'الشهادات';
-
-  @override
-  String get diplomasEmpty =>
-      'لم يتم إصدار أي شهادات بعد. اضغط + لإصدار شهادة.';
-
-  @override
-  String get diplomasIssueTo => 'إصدار إلى';
-
-  @override
-  String get diplomasStudentName => 'اسم الطالب';
-
-  @override
-  String get diplomasCertificateType => 'نوع الشهادة';
-
-  @override
-  String get diplomasIssueDiploma => 'إصدار الشهادة';
-
-  @override
-  String diplomasIssuedOn(Object date) {
-    return 'صدر في $date';
-  }
-
-  @override
   String get examDetailsSection => 'التفاصيل';
 
   @override
   String get examInfoTeacher => 'المعلم';
-
-  @override
-  String get examInfoAudience => 'الجمهور';
 
   @override
   String get examInfoDate => 'التاريخ';
@@ -5191,9 +3870,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get examInfoPeriod => 'الحصة';
-
-  @override
-  String get examInfoDuration => 'المدة';
 
   @override
   String get examInfoSubject => 'المادة';
@@ -5216,9 +3892,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get examViewGradeAction => 'فتح الدرجات';
-
-  @override
-  String get teacherGradesSaveAction => 'حفظ';
 
   @override
   String get teacherGradesNothingToSave => 'لا توجد تغييرات للحفظ.';
@@ -5253,16 +3926,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا توجد اجتماعات بعد.\nاضغط + لجدولة واحد.';
 
   @override
-  String get teacherStudentsNoMatch => 'لا يوجد طلاب مطابقون';
-
-  @override
   String get teacherMaterialsTitle => 'المواد';
 
   @override
   String get profileNamesTitle => 'الاسم بلغات مختلفة';
-
-  @override
-  String get profileDisplayNameLang => 'لغة عرض الاسم';
 
   @override
   String get navDashboard => 'لوحة التحكم';
@@ -5322,9 +3989,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminAdmins => 'المسؤولون';
 
   @override
-  String get adminTodaySessions => 'جلسات اليوم';
-
-  @override
   String get adminQuickActions => 'إجراءات سريعة';
 
   @override
@@ -5340,33 +4004,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminCreateUser => 'إنشاء';
 
   @override
-  String get adminFullName => 'الاسم الكامل';
-
-  @override
-  String get adminEmailAddress => 'البريد الإلكتروني';
-
-  @override
   String get adminRoleLabel => 'الدور';
 
   @override
   String get adminUserCreated => 'تم إنشاء المستخدم';
 
   @override
-  String get adminTempPassword => 'كلمة مرور مؤقتة';
-
-  @override
   String get adminCopied => 'تم النسخ إلى الحافظة';
-
-  @override
-  String get adminResetPassword => 'إعادة تعيين كلمة المرور';
-
-  @override
-  String get adminPasswordReset => 'إعادة تعيين كلمة المرور';
-
-  @override
-  String adminTempPasswordFor(Object name) {
-    return 'كلمة المرور المؤقتة لـ $name';
-  }
 
   @override
   String get adminDeleteUser => 'حذف المستخدم';
@@ -5388,9 +4032,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminAddCohort => 'إضافة مجموعة';
 
   @override
-  String get adminNewCohort => 'مجموعة جديدة';
-
-  @override
   String get adminCohortName => 'اسم المجموعة (مثال: 10أ)';
 
   @override
@@ -5401,11 +4042,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminAddStudents => 'إضافة طلاب';
-
-  @override
-  String adminAddTo(Object name) {
-    return 'إضافة إلى $name';
-  }
 
   @override
   String get adminRemoveStudent => 'إزالة الطالب';
@@ -5422,17 +4058,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminNoStudentsInCohort => 'لا يوجد طلاب في هذه المجموعة';
 
   @override
-  String adminStudentCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count طلاب',
-      one: 'طالب واحد',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get adminSearchStudents => 'ابحث عن الطلاب…';
 
   @override
@@ -5442,27 +4067,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminScheduleAddPeriod => 'إضافة حصة';
 
   @override
-  String get adminScheduleNewPeriod => 'حصة جديدة';
-
-  @override
-  String get adminScheduleDayLabel => 'اليوم';
-
-  @override
   String adminSchedulePeriodLabel(Object period) {
     return 'ح$period';
   }
-
-  @override
-  String get adminScheduleTeacherLabel => 'المعلم';
-
-  @override
-  String get adminScheduleNoneTeacher => 'لا يوجد معلم';
-
-  @override
-  String get adminScheduleCohortLabel => 'المجموعة / الطلاب';
-
-  @override
-  String get adminScheduleFrequencyLabel => 'التكرار';
 
   @override
   String get adminScheduleFreqWeekly => 'كل أسبوع';
@@ -5477,15 +4084,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminScheduleFreqCustom => 'مخصص';
 
   @override
-  String adminScheduleFreqCustomLabel(int n) {
-    return 'كل $n أسابيع';
-  }
-
-  @override
   String get adminScheduleAddSlot => 'إضافة فترة';
-
-  @override
-  String get adminScheduleAddAnother => 'إضافة يوم / حصة أخرى';
 
   @override
   String get adminScheduleSave => 'حفظ';
@@ -5497,18 +4096,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminScheduleSearchCohort => 'ابحث عن المجموعات…';
 
   @override
-  String get adminScheduleSelectTeacher => 'اختر المعلم';
-
-  @override
-  String get adminScheduleSelectCohort => 'اختر المجموعة';
-
-  @override
-  String get adminScheduleOrStudents => 'أو اختر طلابًا بشكل فردي';
-
-  @override
-  String get adminScheduleNoSlots => 'لا توجد حصص بعد';
-
-  @override
   String get adminScheduleNoSlotsHint => 'اضغط + لإضافة أول حصة';
 
   @override
@@ -5516,12 +4103,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminSchoolName => 'اسم المدرسة';
-
-  @override
-  String get adminSchoolLogoUrl => 'رابط الشعار (اختياري)';
-
-  @override
-  String get adminSchoolLogoHint => 'https://…';
 
   @override
   String get adminSchoolSaved => 'تم الحفظ';
@@ -5535,16 +4116,10 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get adminSubjectsAddHint => 'أضف مادة…';
-
-  @override
   String get adminSubjectsNoSubjects => 'لم يتم تكوين مواد دراسية';
 
   @override
   String get adminSubjectsAdd => 'إضافة';
-
-  @override
-  String get adminSubjectsRemove => 'إزالة';
 
   @override
   String get adminSettingsTitle => 'الإعدادات';
@@ -5568,12 +4143,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get permissionsColTeacher => 'Teachers';
-
-  @override
-  String get permissionsDefaultOn => 'On by default';
-
-  @override
-  String get permissionsDefaultOff => 'Off by default';
 
   @override
   String get permissionsChangedBadge => 'Changed';
@@ -5603,26 +4172,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get permissionsResetChanges => 'Discard changes';
 
   @override
-  String get permissionsUnsavedTitle => 'Discard changes?';
-
-  @override
-  String get permissionsUnsavedBody =>
-      'You have unsaved permission changes. Leave without saving?';
-
-  @override
-  String get permissionsLeave => 'Leave';
-
-  @override
-  String get permissionsStay => 'Keep editing';
-
-  @override
   String get adminSettingsBellSchedule => 'جرس المدرسة';
 
   @override
   String get adminSettingsPeriodDefaults => 'مواعيد الحصص الافتراضية';
-
-  @override
-  String get adminSettingsPeriodDefaultsSubtitle => 'ضبط أوقات كل حصة';
 
   @override
   String get adminDeleteConfirmCancel => 'إلغاء';
@@ -5638,16 +4191,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminSearchPeople => 'ابحث بالاسم…';
-
-  @override
-  String adminNoResults(Object query) {
-    return 'لا نتائج لـ \"$query\"';
-  }
-
-  @override
-  String adminNoPeopleYet(Object role) {
-    return 'لا يوجد $role بعد';
-  }
 
   @override
   String get commonRetry => 'إعادة المحاولة';
@@ -5695,9 +4238,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonNoResults => 'No results';
-
-  @override
-  String get commonShare => 'مشاركة';
 
   @override
   String get inboxActionPin => 'تثبيت المحادثة';
@@ -5748,13 +4288,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cmailDeleteConfirm => 'حذف هذا البريد من صندوق بريدك؟';
 
   @override
-  String get commonLoading => 'جارٍ التحميل…';
-
-  @override
   String get commonError => 'حدث خطأ ما';
-
-  @override
-  String get commonTryAgain => 'حاول مرة أخرى';
 
   @override
   String get studentMaterialsTitle => 'المواد';
@@ -5781,24 +4315,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get studentAssignmentHandedInBadge => 'تم التسليم';
 
   @override
-  String get studentAssignmentSubmitButton => 'تسليم';
-
-  @override
-  String get studentAssignmentSubmitting => 'جارٍ التسليم…';
-
-  @override
-  String get studentAssignmentAttachFile => 'إرفاق ملف';
-
-  @override
-  String get studentAssignmentAddMoreFiles => 'إضافة ملفات أخرى';
-
-  @override
-  String get studentAssignmentYourSubmission => 'تسليمك';
-
-  @override
-  String get studentAssignmentTeacherAttachments => 'المرفقات';
-
-  @override
   String secretaryWelcomeGreeting(Object name) {
     return 'مرحبًا $name 👋';
   }
@@ -5811,9 +4327,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get secretaryExportData => 'تصدير البيانات';
-
-  @override
-  String get secretaryHomeTile => 'الرئيسية';
 
   @override
   String parentHomeGreeting(Object name) {
@@ -5876,22 +4389,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'We\'ll text the link to the phone number on this account.';
 
   @override
-  String get forgotPasswordLinkExpires =>
-      'تنتهي صلاحية الرابط خلال ساعة ويمكن استخدامه مرة واحدة فقط.';
-
-  @override
-  String get pushPermissionTitle => 'ابقَ على اطلاع';
-
-  @override
-  String get pushPermissionBody =>
-      'فعّل الإشعارات حتى لا تفوتك الدرجات أو الرسائل أو تغييرات الجدول.';
-
-  @override
-  String commonRequiredField(Object field) {
-    return '$field مطلوب';
-  }
-
-  @override
   String get commonAttachments => 'المرفقات';
 
   @override
@@ -5907,18 +4404,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonPublish => 'نشر';
 
   @override
-  String get commonContinue => 'متابعة';
-
-  @override
-  String get commonNext => 'التالي';
-
-  @override
-  String get commonStart => 'بداية';
-
-  @override
-  String get commonEnd => 'نهاية';
-
-  @override
   String get commonRefresh => 'تحديث';
 
   @override
@@ -5928,22 +4413,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonOpen => 'فتح';
 
   @override
-  String get commonView => 'عرض';
-
-  @override
-  String get commonCopy => 'نسخ';
-
-  @override
   String get commonAdd => 'إضافة';
-
-  @override
-  String get commonOptional => 'اختياري';
-
-  @override
-  String get commonRequired => 'مطلوب';
-
-  @override
-  String get commonAuto => 'تلقائي';
 
   @override
   String get teacherShareButton => 'مشاركة';
@@ -5987,19 +4457,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherMeetingDateTimeRequired => 'تاريخ ووقت البداية مطلوبان';
 
   @override
-  String get teacherMeetingStartDate => 'تاريخ البداية *';
-
-  @override
   String get teacherMeetingStartTime => 'وقت البداية *';
 
   @override
-  String get teacherMeetingEndDate => 'تاريخ النهاية (اختياري)';
-
-  @override
   String get teacherMeetingEndTime => 'وقت النهاية (اختياري)';
-
-  @override
-  String get teacherClearEndTime => 'مسح وقت النهاية';
 
   @override
   String get teacherAssignmentTitleField => 'العنوان *';
@@ -6026,9 +4487,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherCreateAssignment => 'إنشاء';
 
   @override
-  String get teacherExamSubject => 'المادة *';
-
-  @override
   String get teacherExamDate => 'تاريخ الامتحان *';
 
   @override
@@ -6047,16 +4505,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherSearchMaterials => 'ابحث عن المواد…';
 
   @override
-  String get teacherClassroomName => 'اسم الصف *';
-
-  @override
-  String get adminReportsOpenTab => 'مفتوحة';
-
-  @override
   String get adminReportsResolvedTab => 'تم الحل';
-
-  @override
-  String get adminReportsDismissedTab => 'تم الرفض';
 
   @override
   String get adminReportsNoOpen => 'لا توجد بلاغات مفتوحة';
@@ -6093,11 +4542,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String chatReportFailed(Object error) {
     return 'فشل الإبلاغ: $error';
-  }
-
-  @override
-  String chatSendError(Object message) {
-    return 'تعذّر الإرسال: $message';
   }
 
   @override
@@ -6331,9 +4775,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminInCohortBadge => 'ضمن المجموعة';
 
   @override
-  String get adminNoStudentsFoundCohort => 'لا يوجد طلاب في صفوف هذه المجموعة';
-
-  @override
   String get adminScheduleByCohort => 'حسب المجموعة ▾';
 
   @override
@@ -6361,15 +4802,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminScheduleClearFilters => 'مسح';
 
   @override
-  String get adminSchedulePickSubjectRequired => 'اختر مادة قبل حفظ الحصة.';
-
-  @override
   String get adminSchedulePickDateOnce => 'اختر تاريخًا لحصة لمرة واحدة.';
-
-  @override
-  String adminSchedulePickDateRecurring(Object freq) {
-    return 'اختر تاريخ بداية للجدول كل $freq أسابيع.';
-  }
 
   @override
   String get adminSchoolLogoLabel => 'شعار المدرسة';
@@ -6397,10 +4830,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminSchoolGradeRangeLabel => 'نطاق الصفوف';
 
   @override
-  String get adminSchoolGradeRangeDescription =>
-      'الصفوف المتاحة عبر المجموعات والطلاب والقوائم.';
-
-  @override
   String get adminSchoolLowestGrade => 'الأدنى';
 
   @override
@@ -6412,9 +4841,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get adminSchoolSubjectsDescription =>
       'متاحة لجميع المعلمين عند إنشاء الواجبات.';
-
-  @override
-  String get adminSchoolNoTranslations => 'اضغط لإضافة ترجمات';
 
   @override
   String get adminSchoolBellHint =>
@@ -6432,15 +4858,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminSchoolEndTime => 'النهاية';
-
-  @override
-  String get adminExportStudentsTab => 'الطلاب';
-
-  @override
-  String get adminExportCohortsTab => 'المجموعات';
-
-  @override
-  String get adminExportGradesTab => 'الصفوف';
 
   @override
   String get adminExportOptionsTitle => 'خيارات التصدير';
@@ -6514,17 +4931,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get studentFormAlreadySubmittedButton => 'تم التسليم مسبقًا';
 
   @override
-  String get studentDiplomaEditTitle => 'تعديل الشهادة';
-
-  @override
-  String get studentDiplomaDeleteTitle => 'حذف الشهادة؟';
-
-  @override
-  String studentDiplomaDeleteConfirm(Object name) {
-    return 'هل تريد إزالة شهادة \"$name\"؟';
-  }
-
-  @override
   String teacherDeleteItemConfirm(Object title) {
     return 'حذف \"$title\"؟';
   }
@@ -6547,11 +4953,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherMeetingVisibleToEveryone => 'مرئي للجميع';
-
-  @override
-  String teacherMeetingDoneCount(int count) {
-    return 'تم ($count محدد)';
-  }
 
   @override
   String get teacherDeleteAssignmentTitle => 'حذف الواجب؟';
@@ -6582,9 +4983,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get teacherClassroomFileUnavailable =>
       'هذا الملف غير متاح — يجب على المعلم إعادة رفعه.';
-
-  @override
-  String get teacherClassroomCodeLabel => 'رمز الصف';
 
   @override
   String get teacherClassroomCodeCopied => 'تم نسخ الرمز';
@@ -6667,11 +5065,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherFormEnterTitle => 'يرجى إدخال عنوان للنموذج.';
 
   @override
-  String teacherExamUploadFailedSkipped(Object name) {
-    return 'فشل رفع $name. تم تجاهل الملف.';
-  }
-
-  @override
   String get teacherExamEnterTitle => 'يرجى إدخال عنوان.';
 
   @override
@@ -6695,24 +5088,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherSlotDetachTooltip => 'فصل';
-
-  @override
-  String get teacherDiplomaSelectStudent => 'اختر طالبًا أولاً.';
-
-  @override
-  String get teacherDiplomaUploadingWait =>
-      'يرجى الانتظار — لا تزال الملفات تُرفع.';
-
-  @override
-  String teacherDiplomaIssueFailed(Object error) {
-    return 'تعذّر إصدار الشهادة: $error';
-  }
-
-  @override
-  String get teacherDiplomaCertTitleLabel => 'عنوان الشهادة';
-
-  @override
-  String get teacherDiplomaSearchStudent => 'ابحث عن طالب…';
 
   @override
   String get teacherProfileChatError => 'تعذّر بدء المحادثة';
@@ -6780,27 +5155,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'لم يتم العثور على أولياء أمور في هذه المدرسة.';
 
   @override
-  String get teacherGradesToGrade => 'للتقدير';
-
-  @override
-  String get teacherGradesGraded => 'تم التقدير';
-
-  @override
   String get teacherSaveGradesButton => 'حفظ الدرجات';
-
-  @override
-  String get teacherAllowResubmitLabel => 'السماح بإعادة التسليم';
-
-  @override
-  String get teacherAllowResubmitTitle => 'السماح بإعادة التسليم؟';
-
-  @override
-  String teacherAllowResubmitBody(Object name) {
-    return 'سيؤدي ذلك إلى حذف تسليم $name ليتمكن من التسليم مجددًا.';
-  }
-
-  @override
-  String get teacherAllowButton => 'السماح';
 
   @override
   String get teacherGradeFieldLabel => 'الدرجة';
@@ -6809,21 +5164,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherFeedbackOptionalLabel => 'ملاحظات (اختياري)';
 
   @override
-  String get teacherCreateClassroomFabLabel => 'إنشاء';
-
-  @override
-  String get teacherLoadingStudents => 'جارٍ تحميل الطلاب…';
-
-  @override
   String get teacherSearchHintShort => 'بحث…';
-
-  @override
-  String get teacherCreateClassroomTitle => 'صف جديد';
-
-  @override
-  String teacherAssignmentUploadFailed(Object name) {
-    return 'تعذّر رفع $name';
-  }
 
   @override
   String get teacherAssignmentEnterTitle => 'يرجى إدخال عنوان.';
@@ -6833,9 +5174,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherAssignmentInstructionsLabel => 'التعليمات / الوصف';
-
-  @override
-  String get teacherAttachFilesButton => 'إرفاق ملفات';
 
   @override
   String get tutorDeleteConversationTitle => 'حذف المحادثة؟';
@@ -6870,18 +5208,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get accountContinueButton => 'متابعة';
 
   @override
-  String get studentClassroomFileUnavailable => 'هذا الملف غير متاح حاليًا.';
-
-  @override
-  String get studentClassroomDeleteMaterial => 'حذف المادة؟';
-
-  @override
-  String get studentClassroomCodeLabel => 'رمز الصف';
-
-  @override
-  String get studentClassroomLeaveTooltip => 'مغادرة الصف';
-
-  @override
   String get adminEditUserEnglishNameRequired => 'الاسم بالإنجليزية مطلوب';
 
   @override
@@ -6906,9 +5232,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminEditUserNameSection => 'الاسم';
-
-  @override
-  String get adminEditUserAtLeastEnglish => 'الإنجليزية مطلوبة على الأقل.';
 
   @override
   String get adminEditUserGradeSection => 'الصف';
@@ -7048,19 +5371,8 @@ class AppLocalizationsAr extends AppLocalizations {
       'سيؤدي التصدير إلى إعادة تعيين كلمات المرور وتضمينها';
 
   @override
-  String get adminExportAnyway => 'تصدير على أي حال';
-
-  @override
-  String get adminExportPdfStudentDirectory => 'دليل الطلاب';
-
-  @override
   String adminExportPdfBy(String name) {
     return 'بواسطة: $name';
-  }
-
-  @override
-  String adminExportPdfStudentsCount(int count) {
-    return '$count طالبًا';
   }
 
   @override
@@ -7092,32 +5404,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminExportColumnPassword => 'كلمة المرور';
-
-  @override
-  String get adminExportColumnNameEn => 'الاسم (EN)';
-
-  @override
-  String get adminExportColumnNameAr => 'الاسم (AR)';
-
-  @override
-  String get adminExportColumnNameHe => 'الاسم (HE)';
-
-  @override
-  String get adminExportColumnNameFr => 'الاسم (FR)';
-
-  @override
-  String get adminExportColumnNameRu => 'الاسم (RU)';
-
-  @override
-  String adminExportStudentsSelected(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'تم اختيار $count طلاب',
-      one: 'تم اختيار طالب واحد',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get teacherMaterialEditTitle => 'تعديل المادة';
@@ -7339,9 +5625,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonCreate => 'إنشاء';
-
-  @override
-  String get commonAttachStudyMaterials => 'إرفاق مواد الدراسة';
 
   @override
   String get teacherCreateClassroomNewTitle => 'صف جديد';
@@ -7695,9 +5978,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonTitle => 'العنوان';
 
   @override
-  String get commonNotes => 'ملاحظات';
-
-  @override
   String get commonEmail => 'البريد الإلكتروني';
 
   @override
@@ -7802,14 +6082,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get drawerSwitchChild => 'تبديل الابن';
 
   @override
-  String get shellAssessmentCreated => 'تم إنشاء التقييم';
-
-  @override
-  String commonCouldNotOpenLink(String scheme) {
-    return 'تعذر فتح رابط $scheme';
-  }
-
-  @override
   String commonCouldntSend(String error) {
     return 'تعذر الإرسال: $error';
   }
@@ -7836,9 +6108,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherGradeTypeSection => 'نوع الدرجة';
-
-  @override
-  String get teacherOtherGradeSection => 'درجة أخرى';
 
   @override
   String get teacherEnterGradesSection => 'أدخل الدرجات';
@@ -7913,37 +6182,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get novaDisclaimerYourPrivacy => 'خصوصيتك';
 
   @override
-  String profileNameInLanguage(String language) {
-    return 'الاسم بـ$language';
-  }
-
-  @override
   String get adminSettingsScheduleSubtitle =>
       'تعيين المعلمين والمجموعات في فترات أسبوعية';
-
-  @override
-  String get practiceModeBalancedSubtitle => 'تدريب يومي متوازن';
-
-  @override
-  String get practiceModeRevealSubtitle => 'كشف واسترجاع ذاتي';
-
-  @override
-  String get practiceModeFastSubtitle => 'تدريب سريع بضغط';
-
-  @override
-  String get practiceModeExamSubtitle => 'تدفق هادئ بنمط الامتحان';
-
-  @override
-  String get practiceModeConceptSubtitle => 'المفهوم أولاً، الحل لاحقًا';
-
-  @override
-  String get practiceModeAdaptiveSubtitle => 'تتغير الصعوبة مباشرة';
-
-  @override
-  String get practiceModeStrictSubtitle => 'نمط رسمي صارم';
-
-  @override
-  String get commonCall => 'اتصال';
 
   @override
   String get tooltipClearEndTime => 'مسح وقت الانتهاء';
@@ -8237,9 +6477,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonReadLess => 'اقرأ أقل';
 
   @override
-  String get chatComposerSlideToCancel => 'اسحب للإلغاء';
-
-  @override
   String adminNoRoleYet(String role) {
     return 'لا يوجد $role بعد';
   }
@@ -8256,12 +6493,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get commonAdding => 'جاري الإضافة…';
-
-  @override
-  String get teacherDiplomaIssuing => 'جاري الإصدار…';
-
-  @override
-  String get teacherDiplomaIssue => 'إصدار';
 
   @override
   String get formAccepting => 'قبول';
@@ -8317,9 +6548,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get adminExportEmptyState =>
       'أضف فلترًا للبدء: اختر دورًا أو مجموعة أو صفًا أو مستخدمين محددين.';
-
-  @override
-  String get adminExportFilterRolesTab => 'الأدوار';
 
   @override
   String get adminExportFilterCohortsTab => 'المجموعات';
@@ -8435,12 +6663,6 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get teacherAttachFromMaterials => 'من المواد';
-
-  @override
-  String get teacherUploadFiles => 'رفع ملفات';
 
   @override
   String get solSubjectMathematics => 'الرياضيات';
@@ -8612,9 +6834,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String solutionsGradeLabel(int grade) {
     return 'الصف $grade';
   }
-
-  @override
-  String get solutionsReportsTitle => 'الحلول المُبلّغ عنها';
 
   @override
   String get solutionsReportsEmpty => 'لا توجد بلاغات للمراجعة.';
@@ -8796,34 +7015,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get commonSubjectOptional => 'المادة (اختياري)';
 
   @override
-  String get colorBlue => 'أزرق';
-
-  @override
-  String get colorIndigo => 'نيلي';
-
-  @override
-  String get colorViolet => 'بنفسجي';
-
-  @override
-  String get colorTeal => 'أزرق مخضر';
-
-  @override
-  String get colorGreen => 'أخضر';
-
-  @override
-  String get colorOrange => 'برتقالي';
-
-  @override
-  String get colorRose => 'وردي';
-
-  @override
   String get teacherAddClassNotes => 'إضافة ملاحظات الحصة';
-
-  @override
-  String get teacherStudentsWithGrades => 'الطلاب الحاصلون على علامات';
-
-  @override
-  String get teacherOtherStudentsSameGrade => 'طلاب آخرون في نفس الصف/المجموعة';
 
   @override
   String get teacherChooseExam => 'اختر امتحاناً';
@@ -8864,35 +7056,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'سيسجّل المستخدم الدخول بكلمة المرور هذه في المرة القادمة. وستُلغى أي روابط إعادة تعيين معلّقة.';
 
   @override
-  String get nameInEnglish => 'الاسم بالإنجليزية';
-
-  @override
-  String get nameInArabic => 'الاسم بالعربية';
-
-  @override
-  String get nameInHebrew => 'الاسم بالعبرية';
-
-  @override
-  String get nameInFrench => 'الاسم بالفرنسية';
-
-  @override
-  String get nameInRussian => 'الاسم بالروسية';
-
-  @override
   String get passwordMinChars => '8 أحرف على الأقل.';
 
   @override
   String get passwordsDoNotMatch => 'كلمتا المرور غير متطابقتين.';
-
-  @override
-  String get adminWelcomeHeading => 'مرحباً بك في ClassMate';
-
-  @override
-  String get diplomasNoFilesAttached => 'لا توجد ملفات مرفقة بهذه الشهادة.';
-
-  @override
-  String get diplomasFilesProcessing =>
-      'تعذّر فتح الملفات — قد تكون لا تزال قيد المعالجة.';
 
   @override
   String get novaOutOfTokens =>
@@ -8942,39 +7109,6 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String cohortStudentsCount(int count) {
     return '$count طالب';
-  }
-
-  @override
-  String diplomasIssuedCount(Object count) {
-    return '$count شهادة صادرة';
-  }
-
-  @override
-  String get adminExportImportantHeading => 'هام';
-
-  @override
-  String get adminExportWelcomeBodyWithPw =>
-      'هذه تفاصيل حسابك في ClassMate. سجّل الدخول إلى تطبيق ClassMate على iOS أو Android باستخدام اسم المستخدم وكلمة المرور أدناه. يمكنك تغيير كلمة المرور داخل التطبيق.';
-
-  @override
-  String get adminExportWelcomeBodyNoPw =>
-      'هذه تفاصيل حسابك في ClassMate. سجّل الدخول إلى تطبيق ClassMate على iOS أو Android باستخدام اسم المستخدم.';
-
-  @override
-  String get adminExportNotePrivate =>
-      'احتفظ بهذه البيانات سرية. لا تشارك كلمة المرور.';
-
-  @override
-  String get adminExportNoteChangePw =>
-      'غيّر كلمة المرور بعد أول تسجيل دخول من الإعدادات → الحساب.';
-
-  @override
-  String get adminExportNoteLegal =>
-      'باستخدامك ClassMate فإنك توافق على شروط الخدمة وسياسة الخصوصية.';
-
-  @override
-  String adminExportNoteHelp(String email) {
-    return 'بحاجة إلى مساعدة؟ تواصل مع مسؤول مدرستك أو عبر $email.';
   }
 
   @override
@@ -9060,12 +7194,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminImportUsersScreenGrade => 'الصف';
 
   @override
-  String get adminImportUsersScreenParentUsername => 'اسم مستخدم ولي الأمر';
-
-  @override
-  String get adminImportUsersScreenParentUsernameHint => 'ربط (اختياري)';
-
-  @override
   String get adminImportUsersScreenCouldNotReadFile =>
       'تعذّرت قراءة هذا الملف.';
 
@@ -9136,9 +7264,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'بيانات الدخول (سلِّمها لمستخدميك)';
 
   @override
-  String get teacherCohortsScreenTitle => 'المجموعات';
-
-  @override
   String get teacherCohortsScreenNewCohort => 'مجموعة جديدة';
 
   @override
@@ -9156,9 +7281,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherCohortsScreenGradesLabel => 'الصف (الصفوف)';
-
-  @override
-  String get teacherCohortsScreenGradesHint => 'مثال: 10  أو  7,8';
 
   @override
   String get teacherCohortsScreenCancel => 'إلغاء';
@@ -9216,11 +7338,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherCohortsScreenLoadStudentsError => 'تعذّر تحميل الطلاب';
-
-  @override
-  String teacherCohortsScreenAddNStudents(int count) {
-    return 'إضافة $count طلاب';
-  }
 
   @override
   String teacherCohortsScreenAddedNStudents(int count) {
@@ -10097,10 +8214,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get teacherClassroomAddAssignmentScreenDetails => 'تفاصيل الواجب';
 
   @override
-  String get teacherClassroomAddAssignmentScreenDueDateOptional =>
-      'تاريخ الاستحقاق (اختياري)';
-
-  @override
   String get teacherClassroomAddAssignmentScreenNotifyStudents =>
       'إشعار الطلاب';
 
@@ -10115,49 +8228,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'إضافة المزيد من الملفات';
 
   @override
-  String get diplomasScreenCertificate => 'شهادة';
-
-  @override
-  String diplomasScreenIssuedDate(String date) {
-    return 'صدرت $date';
-  }
-
-  @override
-  String get diplomasScreenNoCertificatesReceived =>
-      'لم يتم استلام شهادات بعد.';
-
-  @override
-  String diplomasScreenFileCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count ملفات',
-      one: '$count ملف',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get gradesScreenOutOf100 => '/ 100';
-
-  @override
-  String gradesScreenShowMore(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '',
-      one: '',
-    );
-    return 'عرض $count درجة$_temp0 أخرى';
-  }
-
-  @override
-  String get gradesScreenShowLess => 'عرض أقل';
-
-  @override
-  String gradesScreenScoreOutOf100(String score) {
-    return '$score / 100';
-  }
 
   @override
   String get adminSchoolSettingsStart => 'البداية';
@@ -10170,13 +8241,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminExportLayoutTable => 'Compact table';
-
-  @override
-  String get adminExportScreenEachUserAlone => 'كل مستخدم على حدة';
-
-  @override
-  String get adminExportScreenEachUserAloneOn =>
-      'صفحة كاملة لكل مستخدم، تخطيط بطاقة كبير وسهل القراءة.';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
@@ -10254,20 +8318,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get teacherAddMaterialScreenFileFallback => 'ملف';
-
-  @override
-  String get teacherCreateDiplomaScreenTitle => 'إصدار شهادة';
-
-  @override
-  String get teacherCreateDiplomaScreenGradePrefix => 'الصف';
-
-  @override
-  String get teacherCreateDiplomaScreenAttachFiles =>
-      'إرفاق ملف (ملفات) الشهادة';
-
-  @override
-  String get teacherCreateDiplomaScreenAddMoreFiles =>
-      'إضافة المزيد من الملفات';
 
   @override
   String get teacherAssignmentDetailScreenTitle => 'الواجب';
@@ -10528,9 +8578,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get examDetailScreenCountdownToday => 'إنه اليوم!';
 
   @override
-  String get teacherCreateDiplomaScreenDefaultTitle => 'شهادة تقدير';
-
-  @override
   String teacherMaterialAddedBy(String name) {
     return 'أضافها $name';
   }
@@ -10643,9 +8690,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get averagesSave => 'حفظ';
 
   @override
-  String get certificatesTitle => 'الشهادات';
-
-  @override
   String get certHomeroom => 'الصف (المربّي)';
 
   @override
@@ -10673,16 +8717,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get certLanguage => 'لغة الشهادة';
 
   @override
-  String get certGenerate => 'إنشاء PDF';
-
-  @override
   String get certWeightsMustBe100 => 'يجب أن يكون مجموع أوزان الفصول 100%.';
 
   @override
   String get certSelectStudentFirst => 'اختر طالبًا أولًا.';
-
-  @override
-  String get certSaved => 'تم إنشاء الشهادة.';
 
   @override
   String get certSaveAndPublish => 'حفظ ونشر';
@@ -10709,9 +8747,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get certDraftSaved => 'تم الحفظ كمسودة.';
 
   @override
-  String get certPublishing => 'جارٍ النشر…';
-
-  @override
   String get certDownload => 'تنزيل';
 
   @override
@@ -10722,19 +8757,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'This certificate is still a draft — publish it first to open its PDF.';
 
   @override
-  String get certMine => 'شهاداتي';
-
-  @override
-  String get certNoHomeroom => 'لست مربي صف لأي صف بعد.';
-
-  @override
   String get certGrin => 'الدرجات';
 
   @override
   String get certPrintAll => 'طباعة الكل';
-
-  @override
-  String get certSelectCohortToPrint => 'اختر صفًا لطباعة جميع شهاداته.';
 
   @override
   String get certEditTitle => 'تحرير الشهادة';
@@ -10750,9 +8776,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get certPdfOverall => 'المعدل العام';
-
-  @override
-  String get certPdfAverage => 'المعدل';
 
   @override
   String get certPdfAbsences => 'الغيابات';
@@ -10867,19 +8890,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get gradesSubjectNoGrades => 'لا توجد علامات في هذه المادة بعد.';
 
   @override
-  String get gradesPublishedShort => 'منشور';
-
-  @override
-  String get gradesDraftShort => 'مسودة';
-
-  @override
   String gradesPublishTitle(Object title) {
     return 'نشر “$title”';
-  }
-
-  @override
-  String gradesUnpublishTitle(Object title) {
-    return 'إلغاء نشر “$title”';
   }
 
   @override
@@ -11103,15 +9115,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get averagesHintGrade => 'اختر درجة';
 
   @override
-  String get adminInsightsSearchHint => 'ابحث عن الطلاب بالاسم…';
-
-  @override
-  String get adminInsightsNoStudents => 'لم يُعثر على طلاب.';
-
-  @override
-  String get adminInsightsNoGrades => 'لم تُسجَّل درجات بعد.';
-
-  @override
   String get gradesEditGradeTitle => 'تعديل العلامة';
 
   @override
@@ -11133,11 +9136,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'إضافة نطاق';
-
-  @override
-  String certPdfSemesterCertificate(String sem) {
-    return 'شهادة فصلية — $sem';
-  }
 
   @override
   String get certPdfRemarks => 'ملاحظات المربّي/ة';
@@ -11197,14 +9195,6 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get gradesAvgFilterAll => 'الكل';
-
-  @override
-  String gradesAvgFilterCohort(String name) {
-    return 'الصف — $name';
-  }
-
-  @override
   String get gradesAvgSearchHint => 'ابحث عن الدرجات';
 
   @override
@@ -11221,21 +9211,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notesNoStudents => 'لم يُعثر على طلاب';
-
-  @override
-  String notesCount(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count ملاحظة',
-      many: '$count ملاحظة',
-      few: '$count ملاحظات',
-      two: 'ملاحظتان',
-      one: 'ملاحظة واحدة',
-      zero: 'لا ملاحظات',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get notesNewNote => 'ملاحظة جديدة';
@@ -11260,11 +9235,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notesBodyHint => 'ابدأ الكتابة…';
-
-  @override
-  String notesEditedBy(String name) {
-    return 'بواسطة $name';
-  }
 
   @override
   String get cmailTitle => 'CMail';
@@ -11367,11 +9337,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cmailAttachments => 'المرفقات';
 
   @override
-  String cmailFrom(String name) {
-    return 'من $name';
-  }
-
-  @override
   String get phoneLinkTitle => 'أضف هاتفك';
 
   @override
@@ -11383,9 +9348,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get phoneLinkSend => 'إرسال الرمز';
-
-  @override
-  String get phoneLinkCodeLabel => 'رمز مكوّن من 6 أرقام';
 
   @override
   String phoneLinkCodeSent(String phone) {
@@ -11444,9 +9406,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get hubUnpublished => 'مسودة';
 
   @override
-  String get hubClass => 'الصف';
-
-  @override
   String get a11yBack => 'رجوع';
 
   @override
@@ -11454,12 +9413,6 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get a11yCancel => 'إلغاء';
-
-  @override
-  String get a11yDone => 'تم';
-
-  @override
-  String get a11ySave => 'حفظ';
 
   @override
   String get a11yEdit => 'تعديل';
@@ -11474,58 +9427,16 @@ class AppLocalizationsAr extends AppLocalizations {
   String get a11yAdd => 'إضافة';
 
   @override
-  String get a11yCreate => 'إنشاء';
-
-  @override
-  String get a11ySend => 'إرسال';
-
-  @override
-  String get a11ySearch => 'بحث';
-
-  @override
   String get a11yClear => 'مسح';
-
-  @override
-  String get a11yFilter => 'تصفية';
-
-  @override
-  String get a11ySort => 'فرز';
 
   @override
   String get a11yMore => 'خيارات إضافية';
 
   @override
-  String get a11yMenu => 'القائمة';
-
-  @override
-  String get a11yRefresh => 'تحديث';
-
-  @override
-  String get a11yRetry => 'إعادة المحاولة';
-
-  @override
-  String get a11yShare => 'مشاركة';
-
-  @override
   String get a11yCopy => 'نسخ';
 
   @override
-  String get a11yDownload => 'تنزيل';
-
-  @override
-  String get a11yUpload => 'رفع';
-
-  @override
-  String get a11yAttach => 'إرفاق ملف';
-
-  @override
-  String get a11yAddPhoto => 'إضافة صورة';
-
-  @override
   String get a11yCamera => 'الكاميرا';
-
-  @override
-  String get a11yMicrophone => 'إدخال صوتي';
 
   @override
   String get a11yPlay => 'تشغيل';
@@ -11546,73 +9457,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get a11yCollapse => 'طي';
 
   @override
-  String get a11yShow => 'إظهار';
-
-  @override
-  String get a11yHide => 'إخفاء';
-
-  @override
-  String get a11ySettings => 'الإعدادات';
-
-  @override
-  String get a11yProfile => 'الملف الشخصي';
-
-  @override
-  String get a11yNotifications => 'الإشعارات';
-
-  @override
-  String get a11yHelp => 'مساعدة';
-
-  @override
   String get a11yInfo => 'التفاصيل';
-
-  @override
-  String get a11yFavorite => 'المفضلة';
-
-  @override
-  String get a11yPin => 'تثبيت';
-
-  @override
-  String get a11yUnpin => 'إلغاء التثبيت';
-
-  @override
-  String get a11yMute => 'كتم';
-
-  @override
-  String get a11yUnmute => 'إلغاء الكتم';
-
-  @override
-  String get a11yMarkRead => 'وضع علامة كمقروء';
-
-  @override
-  String get a11yNewChat => 'محادثة جديدة';
-
-  @override
-  String get a11yNewMessage => 'رسالة جديدة';
-
-  @override
-  String get a11yEmoji => 'رمز تعبيري';
-
-  @override
-  String get a11ySelectDate => 'اختيار التاريخ';
-
-  @override
-  String get a11yLogout => 'تسجيل الخروج';
-
-  @override
-  String get a11yAddAccount => 'إضافة حساب';
 
   @override
   String get a11yShowPassword => 'إظهار كلمة المرور';
 
   @override
   String get a11yHidePassword => 'إخفاء كلمة المرور';
-
-  @override
-  String get a11yScrollToBottom => 'التمرير إلى الأسفل';
-
-  @override
-  String get a11yOpen => 'فتح';
 
   @override
   String get errStateOfflineTitle => 'أنت غير متصل بالإنترنت';
@@ -11726,10 +9577,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'شاهد دروس اليوم بمجرد فتح التطبيق، وتحقق من الدرجة عند نشرها، وتابع حضورك، واحتفظ بكل مواعيد التسليم في قائمة واحدة — مع تذكير قبل الموعد.';
 
   @override
-  String get onbDeepClassNotes =>
-      'اكتب ملاحظاتك بخط اليد بقلم Apple Pencil على الآيباد — أغلفة وأنماط ورق وأشرطة وصور وملاحظات صوتية — ثم اقرأها هنا وكبّر الخط وشغّل التسجيلات وافتح مرفقاتك.';
-
-  @override
   String get onbDeepConnect =>
       'راسل معلمًا أو زميلًا مباشرة، وتابع إعلانات الصف، وانضم إلى اجتماع عبر الإنترنت من بطاقته، واستخدم بريد CMail المدرسي — دون مغادرة التطبيق.';
 
@@ -11800,156 +9647,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String settingsDeleteThemeBody(String name) {
     return '“$name” will be removed. This can\'t be undone.';
   }
-
-  @override
-  String get cnMoveToShelf => 'نقل إلى رف';
-
-  @override
-  String get cnNotOnShelf => 'ليست على رف';
-
-  @override
-  String get cnDownloadAsPdf => 'تنزيل كملف PDF';
-
-  @override
-  String get cnOpenPagesPng => 'فتح الصفحات كـ PNG';
-
-  @override
-  String get cnDownloadPagesPng => 'تنزيل الصفحات كـ PNG';
-
-  @override
-  String get cnDeleteNotebookSubtitle => 'يزيلها من ClassNotes على كل أجهزتك';
-
-  @override
-  String get cnRenameNotebook => 'إعادة تسمية الدفتر';
-
-  @override
-  String get cnNotebookTitleHint => 'عنوان الدفتر';
-
-  @override
-  String get cnRenamed => 'تمت إعادة التسمية';
-
-  @override
-  String get cnTakenOffShelf => 'أُزيلت من الرف';
-
-  @override
-  String get cnMoved => 'تم النقل';
-
-  @override
-  String get cnBuildingPdf => 'جارٍ إنشاء ملف PDF…';
-
-  @override
-  String get cnPreparingPages => 'جارٍ تجهيز الصفحات…';
-
-  @override
-  String get cnNoSyncedPages =>
-      'لا توجد صفحات متزامنة لهذا الدفتر بعد — افتحه على جهاز iPad مرة واحدة.';
-
-  @override
-  String cnExportFailed(String error) {
-    return 'فشل التصدير: $error';
-  }
-
-  @override
-  String get cnDeleteNotebookTitle => 'حذف هذا الدفتر؟';
-
-  @override
-  String cnDeleteNotebookBody(String title, num count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$countString صفحة',
-    );
-    return 'سيُحذف «$title» و$_temp0 من ClassNotes على كل جهاز. لا يمكن التراجع عن ذلك.';
-  }
-
-  @override
-  String get cnDeleted => 'تم الحذف';
-
-  @override
-  String get cnRenameShelf => 'إعادة تسمية الرف';
-
-  @override
-  String get cnShelfNameHint => 'اسم الرف';
-
-  @override
-  String get cnDeleteShelf => 'حذف الرف';
-
-  @override
-  String get cnDeleteShelfSubtitle => 'تبقى الدفاتر — إنها فقط تغادر الرف';
-
-  @override
-  String get cnShelfDeleted => 'تم حذف الرف';
-
-  @override
-  String cnReorderFailed(String error) {
-    return 'تعذّر حفظ الترتيب الجديد: $error';
-  }
-
-  @override
-  String cnGenericError(String error) {
-    return 'لم ينجح ذلك: $error';
-  }
-
-  @override
-  String get cnAllShelf => 'الكل';
-
-  @override
-  String get cnDragToReorder => 'اسحب لإعادة ترتيب دفاترك';
-
-  @override
-  String get cnManageHint => 'اضغط ⋮ على دفتر لإعادة تسميته أو تنزيله أو حذفه';
-
-  @override
-  String get cnArrange => 'ترتيب';
-
-  @override
-  String get cnManage => 'إدارة';
-
-  @override
-  String cnManageNamed(String title) {
-    return 'إدارة $title';
-  }
-
-  @override
-  String get cnNotebookWord => 'دفتر';
-
-  @override
-  String cnPageCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count صفحة',
-      one: 'صفحة واحدة',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get cnEmptyTitle => 'لا توجد دفاتر بعد';
-
-  @override
-  String get cnEmptyBody =>
-      'تظهر دفاتر ClassNotes الخاصة بك هنا — الأغلفة والورق والحبر تتبع مظهرك.';
-
-  @override
-  String get cnLoading => 'جارٍ تحميل دفاترك…';
-
-  @override
-  String get cnSignedOutTitle => 'سجّل الدخول لرؤية دفاترك';
-
-  @override
-  String get cnSignedOutBody =>
-      'مكتبة ClassNotes مرتبطة بحساب ClassMate الخاص بك.';
-
-  @override
-  String get cnErrorTitle => 'تعذّر تحميل دفاترك';
-
-  @override
-  String get cnErrorBody => 'تحقق من اتصالك وحاول مرة أخرى.';
 
   @override
   String teacherFormsCount(num count) {

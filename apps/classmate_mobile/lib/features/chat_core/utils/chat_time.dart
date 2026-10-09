@@ -37,13 +37,6 @@ String formatChatTime12(DateTime? dt) {
   return '$hour:${two(dt.minute)} $suffix';
 }
 
-String formatChatTime24(DateTime? dt) {
-  if (dt == null) return '';
-  final hh = dt.hour.toString().padLeft(2, '0');
-  final mm = dt.minute.toString().padLeft(2, '0');
-  return '$hh:$mm';
-}
-
 String _monthName(int month) {
   const months = [
     '',

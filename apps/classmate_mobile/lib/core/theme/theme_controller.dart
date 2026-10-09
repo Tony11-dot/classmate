@@ -829,11 +829,6 @@ _Palette _concretePalette(AppTheme theme) => switch (theme) {
 bool appThemeIsDark(AppTheme theme) =>
     _concretePalette(theme).brightness == Brightness.dark;
 
-/// Whether [theme] repaints the neutral surfaces (coffee, matcha, nord, …).
-/// The plain System / Light / Dark defaults are NOT tinted — they keep the
-/// original navy/white brand assets.
-bool appThemeIsTinted(AppTheme theme) => _concretePalette(theme).isTinted;
-
 /// Resolves the stored pref value ('ui_mode') back to an [AppTheme].
 AppTheme appThemeFromName(String? raw) =>
     AppTheme.values.where((t) => t.name == (raw ?? '')).firstOrNull ??

@@ -305,9 +305,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navTeacherWorkspace => 'Рабочее пространство';
 
   @override
-  String get navTeacherAssessments => 'Оценивание и оценки';
-
-  @override
   String get navSavedQuestions => 'Сохранённые вопросы';
 
   @override
@@ -440,11 +437,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get solutionsChooseSubjectFirst => 'Сначала выберите предмет.';
 
   @override
-  String solutionsNoBooksYetBody(Object action) {
-    return 'Книг пока нет.\nНажмите «$action», чтобы добавить первую.';
-  }
-
-  @override
   String solutionsNoBooksMatch(Object query) {
     return 'Книги не найдены: «$query».';
   }
@@ -453,20 +445,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get solutionsBookLabel => 'Книга';
 
   @override
-  String get solutionsPagesFilterHint =>
-      'Введите номер страницы и вопроса для фильтрации или оставьте пустым.';
-
-  @override
   String get solutionsPageNumberLabel => 'Номер страницы';
 
   @override
-  String get solutionsPageNumberHint => 'например, 42';
-
-  @override
   String get solutionsQuestionNumberLabel => 'Номер вопроса';
-
-  @override
-  String get solutionsQuestionNumberHint => 'например, 3а или 7';
 
   @override
   String get solutionsViewSolutionsAction => 'Смотреть решения';
@@ -518,9 +500,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'На этой странице пока нет загрузок. Добавьте первую — это поможет другим.';
 
   @override
-  String get solutionsVerifiedByNova => 'Проверено NOVA';
-
-  @override
   String get solutionsUploadFileLimitReached => 'Достигнут лимит 10 файлов.';
 
   @override
@@ -548,12 +527,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get solutionsUploadSuccess => 'Загружено успешно';
-
-  @override
-  String get solutionsUploadAddNewBookOption => '+ Добавить новую книгу…';
-
-  @override
-  String get solutionsUploadAddBookShortAction => 'Добавить';
 
   @override
   String get solutionsUploadTitle => 'Загрузить решение';
@@ -614,16 +587,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsLanguage => 'Язык';
-
-  @override
-  String get settingsLanguageSystem => 'Как в системе';
-
-  @override
-  String get settingsAccentColour => 'Акцентный цвет';
-
-  @override
-  String get settingsAccentSubtitle =>
-      'Оттенок, используемый во всём приложении';
 
   @override
   String get settingsReduceMotion => 'Уменьшить анимацию';
@@ -705,32 +668,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLanguageSearchHint => 'Поиск языка...';
 
   @override
-  String get teacherWorkspaceSubtitle =>
-      'Посещаемость, списки и оценки в мобильном приложении.';
-
-  @override
-  String get teacherMetricSessionsToday => 'Уроков сегодня';
-
-  @override
-  String get teacherMetricTeachingGroups => 'Групп';
-
-  @override
-  String get teacherMetricAssessments => 'Контрольных работ';
-
-  @override
   String get teacherQuickActions => 'Быстрые действия';
 
   @override
-  String get teacherNoDateAvailable => 'Дата недоступна';
-
-  @override
-  String get teacherNoTeachingSlotsToday => 'Уроков на сегодня нет.';
-
-  @override
   String get teacherUpcomingAssessments => 'Предстоящие проверки';
-
-  @override
-  String get teacherUpcomingAssessmentsSubtitle => 'Из журнала оценивания';
 
   @override
   String get teacherNoAssessmentsYet => 'Контрольных работ ещё нет.';
@@ -766,36 +707,8 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нет подключения. Проверьте сеть и попробуйте снова.';
 
   @override
-  String get teacherClassroomsSubtitle => 'Ваши учебные пространства';
-
-  @override
   String get teacherClassroomsNoCohorts =>
       'К этому учителю ещё не привязаны классы.';
-
-  @override
-  String teacherClassroomsCohort(Object cohortId) {
-    return 'Класс $cohortId';
-  }
-
-  @override
-  String get teacherClassroomsGeneratingJoinCode => 'Создание…';
-
-  @override
-  String get teacherClassroomsCreateJoinCode => 'Создать код входа';
-
-  @override
-  String get teacherClassroomsLiveJoinCode => 'Активный код входа';
-
-  @override
-  String teacherClassroomsExpiresAt(Object value) {
-    return 'Истекает $value';
-  }
-
-  @override
-  String get teacherClassroomsRoster => 'Список учеников';
-
-  @override
-  String get teacherClassroomsNoStudents => 'В этом классе пока нет учеников.';
 
   @override
   String get teacherAttendanceLoadError =>
@@ -823,12 +736,6 @@ class AppLocalizationsRu extends AppLocalizations {
   ) {
     return '$cohort · $grade класс · $date · Период $period';
   }
-
-  @override
-  String get teacherAttendanceChanged => 'Изменено';
-
-  @override
-  String get teacherAttendanceNoteLabel => 'Заметка';
 
   @override
   String get teacherAttendanceClassNotesLabel => 'Заметки урока';
@@ -900,28 +807,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scheduleClassFallback => 'Урок';
 
   @override
-  String get scheduleNoSubjectLocation => 'Пока нет предмета или места';
-
-  @override
-  String get scheduleNotes => 'Заметки';
-
-  @override
-  String get scheduleGoToClassroom => 'Перейти к классу';
-
-  @override
-  String get loginTitle => 'Вход для учеников и учителей';
-
-  @override
-  String get loginSubtitle => 'Войдите, чтобы продолжить';
-
-  @override
   String get loginSignIn => 'Войти';
-
-  @override
-  String get biometricSignIn => 'Вход по биометрии';
-
-  @override
-  String get biometricEnable => 'Включить вход по биометрии';
 
   @override
   String get biometricReason => 'Пройдите аутентификацию для входа в ClassMate';
@@ -929,12 +815,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get biometricEnableReason =>
       'Пройдите аутентификацию, чтобы включить вход по биометрии';
-
-  @override
-  String get biometricSignInFaceId => 'Вход с Face ID';
-
-  @override
-  String get biometricSignInFingerprint => 'Вход по отпечатку пальца';
 
   @override
   String get biometricOrSignInWith => 'или войдите с помощью';
@@ -994,34 +874,17 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось проверить биометрию. Убедитесь, что Face ID или отпечаток пальца настроены в настройках устройства.';
 
   @override
-  String get biometricEnterCredsFirst =>
-      'Сначала введите email и пароль, затем включите вход по биометрии.';
-
-  @override
   String get biometricLoginFailed =>
       'Не удалось войти по биометрии. Войдите с паролем.';
 
   @override
-  String get biometricEnrollTitle => 'Включить вход по биометрии?';
-
-  @override
-  String get biometricEnrollBody =>
-      'Используйте Face ID или отпечаток пальца, чтобы в следующий раз входить быстрее.';
-
-  @override
   String get biometricEnrollYes => 'Включить';
-
-  @override
-  String get biometricEnrollNo => 'Не сейчас';
 
   @override
   String get loginWelcomeTitle => 'С возвращением';
 
   @override
   String get loginWelcomeSubtitle => 'Войдите в свой аккаунт ClassMate.';
-
-  @override
-  String get loginSigningIn => 'Вход…';
 
   @override
   String get loginEmailLabel => 'Email или имя пользователя';
@@ -1045,9 +908,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileSchoolId => 'ID школы';
 
   @override
-  String get profileCohortId => 'ID группы';
-
-  @override
   String get profileMyCohorts => 'Мои группы';
 
   @override
@@ -1066,19 +926,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileContactEmail => 'Контактный email';
 
   @override
-  String get profileEmailAddress => 'Email адрес';
-
-  @override
-  String get profileEmailHint => 'вы@example.com';
-
-  @override
-  String get profileBirthday => 'Дата рождения';
-
-  @override
   String get profileSecurity => 'Безопасность';
-
-  @override
-  String get profileSelectBirthday => 'Выберите дату рождения';
 
   @override
   String get profilePasswordUpdated => 'Пароль обновлён';
@@ -1121,38 +969,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profilePasswordIncorrect => 'Текущий пароль неверный';
 
   @override
-  String get profilePasswordGenericError =>
-      'Что-то пошло не так. Попробуйте ещё раз.';
-
-  @override
-  String get editProfileTitle => 'Редактировать профиль';
-
-  @override
   String get editProfileSchool => 'Школа';
-
-  @override
-  String get editProfileSchoolPublic => 'Школа видна всем';
-
-  @override
-  String get editProfileGradePublic => 'Класс виден всем';
-
-  @override
-  String get editProfileMajors => 'Специализации';
-
-  @override
-  String get editProfileMajorsPublic => 'Специализации видны всем';
-
-  @override
-  String get editProfileBio => 'О себе';
-
-  @override
-  String get editProfileBioPublic => 'Биография видна всем';
-
-  @override
-  String get editProfileStatus => 'Статус';
-
-  @override
-  String get editProfileStatusPublic => 'Статус виден всем';
 
   @override
   String get classroomsYourClassrooms => 'Ваши классы';
@@ -1182,12 +999,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get classroomsNoMessagesYet => 'Сообщений пока нет';
-
-  @override
-  String get classroomsMessageFallback => 'Сообщение';
-
-  @override
-  String get examsLoadError => 'Не удалось загрузить экзамены';
 
   @override
   String get examsAllFilter => 'Все';
@@ -1248,84 +1059,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String examsResponsesCount(Object count) {
-    return '$count ответов';
-  }
-
-  @override
-  String get insightsTrendBaseline => 'Исходный уровень';
-
-  @override
-  String get insightsTrendImproving => 'Улучшается';
-
-  @override
-  String get insightsTrendDropping => 'Падает';
-
-  @override
-  String get insightsTrendStable => 'Стабильно';
-
-  @override
-  String get insightsHeadlineIntervention => 'Время для вмешательства';
-
-  @override
-  String get insightsHeadlineSignals => 'Несколько сигналов требуют внимания';
-
-  @override
-  String get insightsHeadlineMomentum => 'Отличный момент для рывка';
-
-  @override
-  String get insightsBodyAttendance =>
-      'Сначала улучшите посещаемость — это быстро повлияет на все остальные показатели.';
-
-  @override
-  String insightsBodyWeakTrend(Object subject) {
-    return '$subject и падающий тренд практики — главная зона риска. Начните с этого.';
-  }
-
-  @override
-  String insightsBodyLeverage(Object subject) {
-    return '$subject — ваша точка опоры. Используйте его для уверенности.';
-  }
-
-  @override
-  String get insightsBodyConsistency =>
-      'Продолжайте короткие фокусные сессии. Ближайшие дни важнее одной идеальной недели.';
-
-  @override
-  String get insightsInterventionScoreTitle => 'Оценка ситуации';
-
-  @override
-  String insightsInterventionScoreBody(Object count) {
-    return '$count активных сигналов определяют следующий шаг.';
-  }
-
-  @override
-  String get insightsRecoveryPathTitle => 'Быстрый путь к восстановлению';
-
-  @override
-  String get insightsRecoveryPathDefault =>
-      'Сначала посещаемость и стабильность.';
-
-  @override
-  String insightsRecoveryPathTopic(Object topic, Object subject) {
-    return 'Повторите тему $topic по предмету $subject.';
-  }
-
-  @override
-  String get insightsProjectedDirectionTitle => 'Прогноз';
-
-  @override
-  String insightsProjectedDirectionBody(Object trend) {
-    return '$trend на основе последних 7 и 30 дней практики.';
-  }
-
-  @override
-  String get insightsLoadingTitle => 'Загрузка аналитики';
-
-  @override
-  String get insightsLoadingSubtitle => 'Строим ваш предиктивный дашборд.';
-
-  @override
   String get insightsNotReadyTitle => 'Аналитика ещё не готова';
 
   @override
@@ -1339,61 +1072,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get insightsGradeAverage => 'Ср. балл';
 
   @override
-  String get insightsAccuracy => 'Точность';
-
-  @override
-  String get insightsOpenNova => 'Открыть NOVA';
-
-  @override
-  String get insightsOpenNovaPrompt =>
-      'Помоги мне улучшить слабую область на основе моей аналитики ClassMate.';
-
-  @override
-  String get insightsPredictiveRecoveryPlanTitle =>
-      'Предиктивный план восстановления';
-
-  @override
   String get insightsPracticeNow => 'Практиковать сейчас';
-
-  @override
-  String get insightsPredictiveModulesTitle => 'Предиктивный анализ';
-
-  @override
-  String get insightsPredictiveModulesSubtitle => 'Прогноз успеваемости';
-
-  @override
-  String get insightsAnnouncementsPressureTitle => 'Нагрузка';
-
-  @override
-  String get insightsAnnouncementsPressureSubtitle =>
-      'Текущая учебная нагрузка';
-
-  @override
-  String get insightsAiCoachTitle => 'Советы AI-наставника';
-
-  @override
-  String get insightsAiCoachLoadingSubtitle => 'Загрузка советов AI.';
-
-  @override
-  String get insightsAiCoachUnavailableSubtitle =>
-      'AI-советы для этого аккаунта пока недоступны.';
-
-  @override
-  String get insightsAskNova => 'Спросить NOVA';
-
-  @override
-  String get insightsAskNovaPrompt =>
-      'Составь мне план восстановления на основе моей аналитики.';
-
-  @override
-  String get insightsAiStudyCoachTitle => 'AI-наставник';
-
-  @override
-  String get insightsSchoolToolsTitle => 'Школьные инструменты';
-
-  @override
-  String get insightsSchoolToolsSubtitle =>
-      'Перейдите напрямую к важным разделам.';
 
   @override
   String get tutorUntitledChat => 'Чат без названия';
@@ -1421,32 +1100,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tutorCancel => 'Отмена';
 
   @override
-  String get tutorHide => 'Скрыть';
-
-  @override
-  String get tutorHideChatTitle => 'Скрыть чат';
-
-  @override
-  String get tutorHideChatSubtitle => 'Скрывает этот чат на устройстве.';
-
-  @override
-  String get tutorHideChatConfirmTitle => 'Скрыть чат?';
-
-  @override
-  String get tutorHideChatConfirmBody =>
-      'Чат исчезнет из списка на этом устройстве, но останется на сервере.';
-
-  @override
   String get tutorTapToOpenHistory => 'Нажмите для просмотра истории';
-
-  @override
-  String get tutorAiTutorSubtitle => 'Ваш персональный AI-репетитор';
-
-  @override
-  String get tutorHeroBody => 'История чатов, удобные темы, быстрый доступ.';
-
-  @override
-  String get tutorStartFreshConversation => 'Начать новый разговор';
 
   @override
   String get tutorSearchHistoryHint => 'Поиск в истории чатов';
@@ -1463,53 +1117,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get chatComposerMicHint =>
       'Нажмите для голосовой заметки или удержите для записи';
-
-  @override
-  String get chatComposerRecordingTitle => 'Запись';
-
-  @override
-  String get chatComposerReleaseToSend => 'Отпустите для отправки';
-
-  @override
-  String get chatComposerCancelTitle => 'Отмена';
-
-  @override
-  String get chatComposerLockTitle => 'Блокировка';
-
-  @override
-  String get chatComposerSlideLeftToCancel => 'Смахните влево для отмены';
-
-  @override
-  String get chatComposerSlideUpToLock => 'Смахните вверх для блокировки';
-
-  @override
-  String get chatComposerReleaseToCancel => 'Отпустите для отмены';
-
-  @override
-  String get chatComposerKeepSlidingToCancel =>
-      'Продолжайте смахивать для отмены';
-
-  @override
-  String get chatComposerReleaseToLock => 'Отпустите для блокировки';
-
-  @override
-  String get chatComposerRelease => 'Отпустить';
-
-  @override
-  String get chatComposerLock => 'Заблокировать';
-
-  @override
-  String get chatComposerRecordingPaused => 'Запись на паузе';
-
-  @override
-  String get chatComposerRecordingLocked => 'Запись заблокирована';
-
-  @override
-  String get chatComposerResumeHint =>
-      'Нажмите продолжить, когда будете готовы';
-
-  @override
-  String get chatComposerLockedHint => 'Нажмите отправить, когда будете готовы';
 
   @override
   String get chatContextDismiss => 'Закрыть';
@@ -1554,12 +1161,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatMessageInfoVoiceDuration => 'Длина голосового';
 
   @override
-  String get chatMessageInfoSeenBy => 'Прочитано';
-
-  @override
-  String get chatMessageInfoDeliveredTo => 'Доставлено';
-
-  @override
   String get chatMessageInfoEmptyBody => '(пусто)';
 
   @override
@@ -1578,28 +1179,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatMessageInfoNotDelivered => 'Не доставлено';
 
   @override
-  String get chatMessageInfoSent => 'Отправлено';
-
-  @override
   String get chatMessageInfoPending => 'Ожидание';
-
-  @override
-  String get chatMessageInfoNotSeen => 'Не прочитано';
-
-  @override
-  String get chatMessageInfoType => 'Тип';
-
-  @override
-  String get chatMessageInfoDuration => 'Длительность';
 
   @override
   String get chatMessageInfoYes => 'Да';
 
   @override
   String get chatMessageInfoNo => 'Нет';
-
-  @override
-  String get chatMessageInfoDeleteState => 'Состояние удаления';
 
   @override
   String get chatReactionDetailsTitle => 'Реакции';
@@ -1648,25 +1234,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatEmojiPickerEmptyState => 'Эмодзи не найдены';
 
   @override
-  String get chatCameraTitle => 'Камера';
-
-  @override
-  String get chatCameraUseAction => 'Использовать';
-
-  @override
   String get chatCameraGalleryAction => 'Галерея';
-
-  @override
-  String chatCameraSelectedCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count выбрано',
-      one: '1 выбрано',
-      zero: '0 выбрано',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get chatMediaPreviewEmptyState => 'Нечего показывать';
@@ -1693,11 +1261,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatMediaPreviewCaptionHint => 'Добавить подпись…';
 
   @override
-  String tutorPlanSelectedPlaceholder(Object plan) {
-    return '$plan выбран. Оплата пока в тестовом режиме.';
-  }
-
-  @override
   String get tutorFailedToLoadChats => 'Не удалось загрузить чаты';
 
   @override
@@ -1713,119 +1276,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tutorPlansTitle => 'Планы NOVA';
 
   @override
-  String tutorPlansSubtitle(Object model) {
-    return 'На основе стоимости $model с ежемесячными лимитами.';
-  }
-
-  @override
-  String get tutorPlanPriceFree => 'Бесплатно';
-
-  @override
-  String tutorPlanPriceMonthly(Object price) {
-    return '$price\$/мес';
-  }
-
-  @override
-  String get tutorPromptsLeft => 'Запросов осталось';
-
-  @override
-  String get tutorUploadsLeft => 'Загрузок осталось';
-
-  @override
-  String get tutorVoiceLeft => 'Осталось голосовых';
-
-  @override
-  String tutorUsageValue(Object remaining, Object total) {
-    return '$remaining/$total';
-  }
-
-  @override
-  String tutorVoiceUsageValue(Object remaining, Object total) {
-    return '$remaining/$total мин';
-  }
-
-  @override
-  String get tutorPaymentMethodsTitle => 'Способы оплаты';
-
-  @override
-  String tutorPaymentMethodsSubtitle(Object plan) {
-    return 'Оплата в тестовом режиме. Тариф: $plan.';
-  }
-
-  @override
-  String get tutorCardCheckoutTitle => 'Карта';
-
-  @override
-  String get tutorCardCheckoutSubtitle =>
-      'Visa, Mastercard, AmEx — тестовый шлюз.';
-
-  @override
-  String get tutorApplePayTitle => 'Apple Pay';
-
-  @override
-  String get tutorApplePaySubtitle => 'Тестовый кошелёк для iPhone и веба.';
-
-  @override
-  String get tutorBankTransferTitle => 'Банковский перевод';
-
-  @override
-  String get tutorBankTransferSubtitle =>
-      'Банковский счёт ClassMate открывается. Реквизиты появятся позже.';
-
-  @override
   String get tutorPlanStarterName => 'Starter';
-
-  @override
-  String get tutorPlanStarterTagline => 'Начните работу с AI-репетитором';
 
   @override
   String get tutorPlanPlusName => 'Plus';
 
   @override
-  String get tutorPlanPlusTagline => 'Расширенные возможности NOVA';
-
-  @override
   String get tutorPlanProName => 'Pro';
 
   @override
-  String get tutorPlanProTagline => 'Максимальные возможности NOVA';
-
-  @override
   String get tutorPlanSchoolSeatName => 'Школьное место';
-
-  @override
-  String get tutorPlanSchoolSeatTagline =>
-      'Для школ — оплата за ученика или сотрудника.';
-
-  @override
-  String tutorPlanBulletPromptsMonthly(Object count) {
-    return '$count запросов NOVA в месяц';
-  }
-
-  @override
-  String tutorPlanBulletPromptsPerSeatMonthly(Object count) {
-    return '$count запросов NOVA на место в месяц';
-  }
-
-  @override
-  String tutorPlanBulletUploads(Object count) {
-    return '$count загрузок изображений или файлов';
-  }
-
-  @override
-  String tutorPlanBulletVoiceMinutes(Object count) {
-    return '$count минут голосовой транскрипции';
-  }
-
-  @override
-  String tutorEstimatedCostCeilingFree(Object cost) {
-    return 'Оценочный потолок затрат: $cost\$/мес';
-  }
-
-  @override
-  String tutorEstimatedCostCeilingPaid(Object cost, Object margin) {
-    return 'Оценочный потолок затрат: $cost\$/мес · маржа $margin%';
-  }
 
   @override
   String tutorTimeMinutesShort(Object count) {
@@ -1859,16 +1319,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tutorTakePhoto => 'Сделать фото';
 
   @override
-  String get tutorRecordVideo => 'Записать видео';
-
-  @override
-  String get tutorChooseFromGallery => 'Выбрать из галереи';
-
-  @override
   String get tutorPreviewTitle => 'Предпросмотр';
-
-  @override
-  String get tutorThinking => 'Думаю…';
 
   @override
   String get tutorDone => 'Готово.';
@@ -1895,10 +1346,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Транскрипция не удалась. Попробуйте ещё раз.';
 
   @override
-  String get tutorMicrophonePermissionRequired =>
-      'Требуется доступ к микрофону.';
-
-  @override
   String get tutorPlanLimitReachedTitle => 'Лимит плана NOVA исчерпан';
 
   @override
@@ -1917,9 +1364,6 @@ class AppLocalizationsRu extends AppLocalizations {
   ) {
     return 'План: $plan · $prompts запросов · $uploads загрузок · $voice';
   }
-
-  @override
-  String get tutorReviewPlansInHome => 'Просмотреть планы в NOVA';
 
   @override
   String get tutorCouldNotOpenAttachment => 'Не удалось открыть вложение.';
@@ -1944,32 +1388,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Попросите NOVA объяснить концепцию, сделать таблицу или помочь с подготовкой.';
 
   @override
-  String get tutorPromptSuggestionSummarizeNotes =>
-      'Суммируй мои заметки к уроку';
-
-  @override
-  String get tutorPromptSuggestionRevisionTable =>
-      'Сделай таблицу для повторения';
-
-  @override
-  String get tutorPromptSuggestionQuizMe => 'Проверь меня по этой теме';
-
-  @override
   String get tutorMessageNovaHint => 'Напишите NOVA…';
-
-  @override
-  String get tutorHeaderSubtitleReady =>
-      'Структурированные ответы, таблицы и помощь в учёбе';
-
-  @override
-  String get tutorYourNovaPlanTitle => 'Ваш план NOVA';
-
-  @override
-  String get tutorYourNovaPlanMessage =>
-      'Просмотрите лимиты запросов, загрузок и голоса, затем вернитесь в NOVA.';
-
-  @override
-  String get tutorExplainTitle => 'NOVA Объясняет';
 
   @override
   String get classroomsThreadTypeClassroom => 'Класс';
@@ -1979,9 +1398,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get classroomsThreadTypeDirectMessage => 'Личное сообщение';
-
-  @override
-  String get classroomsThreadTypeDirectMessageShort => 'DM';
 
   @override
   String get messagesBlockedPeopleTitle => 'Заблокированные';
@@ -2026,11 +1442,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get messagesRequestReviewStatus => 'Рассмотреть';
-
-  @override
-  String messagesPeopleLoadFailed(Object error) {
-    return 'Не удалось загрузить людей: $error';
-  }
 
   @override
   String get messagesSearchPeopleHint => 'Поиск людей';
@@ -2105,9 +1516,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Чат откроется, когда получатель одобрит ваше первое сообщение.';
 
   @override
-  String get messagesThreadConversationFallback => 'Разговор';
-
-  @override
   String get messagesThreadLeaveGroupTitle => 'Покинуть группу?';
 
   @override
@@ -2122,52 +1530,16 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вы больше не сможете обмениваться сообщениями с этим пользователем.';
 
   @override
-  String get messagesThreadPersonFallback => 'Пользователь';
-
-  @override
   String get messagesThreadProfileInfoUnavailable => 'Профиль недоступен';
-
-  @override
-  String get messagesThreadParticipants => 'Участники';
-
-  @override
-  String get messagesThreadPeople => 'Люди';
-
-  @override
-  String get messagesThreadDeleteForMe => 'Удалить для меня';
-
-  @override
-  String get messagesThreadDeleteForEveryone => 'Удалить для всех';
-
-  @override
-  String get messagesThreadDeleteForEveryoneSubtitle =>
-      'Удаляет для всех участников';
-
-  @override
-  String get messagesThreadSending => 'Отправка…';
 
   @override
   String get messagesThreadWaitingForApproval => 'Ожидает подтверждения';
 
   @override
-  String get classroomsForwardSearchHint => 'Поиск классов или чатов…';
-
-  @override
   String get classroomsForwardNewChat => 'Новый чат';
 
   @override
-  String classroomsForwardLoadError(Object error) {
-    return 'Не удалось загрузить чаты: $error';
-  }
-
-  @override
-  String get classroomsForwardNoChatsFound => 'Чаты не найдены';
-
-  @override
   String get classroomsForwardSectionClassrooms => 'Классы';
-
-  @override
-  String get classroomsForwardSectionDirectMessages => 'Личные сообщения';
 
   @override
   String get classroomsForwardCancel => 'Отмена';
@@ -2224,9 +1596,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get earlier => 'Ранее';
-
-  @override
-  String get openDetails => 'Открыть';
 
   @override
   String get total => 'Всего';
@@ -2497,11 +1866,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нажмите на занятие для просмотра деталей и ссылки.';
 
   @override
-  String meetingsDateTimeValue(Object date, Object time) {
-    return '$date · $time';
-  }
-
-  @override
   String meetingsSharedByValue(Object name) {
     return 'Поделился: $name';
   }
@@ -2605,26 +1969,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get announcementsDetailsTitle => 'Подробности';
-
-  @override
-  String get announcementsDetailsSubtitle =>
-      'Метаданные публикации этого объявления и текущее состояние прочтения.';
-
-  @override
-  String get announcementsSeverityLabel => 'Важность';
-
-  @override
   String get announcementsCreatedLabel => 'Создано';
 
   @override
-  String get announcementsIdLabel => 'ID';
-
-  @override
   String get announcementsFullContentTitle => 'Содержание';
-
-  @override
-  String get announcementsFullContentSubtitle => 'Полный текст объявления';
 
   @override
   String get announcementsReadStateTitle => 'Статус';
@@ -2636,109 +1984,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get announcementsReadStateBodyUnread => 'Непрочитано';
 
   @override
-  String get alertsTitle => 'Оповещения';
-
-  @override
-  String get alertsSubtitle => 'Важные сигналы';
-
-  @override
-  String get alertsAttendanceTitle => 'Посещаемость';
-
-  @override
-  String alertsAttendanceBody(Object rate) {
-    return 'Ваш процент посещаемости: $rate%. Следите за пропусками.';
-  }
-
-  @override
-  String get alertsWeakestSubjectTitle => 'Слабый предмет';
-
-  @override
-  String alertsWeakestSubjectBody(Object subject) {
-    return '$subject требует наибольшего внимания по данным оценок.';
-  }
-
-  @override
-  String get alertsPracticeWeakAreaTitle => 'Слабое место';
-
-  @override
-  String alertsPracticeWeakAreaBody(Object topic, Object subject) {
-    return '$topic по предмету $subject — слабая тема прямо сейчас.';
-  }
-
-  @override
-  String get alertsPracticeTrendDroppedTitle => 'Результаты снизились';
-
-  @override
-  String get alertsPracticeTrendDroppedBody =>
-      'Ваши результаты практики снижаются';
-
-  @override
-  String get alertsEmpty => 'Оповещений нет';
-
-  @override
   String get student => 'Ученик';
-
-  @override
-  String get classroomDetailPhoto => 'Фото';
-
-  @override
-  String get classroomDetailVoiceNote => 'Голосовая заметка';
-
-  @override
-  String get classroomDetailVideo => 'Видео';
-
-  @override
-  String get classroomDetailFile => 'Файл';
-
-  @override
-  String get classroomDetailEmptyValue => '(пусто)';
-
-  @override
-  String get classroomDetailAttachmentUnavailable => 'Вложение недоступно.';
-
-  @override
-  String get classroomDetailAudioUnavailable => 'Аудио недоступно.';
-
-  @override
-  String get classroomDetailCouldNotOpenAttachment =>
-      'Не удалось открыть вложение.';
-
-  @override
-  String get classroomDetailVoiceMessage => 'Голосовое сообщение';
-
-  @override
-  String get classroomDetailVideoFile => 'Видеофайл';
-
-  @override
-  String get classroomDetailAttachedFile => 'Прикреплённый файл';
-
-  @override
-  String get classroomDetailAttachment => 'Вложение';
 
   @override
   String get classroomDetailPinAction => 'Закрепить';
 
   @override
-  String get classroomDetailUnpinAction => 'Открепить';
-
-  @override
   String get classroomDetailMessageInfoTitle => 'Информация о сообщении';
-
-  @override
-  String get classroomDetailForwardedSingle => 'Переслано';
-
-  @override
-  String classroomDetailForwardedMultiple(Object count) {
-    return 'Переслано $count сообщений';
-  }
-
-  @override
-  String get classroomDetailCannotForwardPending =>
-      'Нельзя переслать в чат, ожидающий одобрения';
-
-  @override
-  String get classroomDetailCouldNotForwardSelected =>
-      'Не удалось переслать выбранные сообщения';
 
   @override
   String classroomDetailSelectedCount(Object count) {
@@ -2746,37 +1998,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String classroomDetailDeleteCount(Object count) {
-    return 'Удалить ($count)';
-  }
-
-  @override
-  String get classroomDetailSelectAllTooltip => 'Выбрать все';
-
-  @override
   String get classroomDetailCancelTooltip => 'Отмена';
 
   @override
-  String get classroomDetailMicrophoneAccessTitle =>
-      'Необходим доступ к микрофону';
-
-  @override
-  String get classroomDetailMicrophoneAccessBody =>
-      'Разрешите доступ к микрофону в Настройки → ClassMate для голосовых заметок.';
-
-  @override
-  String get classroomDetailOpenSettingsAction => 'Открыть настройки';
-
-  @override
-  String classroomDetailForwardTargetNext(Object label) {
-    return 'Следующий получатель: $label';
-  }
-
-  @override
   String get classroomDetailEditMessageTitle => 'Редактировать сообщение';
-
-  @override
-  String get classroomDetailEditMessageHint => 'Редактировать сообщение…';
 
   @override
   String get classroomDetailLeaveClassroomTitle => 'Покинуть класс?';
@@ -2838,27 +2063,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get classroomDetailTabPeople => 'Участники';
 
   @override
-  String get classroomChatMediaSendPhoto => 'Отправить фото';
-
-  @override
-  String get classroomChatMediaSendPhotoSubtitle =>
-      'Поделиться изображением в чате класса';
-
-  @override
-  String get classroomChatMediaSendVoiceMessage => 'Отправить голосовое';
-
-  @override
-  String get classroomChatMediaSendVoiceMessageSubtitle =>
-      'Записать и отправить голосовую заметку';
-
-  @override
   String get classroomDetailCouldNotLoadTab => 'Не удалось загрузить вкладку';
-
-  @override
-  String get classroomDetailDeletedByYou => 'Вы удалили это сообщение';
-
-  @override
-  String get classroomDetailDeletedMessage => 'Сообщение удалено';
 
   @override
   String get practiceSetupDifficultyEasy => 'Лёгкий';
@@ -2979,41 +2184,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String practiceSetupSummarySubject(Object subject) {
-    return 'Предмет: $subject';
-  }
-
-  @override
-  String practiceSetupSummaryTopic(Object topic) {
-    return 'Тема: $topic';
-  }
-
-  @override
-  String practiceSetupSummaryMode(Object mode) {
-    return 'Режим: $mode';
-  }
-
-  @override
-  String practiceSetupSummaryDifficulty(Object difficulty) {
-    return 'Сложность: $difficulty';
-  }
-
-  @override
-  String practiceSetupSummaryQuestions(Object count) {
-    return 'Вопросов: $count';
-  }
-
-  @override
-  String practiceSetupSummaryTiming(Object timing) {
-    return 'Время: $timing';
-  }
-
-  @override
-  String practiceSetupSummaryLives(Object lives) {
-    return 'Попытки: $lives';
-  }
-
-  @override
   String get practiceSetupSectionSubjectTopic => 'Предмет и тема';
 
   @override
@@ -3060,30 +2230,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get practiceSetupDialogEnterTopic => 'Введите тему';
-
-  @override
-  String get practiceSubjectMath => 'Математика';
-
-  @override
-  String get practiceSubjectPhysics => 'Физика';
-
-  @override
-  String get practiceSubjectComputerScience => 'Информатика';
-
-  @override
-  String get practiceSubjectChemistry => 'Химия';
-
-  @override
-  String get practiceSubjectBiology => 'Биология';
-
-  @override
-  String get practiceSubjectEnglish => 'Английский';
-
-  @override
-  String get practiceSubjectArabic => 'Арабский';
-
-  @override
-  String get practiceSubjectHebrew => 'Иврит';
 
   @override
   String get practiceSubjectGeneralKnowledge => 'Общие знания';
@@ -3367,9 +2513,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get practiceHistoryDeleteSession => 'Удалить сессию';
 
   @override
-  String get practiceHistoryDebugTitle => 'Отладка истории практики';
-
-  @override
   String get practiceAnalyticsTitle => 'Аналитика практики';
 
   @override
@@ -3536,9 +2679,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get practiceSessionLoadingBagrut => 'Подготовка набора для Багрут';
 
   @override
-  String get practiceSessionLoadingDefault => 'Подготовка сессии';
-
-  @override
   String practiceSessionCompleteTitle(Object mode) {
     return '$mode завершён';
   }
@@ -3557,9 +2697,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get practiceSessionMetricTotal => 'Всего';
-
-  @override
-  String get practiceSessionMetricXp => 'XP';
 
   @override
   String get practiceSessionMetricStreak => 'Серия';
@@ -3772,76 +2909,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get practiceModeNoExplanationYet => 'Пояснение пока недоступно.';
 
   @override
-  String get teacherGradesAssessmentCreated => 'Контрольная работа создана';
-
-  @override
-  String get teacherGradesEditAssessmentTitle => 'Редактировать работу';
-
-  @override
-  String get teacherGradesFieldTitle => 'Название';
-
-  @override
-  String get teacherGradesFieldDate => 'Дата (ГГГГ-ММ-ДД)';
-
-  @override
-  String get teacherGradesFieldMaxGrade => 'Максимальная оценка';
-
-  @override
-  String get teacherGradesAssessmentUpdated => 'Работа обновлена';
-
-  @override
   String get teacherGradesDeleteAssessmentTitle =>
       'Удалить контрольную работу?';
-
-  @override
-  String teacherGradesDeleteAssessmentBody(Object title) {
-    return 'Это удалит $title и все оценки из журнала.';
-  }
 
   @override
   String get teacherGradesDeleteAction => 'Удалить';
 
   @override
-  String get teacherGradesAssessmentDeleted => 'Контрольная работа удалена';
-
-  @override
-  String get teacherGradesRosterLinkError =>
-      'Эта работа не связана со списком класса.';
-
-  @override
   String get teacherGradesSaved => 'Оценки сохранены';
-
-  @override
-  String get teacherGradesSubtitle => 'Журнал оценок';
-
-  @override
-  String get teacherGradesCreateAssessmentTitle => 'Создать контрольную работу';
-
-  @override
-  String get teacherGradesFieldCourse => 'Предмет';
-
-  @override
-  String get teacherGradesCreateAction => 'Создать';
-
-  @override
-  String get teacherGradesNoStudentsLoaded =>
-      'Ученики для этой работы не загружены.';
-
-  @override
-  String get teacherGradesFieldGrade => 'Оценка';
-
-  @override
-  String teacherGradesMaxHint(Object grade) {
-    return 'Макс. $grade';
-  }
-
-  @override
-  String get teacherGradesSaving => 'Сохранение…';
-
-  @override
-  String teacherGradesSaveCount(Object count) {
-    return 'Сохранить оценки ($count)';
-  }
 
   @override
   String get assignmentsNoDueDate => 'Без срока';
@@ -3869,14 +2944,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get assignmentsPreviewFallback => 'Файл';
-
-  @override
-  String get assignmentsSubmissionPrepEmpty => 'Нет подготовленных материалов';
-
-  @override
-  String assignmentsSubmissionPrepCount(Object count) {
-    return '$count файл(ов) прикреплено локально.';
-  }
 
   @override
   String get assignmentsHeroSubtitle => 'Ваши задания';
@@ -3939,17 +3006,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get assignmentsListSubtitle => 'Все задания';
 
   @override
-  String get assignmentsAddNoteBeforePrepare =>
-      'Добавьте заметку перед подготовкой';
-
-  @override
-  String get assignmentsWorkDraftPrepared => 'Черновик готов';
-
-  @override
-  String get assignmentsWorkDraftPreparedWithFiles =>
-      'Черновик с файлами готов';
-
-  @override
   String get assignmentsUnavailableTitle => 'Задания недоступны';
 
   @override
@@ -3975,64 +3031,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get assignmentsDetailDueLabel => 'Срок';
 
   @override
-  String get assignmentsDetailClassroomLabel => 'Класс';
-
-  @override
   String get assignmentsDetailTeacherLabel => 'Учитель';
 
   @override
-  String get assignmentsDetailPostedByLabel => 'Опубликовал';
-
-  @override
-  String get assignmentsDetailPublishedLabel => 'Опубликовано';
-
-  @override
   String get assignmentsDetailUpdatedLabel => 'Обновлено';
-
-  @override
-  String get assignmentsDetailIdLabel => 'ID';
 
   @override
   String get assignmentsInstructionsTitle => 'Инструкции';
 
   @override
   String get assignmentsInstructionsSubtitle => 'Описание задания';
-
-  @override
-  String get assignmentsYourWorkTitle => 'Ваша работа';
-
-  @override
-  String get assignmentsYourWorkSubtitle => 'Подготовка и прикрепление файлов';
-
-  @override
-  String get assignmentsPrivateNoteLabel => 'Личная заметка';
-
-  @override
-  String get assignmentsPrivateNoteHint => 'Только для вас…';
-
-  @override
-  String get assignmentsAddFiles => 'Добавить файлы';
-
-  @override
-  String get assignmentsClearFiles => 'Удалить файлы';
-
-  @override
-  String get assignmentsStagedDeviceHint =>
-      'Файлы хранятся локально на устройстве';
-
-  @override
-  String assignmentsLastPrepared(Object time) {
-    return 'Последняя подготовка: $time.';
-  }
-
-  @override
-  String get assignmentsSubmissionPrepTitle => 'Подготовка';
-
-  @override
-  String get assignmentsPreparing => 'Подготовка…';
-
-  @override
-  String get assignmentsPrepareWork => 'Подготовить';
 
   @override
   String get assignmentsLoadingSubtitle => 'Загрузка заданий…';
@@ -4045,9 +3053,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get assignmentsRemoveAttachment => 'Удалить вложение';
-
-  @override
-  String get assignmentsSubmitted => 'Сдано';
 
   @override
   String get attendanceUndated => 'Без даты';
@@ -4249,68 +3254,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get attendanceRange90Short => '90 дней';
 
   @override
-  String get gradesLoadError => 'Не удалось загрузить оценки';
-
-  @override
-  String get gradesLoadTimeout => 'Превышено время ожидания';
-
-  @override
-  String get gradesLoadNetwork => 'Нет подключения';
-
-  @override
   String get gradesGeneralSubject => 'Общее';
-
-  @override
-  String get gradesBandBuilding => 'Формируется';
-
-  @override
-  String get gradesBandExcellent => 'Отлично';
-
-  @override
-  String get gradesBandStrong => 'Хорошо';
-
-  @override
-  String get gradesBandOkay => 'Удовлетворительно';
-
-  @override
-  String get gradesBandNeedsAttention => 'Требует внимания';
-
-  @override
-  String get gradesBandRisk => 'Риск';
-
-  @override
-  String get gradesTrendRising => 'Растёт';
-
-  @override
-  String get gradesTrendDropping => 'Падает';
-
-  @override
-  String get gradesTrendStable => 'Стабильно';
-
-  @override
-  String gradesShowingSummary(
-    Object shown,
-    Object total,
-    Object subject,
-    Object range,
-  ) {
-    return 'Показано $shown из $total оценок по $subject за $range.';
-  }
-
-  @override
-  String get gradesLoadingSubtitle => 'Загрузка оценок…';
-
-  @override
-  String get gradesUnavailableTitle => 'Оценки недоступны';
-
-  @override
-  String get gradesHeroSubtitle => 'Ваши оценки';
-
-  @override
-  String get gradesMetricAverage => 'Средний балл';
-
-  @override
-  String get gradesMetricRecorded => 'Всего оценок';
 
   @override
   String get gradesMetricBestSubject => 'Лучший предмет';
@@ -4319,113 +3263,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get gradesMetricNeedsWork => 'Требует работы';
 
   @override
-  String gradesLatestSignalBody(
-    Object assessment,
-    Object subject,
-    Object grade,
-    Object band,
-  ) {
-    return '$assessment по $subject: $grade. Уровень: $band.';
-  }
-
-  @override
-  String get gradesSummaryAvailableNoRecent => 'Нет последних оценок';
-
-  @override
   String get gradesEmptyTitle => 'Оценок пока нет';
 
   @override
   String get gradesEmptySubtitle => 'Оценки появятся после проверки работ.';
 
   @override
-  String get gradesFiltersSubtitle => 'Фильтровать оценки';
-
-  @override
-  String get gradesNoFilteredTitle => 'Оценок не найдено';
-
-  @override
-  String get gradesNoFilteredSubtitle => 'Попробуйте изменить фильтры.';
-
-  @override
-  String get gradesQuickReadTitle => 'Сводка';
-
-  @override
-  String get gradesQuickReadSubtitleFiltered => 'По отфильтрованным оценкам';
-
-  @override
-  String get gradesQuickReadSubtitleAll => 'По всем оценкам';
-
-  @override
-  String get gradesWeakSpotLabel => 'Слабое место';
-
-  @override
-  String get gradesNoWeakSignal => 'Слабых мест нет';
-
-  @override
-  String gradesWeakSpotValue(Object subject) {
-    return 'Нужно внимание: $subject';
-  }
-
-  @override
-  String get gradesStrengthLabel => 'Сильная сторона';
-
-  @override
-  String get gradesNoStrengthSignal => 'Нет данных';
-
-  @override
-  String gradesStrengthValue(Object subject) {
-    return '$subject';
-  }
-
-  @override
-  String get gradesBandLabel => 'Уровень';
-
-  @override
-  String get gradesInViewLabel => 'В просмотре';
-
-  @override
-  String gradesInViewCount(Object count) {
-    return '$count оценок в этом фильтре.';
-  }
-
-  @override
-  String gradesInViewAverage(Object count, Object average) {
-    return '$count оценок, средний балл $average.';
-  }
-
-  @override
-  String get gradesLatestAssessmentsTitle => 'Последние оценки';
-
-  @override
-  String get gradesLatestAssessmentsSubtitleFiltered =>
-      'Отфильтрованные оценки';
-
-  @override
-  String get gradesLatestAssessmentsSubtitleAll => 'Все недавние оценки';
-
-  @override
-  String get gradesSubjectDrilldownTitle => 'По предметам';
-
-  @override
-  String get gradesSubjectDrilldownSubtitleFiltered =>
-      'По отфильтрованным предметам';
-
-  @override
-  String get gradesSubjectDrilldownSubtitleAll => 'По всем предметам';
-
-  @override
   String get gradesAssessmentFallback => 'Оценивание';
-
-  @override
-  String get gradesChipBest => 'Лучший';
-
-  @override
-  String get gradesNoAverageYet => 'Среднего балла пока нет';
-
-  @override
-  String gradesRecentAverage(Object average) {
-    return 'Средний балл: $average';
-  }
 
   @override
   String get actionCancel => 'Отмена';
@@ -4443,12 +3287,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get actionBlock => 'Заблокировать';
 
   @override
-  String get actionCreate => 'Создать';
-
-  @override
-  String get actionShare => 'Поделиться';
-
-  @override
   String get actionScheduleVerb => 'Запланировать';
 
   @override
@@ -4456,18 +3294,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get actionKeep => 'Оставить';
-
-  @override
-  String get actionOpen => 'Открыть';
-
-  @override
-  String get actionPublish => 'Опубликовать';
-
-  @override
-  String get actionPublishing => 'Публикация…';
-
-  @override
-  String get actionRefresh => 'Обновить';
 
   @override
   String get msgBlockTitle => 'Заблокировать этого пользователя?';
@@ -4571,9 +3397,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get examStudyWithNova => 'Учиться с NOVA';
 
   @override
-  String get examOpenInsights => 'Открыть аналитику';
-
-  @override
   String get examAddToCalendar => 'Добавить в календарь';
 
   @override
@@ -4589,22 +3412,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get formClosed => 'Закрыт';
 
   @override
-  String get formCompletion => 'Завершение';
-
-  @override
-  String get formNoTextResponses => 'Текстовых ответов пока нет.';
-
-  @override
   String get meetingsCouldNotLoad => 'Не удалось загрузить встречи';
 
   @override
   String get meetingCouldNotLoad => 'Не удалось загрузить встречу';
-
-  @override
-  String get insightsGenerateAction => 'Создать аналитику';
-
-  @override
-  String get insightsRefreshAction => 'Обновить';
 
   @override
   String get teacherGoToClassroom => 'Перейти в класс';
@@ -4617,9 +3428,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherNewAnnouncementAction => 'Новое объявление';
-
-  @override
-  String get teacherViewFullWeekSchedule => 'Просмотреть недельное расписание';
 
   @override
   String get teacherGroupsLabel => 'Группы';
@@ -4649,13 +3457,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherAudienceSectionTitle => 'Аудитория';
 
   @override
-  String get teacherPinAnnouncement => 'Закрепить объявление';
-
-  @override
-  String get teacherPinnedAtTop =>
-      'Закреплённые объявления отображаются вверху';
-
-  @override
   String get teacherPublishAction => 'Опубликовать';
 
   @override
@@ -4680,12 +3481,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherSearchStudents => 'Поиск учеников…';
 
   @override
-  String get teacherNoStudentsLoaded => 'В этой школе нет учеников.';
-
-  @override
-  String get teacherActions => 'БЫСТРЫЕ ДЕЙСТВИЯ';
-
-  @override
   String get teacherParentsLabel => 'Родители';
 
   @override
@@ -4693,9 +3488,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherWeekScheduleTitle => 'Недельное расписание';
-
-  @override
-  String get teacherCouldNotLoadSchedule => 'Не удалось загрузить расписание';
 
   @override
   String get teacherAttendanceLast30 => 'Последние 30 дней';
@@ -4746,9 +3538,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherNoGradesEntered => 'Оценки ещё не введены';
 
   @override
-  String get teacherNewAssignment => 'Новое задание';
-
-  @override
   String get teacherDeleteAssignment => 'Удалить задание?';
 
   @override
@@ -4777,9 +3566,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherJoinMeeting => 'Присоединиться к встрече';
 
   @override
-  String get teacherAddStudentTitle => 'Добавить ученика';
-
-  @override
   String teacherRemoveStudentTitle(Object name) {
     return 'Удалить $name?';
   }
@@ -4790,12 +3576,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherStudentAdded => 'Ученик добавлен';
-
-  @override
-  String get teacherClassroomAnalyticsTitle => 'Аналитика класса';
-
-  @override
-  String get teacherOpenAnalyticsAction => 'Открыть аналитику';
 
   @override
   String teacherStudentsCount(Object count) {
@@ -4814,9 +3594,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get teacherSelectSessionPrompt =>
       'Выберите сессию ниже, чтобы начать отмечать посещаемость';
-
-  @override
-  String get teacherOpenAction => 'Открыть';
 
   @override
   String get chatDeleteForMe => 'Удалить для меня';
@@ -4863,9 +3640,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get chatEditPlaceholder => 'Изменить сообщение…';
 
   @override
-  String get chatMessageHint => 'Сообщение';
-
-  @override
   String get chatPin => 'Закрепить';
 
   @override
@@ -4903,9 +3677,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chatJoinGroupTooltip => 'Вступить в группу по коду';
-
-  @override
-  String get chatForwardNoChatAvailable => 'Нет доступных одобренных чатов';
 
   @override
   String get chatFilterAll => 'Все';
@@ -4948,12 +3719,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Нет классов для изменения порядка.';
 
   @override
-  String get teacherPostAnnouncementAction => 'Опубликовать объявление';
-
-  @override
-  String get announcementAudienceEveryone => 'Все';
-
-  @override
   String get teacherGreetingMorning => 'Доброе утро';
 
   @override
@@ -4972,38 +3737,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherUpcomingTestsSubtitle => 'Ближайшие тесты и контрольные';
 
   @override
-  String get teacherNoClassesThisWeek => 'Нет занятий на этой неделе';
-
-  @override
-  String get teacherNoClassesThisWeekSub =>
-      'Ваше расписание на эту неделю пустое';
-
-  @override
-  String get teacherTitleFieldLabel => 'Заголовок *';
-
-  @override
-  String get teacherInstructionsLabel => 'Инструкции';
-
-  @override
-  String get teacherLinkUrlLabel => 'Ссылка / URL *';
-
-  @override
-  String get teacherLinkUrlHint => 'Введите ссылку…';
-
-  @override
-  String get teacherDescriptionLabel => 'Описание';
-
-  @override
-  String get teacherMeetingTitleLabel => 'Название встречи *';
-
-  @override
-  String get teacherMeetingLinkLabel => 'Ссылка на встречу *';
-
-  @override
   String get teacherMeetingLinkHint => 'Ссылка Zoom / Meet / Teams';
-
-  @override
-  String get teacherStudentEmailLabel => 'Email или ID студента';
 
   @override
   String get teacherTooltipRemoveStudent => 'Удалить из класса';
@@ -5064,9 +3798,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navDiplomas => 'Дипломы';
 
   @override
-  String get diplomasComingSoon => 'Управление дипломами скоро появится.';
-
-  @override
   String get teacherExamsTitle => 'Экзамены';
 
   @override
@@ -5077,11 +3808,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherExamsEmpty => 'Оценок пока нет. Нажмите + чтобы создать.';
-
-  @override
-  String teacherExamsGraded(Object count) {
-    return '$count оценено';
-  }
 
   @override
   String get teacherFormsTitle => 'Формы';
@@ -5101,51 +3827,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherFormsDraft => 'Черновик';
 
   @override
-  String get teacherFormsCreateTitle => 'Создать форму';
-
-  @override
-  String get teacherFormsAddQuestion => 'Добавить вопрос';
-
-  @override
-  String get teacherFormsQuestionHint => 'Текст вопроса';
-
-  @override
   String get teacherFormsViewResponses => 'Посмотреть ответы';
 
   @override
   String get teacherFormsNoResponses => 'Ответов пока нет.';
 
   @override
-  String get diplomasTitle => 'Сертификаты';
-
-  @override
-  String get diplomasEmpty => 'Дипломы ещё не выданы. Нажмите + чтобы выдать.';
-
-  @override
-  String get diplomasIssueTo => 'Выдать кому';
-
-  @override
-  String get diplomasStudentName => 'Имя студента';
-
-  @override
-  String get diplomasCertificateType => 'Тип сертификата';
-
-  @override
-  String get diplomasIssueDiploma => 'Выдать сертификат';
-
-  @override
-  String diplomasIssuedOn(Object date) {
-    return 'Выдан $date';
-  }
-
-  @override
   String get examDetailsSection => 'Детали';
 
   @override
   String get examInfoTeacher => 'Учитель';
-
-  @override
-  String get examInfoAudience => 'Аудитория';
 
   @override
   String get examInfoDate => 'Дата';
@@ -5155,9 +3846,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get examInfoPeriod => 'Урок';
-
-  @override
-  String get examInfoDuration => 'Длительность';
 
   @override
   String get examInfoSubject => 'Предмет';
@@ -5180,9 +3868,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get examViewGradeAction => 'Открыть оценки';
-
-  @override
-  String get teacherGradesSaveAction => 'Сохранить';
 
   @override
   String get teacherGradesNothingToSave => 'Нет изменений для сохранения.';
@@ -5217,16 +3902,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Встреч пока нет.\nНажмите + чтобы запланировать.';
 
   @override
-  String get teacherStudentsNoMatch => 'Ученики не найдены';
-
-  @override
   String get teacherMaterialsTitle => 'Материалы';
 
   @override
   String get profileNamesTitle => 'Имя на языках';
-
-  @override
-  String get profileDisplayNameLang => 'Язык отображения';
 
   @override
   String get navDashboard => 'Панель управления';
@@ -5286,9 +3965,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminAdmins => 'Администраторы';
 
   @override
-  String get adminTodaySessions => 'Занятия сегодня';
-
-  @override
   String get adminQuickActions => 'Быстрые действия';
 
   @override
@@ -5305,33 +3981,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminCreateUser => 'Создать';
 
   @override
-  String get adminFullName => 'Полное имя';
-
-  @override
-  String get adminEmailAddress => 'Электронная почта';
-
-  @override
   String get adminRoleLabel => 'Роль';
 
   @override
   String get adminUserCreated => 'Пользователь создан';
 
   @override
-  String get adminTempPassword => 'Временный пароль';
-
-  @override
   String get adminCopied => 'Скопировано в буфер обмена';
-
-  @override
-  String get adminResetPassword => 'Сбросить пароль';
-
-  @override
-  String get adminPasswordReset => 'Сброс пароля';
-
-  @override
-  String adminTempPasswordFor(Object name) {
-    return 'Временный пароль для $name';
-  }
 
   @override
   String get adminDeleteUser => 'Удалить пользователя';
@@ -5353,9 +4009,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminAddCohort => 'Добавить группу';
 
   @override
-  String get adminNewCohort => 'Новая группа';
-
-  @override
   String get adminCohortName => 'Название группы (напр. 10-2)';
 
   @override
@@ -5366,11 +4019,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminAddStudents => 'Добавить учеников';
-
-  @override
-  String adminAddTo(Object name) {
-    return 'Добавить в $name';
-  }
 
   @override
   String get adminRemoveStudent => 'Удалить ученика';
@@ -5387,17 +4035,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminNoStudentsInCohort => 'В этой группе нет учеников';
 
   @override
-  String adminStudentCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count учеников',
-      one: '1 ученик',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get adminSearchStudents => 'Поиск учеников…';
 
   @override
@@ -5407,27 +4044,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminScheduleAddPeriod => 'Добавить урок';
 
   @override
-  String get adminScheduleNewPeriod => 'Новый урок';
-
-  @override
-  String get adminScheduleDayLabel => 'День';
-
-  @override
   String adminSchedulePeriodLabel(Object period) {
     return 'У$period';
   }
-
-  @override
-  String get adminScheduleTeacherLabel => 'Учитель';
-
-  @override
-  String get adminScheduleNoneTeacher => 'Нет учителя';
-
-  @override
-  String get adminScheduleCohortLabel => 'Группа / Ученики';
-
-  @override
-  String get adminScheduleFrequencyLabel => 'Частота';
 
   @override
   String get adminScheduleFreqWeekly => 'Каждую неделю';
@@ -5442,15 +4061,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminScheduleFreqCustom => 'Настроить';
 
   @override
-  String adminScheduleFreqCustomLabel(int n) {
-    return 'Каждые $n недели';
-  }
-
-  @override
   String get adminScheduleAddSlot => 'Добавить слот';
-
-  @override
-  String get adminScheduleAddAnother => 'Добавить ещё день / урок';
 
   @override
   String get adminScheduleSave => 'Сохранить';
@@ -5462,18 +4073,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminScheduleSearchCohort => 'Поиск групп…';
 
   @override
-  String get adminScheduleSelectTeacher => 'Выбрать учителя';
-
-  @override
-  String get adminScheduleSelectCohort => 'Выбрать группу';
-
-  @override
-  String get adminScheduleOrStudents => 'Или выбрать учеников отдельно';
-
-  @override
-  String get adminScheduleNoSlots => 'Нет уроков';
-
-  @override
   String get adminScheduleNoSlotsHint =>
       'Нажмите + для добавления первого урока';
 
@@ -5482,12 +4081,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminSchoolName => 'Название школы';
-
-  @override
-  String get adminSchoolLogoUrl => 'URL логотипа (необязательно)';
-
-  @override
-  String get adminSchoolLogoHint => 'https://…';
 
   @override
   String get adminSchoolSaved => 'Сохранено';
@@ -5501,16 +4094,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get adminSubjectsAddHint => 'Добавить предмет…';
-
-  @override
   String get adminSubjectsNoSubjects => 'Предметы не настроены';
 
   @override
   String get adminSubjectsAdd => 'Добавить';
-
-  @override
-  String get adminSubjectsRemove => 'Удалить';
 
   @override
   String get adminSettingsTitle => 'Настройки';
@@ -5534,12 +4121,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get permissionsColTeacher => 'Teachers';
-
-  @override
-  String get permissionsDefaultOn => 'On by default';
-
-  @override
-  String get permissionsDefaultOff => 'Off by default';
 
   @override
   String get permissionsChangedBadge => 'Changed';
@@ -5569,27 +4150,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get permissionsResetChanges => 'Discard changes';
 
   @override
-  String get permissionsUnsavedTitle => 'Discard changes?';
-
-  @override
-  String get permissionsUnsavedBody =>
-      'You have unsaved permission changes. Leave without saving?';
-
-  @override
-  String get permissionsLeave => 'Leave';
-
-  @override
-  String get permissionsStay => 'Keep editing';
-
-  @override
   String get adminSettingsBellSchedule => 'Звонок';
 
   @override
   String get adminSettingsPeriodDefaults => 'Расписание звонков';
-
-  @override
-  String get adminSettingsPeriodDefaultsSubtitle =>
-      'Установить время для каждого урока';
 
   @override
   String get adminDeleteConfirmCancel => 'Отмена';
@@ -5605,16 +4169,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminSearchPeople => 'Поиск по имени…';
-
-  @override
-  String adminNoResults(Object query) {
-    return 'Нет результатов для \"$query\"';
-  }
-
-  @override
-  String adminNoPeopleYet(Object role) {
-    return 'Нет $role';
-  }
 
   @override
   String get commonRetry => 'Повторить';
@@ -5662,9 +4216,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get commonNoResults => 'No results';
-
-  @override
-  String get commonShare => 'Поделиться';
 
   @override
   String get inboxActionPin => 'Закрепить чат';
@@ -5716,13 +4267,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Удалить это письмо из вашего почтового ящика?';
 
   @override
-  String get commonLoading => 'Загрузка…';
-
-  @override
   String get commonError => 'Что-то пошло не так';
-
-  @override
-  String get commonTryAgain => 'Попробуйте снова';
 
   @override
   String get studentMaterialsTitle => 'Материалы';
@@ -5751,24 +4296,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get studentAssignmentHandedInBadge => 'Сдано';
 
   @override
-  String get studentAssignmentSubmitButton => 'Сдать';
-
-  @override
-  String get studentAssignmentSubmitting => 'Сдаём…';
-
-  @override
-  String get studentAssignmentAttachFile => 'Прикрепить файл';
-
-  @override
-  String get studentAssignmentAddMoreFiles => 'Добавить ещё файлы';
-
-  @override
-  String get studentAssignmentYourSubmission => 'Ваша работа';
-
-  @override
-  String get studentAssignmentTeacherAttachments => 'Вложения';
-
-  @override
   String secretaryWelcomeGreeting(Object name) {
     return 'Привет, $name 👋';
   }
@@ -5781,9 +4308,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get secretaryExportData => 'Экспорт данных';
-
-  @override
-  String get secretaryHomeTile => 'Главная';
 
   @override
   String parentHomeGreeting(Object name) {
@@ -5845,22 +4369,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'We\'ll text the link to the phone number on this account.';
 
   @override
-  String get forgotPasswordLinkExpires =>
-      'Срок действия ссылки — 1 час, использовать можно только один раз.';
-
-  @override
-  String get pushPermissionTitle => 'Будьте в курсе';
-
-  @override
-  String get pushPermissionBody =>
-      'Включите уведомления, чтобы не пропустить оценки, сообщения или изменения в расписании.';
-
-  @override
-  String commonRequiredField(Object field) {
-    return '$field обязательно';
-  }
-
-  @override
   String get commonAttachments => 'Вложения';
 
   @override
@@ -5876,18 +4384,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonPublish => 'Опубликовать';
 
   @override
-  String get commonContinue => 'Продолжить';
-
-  @override
-  String get commonNext => 'Далее';
-
-  @override
-  String get commonStart => 'Начало';
-
-  @override
-  String get commonEnd => 'Конец';
-
-  @override
   String get commonRefresh => 'Обновить';
 
   @override
@@ -5897,22 +4393,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonOpen => 'Открыть';
 
   @override
-  String get commonView => 'Просмотр';
-
-  @override
-  String get commonCopy => 'Копировать';
-
-  @override
   String get commonAdd => 'Добавить';
-
-  @override
-  String get commonOptional => 'Необязательно';
-
-  @override
-  String get commonRequired => 'Обязательно';
-
-  @override
-  String get commonAuto => 'Авто';
 
   @override
   String get teacherShareButton => 'Поделиться';
@@ -5958,19 +4439,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Дата и время начала обязательны';
 
   @override
-  String get teacherMeetingStartDate => 'Дата начала *';
-
-  @override
   String get teacherMeetingStartTime => 'Время начала *';
 
   @override
-  String get teacherMeetingEndDate => 'Дата окончания (необязательно)';
-
-  @override
   String get teacherMeetingEndTime => 'Время окончания (необязательно)';
-
-  @override
-  String get teacherClearEndTime => 'Очистить время окончания';
 
   @override
   String get teacherAssignmentTitleField => 'Название *';
@@ -5997,9 +4469,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherCreateAssignment => 'Создать';
 
   @override
-  String get teacherExamSubject => 'Предмет *';
-
-  @override
   String get teacherExamDate => 'Дата экзамена *';
 
   @override
@@ -6018,16 +4487,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherSearchMaterials => 'Поиск материалов…';
 
   @override
-  String get teacherClassroomName => 'Название класса *';
-
-  @override
-  String get adminReportsOpenTab => 'Открытые';
-
-  @override
   String get adminReportsResolvedTab => 'Решённые';
-
-  @override
-  String get adminReportsDismissedTab => 'Отклонённые';
 
   @override
   String get adminReportsNoOpen => 'Нет открытых жалоб';
@@ -6065,11 +4525,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String chatReportFailed(Object error) {
     return 'Не удалось отправить жалобу: $error';
-  }
-
-  @override
-  String chatSendError(Object message) {
-    return 'Не удалось отправить: $message';
   }
 
   @override
@@ -6307,10 +4762,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminInCohortBadge => 'В группе';
 
   @override
-  String get adminNoStudentsFoundCohort =>
-      'Ученики не найдены в классах этой группы';
-
-  @override
   String get adminScheduleByCohort => 'По группе ▾';
 
   @override
@@ -6338,16 +4789,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminScheduleClearFilters => 'Очистить';
 
   @override
-  String get adminSchedulePickSubjectRequired =>
-      'Выберите предмет перед сохранением урока.';
-
-  @override
   String get adminSchedulePickDateOnce => 'Выберите дату для разового урока.';
-
-  @override
-  String adminSchedulePickDateRecurring(Object freq) {
-    return 'Выберите дату начала для расписания каждые $freq нед.';
-  }
 
   @override
   String get adminSchoolLogoLabel => 'Логотип школы';
@@ -6375,10 +4817,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminSchoolGradeRangeLabel => 'Диапазон классов';
 
   @override
-  String get adminSchoolGradeRangeDescription =>
-      'Классы, доступные в группах, учениках и выпадающих списках.';
-
-  @override
   String get adminSchoolLowestGrade => 'Минимум';
 
   @override
@@ -6390,9 +4828,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get adminSchoolSubjectsDescription =>
       'Доступны всем учителям при создании заданий.';
-
-  @override
-  String get adminSchoolNoTranslations => 'Нажмите, чтобы добавить переводы';
 
   @override
   String get adminSchoolBellHint =>
@@ -6410,15 +4845,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminSchoolEndTime => 'Конец';
-
-  @override
-  String get adminExportStudentsTab => 'Ученики';
-
-  @override
-  String get adminExportCohortsTab => 'Группы';
-
-  @override
-  String get adminExportGradesTab => 'Классы';
 
   @override
   String get adminExportOptionsTitle => 'Параметры экспорта';
@@ -6494,17 +4920,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get studentFormAlreadySubmittedButton => 'Уже отправлено';
 
   @override
-  String get studentDiplomaEditTitle => 'Изменить сертификат';
-
-  @override
-  String get studentDiplomaDeleteTitle => 'Удалить сертификат?';
-
-  @override
-  String studentDiplomaDeleteConfirm(Object name) {
-    return 'Удалить сертификат для «$name»?';
-  }
-
-  @override
   String teacherDeleteItemConfirm(Object title) {
     return 'Удалить «$title»?';
   }
@@ -6529,11 +4944,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherMeetingVisibleToEveryone => 'Видно всем';
-
-  @override
-  String teacherMeetingDoneCount(int count) {
-    return 'Готово (выбрано $count)';
-  }
 
   @override
   String get teacherDeleteAssignmentTitle => 'Удалить задание?';
@@ -6564,9 +4974,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get teacherClassroomFileUnavailable =>
       'Этот файл недоступен — учителю нужно загрузить его заново.';
-
-  @override
-  String get teacherClassroomCodeLabel => 'Код класса';
 
   @override
   String get teacherClassroomCodeCopied => 'Код скопирован';
@@ -6649,11 +5056,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherFormEnterTitle => 'Пожалуйста, введите название формы.';
 
   @override
-  String teacherExamUploadFailedSkipped(Object name) {
-    return 'Не удалось загрузить $name. Файл пропущен.';
-  }
-
-  @override
   String get teacherExamEnterTitle => 'Пожалуйста, введите название.';
 
   @override
@@ -6677,24 +5079,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherSlotDetachTooltip => 'Открепить';
-
-  @override
-  String get teacherDiplomaSelectStudent => 'Сначала выберите ученика.';
-
-  @override
-  String get teacherDiplomaUploadingWait =>
-      'Пожалуйста, подождите — файлы ещё загружаются.';
-
-  @override
-  String teacherDiplomaIssueFailed(Object error) {
-    return 'Не удалось выдать сертификат: $error';
-  }
-
-  @override
-  String get teacherDiplomaCertTitleLabel => 'Название сертификата';
-
-  @override
-  String get teacherDiplomaSearchStudent => 'Поиск ученика…';
 
   @override
   String get teacherProfileChatError => 'Не удалось начать чат';
@@ -6763,27 +5147,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherAnnounceNoParents => 'В этой школе не найдено родителей.';
 
   @override
-  String get teacherGradesToGrade => 'К оценке';
-
-  @override
-  String get teacherGradesGraded => 'Оценено';
-
-  @override
   String get teacherSaveGradesButton => 'Сохранить оценки';
-
-  @override
-  String get teacherAllowResubmitLabel => 'Разрешить пересдачу';
-
-  @override
-  String get teacherAllowResubmitTitle => 'Разрешить пересдачу?';
-
-  @override
-  String teacherAllowResubmitBody(Object name) {
-    return 'Это удалит работу $name, чтобы он мог сдать ещё раз.';
-  }
-
-  @override
-  String get teacherAllowButton => 'Разрешить';
 
   @override
   String get teacherGradeFieldLabel => 'Оценка';
@@ -6792,21 +5156,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherFeedbackOptionalLabel => 'Отзыв (необязательно)';
 
   @override
-  String get teacherCreateClassroomFabLabel => 'Создать';
-
-  @override
-  String get teacherLoadingStudents => 'Загрузка учеников…';
-
-  @override
   String get teacherSearchHintShort => 'Поиск…';
-
-  @override
-  String get teacherCreateClassroomTitle => 'Новый класс';
-
-  @override
-  String teacherAssignmentUploadFailed(Object name) {
-    return 'Не удалось загрузить $name';
-  }
 
   @override
   String get teacherAssignmentEnterTitle => 'Пожалуйста, введите название.';
@@ -6816,9 +5166,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherAssignmentInstructionsLabel => 'Инструкции / Описание';
-
-  @override
-  String get teacherAttachFilesButton => 'Прикрепить файлы';
 
   @override
   String get tutorDeleteConversationTitle => 'Удалить разговор?';
@@ -6853,18 +5200,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get accountContinueButton => 'Продолжить';
 
   @override
-  String get studentClassroomFileUnavailable => 'Этот файл пока недоступен.';
-
-  @override
-  String get studentClassroomDeleteMaterial => 'Удалить материал?';
-
-  @override
-  String get studentClassroomCodeLabel => 'Код класса';
-
-  @override
-  String get studentClassroomLeaveTooltip => 'Покинуть класс';
-
-  @override
   String get adminEditUserEnglishNameRequired => 'Требуется имя на английском';
 
   @override
@@ -6889,9 +5224,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminEditUserNameSection => 'Имя';
-
-  @override
-  String get adminEditUserAtLeastEnglish => 'Минимум на английском.';
 
   @override
   String get adminEditUserGradeSection => 'Класс';
@@ -7031,27 +5363,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminExportIncludesPasswords => 'Экспорт сбросит и включит пароли';
 
   @override
-  String get adminExportAnyway => 'Всё равно экспортировать';
-
-  @override
-  String get adminExportPdfStudentDirectory => 'Справочник учеников';
-
-  @override
   String adminExportPdfBy(String name) {
     return 'От: $name';
-  }
-
-  @override
-  String adminExportPdfStudentsCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count учеников',
-      many: '$count учеников',
-      few: '$count ученика',
-      one: '$count ученик',
-    );
-    return '$_temp0';
   }
 
   @override
@@ -7083,34 +5396,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminExportColumnPassword => 'Пароль';
-
-  @override
-  String get adminExportColumnNameEn => 'Имя (EN)';
-
-  @override
-  String get adminExportColumnNameAr => 'Имя (AR)';
-
-  @override
-  String get adminExportColumnNameHe => 'Имя (HE)';
-
-  @override
-  String get adminExportColumnNameFr => 'Имя (FR)';
-
-  @override
-  String get adminExportColumnNameRu => 'Имя (RU)';
-
-  @override
-  String adminExportStudentsSelected(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Выбрано $count учеников',
-      many: 'Выбрано $count учеников',
-      few: 'Выбрано $count ученика',
-      one: 'Выбран $count ученик',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get teacherMaterialEditTitle => 'Изменить материал';
@@ -7337,9 +5622,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get commonCreate => 'Создать';
-
-  @override
-  String get commonAttachStudyMaterials => 'Прикрепить учебные материалы';
 
   @override
   String get teacherCreateClassroomNewTitle => 'Новый класс';
@@ -7701,9 +5983,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonTitle => 'Заголовок';
 
   @override
-  String get commonNotes => 'Заметки';
-
-  @override
   String get commonEmail => 'Эл. почта';
 
   @override
@@ -7806,14 +6085,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get drawerSwitchChild => 'Сменить ребёнка';
 
   @override
-  String get shellAssessmentCreated => 'Оценка создана';
-
-  @override
-  String commonCouldNotOpenLink(String scheme) {
-    return 'Не удалось открыть ссылку $scheme';
-  }
-
-  @override
   String commonCouldntSend(String error) {
     return 'Не удалось отправить: $error';
   }
@@ -7841,9 +6112,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherGradeTypeSection => 'Тип оценки';
-
-  @override
-  String get teacherOtherGradeSection => 'Другая оценка';
 
   @override
   String get teacherEnterGradesSection => 'Введите оценки';
@@ -7920,39 +6188,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get novaDisclaimerYourPrivacy => 'Ваша приватность';
 
   @override
-  String profileNameInLanguage(String language) {
-    return 'Имя на $language';
-  }
-
-  @override
   String get adminSettingsScheduleSubtitle =>
       'Привязать учителей и группы к еженедельным временным слотам';
-
-  @override
-  String get practiceModeBalancedSubtitle =>
-      'Сбалансированная ежедневная тренировка';
-
-  @override
-  String get practiceModeRevealSubtitle => 'Открытие и самопроверка';
-
-  @override
-  String get practiceModeFastSubtitle => 'Быстрая тренировка под давлением';
-
-  @override
-  String get practiceModeExamSubtitle => 'Спокойный экзаменационный поток';
-
-  @override
-  String get practiceModeConceptSubtitle => 'Сначала концепция, потом решение';
-
-  @override
-  String get practiceModeAdaptiveSubtitle =>
-      'Сложность меняется в реальном времени';
-
-  @override
-  String get practiceModeStrictSubtitle => 'Строгий официальный стиль';
-
-  @override
-  String get commonCall => 'Позвонить';
 
   @override
   String get tooltipClearEndTime => 'Очистить время окончания';
@@ -8255,9 +6492,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonReadLess => 'Скрыть';
 
   @override
-  String get chatComposerSlideToCancel => 'Сдвиньте для отмены';
-
-  @override
   String adminNoRoleYet(String role) {
     return 'Нет ещё $role';
   }
@@ -8274,12 +6508,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get commonAdding => 'Добавление…';
-
-  @override
-  String get teacherDiplomaIssuing => 'Выдача…';
-
-  @override
-  String get teacherDiplomaIssue => 'Выдать';
 
   @override
   String get formAccepting => 'Принимает';
@@ -8337,9 +6565,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get adminExportEmptyState =>
       'Добавьте фильтр для начала: выберите роль, группу, класс или конкретных пользователей.';
-
-  @override
-  String get adminExportFilterRolesTab => 'Роли';
 
   @override
   String get adminExportFilterCohortsTab => 'Группы';
@@ -8466,12 +6691,6 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return '$_temp0';
   }
-
-  @override
-  String get teacherAttachFromMaterials => 'Из материалов';
-
-  @override
-  String get teacherUploadFiles => 'Загрузить файлы';
 
   @override
   String get solSubjectMathematics => 'Математика';
@@ -8644,9 +6863,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String solutionsGradeLabel(int grade) {
     return 'Класс $grade';
   }
-
-  @override
-  String get solutionsReportsTitle => 'Жалобы на решения';
 
   @override
   String get solutionsReportsEmpty => 'Нет жалоб для рассмотрения.';
@@ -8830,35 +7046,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonSubjectOptional => 'Предмет (необязательно)';
 
   @override
-  String get colorBlue => 'Синий';
-
-  @override
-  String get colorIndigo => 'Индиго';
-
-  @override
-  String get colorViolet => 'Фиолетовый';
-
-  @override
-  String get colorTeal => 'Бирюзовый';
-
-  @override
-  String get colorGreen => 'Зелёный';
-
-  @override
-  String get colorOrange => 'Оранжевый';
-
-  @override
-  String get colorRose => 'Розовый';
-
-  @override
   String get teacherAddClassNotes => 'Добавить заметки к уроку';
-
-  @override
-  String get teacherStudentsWithGrades => 'Ученики с оценками';
-
-  @override
-  String get teacherOtherStudentsSameGrade =>
-      'Другие ученики того же класса/группы';
 
   @override
   String get teacherChooseExam => 'Выберите экзамен';
@@ -8899,36 +7087,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'При следующем входе пользователь войдёт с этим паролем. Все ожидающие ссылки для сброса станут недействительными.';
 
   @override
-  String get nameInEnglish => 'Имя на английском';
-
-  @override
-  String get nameInArabic => 'Имя на арабском';
-
-  @override
-  String get nameInHebrew => 'Имя на иврите';
-
-  @override
-  String get nameInFrench => 'Имя на французском';
-
-  @override
-  String get nameInRussian => 'Имя на русском';
-
-  @override
   String get passwordMinChars => 'Не менее 8 символов.';
 
   @override
   String get passwordsDoNotMatch => 'Пароли не совпадают.';
-
-  @override
-  String get adminWelcomeHeading => 'Добро пожаловать в ClassMate';
-
-  @override
-  String get diplomasNoFilesAttached =>
-      'К этому сертификату не прикреплены файлы.';
-
-  @override
-  String get diplomasFilesProcessing =>
-      'Не удалось открыть файлы — возможно, они ещё обрабатываются.';
 
   @override
   String get novaOutOfTokens =>
@@ -8978,39 +7140,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String cohortStudentsCount(int count) {
     return '$count учеников';
-  }
-
-  @override
-  String diplomasIssuedCount(Object count) {
-    return 'Выдано сертификатов: $count';
-  }
-
-  @override
-  String get adminExportImportantHeading => 'Важно';
-
-  @override
-  String get adminExportWelcomeBodyWithPw =>
-      'Это данные вашей учётной записи ClassMate. Войдите в приложение ClassMate на iOS или Android, используя имя пользователя и пароль ниже. Пароль можно изменить в приложении.';
-
-  @override
-  String get adminExportWelcomeBodyNoPw =>
-      'Это данные вашей учётной записи ClassMate. Войдите в приложение ClassMate на iOS или Android, используя имя пользователя.';
-
-  @override
-  String get adminExportNotePrivate =>
-      'Храните эти данные в секрете. Не сообщайте пароль.';
-
-  @override
-  String get adminExportNoteChangePw =>
-      'Смените пароль после первого входа в разделе «Настройки → Аккаунт».';
-
-  @override
-  String get adminExportNoteLegal =>
-      'Используя ClassMate, вы принимаете Условия использования и Политику конфиденциальности.';
-
-  @override
-  String adminExportNoteHelp(String email) {
-    return 'Нужна помощь? Обратитесь к администратору школы или на $email.';
   }
 
   @override
@@ -9097,14 +7226,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get adminImportUsersScreenGrade => 'Класс';
 
   @override
-  String get adminImportUsersScreenParentUsername =>
-      'Имя пользователя родителя';
-
-  @override
-  String get adminImportUsersScreenParentUsernameHint =>
-      'связь (необязательно)';
-
-  @override
   String get adminImportUsersScreenCouldNotReadFile =>
       'Не удалось прочитать этот файл.';
 
@@ -9174,9 +7295,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Учётные данные (передайте их пользователям)';
 
   @override
-  String get teacherCohortsScreenTitle => 'Группы';
-
-  @override
   String get teacherCohortsScreenNewCohort => 'Новая группа';
 
   @override
@@ -9194,9 +7312,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherCohortsScreenGradesLabel => 'Класс(ы)';
-
-  @override
-  String get teacherCohortsScreenGradesHint => 'например, 10  или  7,8';
 
   @override
   String get teacherCohortsScreenCancel => 'Отмена';
@@ -9255,11 +7370,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get teacherCohortsScreenLoadStudentsError =>
       'Не удалось загрузить учеников';
-
-  @override
-  String teacherCohortsScreenAddNStudents(int count) {
-    return 'Добавить учеников: $count';
-  }
 
   @override
   String teacherCohortsScreenAddedNStudents(int count) {
@@ -10142,10 +8252,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherClassroomAddAssignmentScreenDetails => 'Детали задания';
 
   @override
-  String get teacherClassroomAddAssignmentScreenDueDateOptional =>
-      'Срок сдачи (необязательно)';
-
-  @override
   String get teacherClassroomAddAssignmentScreenNotifyStudents =>
       'Уведомить учеников';
 
@@ -10161,49 +8267,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Добавить ещё файлы';
 
   @override
-  String get diplomasScreenCertificate => 'Сертификат';
-
-  @override
-  String diplomasScreenIssuedDate(String date) {
-    return 'Выдан $date';
-  }
-
-  @override
-  String get diplomasScreenNoCertificatesReceived =>
-      'Сертификатов пока не получено.';
-
-  @override
-  String diplomasScreenFileCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count файлов',
-      one: '$count файл',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get gradesScreenOutOf100 => '/ 100';
-
-  @override
-  String gradesScreenShowMore(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count оценок',
-      one: '$count оценку',
-    );
-    return 'Показать ещё $_temp0';
-  }
-
-  @override
-  String get gradesScreenShowLess => 'Свернуть';
-
-  @override
-  String gradesScreenScoreOutOf100(String score) {
-    return '$score / 100';
-  }
 
   @override
   String get adminSchoolSettingsStart => 'Начало';
@@ -10216,13 +8280,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminExportLayoutTable => 'Compact table';
-
-  @override
-  String get adminExportScreenEachUserAlone => 'Каждый пользователь отдельно';
-
-  @override
-  String get adminExportScreenEachUserAloneOn =>
-      'По одной полной странице на пользователя, крупная читаемая карточка.';
 
   @override
   String get adminExportScreenEachUserAloneOff =>
@@ -10301,19 +8358,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get teacherAddMaterialScreenFileFallback => 'Файл';
-
-  @override
-  String get teacherCreateDiplomaScreenTitle => 'Выдать сертификат';
-
-  @override
-  String get teacherCreateDiplomaScreenGradePrefix => 'Класс';
-
-  @override
-  String get teacherCreateDiplomaScreenAttachFiles =>
-      'Прикрепить файл(ы) сертификата';
-
-  @override
-  String get teacherCreateDiplomaScreenAddMoreFiles => 'Добавить ещё файлы';
 
   @override
   String get teacherAssignmentDetailScreenTitle => 'Задание';
@@ -10576,10 +8620,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get examDetailScreenCountdownToday => 'Сегодня!';
 
   @override
-  String get teacherCreateDiplomaScreenDefaultTitle =>
-      'Свидетельство о достижении';
-
-  @override
   String teacherMaterialAddedBy(String name) {
     return 'Добавил(а): $name';
   }
@@ -10694,9 +8734,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get averagesSave => 'Сохранить';
 
   @override
-  String get certificatesTitle => 'Сертификаты';
-
-  @override
   String get certHomeroom => 'Класс (классный руководитель)';
 
   @override
@@ -10724,16 +8761,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get certLanguage => 'Язык сертификата';
 
   @override
-  String get certGenerate => 'Создать PDF';
-
-  @override
   String get certWeightsMustBe100 => 'Сумма весов семестров должна быть 100%.';
 
   @override
   String get certSelectStudentFirst => 'Сначала выберите ученика.';
-
-  @override
-  String get certSaved => 'Сертификат создан.';
 
   @override
   String get certSaveAndPublish => 'Сохранить и опубликовать';
@@ -10760,9 +8791,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get certDraftSaved => 'Сохранено как черновик.';
 
   @override
-  String get certPublishing => 'Публикация…';
-
-  @override
   String get certDownload => 'Скачать';
 
   @override
@@ -10773,21 +8801,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'This certificate is still a draft — publish it first to open its PDF.';
 
   @override
-  String get certMine => 'Мои табели';
-
-  @override
-  String get certNoHomeroom =>
-      'Вы пока не являетесь классным руководителем ни одного класса.';
-
-  @override
   String get certGrin => 'Оценки';
 
   @override
   String get certPrintAll => 'Распечатать все';
-
-  @override
-  String get certSelectCohortToPrint =>
-      'Выберите класс, чтобы распечатать все его табели.';
 
   @override
   String get certEditTitle => 'Редактировать табель';
@@ -10803,9 +8820,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get certPdfOverall => 'Общий средний балл';
-
-  @override
-  String get certPdfAverage => 'Средний балл';
 
   @override
   String get certPdfAbsences => 'Пропуски';
@@ -10921,19 +8935,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get gradesSubjectNoGrades => 'В этом предмете пока нет оценок.';
 
   @override
-  String get gradesPublishedShort => 'Опубликовано';
-
-  @override
-  String get gradesDraftShort => 'Черновик';
-
-  @override
   String gradesPublishTitle(Object title) {
     return 'Опубликовать «$title»';
-  }
-
-  @override
-  String gradesUnpublishTitle(Object title) {
-    return 'Снять с публикации «$title»';
   }
 
   @override
@@ -11159,15 +9162,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get averagesHintGrade => 'Выберите оценку';
 
   @override
-  String get adminInsightsSearchHint => 'Поиск учеников по имени…';
-
-  @override
-  String get adminInsightsNoStudents => 'Ученики не найдены.';
-
-  @override
-  String get adminInsightsNoGrades => 'Оценок пока нет.';
-
-  @override
   String get gradesEditGradeTitle => 'Изменить оценку';
 
   @override
@@ -11189,11 +9183,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get adminPrincipalAddRange => 'Добавить диапазон';
-
-  @override
-  String certPdfSemesterCertificate(String sem) {
-    return 'Семестровый сертификат — $sem';
-  }
 
   @override
   String get certPdfRemarks => 'Замечания классного руководителя';
@@ -11254,14 +9243,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get gradesAvgFilterAll => 'Все';
-
-  @override
-  String gradesAvgFilterCohort(String name) {
-    return 'Класс — $name';
-  }
-
-  @override
   String get gradesAvgSearchHint => 'Поиск оценок';
 
   @override
@@ -11278,20 +9259,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notesNoStudents => 'Ученики не найдены';
-
-  @override
-  String notesCount(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count заметки',
-      many: '$count заметок',
-      few: '$count заметки',
-      one: '$count заметка',
-      zero: 'Нет заметок',
-    );
-    return '$_temp0';
-  }
 
   @override
   String get notesNewNote => 'Новая заметка';
@@ -11317,11 +9284,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notesBodyHint => 'Начните писать…';
-
-  @override
-  String notesEditedBy(String name) {
-    return 'Автор: $name';
-  }
 
   @override
   String get cmailTitle => 'CMail';
@@ -11425,11 +9387,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get cmailAttachments => 'Вложения';
 
   @override
-  String cmailFrom(String name) {
-    return 'От $name';
-  }
-
-  @override
   String get phoneLinkTitle => 'Добавьте свой телефон';
 
   @override
@@ -11441,9 +9398,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get phoneLinkSend => 'Отправить код';
-
-  @override
-  String get phoneLinkCodeLabel => '6-значный код';
 
   @override
   String phoneLinkCodeSent(String phone) {
@@ -11502,9 +9456,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get hubUnpublished => 'Черновик';
 
   @override
-  String get hubClass => 'Класс';
-
-  @override
   String get a11yBack => 'Назад';
 
   @override
@@ -11512,12 +9463,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get a11yCancel => 'Отмена';
-
-  @override
-  String get a11yDone => 'Готово';
-
-  @override
-  String get a11ySave => 'Сохранить';
 
   @override
   String get a11yEdit => 'Изменить';
@@ -11532,58 +9477,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get a11yAdd => 'Добавить';
 
   @override
-  String get a11yCreate => 'Создать';
-
-  @override
-  String get a11ySend => 'Отправить';
-
-  @override
-  String get a11ySearch => 'Поиск';
-
-  @override
   String get a11yClear => 'Очистить';
-
-  @override
-  String get a11yFilter => 'Фильтр';
-
-  @override
-  String get a11ySort => 'Сортировка';
 
   @override
   String get a11yMore => 'Ещё';
 
   @override
-  String get a11yMenu => 'Меню';
-
-  @override
-  String get a11yRefresh => 'Обновить';
-
-  @override
-  String get a11yRetry => 'Повторить';
-
-  @override
-  String get a11yShare => 'Поделиться';
-
-  @override
   String get a11yCopy => 'Копировать';
 
   @override
-  String get a11yDownload => 'Скачать';
-
-  @override
-  String get a11yUpload => 'Загрузить';
-
-  @override
-  String get a11yAttach => 'Прикрепить файл';
-
-  @override
-  String get a11yAddPhoto => 'Добавить фото';
-
-  @override
   String get a11yCamera => 'Камера';
-
-  @override
-  String get a11yMicrophone => 'Голосовой ввод';
 
   @override
   String get a11yPlay => 'Воспроизвести';
@@ -11604,73 +9507,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get a11yCollapse => 'Свернуть';
 
   @override
-  String get a11yShow => 'Показать';
-
-  @override
-  String get a11yHide => 'Скрыть';
-
-  @override
-  String get a11ySettings => 'Настройки';
-
-  @override
-  String get a11yProfile => 'Профиль';
-
-  @override
-  String get a11yNotifications => 'Уведомления';
-
-  @override
-  String get a11yHelp => 'Помощь';
-
-  @override
   String get a11yInfo => 'Подробнее';
-
-  @override
-  String get a11yFavorite => 'В избранное';
-
-  @override
-  String get a11yPin => 'Закрепить';
-
-  @override
-  String get a11yUnpin => 'Открепить';
-
-  @override
-  String get a11yMute => 'Отключить звук';
-
-  @override
-  String get a11yUnmute => 'Включить звук';
-
-  @override
-  String get a11yMarkRead => 'Отметить как прочитанное';
-
-  @override
-  String get a11yNewChat => 'Новый чат';
-
-  @override
-  String get a11yNewMessage => 'Новое сообщение';
-
-  @override
-  String get a11yEmoji => 'Эмодзи';
-
-  @override
-  String get a11ySelectDate => 'Выбрать дату';
-
-  @override
-  String get a11yLogout => 'Выйти';
-
-  @override
-  String get a11yAddAccount => 'Добавить аккаунт';
 
   @override
   String get a11yShowPassword => 'Показать пароль';
 
   @override
   String get a11yHidePassword => 'Скрыть пароль';
-
-  @override
-  String get a11yScrollToBottom => 'Прокрутить вниз';
-
-  @override
-  String get a11yOpen => 'Открыть';
 
   @override
   String get errStateOfflineTitle => 'Нет подключения';
@@ -11787,10 +9630,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Смотрите сегодняшние уроки сразу при запуске, проверяйте оценку сразу после публикации, следите за посещаемостью и держите все сроки заданий в одном списке — с напоминанием заранее.';
 
   @override
-  String get onbDeepClassNotes =>
-      'Пишите конспекты от руки с Apple Pencil на iPad — обложки, виды бумаги, плёнка, фото и голосовые заметки — а здесь читайте их, приближайте рукописный текст, слушайте записи и открывайте вложения.';
-
-  @override
   String get onbDeepConnect =>
       'Пишите учителю или однокласснику напрямую, следите за объявлениями класса, подключайтесь к онлайн-встрече с её карточки и пользуйтесь школьным CMail — не выходя из приложения.';
 
@@ -11861,159 +9700,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String settingsDeleteThemeBody(String name) {
     return '“$name” will be removed. This can\'t be undone.';
   }
-
-  @override
-  String get cnMoveToShelf => 'Переместить на полку';
-
-  @override
-  String get cnNotOnShelf => 'Не на полке';
-
-  @override
-  String get cnDownloadAsPdf => 'Скачать как PDF';
-
-  @override
-  String get cnOpenPagesPng => 'Открыть страницы как PNG';
-
-  @override
-  String get cnDownloadPagesPng => 'Скачать страницы как PNG';
-
-  @override
-  String get cnDeleteNotebookSubtitle =>
-      'Удаляет её из ClassNotes на всех ваших устройствах';
-
-  @override
-  String get cnRenameNotebook => 'Переименовать блокнот';
-
-  @override
-  String get cnNotebookTitleHint => 'Название блокнота';
-
-  @override
-  String get cnRenamed => 'Переименовано';
-
-  @override
-  String get cnTakenOffShelf => 'Убрано с полки';
-
-  @override
-  String get cnMoved => 'Перемещено';
-
-  @override
-  String get cnBuildingPdf => 'Создание PDF…';
-
-  @override
-  String get cnPreparingPages => 'Подготовка страниц…';
-
-  @override
-  String get cnNoSyncedPages =>
-      'В этом блокноте пока нет синхронизированных страниц — откройте его один раз на iPad.';
-
-  @override
-  String cnExportFailed(String error) {
-    return 'Не удалось экспортировать: $error';
-  }
-
-  @override
-  String get cnDeleteNotebookTitle => 'Удалить этот блокнот?';
-
-  @override
-  String cnDeleteNotebookBody(String title, num count) {
-    final intl.NumberFormat countNumberFormat =
-        intl.NumberFormat.decimalPattern(localeName);
-    final String countString = countNumberFormat.format(count);
-
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$countString',
-    );
-    return '«$title» и его страницы ($_temp0) будут удалены из ClassNotes на всех устройствах. Отменить это нельзя.';
-  }
-
-  @override
-  String get cnDeleted => 'Удалено';
-
-  @override
-  String get cnRenameShelf => 'Переименовать полку';
-
-  @override
-  String get cnShelfNameHint => 'Название полки';
-
-  @override
-  String get cnDeleteShelf => 'Удалить полку';
-
-  @override
-  String get cnDeleteShelfSubtitle =>
-      'Блокноты останутся — они просто покинут полку';
-
-  @override
-  String get cnShelfDeleted => 'Полка удалена';
-
-  @override
-  String cnReorderFailed(String error) {
-    return 'Не удалось сохранить новый порядок: $error';
-  }
-
-  @override
-  String cnGenericError(String error) {
-    return 'Не получилось: $error';
-  }
-
-  @override
-  String get cnAllShelf => 'Все';
-
-  @override
-  String get cnDragToReorder => 'Перетащите, чтобы изменить порядок блокнотов';
-
-  @override
-  String get cnManageHint =>
-      'Нажмите ⋮ на блокноте, чтобы переименовать, скачать или удалить его';
-
-  @override
-  String get cnArrange => 'Упорядочить';
-
-  @override
-  String get cnManage => 'Управление';
-
-  @override
-  String cnManageNamed(String title) {
-    return 'Управление: $title';
-  }
-
-  @override
-  String get cnNotebookWord => 'блокнот';
-
-  @override
-  String cnPageCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count страницы',
-      one: '1 страница',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get cnEmptyTitle => 'Пока нет блокнотов';
-
-  @override
-  String get cnEmptyBody =>
-      'Ваши тетради ClassNotes появятся здесь — обложки, бумага и чернила следуют вашей теме.';
-
-  @override
-  String get cnLoading => 'Загрузка ваших блокнотов…';
-
-  @override
-  String get cnSignedOutTitle => 'Войдите, чтобы увидеть свои блокноты';
-
-  @override
-  String get cnSignedOutBody =>
-      'Ваша библиотека ClassNotes связана с вашим аккаунтом ClassMate.';
-
-  @override
-  String get cnErrorTitle => 'Не удалось загрузить ваши блокноты';
-
-  @override
-  String get cnErrorBody => 'Проверьте подключение и повторите попытку.';
 
   @override
   String teacherFormsCount(num count) {

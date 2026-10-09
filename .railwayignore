@@ -6,9 +6,6 @@ _archive/
 **/node_modules/
 apps/classmate_mobile/ios/
 apps/classmate_mobile/android/
-apps/classmate_mobile/macos/
-apps/classmate_mobile/windows/
-apps/classmate_mobile/linux/
 **/.firebase/
 marketing/
 services/api/uploads/

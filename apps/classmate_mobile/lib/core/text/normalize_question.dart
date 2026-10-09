@@ -1,18 +1,3 @@
-/// Cleans up plain text for rendering inside MathView or plain text widgets.
-/// Preserves intentional line breaks — does NOT convert single newlines to
-/// spaces, because step-by-step explanations need those breaks.
-String normalizeQuestionText(String input) {
-  var s = input.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
-  // Collapse 4+ consecutive newlines to a paragraph break.
-  s = s.replaceAll(RegExp(r'\n{4,}'), '\n\n\n');
-  // Collapse 3 consecutive newlines to two.
-  s = s.replaceAll(RegExp(r'\n{3}'), '\n\n');
-  // Remove trailing whitespace on each line.
-  s = s.split('\n').map((line) => line.trimRight()).join('\n');
-  // Collapse multiple inline spaces (but not newlines).
-  s = s.replaceAll(RegExp(r'[ \t]{2,}'), ' ');
-  return s.trim();
-}
 
 final RegExp _renderableCodeFenceRe = RegExp(
   r'(```|~~~)[^\n]*\n[\s\S]*?\1',

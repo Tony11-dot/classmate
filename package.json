@@ -7,16 +7,7 @@
     "seed:test": "node scripts/seed-test.mjs",
     "dev": "pnpm -r --parallel --filter api run dev",
     "dev:api": "pnpm --dir services/api dev",
-    "devx:clean": "bash scripts/devx.sh clean",
-    "devx:doctor": "bash scripts/devx.sh doctor",
-    "devx:logs": "bash scripts/devx.sh logs",
-    "devx:ps": "bash scripts/devx.sh ps",
-    "devx:start": "bash scripts/devx.sh start",
-    "devx:stop": "bash scripts/devx.sh stop",
-    "devx:test": "bash scripts/devx.sh test",
-    "devx:up": "bash scripts/devx.sh up",
     "install:all": "pnpm install && pnpm -r install",
-    "smoke:api": "node scripts/smoke-api.mjs",
     "build": "pnpm -r -w --workspace-concurrency=1 --filter ./services/api run build",
     "typecheck": "pnpm -r -w --filter ./services/api run typecheck",
     "lint:all": "pnpm -r -w --filter ./services/api run lint",
@@ -24,9 +15,7 @@
     "docker:up": "docker compose up --build -d",
     "docker:down": "docker compose down -v",
     "docker:logs": "docker compose logs -f --tail=120",
-    "docker:ps": "docker compose ps",
-    "smoke:docker": "curl -sS http://localhost:3000/api/health | jq .",
-    "verify:docker": "pnpm -s docker:up && pnpm -s smoke:docker && docker compose ps"
+    "docker:ps": "docker compose ps"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.54.0",
@@ -40,12 +29,5 @@
     "overrides": {
       "eslint": "^8.57.0"
     }
-  },
-  "dependencies": {
-    "@nestjs/serve-static": "^5.0.4",
-    "openai": "^6.25.0",
-    "passport-custom": "^1.1.1",
-    "serve-static": "^2.2.1",
-    "zod": "^4.3.6"
   }
 }

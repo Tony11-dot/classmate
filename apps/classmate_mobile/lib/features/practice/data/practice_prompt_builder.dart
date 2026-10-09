@@ -350,19 +350,3 @@ String _modeGuidanceFor(PracticeFilter filter) {
   }
 }
 
-String buildPracticePromptSummary(PracticeFilter filter) {
-  final timing = filter.useAiTiming
-      ? 'AI timing'
-      : '${filter.timePreferenceSeconds ?? 15}s';
-
-  return [
-    'Subject: ${practiceSubjectAiName(filter.subject)}',
-    if (filter.grade != null) 'Grade: ${filter.grade}',
-    'Topic: ${filter.topicLabel}',
-    'Mode: ${filter.mode.name}',
-    'Difficulty: ${filter.difficulty.name}',
-    'Questions: ${filter.questionCount}',
-    'Timing: $timing',
-    'Lives: ${filter.hasInfiniteLives ? "infinite" : "${filter.maxLives} lives"}',
-  ].join(' • ');
-}

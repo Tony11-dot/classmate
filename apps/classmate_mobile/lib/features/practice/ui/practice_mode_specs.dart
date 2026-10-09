@@ -131,26 +131,6 @@ String practiceModeLabel(BuildContext context, PracticeMode mode) {
   }
 }
 
-String practiceModeSubtitle(BuildContext context, PracticeMode mode) {
-  final l = AppLocalizations.of(context)!;
-  switch (mode) {
-    case PracticeMode.practice:
-      return l.practiceSetupModeSubtitlePractice;
-    case PracticeMode.flashcards:
-      return l.practiceSetupModeSubtitleFlashcards;
-    case PracticeMode.speedRound:
-      return l.practiceSetupModeSubtitleSpeedRound;
-    case PracticeMode.examPrep:
-      return l.practiceSetupModeSubtitleExamPrep;
-    case PracticeMode.conceptBuilder:
-      return l.practiceSetupModeSubtitleConceptBuilder;
-    case PracticeMode.adaptive:
-      return l.practiceSetupModeSubtitleAdaptive;
-    case PracticeMode.bagrut:
-      return l.practiceSetupModeSubtitleBagrut;
-  }
-}
-
 String practiceModeDescription(BuildContext context, PracticeMode mode) {
   final l = AppLocalizations.of(context)!;
   switch (mode) {
@@ -171,8 +151,6 @@ String practiceModeDescription(BuildContext context, PracticeMode mode) {
   }
 }
 
-String practiceModeBadge(BuildContext context, PracticeMode mode) =>
-    practiceModeLabel(context, mode);
 IconData practiceModeIcon(PracticeMode mode) => practiceModeSpec(mode).icon;
 
 Color practiceModeTint(ColorScheme cs, PracticeMode mode) {

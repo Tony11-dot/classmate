@@ -257,21 +257,6 @@ String? _formatAttachmentMarker(String raw, ChatPreviewLabels labels) {
   );
 }
 
-String editableBodyText(String raw) => splitReplyRaw(raw).bodyText;
-
-String preserveReplyOnEdit({
-  required String originalRaw,
-  required String updatedBody,
-}) {
-  final parts = splitReplyRaw(originalRaw);
-  final body = updatedBody.trim();
-
-  if (parts.replyPrefix.isEmpty) return body;
-  if (body.isEmpty) return parts.replyPrefix.trimRight();
-
-  return '${parts.replyPrefix} $body';
-}
-
 String composeReplyText({
   required String sender,
   required String preview,

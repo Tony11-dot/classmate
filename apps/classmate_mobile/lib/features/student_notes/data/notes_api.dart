@@ -8,12 +8,6 @@ final notesApiProvider = Provider<NotesApi>((ref) {
   return NotesApi(token: (session.token ?? '').trim());
 });
 
-/// Student roster for the notes browser (name + grade + note count).
-final notesStudentsProvider =
-    FutureProvider.autoDispose<List<NoteStudent>>((ref) {
-  return ref.watch(notesApiProvider).fetchStudents();
-});
-
 /// All notes for one student.
 final studentNotesProvider = FutureProvider.autoDispose
     .family<StudentNotesPage, String>((ref, studentId) {

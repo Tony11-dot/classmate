@@ -186,21 +186,6 @@ class SelectedChildController extends Notifier<String?> {
 final selectedChildProvider =
     NotifierProvider<SelectedChildController, String?>(SelectedChildController.new);
 
-final parentGradesProvider =
-    FutureProvider.family<List<ParentGrade>, String>((ref, studentId) async {
-  return ref.read(parentRepositoryProvider).grades(studentId);
-});
-
-final parentScheduleWeekProvider =
-    FutureProvider.family<List<ParentScheduleSlot>, String>((ref, studentId) async {
-  return ref.read(parentRepositoryProvider).scheduleWeek(studentId);
-});
-
-final parentAttendanceWeekProvider =
-    FutureProvider.family<List<ParentAttendance>, String>((ref, studentId) async {
-  return ref.read(parentRepositoryProvider).attendanceWeek(studentId);
-});
-
 final parentNotificationsProvider =
     FutureProvider<List<ParentNotification>>((ref) async {
   return ref.read(parentRepositoryProvider).notifications();

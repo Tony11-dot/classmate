@@ -75,12 +75,6 @@ List<List<String>> practiceTopicsFor(String subjectKey, int? grade) {
   return bands.last.topics;
 }
 
-/// The first / default topic for a subject at a grade.
-List<String> practiceDefaultTopicFor(String subjectKey, int? grade) {
-  final topics = practiceTopicsFor(subjectKey, grade);
-  return topics.isEmpty ? const <String>['General'] : topics.first;
-}
-
 /// Free-text custom-topic example chips, by grade band, per subject.
 List<String> practiceCustomTopicExamplesFor(String subjectKey, int? grade) {
   final topics = practiceTopicsFor(subjectKey, grade);
