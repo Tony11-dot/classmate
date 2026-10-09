@@ -22,6 +22,7 @@ class UserProfileSheet extends ConsumerWidget {
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       useRootNavigator: true,
       builder: (_) => UserProfileSheet(userId: userId),

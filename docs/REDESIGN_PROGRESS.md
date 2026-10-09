@@ -83,12 +83,12 @@ Update this file in the same commit as each screen's redesign.
 | Edit user | ✅ |
 | Import users | ✅ |
 | School settings (info, subjects, bell tab) | ✅ |
-| Export (main screen) / export options sheet | ✅ / ✅ (sheet not previewed) |
+| Export (main screen) / add-filter sheet / export options sheet | ✅ / ✅ / ✅ |
 | Grade scales, Subject detail | ✅ |
 | Reports | ✅ |
-| Periods | ✅ (not previewed: private data provider) |
+| Periods | ✅ (+ delete now asks first) |
 | Bell schedule | ✅ |
-| Solutions books admin | ✅ (not previewed: loads via raw HTTP) |
+| Solutions books admin | ✅ |
 
 ## Parent
 | Screen | Status |
@@ -136,15 +136,35 @@ Update this file in the same commit as each screen's redesign.
 - Marketing shots come from a local rig (real AppShell + screens, demo data, fake HTTP via
   `http.runWithClient`) kept outside git; re-run it to refresh the site/video/deck shots
 
+## Round 12 (2026-10-09) — the last unpreviewed screens + Arabic/Hebrew at large text
+- Previewed for the first time: Admin Periods (list, new-period sheet, delete), Solutions books
+  admin, Export add-filter sheet and export options sheet — in English, Hebrew, Arabic, dark, 2× text
+- Admin Periods: the bin deleted a period on one tap with no undo and failed silently — now asks
+  "Delete period?" (same wording as Admin Schedule) and says when it fails; time ranges stay
+  left-to-right in Hebrew/Arabic; the period badge grows with large text instead of breaking "08:00"
+- New-period sheet: ran up under the status bar → stays below it; "Period" and "Time" labels line up
+  and the time boxes match the dropdown's height; stacks at large text
+- All 23 tall sheets (font picker, new chat, profile, emoji, export, practice…) now stop below the
+  status bar instead of sliding under the clock when their content is long
+- Top bar: the page-name pill caps its text size like the iOS navigation bar, and when it's long
+  (Arabic, large text) the logo moves next to the menu button instead of shrinking to a speck;
+  normal sizes look exactly as before
+- Group chat previews and New-group chips showed "Ms.:" for "Ms. Golan" → titles keep the surname
+  (Mr./Ms./Dr.) — shared `shortName()` + test
+- Large text: Bagrut subject tiles cut the name off and the plan card's "resets on…" line ran off
+  the edge — both fixed; whole sweep now clean in Arabic and Hebrew at 1.5× and 2×
+
 ## Up next (in order)
 1. Every screen is ✅ or ➖. Next: on-device QA pass of build 303 (TestFlight / Play internal), then fix anything found.
 
 ## Known open items (not redesign)
-- Anthropic key: the new key (live on Railway 2026-10-09) isn't tied to a Console workspace, so NOVA
-  got 400 "must include the anthropic-workspace-id header". The API now sends
-  `ANTHROPIC_WORKSPACE_ID` when set, and provider errors show the app's own message instead of raw
-  JSON. To do: set that ID on Railway (or swap in a key made inside a workspace), confirm NOVA
-  answers, then delete the old key
+- Anthropic key: the first new key wasn't tied to a Console workspace (NOVA got 400 "must include
+  the anthropic-workspace-id header"). A second key is live on Railway since 2026-10-09 (deploy
+  117d8fe8). If NOVA still says "Failed to stream reply", the server log line `[NOVA_PROVIDER_ERROR]`
+  names the cause; for the workspace error set `ANTHROPIC_WORKSPACE_ID` (the API sends it when
+  set). Then delete the old keys
+- ⚠ `railway up` is SKIPPED when nothing in the API changed — to apply a variable change alone, use
+  `railway redeploy -y` (never `--from-source`, which pulls `main`)
 - ⚠ Any Railway variable change redeploys GitHub `main` and drops this branch's backend — use
   `--skip-deploys`, then `railway up` from the repo root
 - Apple-review demo password is committed in 4 files of the public repo

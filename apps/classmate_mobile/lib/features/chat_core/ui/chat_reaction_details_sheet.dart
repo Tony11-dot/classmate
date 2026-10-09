@@ -26,6 +26,7 @@ class ChatReactionDetailsSheet extends StatelessWidget {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       showDragHandle: true,
       builder: (_) => ChatReactionDetailsSheet(
         myReaction: myReaction,

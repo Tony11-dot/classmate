@@ -39,6 +39,7 @@ Future<void> showSolutionUploadSheet(
       useRootNavigator: true,
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     showDragHandle: true,
     // Cap the height a touch below full-screen so the rounded top + drag
     // handle peek above the sheet — making it obvious it's a draggable sheet

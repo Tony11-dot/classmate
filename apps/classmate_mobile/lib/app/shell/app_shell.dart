@@ -1585,14 +1585,36 @@ class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(72);
 
+  // Logo at height 58 (asset is 751×322).
+  static const double _logoHeight = 58;
+  static const double _logoWidth = _logoHeight * 751 / 322;
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final screenW = MediaQuery.sizeOf(context).width;
+    // Bar chrome caps its text size like the iOS navigation bar does, so a
+    // long title never pushes the logo away at large system text.
+    final scaler = MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.3);
+    final titleStyle = Theme.of(context).textTheme.labelSmall
+        ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.2);
+    final leadingW = showMenuButton ? 52.0 : 0.0;
+    final chipMaxW = screenW - leadingW - 14 - 100;
+    final textW = (TextPainter(
+      text: TextSpan(text: title, style: titleStyle),
+      textDirection: Directionality.of(context),
+      textScaler: scaler,
+      maxLines: 1,
+    )..layout()).width;
+    final chipW = (textW + 22).clamp(0.0, chipMaxW);
+    // Centred logo needs the wider side slot to leave it room; a long title
+    // (Arabic, large text) moves it next to the menu button instead.
+    final centred = (screenW - _logoWidth) / 2 >= (chipW + 14) && (screenW - _logoWidth) / 2 >= leadingW;
 
     return AppBar(
       toolbarHeight: 72,
       titleSpacing: 0,
-      centerTitle: true,
+      centerTitle: centred,
       leadingWidth: showMenuButton ? 52 : 0,
       automaticallyImplyLeading: false,
       // Fully transparent — the bar is part of the screen, not a band.
@@ -1613,12 +1635,13 @@ class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      title: const ClassMateLogo(height: 58, adaptToTheme: true),
+      title: const ClassMateLogo(height: _logoHeight, adaptToTheme: true),
       actions: [
         Padding(
           padding: const EdgeInsetsDirectional.only(end: 14),
           child: Center(
             child: Container(
+              constraints: BoxConstraints(maxWidth: chipMaxW),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: cs.surfaceContainerLow.withValues(alpha: 0.72),
@@ -1627,8 +1650,10 @@ class AppShellTopBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               child: Text(
                 title,
-                style: Theme.of(context).textTheme.labelSmall
-                    ?.copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.2),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textScaler: scaler,
+                style: titleStyle,
               ),
             ),
           ),

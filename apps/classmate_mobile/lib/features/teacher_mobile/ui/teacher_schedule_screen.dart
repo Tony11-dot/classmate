@@ -864,6 +864,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;

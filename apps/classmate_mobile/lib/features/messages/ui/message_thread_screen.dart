@@ -151,6 +151,7 @@ class _MessageThreadScreenState extends ConsumerState<MessageThreadScreen> {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       useRootNavigator: true,
       builder: (ctx) => _ThreadInfoSheet(

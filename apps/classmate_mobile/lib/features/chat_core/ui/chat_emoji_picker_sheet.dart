@@ -21,6 +21,7 @@ class ChatEmojiPickerSheet extends StatefulWidget {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       showDragHandle: true,
       builder: (_) => ChatEmojiPickerSheet(allowedEmojis: allowedEmojis),
     );

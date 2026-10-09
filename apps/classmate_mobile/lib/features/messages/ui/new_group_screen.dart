@@ -5,6 +5,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/cm_tokens.dart';
+import '../../../core/util/short_name.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_press.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
@@ -161,7 +162,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
                                       ),
                                       const SizedBox(width: 6),
                                       Text(
-                                        p.displayName.split(' ').first,
+                                        shortName(p.displayName),
                                         style: theme.textTheme.labelLarge
                                             ?.copyWith(
                                               fontWeight: FontWeight.w700,

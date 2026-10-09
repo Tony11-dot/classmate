@@ -922,6 +922,7 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
       useRootNavigator: true,
       context: ctx,
       isScrollControlled: true,
+      useSafeArea: true,
       showDragHandle: true,
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),

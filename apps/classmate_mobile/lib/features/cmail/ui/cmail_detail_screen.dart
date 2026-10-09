@@ -65,6 +65,7 @@ class CMailDetailScreen extends ConsumerWidget {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       showDragHandle: true,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;

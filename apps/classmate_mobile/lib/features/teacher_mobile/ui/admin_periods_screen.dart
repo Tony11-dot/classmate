@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 
 import '../../../ui/widgets/cm_search_field.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 import '../../../core/http/cm_api.dart';
+import '../../../core/util/bidi.dart';
 import '../../../core/auth/auth_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
@@ -155,10 +156,7 @@ class AdminPeriodsScreen extends ConsumerWidget {
                 ),
                 ...daySlots.map((slot) => _PeriodTile(
                   slot: slot,
-                  onDelete: () async {
-                    await ref.read(_adminApiProvider).deletePeriod(slot['id'].toString());
-                    ref.invalidate(_periodsProvider);
-                  },
+                  onDelete: () => _confirmDelete(context, ref, slot['id'].toString()),
                 )),
               ];
             }).toList(),
@@ -168,11 +166,40 @@ class AdminPeriodsScreen extends ConsumerWidget {
     );
   }
 
+  Future<void> _confirmDelete(BuildContext context, WidgetRef ref, String id) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppLocalizations.of(ctx)!.adminScheduleDeletePeriodTitle),
+        content: Text(AppLocalizations.of(ctx)!.adminScheduleDeletePeriodBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(AppLocalizations.of(ctx)!.commonCancel)),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(AppLocalizations.of(ctx)!.commonDelete),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      await ref.read(_adminApiProvider).deletePeriod(id);
+      ref.invalidate(_periodsProvider);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.adminScheduleFailedToDelete)),
+      );
+    }
+  }
+
   Future<void> _showCreateSheet(BuildContext context, WidgetRef ref) async {
     final created = await showModalBottomSheet<bool>(
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       showDragHandle: true,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
@@ -217,8 +244,8 @@ class _PeriodTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 54,
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              constraints: const BoxConstraints(minWidth: 54),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
               decoration: BoxDecoration(
                 color: cs.primary.withValues(alpha: cs.brightness == Brightness.dark ? 0.22 : 0.12),
                 borderRadius: BorderRadius.circular(CmTokens.radiusSm),
@@ -241,13 +268,13 @@ class _PeriodTile extends StatelessWidget {
                     Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                   const SizedBox(height: 4),
-                  CmPill(icon: Icons.schedule_rounded, label: '$start – $end'),
+                  CmPill(icon: Icons.schedule_rounded, label: ltrIsolate('$start–$end')),
                 ],
               ),
             ),
             CmIconAction(
               icon: Icons.delete_outline_rounded,
-              tooltip: l.a11yDelete,
+              tooltip: l.tooltipDeletePeriod,
               onPressed: onDelete,
               color: cs.error,
             ),
@@ -389,6 +416,32 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
       return (s['name']?.toString() ?? '').toLowerCase().contains(q);
     }).toList();
 
+    final sectionStyle = theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary);
+    final stackPeriodTime = MediaQuery.textScalerOf(context).scale(10) > 13.5;
+    final periodLabel = Text(AppLocalizations.of(context)!.adminPeriodsPeriodLabel, style: sectionStyle);
+    final timeLabel = Text(AppLocalizations.of(context)!.adminPeriodsTimeLabel, style: sectionStyle);
+    final periodPicker = LiquidGlassDropdown<int>(
+      label: AppLocalizations.of(context)!.adminPeriodsScreenPeriodDropdownLabel,
+      value: _period,
+      items: List.generate(10, (i) => i + 1).map((p) {
+        final def = _defaults.firstWhere((d) => (d['period'] as num?)?.toInt() == p, orElse: () => const {});
+        final hint = def.isNotEmpty && (def['startTime'] ?? '').toString().isNotEmpty ? ' · ${def['startTime']}' : '';
+        return LiquidGlassDropdownItem(value: p, label: 'P$p$hint');
+      }).toList(),
+      onChanged: (v) => _onPeriodChanged(v),
+    );
+    // Start–end reads left-to-right in every language, like the time ranges
+    // elsewhere in the app.
+    final timePills = Row(
+      textDirection: TextDirection.ltr,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(child: _TimePill(time: _startTime, onTap: () => _pickTime(context, true), cs: cs, theme: theme)),
+        Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Center(child: Text('–', style: TextStyle(color: cs.onSurfaceVariant)))),
+        Expanded(child: _TimePill(time: _endTime, onTap: () => _pickTime(context, false), cs: cs, theme: theme)),
+      ],
+    );
+
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: _loading
@@ -423,49 +476,36 @@ class _CreatePeriodSheetState extends State<_CreatePeriodSheet> {
                 ),
                 const SizedBox(height: 16),
 
-                // Period + time
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(AppLocalizations.of(context)!.adminPeriodsPeriodLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                          const SizedBox(height: 8),
-                          LiquidGlassDropdown<int>(
-                            label: AppLocalizations.of(context)!.adminPeriodsScreenPeriodDropdownLabel,
-                            value: _period,
-                            items: List.generate(10, (i) => i + 1).map((p) {
-                              final def = _defaults.firstWhere((d) => (d['period'] as num?)?.toInt() == p, orElse: () => const {});
-                              final hint = def.isNotEmpty && (def['startTime'] ?? '').toString().isNotEmpty ? ' · ${def['startTime']}' : '';
-                              return LiquidGlassDropdownItem(value: p, label: 'P$p$hint');
-                            }).toList(),
-                            onChanged: (v) => _onPeriodChanged(v),
-                          ),
-                        ],
-                      ),
+                // Period + time: side by side, labels on one line and the time
+                // pills as tall as the dropdown; stacked at large text sizes.
+                if (stackPeriodTime) ...[
+                  periodLabel,
+                  const SizedBox(height: 8),
+                  periodPicker,
+                  const SizedBox(height: 16),
+                  timeLabel,
+                  const SizedBox(height: 8),
+                  IntrinsicHeight(child: timePills),
+                ] else ...[
+                  Row(
+                    children: [
+                      Expanded(flex: 2, child: periodLabel),
+                      const SizedBox(width: 12),
+                      Expanded(flex: 3, child: timeLabel),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(flex: 2, child: periodPicker),
+                        const SizedBox(width: 12),
+                        Expanded(flex: 3, child: timePills),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(AppLocalizations.of(context)!.adminPeriodsTimeLabel, style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700, color: cs.primary)),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(child: _TimePill(time: _startTime, onTap: () => _pickTime(context, true), cs: cs, theme: theme)),
-                              Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Text('–', style: TextStyle(color: cs.onSurfaceVariant))),
-                              Expanded(child: _TimePill(time: _endTime, onTap: () => _pickTime(context, false), cs: cs, theme: theme)),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
                 const SizedBox(height: 16),
 
                 // Teacher DDL
@@ -569,6 +609,7 @@ class _TimePill extends StatelessWidget {
     return CmPress(
       onTap: onTap,
       child: Container(
+        alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         decoration: BoxDecoration(
           color: cs.surfaceContainerHigh,

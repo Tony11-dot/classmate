@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 
@@ -56,9 +58,11 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
           SliverPadding(
             padding: const EdgeInsets.all(16),
             sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              // 120 tall, but never shorter than the icon + a two-line name
+              // (large system text cut the name off).
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 220,
-                mainAxisExtent: 120,
+                mainAxisExtent: math.max(120, 28 + 44 + 37 * MediaQuery.textScalerOf(context).scale(1)),
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),

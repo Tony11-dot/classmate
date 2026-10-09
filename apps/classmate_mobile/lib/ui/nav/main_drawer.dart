@@ -768,6 +768,7 @@ Future<void> _openAccountSwitcherInner(BuildContext context, WidgetRef ref) asyn
     context: context,
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
+    useSafeArea: true,
     builder: (sheetCtx) {
       final cs = Theme.of(sheetCtx).colorScheme;
       final theme = Theme.of(sheetCtx);

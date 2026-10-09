@@ -45,6 +45,7 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;

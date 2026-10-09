@@ -849,6 +849,7 @@ class _ScheduleTile extends StatelessWidget {
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
+      useSafeArea: true,
       showDragHandle: true,
       backgroundColor: cs.surfaceContainerLow,
       shape: const RoundedRectangleBorder(

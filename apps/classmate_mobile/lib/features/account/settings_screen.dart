@@ -308,6 +308,7 @@ Future<void> _showFontPicker(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: cs.surfaceContainerLow,
     builder: (sheetCtx) => DraggableScrollableSheet(
       expand: false,
@@ -633,6 +634,7 @@ class ThemeGalleryScreen extends ConsumerWidget {
       useRootNavigator: true,
               context: context,
               isScrollControlled: true,
+              useSafeArea: true,
               backgroundColor: cs.surface,
               showDragHandle: true,
               builder: (_) => const _AddThemeSheet(),
@@ -663,6 +665,7 @@ class ThemeGalleryScreen extends ConsumerWidget {
       useRootNavigator: true,
                       context: context,
                       isScrollControlled: true,
+                      useSafeArea: true,
                       backgroundColor: cs.surface,
                       showDragHandle: true,
                       builder: (_) => _AddThemeSheet(existing: ct),

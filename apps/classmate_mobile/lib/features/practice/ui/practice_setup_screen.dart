@@ -185,6 +185,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       showDragHandle: true,
       builder: (context) {
         final theme = Theme.of(context);
@@ -1118,6 +1119,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _SearchPickerSheet<String>(
         title: title,
@@ -1159,6 +1161,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _CustomTopicSheet(
         title: title,

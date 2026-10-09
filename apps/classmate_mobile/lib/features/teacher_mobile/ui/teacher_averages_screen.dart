@@ -99,6 +99,7 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withValues(alpha: 0.4),
       builder: (_) => _AverageEditorSheet(
@@ -145,6 +146,7 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _ComputePreviewSheet(averageId: a.id, title: a.title),
     );

@@ -290,6 +290,7 @@ class _AdminExportScreenState extends ConsumerState<AdminExportScreen> {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       showDragHandle: true,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
       shape: const RoundedRectangleBorder(

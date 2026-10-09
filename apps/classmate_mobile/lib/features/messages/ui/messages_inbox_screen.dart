@@ -20,6 +20,7 @@ import 'new_chat_screen.dart';
 import 'blocked_people_screen.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../core/realtime/realtime_listener.dart';
+import '../../../core/util/short_name.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 import '../../../core/util/bidi.dart';
 
@@ -96,6 +97,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
       useRootNavigator: true,
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
@@ -337,6 +339,7 @@ class _MessagesInboxScreenState extends ConsumerState<MessagesInboxScreen> {
       // The sheet holds up to 7 rows — without this the default half-screen
       // cap clipped the last action (Block) behind the home indicator.
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
         return SafeArea(
@@ -886,7 +889,7 @@ class _InboxPreviewLine extends StatelessWidget {
         : lm.isOwn
             ? '${l.chatPreviewYou}: '
             : lm.senderName.trim().isNotEmpty
-                ? '${lm.senderName.trim().split(' ').first}: '
+                ? '${shortName(lm.senderName)}: '
                 : '';
 
     return Row(

@@ -235,12 +235,14 @@ class _BalanceCard extends StatelessWidget {
                   children: [
                     Icon(Icons.refresh_rounded, size: 14, color: cs.onPrimaryContainer.withValues(alpha: 0.6)),
                     const SizedBox(width: 4),
-                    Text(
-                      AppLocalizations.of(context)!.plansPlanResetsAt(
-                        b.resetLabelLocalized(Localizations.localeOf(context).toString()),
-                      ),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.plansPlanResetsAt(
+                          b.resetLabelLocalized(Localizations.localeOf(context).toString()),
+                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                        ),
                       ),
                     ),
                   ],
@@ -253,12 +255,14 @@ class _BalanceCard extends StatelessWidget {
                   children: [
                     Icon(Icons.add_circle_outline_rounded, size: 14, color: cs.onPrimaryContainer.withValues(alpha: 0.6)),
                     const SizedBox(width: 4),
-                    Text(
-                      AppLocalizations.of(context)!.plansTopupTokensInfo(
-                        b.topupTokensRemaining.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},'),
-                      ),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context)!.plansTopupTokensInfo(
+                          b.topupTokensRemaining.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+$)'), (m) => '${m[1]},'),
+                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cs.onPrimaryContainer.withValues(alpha: 0.7),
+                        ),
                       ),
                     ),
                   ],
