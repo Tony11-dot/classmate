@@ -78,6 +78,7 @@ export class FormsService {
         },
         orderBy: { publishedAt: 'desc' },
         take: 50,
+        include: { teacher: { select: { name: true } } },
       });
       if (dbForms.length > 0) {
         return {
@@ -87,7 +88,7 @@ export class FormsService {
             subject: f.subject ?? '',
             title: f.title,
             description: f.description ?? '',
-            teacher: 'Teacher',
+            teacher: f.teacher?.name ?? '',
             audienceLabel: f.audienceLabel ?? 'Class',
             acceptingResponses: f.acceptingResponses,
             allowMultipleResponses: f.allowMultipleResponses,
@@ -105,7 +106,7 @@ export class FormsService {
   async byId(user: any, id: string) {
     // Check real DB first
     try {
-      const dbForm = await this.prisma.schoolForm.findUnique({ where: { id } });
+      const dbForm = await this.prisma.schoolForm.findUnique({ where: { id }, include: { teacher: { select: { name: true } } } });
       if (dbForm) {
         // Audience check: without this, any authenticated user could read any
         // form (and its questions) by id. Staff/creator may always view; a
@@ -114,7 +115,7 @@ export class FormsService {
         if (!this.canViewForm(dbForm, scope)) {
           throw new NotFoundException('Form not found');
         }
-        return { ok: true, form: { id: dbForm.id, subject: dbForm.subject ?? '', title: dbForm.title, description: dbForm.description ?? '', teacher: 'Teacher', audienceLabel: dbForm.audienceLabel ?? 'Class', acceptingResponses: dbForm.acceptingResponses, allowMultipleResponses: dbForm.allowMultipleResponses, published: dbForm.published, publishedAt: dbForm.publishedAt?.toISOString() ?? null, questions: normalizeFormQuestions(dbForm.questions), summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null } } };
+        return { ok: true, form: { id: dbForm.id, subject: dbForm.subject ?? '', title: dbForm.title, description: dbForm.description ?? '', teacher: dbForm.teacher?.name ?? '', audienceLabel: dbForm.audienceLabel ?? 'Class', acceptingResponses: dbForm.acceptingResponses, allowMultipleResponses: dbForm.allowMultipleResponses, published: dbForm.published, publishedAt: dbForm.publishedAt?.toISOString() ?? null, questions: normalizeFormQuestions(dbForm.questions), summary: { responsesCount: 0, pendingCount: 0, completionRate: 0, averageDurationLabel: null, publishedLabel: null } } };
       }
     } catch (e: any) {
       if (e?.status === 404) throw e; // surface the audience denial

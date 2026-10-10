@@ -3530,6 +3530,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get examStudyWithNova => 'الدراسة مع NOVA';
 
   @override
+  String examNovaPrepPrompt(Object title, Object subject, Object topic) {
+    return 'أريد المساعدة في التحضير لـ$title في $subject، مع التركيز على $topic.';
+  }
+
+  @override
   String get examAddToCalendar => 'إضافة إلى التقويم';
 
   @override
@@ -3836,6 +3841,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get classroomsJoinSubtitle => 'أدخل الرمز الذي أعطاك إياه معلمك';
+
+  @override
+  String get classroomsJoinInvalidCode => 'الرمز غير صالح أو منتهي الصلاحية';
 
   @override
   String get classroomsCouldNotOpenLink => 'تعذر فتح الرابط';
@@ -4277,6 +4285,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get permissionsResetChanges => 'تجاهل التغييرات';
 
   @override
+  String get permissionsRestoreDefaults => 'استعادة الإعدادات الافتراضية';
+
+  @override
   String get adminSettingsBellSchedule => 'جرس المدرسة';
 
   @override
@@ -4654,6 +4665,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String adminReportsReportedOn(Object date) {
     return 'تم الإبلاغ في $date';
   }
+
+  @override
+  String adminReportsReportedLine(Object reporter, Object reported) {
+    return 'بلاغ من $reporter بشأن $reported';
+  }
+
+  @override
+  String get adminReportsUnknownReporter => 'شخص ما';
+
+  @override
+  String get adminReportsUnknownUser => 'مستخدم';
 
   @override
   String get chatReportTitle => 'الإبلاغ عن رسالة';
@@ -6910,6 +6932,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get solutionsReportAlready => 'لقد أبلغت عن هذا بالفعل.';
+
+  @override
+  String get solutionsSharedSolutionFallback => 'حل مشترك';
 
   @override
   String solutionsBookPagesCount(int count) {

@@ -1209,6 +1209,14 @@
   "examTitle": "الامتحان",
   "examNotFound": "الامتحان غير موجود",
   "examStudyWithNova": "الدراسة مع NOVA",
+  "examNovaPrepPrompt": "أريد المساعدة في التحضير لـ{title} في {subject}، مع التركيز على {topic}.",
+  "@examNovaPrepPrompt": {
+    "placeholders": {
+      "title": {},
+      "subject": {},
+      "topic": {}
+    }
+  },
   "examAddToCalendar": "إضافة إلى التقويم",
   "examCouldNotOpenCalendar": "تعذر فتح التقويم.",
   "formTitle": "النموذج",
@@ -1334,6 +1342,7 @@
   "classroomsJoinTooltip": "انضم إلى صف",
   "classroomsJoinTitle": "الانضمام إلى صف",
   "classroomsJoinSubtitle": "أدخل الرمز الذي أعطاك إياه معلمك",
+  "classroomsJoinInvalidCode": "الرمز غير صالح أو منتهي الصلاحية",
   "classroomsCouldNotOpenLink": "تعذر فتح الرابط",
   "classroomsReorderTitle": "إعادة ترتيب الصفوف",
   "classroomsNoClassroomsToReorder": "لا توجد صفوف لإعادة ترتيبها.",
@@ -1591,6 +1600,15 @@
   "adminReportsResolve": "حل",
   "adminReportsReason": "السبب: {reason}",
   "adminReportsReportedOn": "تم الإبلاغ في {date}",
+  "adminReportsReportedLine": "بلاغ من {reporter} بشأن {reported}",
+  "@adminReportsReportedLine": {
+    "placeholders": {
+      "reporter": {},
+      "reported": {}
+    }
+  },
+  "adminReportsUnknownReporter": "شخص ما",
+  "adminReportsUnknownUser": "مستخدم",
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}
@@ -2372,6 +2390,7 @@
   "solutionsReportAction": "إبلاغ",
   "solutionsReportSubmitted": "شكرًا — تم الإبلاغ للمشرفين.",
   "solutionsReportAlready": "لقد أبلغت عن هذا بالفعل.",
+  "solutionsSharedSolutionFallback": "حل مشترك",
   "solutionsBookPagesCount": "{count} صفحة",
   "solutionsNoBooksYetForStudents": "لا توجد كتب هنا بعد. سيضيفها معلمك.",
   "solutionsManageBooksTitle": "إدارة الكتب",
@@ -3296,6 +3315,7 @@
   "permissionsLoadFailed": "تعذّر تحميل الصلاحيات: {error}",
   "permissionsNoResults": "لا توجد صلاحيات تطابق \"{query}\"",
   "permissionsResetChanges": "تجاهل التغييرات",
+  "permissionsRestoreDefaults": "استعادة الإعدادات الافتراضية",
   "commonNoResults": "لا نتائج",
   "supportContactCopied": "تم النسخ إلى الحافظة: {value}",
   "supportAiSubtitle": "مساعدة في أي شيء داخل ClassMate",

@@ -276,10 +276,40 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
 - Website FAQ and app FAQ say "School tools" like the menu
 - Checked: analyzer at baseline, tests at baseline, all 103 rig screens pass in en/he/ar/fr/ru and at
   2× text (en, ar); mail tests pass, API type-check clean
-- Left as is: the support assistant's knowledge base still writes "School Tools" (AI prompt only)
+- Left as is then, fixed in round 16: the support assistant's knowledge base wrote "School Tools"
+
+## Round 16 (2026-10-10) — QA round 2 + the English hiding behind the data
+- **Natan's round 2 (Fiverr; Android; admin Permissions), 3 issues:**
+  - #1 A secretary granted "Add / delete student accounts" could do neither. Two causes: the People
+    screen showed Add and Delete to admins only (role check, not the granted capability), and the
+    API's delete path read the roles *relation* as plain strings, so every secretary delete was
+    refused as "not a student". Now the Students tab offers Add (role locked to Student) and Delete
+    when the capability is granted, and a failed delete shows the real error instead of the "Cancel"
+    label. Hardened on the way: a secretary may edit student accounts only and can no longer change
+    a role or principal settings through Edit user (that was an open promotion path to admin)
+  - #2 The Secretary chip felt "not clickable" and once switched itself off: only the small switch
+    reacted to taps, and a pull-to-refresh rebuilt the list from the server and dropped unsaved
+    toggles. The whole chip now toggles; refresh keeps the list on screen and re-applies unsaved
+    toggles on top of the fresh values
+  - #3 "Restore defaults" under the header puts every switch back to its catalog default; the Save
+    bar then confirms. Disabled when nothing deviates
+  - iOS note: builds 304–309 sat on TestFlight with no tester group, so the external "QA testers"
+    group never received them. Build 310 is assigned to that group and submitted for beta review
+    (`scratchpad/asc.rb distribute`) as soon as it finishes processing
+- **English that could still reach the screen from the data layer** (round 15 covered the strings;
+  this covers what the API or an empty field puts in their place): the forms API sent the literal
+  words "Teacher" and "Class" for every form → it now sends the author's real name, and the client
+  renders Class / Teacher / School in the app's language; empty titles, attachment names and
+  captions ("Untitled", "Assessment", "Attachment", "Shared solution", "File", "Material", "Student",
+  "Image"); the join-code error; the admin Reports line "X reported Y"; the grade notification body;
+  the calendar export's "Teacher:"; the NOVA exam-prep prompt that is prefilled in the composer
+- Support assistant knowledge base says "School tools"
+- Checked: analyzer 50 (baseline), tests 66/5 (baseline), all 103 rig screens pass in en/he/ar/fr/ru
+  and at 2× text (en, ar); API type-check clean; permissions + mail tests 29 pass
 
 ## Up next (in order)
-1. Every screen is ✅ or ➖ and has now been rendered at least once. Next: on-device QA pass of build 309 (TestFlight / Play internal), then fix anything found.
+1. On-device QA pass of build 310 (TestFlight / Play internal). Natan retests Permissions on
+   Android and, once beta review clears, on iOS via the external group.
 
 ## Known open items (not redesign)
 - Anthropic key: the second new key is live and NOVA answers (confirmed by Tony 2026-10-09). Still
@@ -290,7 +320,6 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
 - ⚠ Any Railway variable change redeploys GitHub `main` and drops this branch's backend — use
   `--skip-deploys`, then `railway up` from the repo root
 - Apple-review demo password is committed in 4 files of the public repo
-- Secretary student create/delete UI not wired
 - Self-service account deletion: the API has `POST /account/delete` but the app has no button for it
   (the FAQ points to the school admin or support@)
 - 5 stale failing tests, all practice text repair (bare LaTeX / code-tail heuristics the code

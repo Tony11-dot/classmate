@@ -6125,6 +6125,12 @@ abstract class AppLocalizations {
   /// **'Study with NOVA'**
   String get examStudyWithNova;
 
+  /// No description provided for @examNovaPrepPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Help me prepare for {title} in {subject}. Focus on {topic}.'**
+  String examNovaPrepPrompt(Object title, Object subject, Object topic);
+
   /// No description provided for @examAddToCalendar.
   ///
   /// In en, this message translates to:
@@ -6706,6 +6712,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter the code your teacher gave you'**
   String get classroomsJoinSubtitle;
+
+  /// No description provided for @classroomsJoinInvalidCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid or expired code'**
+  String get classroomsJoinInvalidCode;
 
   /// No description provided for @classroomsCouldNotOpenLink.
   ///
@@ -7523,6 +7535,12 @@ abstract class AppLocalizations {
   /// **'Discard changes'**
   String get permissionsResetChanges;
 
+  /// No description provided for @permissionsRestoreDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore defaults'**
+  String get permissionsRestoreDefaults;
+
   /// No description provided for @adminSettingsBellSchedule.
   ///
   /// In en, this message translates to:
@@ -8230,6 +8248,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reported {date}'**
   String adminReportsReportedOn(Object date);
+
+  /// No description provided for @adminReportsReportedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{reporter} reported {reported}'**
+  String adminReportsReportedLine(Object reporter, Object reported);
+
+  /// No description provided for @adminReportsUnknownReporter.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone'**
+  String get adminReportsUnknownReporter;
+
+  /// No description provided for @adminReportsUnknownUser.
+  ///
+  /// In en, this message translates to:
+  /// **'a user'**
+  String get adminReportsUnknownUser;
 
   /// No description provided for @chatReportTitle.
   ///
@@ -12064,6 +12100,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You already reported this.'**
   String get solutionsReportAlready;
+
+  /// No description provided for @solutionsSharedSolutionFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared solution'**
+  String get solutionsSharedSolutionFallback;
 
   /// No description provided for @solutionsBookPagesCount.
   ///

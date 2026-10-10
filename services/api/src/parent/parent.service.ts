@@ -1054,6 +1054,7 @@ export class ParentService {
       },
       orderBy: { publishedAt: 'desc' },
       take: 50,
+      include: { teacher: { select: { name: true } } },
     });
 
     return {
@@ -1063,7 +1064,7 @@ export class ParentService {
         subject: f.subject ?? '',
         title: f.title,
         description: f.description ?? '',
-        teacher: 'Teacher',
+        teacher: f.teacher?.name ?? '',
         audienceLabel: f.audienceLabel ?? 'Class',
         acceptingResponses: f.acceptingResponses,
         allowMultipleResponses: f.allowMultipleResponses,

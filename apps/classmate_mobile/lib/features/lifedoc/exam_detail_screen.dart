@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
+import 'lifedoc_labels.dart';
 import 'data/exams_repository.dart';
 import 'domain/exam_models.dart';
 import '../../core/theme/cm_tokens.dart';
@@ -53,6 +54,9 @@ String _fmtTimeRange(String? start, String? end) {
 }
 
 Future<void> _addToCalendar(BuildContext context, StudentExamItem exam) async {
+  final l = AppLocalizations.of(context)!;
+  final examTitle = examTitleLabel(l, exam.title);
+  final teacherLine = '${l.examInfoTeacher}: ${exam.teacher}';
   final date = _parseDate(exam.dateLabel);
 
   if (date != null) {
@@ -66,9 +70,9 @@ Future<void> _addToCalendar(BuildContext context, StudentExamItem exam) async {
       final end = '${date.year}${pad(date.month)}${pad(date.day)}T100000';
       final params = <String, String>{
         'action': 'TEMPLATE',
-        'text': exam.title,
+        'text': examTitle,
         'dates': '$start/$end',
-        if (exam.teacher.isNotEmpty) 'details': 'Teacher: ${exam.teacher}',
+        if (exam.teacher.isNotEmpty) 'details': teacherLine,
       };
       final gcalUri = Uri.https(
         'calendar.google.com',
@@ -106,8 +110,8 @@ Future<void> _addToCalendar(BuildContext context, StudentExamItem exam) async {
         'UID:$uid\r\n'
         'DTSTART:${ymd}T080000Z\r\n'
         'DTEND:${ymd}T100000Z\r\n'
-        'SUMMARY:${exam.title}\r\n'
-        '${exam.teacher.isNotEmpty ? 'DESCRIPTION:Teacher: ${exam.teacher}\r\n' : ''}'
+        'SUMMARY:$examTitle\r\n'
+        '${exam.teacher.isNotEmpty ? 'DESCRIPTION:$teacherLine\r\n' : ''}'
         'END:VEVENT\r\n'
         'END:VCALENDAR';
     final encoded = Uri.encodeComponent(ics);
@@ -395,7 +399,7 @@ class _ExamDetailBody extends StatelessWidget {
                     ),
                   const SizedBox(height: 14),
                   Text(
-                    exam.title,
+                    examTitleLabel(l, exam.title),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w900,
                       height: 1.15,
@@ -621,10 +625,13 @@ class _ExamDetailBody extends StatelessWidget {
                       Uri(
                         path: '/tutor',
                         queryParameters: {
-                          'title': exam.title,
+                          'title': examTitleLabel(l, exam.title),
                           'subject': exam.subject,
-                          'prompt':
-                              'Help me prepare for ${exam.title} in ${exam.subject}. Focus on ${exam.topic ?? exam.subject}.',
+                          'prompt': l.examNovaPrepPrompt(
+                            examTitleLabel(l, exam.title),
+                            exam.subject,
+                            exam.topic ?? exam.subject,
+                          ),
                         },
                       ).toString(),
                     ),
@@ -804,6 +811,9 @@ class _MaterialPill extends StatelessWidget {
 
   final ExamMaterialItem material;
 
+  String _name(BuildContext context) =>
+      attachmentNameLabel(AppLocalizations.of(context)!, material.name);
+
   Future<void> _open(BuildContext context) async {
     final url = (material.url ?? '').trim();
     if (url.isEmpty) return;
@@ -821,13 +831,13 @@ class _MaterialPill extends StatelessWidget {
     if (isImage) {
       await Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute<void>(
-          builder: (_) => ImageViewerScreen(url: url, title: material.name),
+          builder: (_) => ImageViewerScreen(url: url, title: _name(context)),
         ),
       );
     } else if (isPdf) {
       await Navigator.of(context, rootNavigator: true).push(
         MaterialPageRoute<void>(
-          builder: (_) => PdfViewerScreen(url: url, title: material.name),
+          builder: (_) => PdfViewerScreen(url: url, title: _name(context)),
         ),
       );
     } else {
@@ -864,7 +874,7 @@ class _MaterialPill extends StatelessWidget {
               ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 160),
                 child: Text(
-                  material.name,
+                  _name(context),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(

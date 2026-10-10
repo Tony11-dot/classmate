@@ -433,7 +433,7 @@ class _ResponsesSheetState extends ConsumerState<_ResponsesSheet> {
             )
           else
             ...(_responses.take(20).map((r) {
-              final name = r['studentName'] as String? ?? 'Student';
+              final name = r['studentName'] as String? ?? widget.l.teacherFormResponsesScreenStudentFallback;
               final sub = r['submittedAt'] as String? ?? '';
               final dateStr = sub.isNotEmpty ? sub.split('T').first : '';
               return ListTile(

@@ -222,7 +222,7 @@ class StudentAnnouncementsApi {
 
       return AnnouncementItem(
         id: '${map['id'] ?? ''}',
-        title: '${map['title'] ?? 'Announcement'}',
+        title: '${map['title'] ?? ''}',
         // Empty stays empty — the screen shows a translated placeholder.
         body: body,
         severity: map['pinned'] == true

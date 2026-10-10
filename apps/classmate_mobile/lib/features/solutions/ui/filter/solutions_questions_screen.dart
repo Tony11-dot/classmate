@@ -449,7 +449,7 @@ class _SolutionCard extends ConsumerWidget {
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 8),
-            child: Text(item.caption, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.45)),
+            child: Text(item.caption.trim().isEmpty ? l.solutionsSharedSolutionFallback : item.caption, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.45)),
           ),
           const SizedBox(height: 12),
           if (item.assets.isNotEmpty)

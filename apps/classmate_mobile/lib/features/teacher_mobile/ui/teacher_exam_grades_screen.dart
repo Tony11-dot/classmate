@@ -209,7 +209,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final pills = raw.whereType<Map>().map((a) {
-      final title = (a['title'] ?? a['name'] ?? 'File').toString();
+      final title = (a['title'] ?? a['name'] ?? AppLocalizations.of(context)!.teacherAddMaterialScreenFileFallback).toString();
       final url = (a['url'] ?? '').toString();
       return CmPress(
         onTap: url.isNotEmpty
@@ -265,7 +265,7 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
     final tk = CmTokens.of(context);
 
     final exam = widget.exam;
-    final title = exam['title'] as String? ?? 'Exam';
+    final title = exam['title'] as String? ?? l.teacherGradeExamType;
     final subject = exam['subject'] as String? ?? '';
     final maxGrade = exam['maxGrade'] as int?;
     final dateRaw = exam['date'] as String? ?? '';

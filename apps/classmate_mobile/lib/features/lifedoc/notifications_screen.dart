@@ -34,6 +34,24 @@ String _notificationTitleLocalized(
   }
 }
 
+/// Same for the body: templated items rebuild `assessment • grade` with
+/// the assessment fallback word in the app's language.
+String _notificationBodyLocalized(
+    BuildContext context, StudentNotificationItem item) {
+  final t = item.template;
+  if (t == null) return item.body;
+  switch (t) {
+    case StudentNotificationTemplate.newGradePosted:
+    case StudentNotificationTemplate.newGradePostedIn:
+      final grade = (item.templateArgs['grade'] ?? '').toString().trim();
+      if (grade.isEmpty) return item.body;
+      final assessment =
+          (item.templateArgs['assessment'] ?? '').toString().trim();
+      final l = AppLocalizations.of(context)!;
+      return '${assessment.isEmpty ? l.gradesAssessmentFallback : assessment} • $grade';
+  }
+}
+
 String _friendlyNotificationDateTime(BuildContext context, DateTime value) {
   return FriendlyDate.dateTime(value);
 }
@@ -439,7 +457,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                                 ),
                                                 const SizedBox(height: 6),
                                                 Text(
-                                                  item.body,
+                                                  _notificationBodyLocalized(context, item),
                                                   maxLines: 2,
                                                   overflow: TextOverflow.ellipsis,
                                                   style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
@@ -779,7 +797,7 @@ class _NotificationDetailBody extends ConsumerWidget {
           color: cs.surfaceContainerLow,
           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           child: Text(
-            freshItem.body,
+            _notificationBodyLocalized(context, freshItem),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.55),
           ),
         ),

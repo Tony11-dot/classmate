@@ -29,6 +29,7 @@ class ImageViewerScreen extends StatelessWidget {
   Future<void> _download(BuildContext context) async {
     if (imageUrl.isEmpty) return;
     final messenger = ScaffoldMessenger.of(context);
+    final l = AppLocalizations.of(context)!;
     // On web there is no temp dir / native share sheet — open the image in a
     // new browser tab where the user can save it (fixes "Download Failed").
     if (await openMediaInBrowserOnWeb(imageUrl)) return;
@@ -66,7 +67,7 @@ class ImageViewerScreen extends StatelessWidget {
       }
       await Share.shareXFiles(
         [XFile(localPath)],
-        subject: title ?? 'Image',
+        subject: title ?? l.chatMessageBubbleImage,
         sharePositionOrigin:
             box != null ? box.localToGlobal(Offset.zero) & box.size : null,
       );

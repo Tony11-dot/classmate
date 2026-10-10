@@ -1937,12 +1937,32 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
   async updateUser(user: any, id: string, dto: any) {
     this.requireAdminOrSecretary(user);
     const schoolId = (user as any)?.schoolId;
+    const isAdmin = hasAnyRole(user, ['ADMIN', 'MANAGER']);
 
     const target = await this.prisma.user.findFirst({
       where: { id, ...(schoolId ? { schoolId } : {}) },
-      select: { id: true },
+      select: { id: true, roles: { select: { role: true } } },
     });
     if (!target) throw new NotFoundException('User not found');
+
+    if (!isAdmin) {
+      // A secretary may edit STUDENT accounts only — never staff — and may not
+      // change roles or principal settings. Without this, "edit a student,
+      // set role ADMIN" was a self-serve promotion path.
+      const targetRoles = (target.roles ?? []).map((r: any) => String(r?.role ?? r).toUpperCase());
+      const isStudentOnly =
+        targetRoles.includes('STUDENT') &&
+        !targetRoles.some((r) => ['ADMIN', 'TEACHER', 'SECRETARY', 'MANAGER'].includes(r));
+      if (!isStudentOnly) {
+        throw new ForbiddenException('You can only edit student accounts.');
+      }
+      if (dto?.role !== undefined && String(dto.role).toUpperCase() !== 'STUDENT') {
+        throw new ForbiddenException('Only an admin can change a role.');
+      }
+      if (dto?.isPrincipal !== undefined || dto?.principalGrades !== undefined) {
+        throw new ForbiddenException('Only an admin can change principal settings.');
+      }
+    }
 
     const data: any = {};
     if (dto?.name !== undefined || dto?.nameEn !== undefined) {
@@ -2048,14 +2068,15 @@ if (!body?.cohortId) throw new BadRequestException('cohortId is required');
 
     const target = await this.prisma.user.findFirst({
       where: { id, ...(schoolId ? { schoolId } : {}) },
-      select: { id: true, roles: true },
+      select: { id: true, roles: { select: { role: true } } },
     });
     if (!target) throw new NotFoundException('User not found');
 
     if (!isAdmin) {
-      const targetRoles = Array.isArray((target as any).roles)
-        ? ((target as any).roles as string[]).map((r) => String(r).toUpperCase())
-        : [];
+      // `roles` is the UserRole relation (objects), not a string list — the
+      // old String(r) mapping yielded "[object Object]", so a granted
+      // secretary was refused on EVERY delete (QA round 2, #1).
+      const targetRoles = (target.roles ?? []).map((r: any) => String(r?.role ?? r).toUpperCase());
       const isStudentOnly =
         targetRoles.includes('STUDENT') &&
         !targetRoles.some((r) => ['ADMIN', 'TEACHER', 'SECRETARY', 'MANAGER'].includes(r));

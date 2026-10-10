@@ -77,7 +77,9 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
                 setS(() {
                   joining = false;
                   status = CmCodeStatus.error;
-                  errorMsg = e.toString().replaceFirst('Exception: ', '');
+                  errorMsg = e is ClassroomJoinRejected
+                      ? AppLocalizations.of(context)!.classroomsJoinInvalidCode
+                      : e.toString().replaceFirst('Exception: ', '');
                 });
               }
             }

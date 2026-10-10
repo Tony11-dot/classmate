@@ -1439,6 +1439,14 @@
   "examTitle": "‹‹Exam››",
   "examNotFound": "‹‹Exam not found››",
   "examStudyWithNova": "‹‹Study with NOVA››",
+  "examNovaPrepPrompt": "‹‹Help me prepare for {title} in {subject}. Focus on {topic}.››",
+  "@examNovaPrepPrompt": {
+    "placeholders": {
+      "title": {},
+      "subject": {},
+      "topic": {}
+    }
+  },
   "examAddToCalendar": "‹‹Add to calendar››",
   "examCouldNotOpenCalendar": "‹‹Could not open calendar.››",
   "formTitle": "‹‹Form››",
@@ -1565,6 +1573,7 @@
   "classroomsJoinTooltip": "‹‹Join a classroom››",
   "classroomsJoinTitle": "‹‹Join a classroom››",
   "classroomsJoinSubtitle": "‹‹Enter the code your teacher gave you››",
+  "classroomsJoinInvalidCode": "‹‹Invalid or expired code››",
   "classroomsCouldNotOpenLink": "‹‹Could not open link››",
   "classroomsReorderTitle": "‹‹Reorder classrooms››",
   "classroomsNoClassroomsToReorder": "‹‹No classrooms to reorder.››",
@@ -1838,6 +1847,15 @@
   "adminReportsResolve": "‹‹Resolve››",
   "adminReportsReason": "‹‹Reason: {reason}››",
   "adminReportsReportedOn": "‹‹Reported {date}››",
+  "adminReportsReportedLine": "‹‹{reporter} reported {reported}››",
+  "@adminReportsReportedLine": {
+    "placeholders": {
+      "reporter": {},
+      "reported": {}
+    }
+  },
+  "adminReportsUnknownReporter": "‹‹Someone››",
+  "adminReportsUnknownUser": "‹‹a user››",
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}
@@ -3013,6 +3031,7 @@
   "solutionsReportAction": "‹‹Report››",
   "solutionsReportSubmitted": "‹‹Thanks — reported to the admins.››",
   "solutionsReportAlready": "‹‹You already reported this.››",
+  "solutionsSharedSolutionFallback": "‹‹Shared solution››",
   "solutionsBookPagesCount": "‹‹{count, plural, =1{1 page} other{{count} pages}}››",
   "@solutionsBookPagesCount": {
     "placeholders": {
@@ -5046,6 +5065,7 @@
   "permissionsLoadFailed": "‹‹Couldn’t load permissions: {error}››",
   "permissionsNoResults": "‹‹No permissions match “{query}”››",
   "permissionsResetChanges": "‹‹Discard changes››",
+  "permissionsRestoreDefaults": "‹‹Restore defaults››",
   "commonNoResults": "‹‹No results››",
   "supportContactCopied": "‹‹Copied to clipboard: {value}››",
   "supportAiSubtitle": "‹‹Help with anything in ClassMate››",

@@ -165,11 +165,11 @@ StudentFormItem _mapToFormItem(Map<String, dynamic> json) {
 
   return StudentFormItem(
     id: str(['id'], 'form-${json.hashCode}'),
-    subject: str(['subject'], 'Form'),
-    title: str(['title', 'name'], 'Untitled form'),
+    subject: str(['subject']),
+    title: str(['title', 'name']),
     description: str(['description', 'body']),
-    teacher: str(['teacher', 'teacherName'], 'School'),
-    audienceLabel: str(['audienceLabel', 'audience'], 'School audience'),
+    teacher: str(['teacher', 'teacherName']),
+    audienceLabel: str(['audienceLabel', 'audience']),
     acceptingResponses: boolValue(['acceptingResponses'], true),
     allowMultipleResponses: boolValue(['allowMultipleResponses']),
     published: boolValue(['published'], true),

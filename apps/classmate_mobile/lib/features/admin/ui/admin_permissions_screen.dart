@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/cm_tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../ui/widgets/cm_press.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 import '../../../ui/widgets/cm_search_field.dart';
 import '../data/admin_repository.dart';
@@ -49,20 +50,68 @@ class _AdminPermissionsScreenState extends ConsumerState<AdminPermissionsScreen>
   }
 
   Future<void> _load() async {
-    setState(() { _loading = true; _error = null; });
+    // First load shows the spinner. A pull-to-refresh keeps the list on
+    // screen and re-applies any unsaved toggles on top of the fresh truth, so
+    // a refresh can never silently flip a switch back (QA round 2, #2).
+    final initial = _caps.isEmpty;
+    final pending = _dirty ? _pendingEdits() : null;
+    setState(() { _loading = initial; _error = null; });
     try {
       final caps = await ref.read(adminRepositoryProvider).fetchPermissions();
       if (!mounted) return;
       setState(() {
         _caps = caps;
         _hydrate(caps);
+        if (pending != null) _applyEdits(pending);
         _loading = false;
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() { _error = '$e'; _loading = false; });
+      if (initial) {
+        setState(() { _error = '$e'; _loading = false; });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.permissionsLoadFailed('$e'))),
+        );
+      }
     }
   }
+
+  /// Toggles that differ from the loaded baseline: capKey -> role -> value.
+  Map<String, Map<String, bool>> _pendingEdits() {
+    final out = <String, Map<String, bool>>{};
+    for (final entry in _state.entries) {
+      final base = _baseline[entry.key] ?? const {};
+      for (final r in entry.value.entries) {
+        if (base[r.key] != r.value) (out[entry.key] ??= {})[r.key] = r.value;
+      }
+    }
+    return out;
+  }
+
+  void _applyEdits(Map<String, Map<String, bool>> edits) {
+    for (final e in edits.entries) {
+      final cur = _state[e.key];
+      if (cur == null) continue; // capability no longer in the catalog
+      for (final r in e.value.entries) {
+        if (cur.containsKey(r.key)) cur[r.key] = r.value;
+      }
+    }
+  }
+
+  /// True when any switch differs from its catalog default.
+  bool get _anyDeviation => _caps.any((c) => c.configurableRoles
+      .any((r) => (_state[c.key]?[r] ?? c.enabledFor(r)) != c.defaultFor(r)));
+
+  /// Every switch back to its catalog default; the Save bar then confirms.
+  void _restoreDefaults() => setState(() {
+        for (final c in _caps) {
+          final cur = _state[c.key] ??= {};
+          for (final r in c.configurableRoles) {
+            cur[r] = c.defaultFor(r);
+          }
+        }
+      });
 
   void _hydrate(List<PermissionCapability> caps) {
     _state.clear();
@@ -197,6 +246,14 @@ class _AdminPermissionsScreenState extends ConsumerState<AdminPermissionsScreen>
               if (_query.isEmpty) ...[
                 const SizedBox(height: 12),
                 _HeaderBlurb(text: l.permissionsHeaderBlurb),
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: TextButton.icon(
+                    onPressed: _anyDeviation ? _restoreDefaults : null,
+                    icon: const Icon(Icons.restart_alt_rounded, size: 18),
+                    label: Text(l.permissionsRestoreDefaults),
+                  ),
+                ),
               ],
               for (final m in modules) ...[
                 const SizedBox(height: 18),
@@ -408,37 +465,42 @@ class _RoleChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tokens = CmTokens.of(context);
-    return Container(
-      padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
-      decoration: BoxDecoration(
-        color: value ? cs.surfaceContainerHigh : cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(CmTokens.radiusSm),
-        border: Border.all(
-          color: changed
-              ? tokens.warn.withValues(alpha: 0.7)
-              : cs.outlineVariant.withValues(alpha: 0.5),
-          width: changed ? 1.5 : 1,
+    // The whole chip toggles, not just the small switch — tapping the role
+    // name used to do nothing, which read as "not clickable" (QA round 2, #2).
+    return CmPress(
+      onTap: () => onChanged(!value),
+      child: Container(
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
+        decoration: BoxDecoration(
+          color: value ? cs.surfaceContainerHigh : cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(CmTokens.radiusSm),
+          border: Border.all(
+            color: changed
+                ? tokens.warn.withValues(alpha: 0.7)
+                : cs.outlineVariant.withValues(alpha: 0.5),
+            width: changed ? 1.5 : 1,
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: value ? cs.onSurface : cs.onSurfaceVariant,
-                  ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: value ? cs.onSurface : cs.onSurfaceVariant,
+                    ),
+              ),
             ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-        ],
+            Switch(
+              value: value,
+              onChanged: onChanged,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+          ],
+        ),
       ),
     );
   }

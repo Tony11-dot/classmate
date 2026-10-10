@@ -1209,6 +1209,14 @@
   "examTitle": "Examen",
   "examNotFound": "Examen introuvable",
   "examStudyWithNova": "Étudier avec NOVA",
+  "examNovaPrepPrompt": "Aide-moi à préparer {title} en {subject}. Concentre-toi sur {topic}.",
+  "@examNovaPrepPrompt": {
+    "placeholders": {
+      "title": {},
+      "subject": {},
+      "topic": {}
+    }
+  },
   "examAddToCalendar": "Ajouter au calendrier",
   "examCouldNotOpenCalendar": "Impossible d’ouvrir le calendrier.",
   "formTitle": "Formulaire",
@@ -1334,6 +1342,7 @@
   "classroomsJoinTooltip": "Rejoindre une classe",
   "classroomsJoinTitle": "Rejoindre une classe",
   "classroomsJoinSubtitle": "Entrez le code que votre enseignant vous a donné",
+  "classroomsJoinInvalidCode": "Code invalide ou expiré",
   "classroomsCouldNotOpenLink": "Impossible d’ouvrir le lien",
   "classroomsReorderTitle": "Réorganiser les classes",
   "classroomsNoClassroomsToReorder": "Aucune classe à réorganiser.",
@@ -1591,6 +1600,15 @@
   "adminReportsResolve": "Résoudre",
   "adminReportsReason": "Motif : {reason}",
   "adminReportsReportedOn": "Signalé le {date}",
+  "adminReportsReportedLine": "{reporter} a signalé {reported}",
+  "@adminReportsReportedLine": {
+    "placeholders": {
+      "reporter": {},
+      "reported": {}
+    }
+  },
+  "adminReportsUnknownReporter": "Quelqu’un",
+  "adminReportsUnknownUser": "un utilisateur",
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}
@@ -2372,6 +2390,7 @@
   "solutionsReportAction": "Signaler",
   "solutionsReportSubmitted": "Merci — signalé aux administrateurs.",
   "solutionsReportAlready": "Vous avez déjà signalé ceci.",
+  "solutionsSharedSolutionFallback": "Solution partagée",
   "solutionsBookPagesCount": "{count, plural, one{{count} page} other{{count} pages}}",
   "solutionsNoBooksYetForStudents": "Aucun livre ici pour l’instant. Votre enseignant les ajoutera.",
   "solutionsManageBooksTitle": "Gérer les livres",
@@ -3296,6 +3315,7 @@
   "permissionsLoadFailed": "Impossible de charger les autorisations : {error}",
   "permissionsNoResults": "Aucune autorisation ne correspond à « {query} »",
   "permissionsResetChanges": "Annuler les modifications",
+  "permissionsRestoreDefaults": "Rétablir les valeurs par défaut",
   "commonNoResults": "Aucun résultat",
   "supportContactCopied": "Copié dans le presse-papiers : {value}",
   "supportAiSubtitle": "De l’aide pour tout dans ClassMate",

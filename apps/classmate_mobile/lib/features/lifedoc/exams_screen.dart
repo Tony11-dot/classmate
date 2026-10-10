@@ -9,6 +9,7 @@ import '../../core/realtime/realtime_listener.dart';
 import '../../core/semester/school_semester.dart';
 import '../../core/util/friendly_date.dart';
 import '../../l10n/app_localizations.dart';
+import 'lifedoc_labels.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/semester_filter_bar.dart';
 import 'data/exams_repository.dart';
@@ -517,7 +518,7 @@ class _ExamCard extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                exam.title,
+                                examTitleLabel(l, exam.title),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontSize: 16,
@@ -594,7 +595,7 @@ class _ExamCard extends StatelessWidget {
                           spacing: 6,
                           runSpacing: 6,
                           children: [
-                            _SmallChip(icon: Icons.groups_rounded, label: exam.audience.label),
+                            _SmallChip(icon: Icons.groups_rounded, label: audienceLabel(l, exam.audience.label)),
                             if (exam.materials.isNotEmpty)
                               _SmallChip(
                                 icon: Icons.attach_file_rounded,
@@ -657,12 +658,12 @@ class _FormCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          form.title,
+                          formTitleLabel(l, form.title),
                           style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${form.subject} · ${form.teacher}',
+                          '${formSubjectLabel(l, form.subject)} · ${teacherNameLabel(l, form.teacher)}',
                           style: TextStyle(color: cs.onSurfaceVariant),
                         ),
                       ],
@@ -702,7 +703,7 @@ class _FormCard extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   _SmallChip(icon: Icons.quiz_outlined, label: l.examsQuestionsCount(form.questionCount)),
-                  _SmallChip(icon: Icons.groups_rounded, label: form.audienceLabel),
+                  _SmallChip(icon: Icons.groups_rounded, label: audienceLabel(l, form.audienceLabel)),
                 ],
               ),
             ],

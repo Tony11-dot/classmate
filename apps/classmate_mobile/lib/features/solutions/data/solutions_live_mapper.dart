@@ -69,7 +69,7 @@ class SolutionsLiveMapper {
       ], fallback: 'book'),
       pageNumber: '${_asInt(raw['pageNumber'] ?? raw['page'], fallback: 0)}',
       questionNumber: _firstNonEmpty([raw['questionNumber']], fallback: '—'),
-      caption: _firstNonEmpty([raw['caption']], fallback: 'Shared solution'),
+      caption: _firstNonEmpty([raw['caption']], fallback: ''),
       verifiedByNova: verificationStatus.toUpperCase() == 'VERIFIED',
       verificationStatus: verificationStatus,
       verificationNote: _nullableText(raw['verificationNote']),

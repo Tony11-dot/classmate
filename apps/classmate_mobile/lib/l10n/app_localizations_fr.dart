@@ -3555,6 +3555,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get examStudyWithNova => 'Étudier avec NOVA';
 
   @override
+  String examNovaPrepPrompt(Object title, Object subject, Object topic) {
+    return 'Aide-moi à préparer $title en $subject. Concentre-toi sur $topic.';
+  }
+
+  @override
   String get examAddToCalendar => 'Ajouter au calendrier';
 
   @override
@@ -3869,6 +3874,9 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get classroomsJoinSubtitle =>
       'Entrez le code que votre enseignant vous a donné';
+
+  @override
+  String get classroomsJoinInvalidCode => 'Code invalide ou expiré';
 
   @override
   String get classroomsCouldNotOpenLink => 'Impossible d’ouvrir le lien';
@@ -4317,6 +4325,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get permissionsResetChanges => 'Annuler les modifications';
 
   @override
+  String get permissionsRestoreDefaults => 'Rétablir les valeurs par défaut';
+
+  @override
   String get adminSettingsBellSchedule => 'Sonnerie';
 
   @override
@@ -4701,6 +4712,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String adminReportsReportedOn(Object date) {
     return 'Signalé le $date';
   }
+
+  @override
+  String adminReportsReportedLine(Object reporter, Object reported) {
+    return '$reporter a signalé $reported';
+  }
+
+  @override
+  String get adminReportsUnknownReporter => 'Quelqu’un';
+
+  @override
+  String get adminReportsUnknownUser => 'un utilisateur';
 
   @override
   String get chatReportTitle => 'Signaler le message';
@@ -6989,6 +7011,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get solutionsReportAlready => 'Vous avez déjà signalé ceci.';
+
+  @override
+  String get solutionsSharedSolutionFallback => 'Solution partagée';
 
   @override
   String solutionsBookPagesCount(int count) {

@@ -262,8 +262,11 @@ class _ClassroomLibraryPickerSheetState
                             }
                             final m = filtered[i - 1];
                             final id = (m['id'] ?? '').toString();
-                            final title =
-                                (m['title'] ?? 'Untitled').toString();
+                            final rawTitle =
+                                (m['title'] ?? '').toString().trim();
+                            final title = rawTitle.isEmpty
+                                ? AppLocalizations.of(context)!.commonUntitled
+                                : rawTitle;
                             final subj = (m['subject'] ?? '').toString();
                             final attached = widget
                                 .alreadyAttachedTeacherIds

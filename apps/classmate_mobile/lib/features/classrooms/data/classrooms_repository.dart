@@ -6,6 +6,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/config/env.dart';
 
+/// Non-2xx reply from the classrooms API. Same message as before, but typed
+/// so callers can tell a server rejection (4xx) from a network failure.
+class ClassroomsApiException implements Exception {
+  const ClassroomsApiException(this.label, this.statusCode, this.body);
+  final String label;
+  final int statusCode;
+  final String body;
+
+  @override
+  String toString() =>
+      'Exception: $label failed ($statusCode): ${body.isEmpty ? 'empty body' : body}';
+}
+
+/// The server turned down a join code (wrong, expired or already used).
+/// The UI shows a translated message instead of the raw server text.
+class ClassroomJoinRejected implements Exception {
+  const ClassroomJoinRejected([this.serverMessage]);
+  final String? serverMessage;
+
+  @override
+  String toString() => 'Exception: ${serverMessage ?? 'Invalid or expired code'}';
+}
+
 class ClassroomsRepository {
   ClassroomsRepository({String? token, http.Client? client, String? baseUrl})
     : _token = (token ?? '').trim(),
@@ -72,13 +95,23 @@ class ClassroomsRepository {
 
   Future<void> joinByCode(String code) async {
     try {
-      final j = await _postJson(
-        '/student/classrooms/join',
-        <String, dynamic>{'code': code.trim()},
-        label: 'classrooms.joinByCode',
-      );
+      final dynamic j;
+      try {
+        j = await _postJson(
+          '/student/classrooms/join',
+          <String, dynamic>{'code': code.trim()},
+          label: 'classrooms.joinByCode',
+        );
+      } on ClassroomsApiException catch (e) {
+        // A 4xx means the code itself was refused; anything else (5xx,
+        // timeouts, no network) keeps its original error.
+        if (e.statusCode >= 400 && e.statusCode < 500) {
+          throw const ClassroomJoinRejected();
+        }
+        rethrow;
+      }
       if (j is Map && j['ok'] != true) {
-        throw Exception((j['message'] ?? 'Invalid or expired code').toString());
+        throw ClassroomJoinRejected(j['message']?.toString());
       }
       // The server may auto-add the user to multiple classrooms (every one
       // whose teacher's slots target the matched cohort). Clear those ids
@@ -156,9 +189,7 @@ class ClassroomsRepository {
   bool _ok(http.Response res) => res.statusCode >= 200 && res.statusCode < 300;
 
   Never _fail(String label, http.Response res) {
-    throw Exception(
-      '$label failed (${res.statusCode}): ${res.body.isEmpty ? 'empty body' : res.body}',
-    );
+    throw ClassroomsApiException(label, res.statusCode, res.body);
   }
 
   Future<dynamic> _getJson(

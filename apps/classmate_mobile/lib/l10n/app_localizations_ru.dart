@@ -3490,6 +3490,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get examStudyWithNova => 'Учиться с NOVA';
 
   @override
+  String examNovaPrepPrompt(Object title, Object subject, Object topic) {
+    return 'Помоги мне подготовиться к $title по предмету $subject. Сделай упор на $topic.';
+  }
+
+  @override
   String get examAddToCalendar => 'Добавить в календарь';
 
   @override
@@ -3800,6 +3805,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get classroomsJoinSubtitle => 'Введите код, который дал вам учитель';
+
+  @override
+  String get classroomsJoinInvalidCode => 'Код недействителен или истёк';
 
   @override
   String get classroomsCouldNotOpenLink => 'Не удалось открыть ссылку';
@@ -4248,6 +4256,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get permissionsResetChanges => 'Отменить изменения';
 
   @override
+  String get permissionsRestoreDefaults => 'Вернуть значения по умолчанию';
+
+  @override
   String get adminSettingsBellSchedule => 'Звонок';
 
   @override
@@ -4629,6 +4640,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String adminReportsReportedOn(Object date) {
     return 'Жалоба от $date';
   }
+
+  @override
+  String adminReportsReportedLine(Object reporter, Object reported) {
+    return 'Жалоба от $reporter на $reported';
+  }
+
+  @override
+  String get adminReportsUnknownReporter => 'кого-то';
+
+  @override
+  String get adminReportsUnknownUser => 'пользователя';
 
   @override
   String get chatReportTitle => 'Пожаловаться на сообщение';
@@ -6930,6 +6952,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get solutionsReportAlready => 'Вы уже пожаловались на это.';
+
+  @override
+  String get solutionsSharedSolutionFallback => 'Общее решение';
 
   @override
   String solutionsBookPagesCount(int count) {

@@ -1207,8 +1207,8 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
       final users = await _fetch();
       if (!mounted) return;
       final schoolName = widget.session?.schoolName ?? '';
-      final exportedBy = (widget.session?.displayName ?? widget.session?.email ?? 'Admin') as String;
       final l = _exportL10n();
+      final exportedBy = (widget.session?.displayName ?? widget.session?.email ?? l.adminExportRoleAdmin) as String;
 
       // Three branches:
       //   1. Compact table (legacy) — one PDF, all users in a single

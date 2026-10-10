@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../l10n/app_localizations.dart';
+import 'lifedoc_labels.dart';
 import 'data/forms_repository.dart';
 import 'domain/form_models.dart';
 import '../../core/theme/cm_tokens.dart';
@@ -126,6 +127,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
 
   Widget _buildScaffold(BuildContext context, StudentFormItem form) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
 
     // Students see only the Questions tab (no Responses).
     // The form is always shown as a single-tab view for students.
@@ -142,7 +144,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
           },
         ),
         title: Text(
-          form.title,
+          formTitleLabel(l, form.title),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
@@ -490,7 +492,7 @@ class _FormHero extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            form.title,
+            formTitleLabel(AppLocalizations.of(context)!, form.title),
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w900,
               height: 1.15,
@@ -507,12 +509,18 @@ class _FormHero extends StatelessWidget {
             spacing: 6,
             runSpacing: 6,
             children: [
-              _MetaChip(icon: Icons.subject_rounded, label: form.subject),
+              _MetaChip(
+                icon: Icons.subject_rounded,
+                label: formSubjectLabel(AppLocalizations.of(context)!, form.subject),
+              ),
               _MetaChip(
                 icon: Icons.person_outline_rounded,
-                label: form.teacher,
+                label: teacherNameLabel(AppLocalizations.of(context)!, form.teacher),
               ),
-              _MetaChip(icon: Icons.groups_rounded, label: form.audienceLabel),
+              _MetaChip(
+                icon: Icons.groups_rounded,
+                label: audienceLabel(AppLocalizations.of(context)!, form.audienceLabel),
+              ),
               _MetaChip(
                 icon: Icons.quiz_outlined,
                 label: AppLocalizations.of(

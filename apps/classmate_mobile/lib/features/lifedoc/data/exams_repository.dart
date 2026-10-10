@@ -125,7 +125,7 @@ StudentExamItem _mapToExamItem(Map<String, dynamic> j) {
           final mi = m.map((k, v) => MapEntry(k.toString(), v));
           return ExamMaterialItem(
             id: (mi['id'] ?? 'mat-${mi.hashCode}').toString(),
-            name: (mi['name'] ?? mi['title'] ?? mi['fileName'] ?? mi['filename'] ?? 'Attachment').toString(),
+            name: (mi['name'] ?? mi['title'] ?? mi['fileName'] ?? mi['filename'] ?? '').toString(),
             kind: (mi['kind'] ?? mi['type'] ?? mi['mimeType'] ?? 'file').toString(),
             url: (mi['url'] ?? mi['fileUrl'] ?? mi['link'] ?? '').toString().trim().isNotEmpty
                 ? (mi['url'] ?? mi['fileUrl'] ?? mi['link']).toString().trim()
@@ -145,7 +145,7 @@ StudentExamItem _mapToExamItem(Map<String, dynamic> j) {
     id: str(['id'], 'exam-${j.hashCode}'),
     subject: str(['subject', 'courseName', 'courseSubject']),
     topic: opt(['topic', 'topicLabel', 'chapter']),
-    title: str(['title', 'name', 'assessmentTitle'], 'Assessment'),
+    title: str(['title', 'name', 'assessmentTitle']),
     caption: opt(['description', 'caption', 'body', 'notes']),
     dateLabel: str(['scheduledAt', 'date', 'dueAt', 'examDate']),
     hourLabel: opt(['hour', 'time', 'startTime']),
@@ -154,7 +154,7 @@ StudentExamItem _mapToExamItem(Map<String, dynamic> j) {
     teacher: str(['teacher', 'teacherName', 'instructor']),
     audience: ExamAudience(
       type: audienceType,
-      label: str(['audienceLabel', 'audience', 'audienceGroup'], 'Class'),
+      label: str(['audienceLabel', 'audience', 'audienceGroup']),
     ),
     materials: materials,
     grade: intOpt(['grade']),

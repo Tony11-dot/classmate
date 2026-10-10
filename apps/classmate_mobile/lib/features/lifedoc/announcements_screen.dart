@@ -132,8 +132,12 @@ Color _severityTone(BuildContext context, AnnouncementSeverity severity) {
 /// the literal text stored on the item for free-form posts (template == null).
 String _announcementTitleLocalized(BuildContext context, AnnouncementItem item) {
   final t = item.template;
-  if (t == null) return item.title;
   final l = AppLocalizations.of(context)!;
+  if (t == null) {
+    return item.title.trim().isEmpty
+        ? l.teacherAnnouncementSectionTitle
+        : item.title;
+  }
   switch (t) {
     case AnnouncementTemplate.gradeRisk:
       return l.announcementGradeRiskTitle;

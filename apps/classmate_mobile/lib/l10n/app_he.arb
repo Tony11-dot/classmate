@@ -1246,6 +1246,14 @@
   "examTitle": "בחינה",
   "examNotFound": "הבחינה לא נמצאה",
   "examStudyWithNova": "לימוד עם NOVA",
+  "examNovaPrepPrompt": "אשמח לעזרה בהכנה ל{title} ב{subject}, עם דגש על {topic}.",
+  "@examNovaPrepPrompt": {
+    "placeholders": {
+      "title": {},
+      "subject": {},
+      "topic": {}
+    }
+  },
   "examAddToCalendar": "הוסף ליומן",
   "examCouldNotOpenCalendar": "לא ניתן לפתוח את היומן.",
   "formTitle": "טופס",
@@ -1371,6 +1379,7 @@
   "classroomsJoinTooltip": "הצטרף לכיתה",
   "classroomsJoinTitle": "הצטרף לכיתה",
   "classroomsJoinSubtitle": "הזן את הקוד שהמורה שלך נתן לך",
+  "classroomsJoinInvalidCode": "הקוד לא תקין או שפג תוקפו",
   "classroomsCouldNotOpenLink": "לא ניתן לפתוח את הקישור",
   "classroomsReorderTitle": "סדר מחדש כיתות",
   "classroomsNoClassroomsToReorder": "אין כיתות לסידור מחדש.",
@@ -1628,6 +1637,15 @@
   "adminReportsResolve": "טפל",
   "adminReportsReason": "סיבה: {reason}",
   "adminReportsReportedOn": "דווח ב-{date}",
+  "adminReportsReportedLine": "דיווח של {reporter} על {reported}",
+  "@adminReportsReportedLine": {
+    "placeholders": {
+      "reporter": {},
+      "reported": {}
+    }
+  },
+  "adminReportsUnknownReporter": "מישהו",
+  "adminReportsUnknownUser": "משתמש",
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}
@@ -2409,6 +2427,7 @@
   "solutionsReportAction": "דווח",
   "solutionsReportSubmitted": "תודה — הדיווח נשלח למנהלים.",
   "solutionsReportAlready": "כבר דיווחת על זה.",
+  "solutionsSharedSolutionFallback": "פתרון משותף",
   "solutionsBookPagesCount": "{count} עמודים",
   "solutionsNoBooksYetForStudents": "אין כאן ספרים עדיין. המורה יוסיף אותם.",
   "solutionsManageBooksTitle": "ניהול ספרים",
@@ -3296,6 +3315,7 @@
   "permissionsLoadFailed": "לא ניתן לטעון את ההרשאות: {error}",
   "permissionsNoResults": "אין הרשאות שתואמות ל-\"{query}\"",
   "permissionsResetChanges": "בטל שינויים",
+  "permissionsRestoreDefaults": "שחזור ברירות המחדל",
   "commonNoResults": "אין תוצאות",
   "supportContactCopied": "הועתק ללוח: {value}",
   "supportAiSubtitle": "עזרה בכל דבר ב-ClassMate",

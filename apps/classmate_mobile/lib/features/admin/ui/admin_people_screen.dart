@@ -76,6 +76,10 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
     final cs = Theme.of(context).colorScheme;
     final session = ref.watch(authSessionProvider);
     final isAdmin = session.primaryRole == 'ADMIN';
+    // Secretaries act through the capabilities an admin granted them in
+    // Settings → Permissions (student accounts only — staff stay admin-only).
+    final canCreateStudents = session.can('students.create');
+    final canDeleteStudents = session.can('students.delete');
 
     // Button copy + pre-selected role come from the currently-active tab:
     // on Students tab → "Add student" + STUDENT role; same for the rest.
@@ -92,22 +96,29 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
 
     return Scaffold(
       backgroundColor: cs.surface,
-      floatingActionButton: isAdmin
+      floatingActionButton: (isAdmin || (canCreateStudents && activeRole == 'STUDENT'))
           ? Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 // Bulk entry — paste/fill a whole list at once, link parents.
-                FloatingActionButton.small(
-                  heroTag: 'fab_add_many',
-                  tooltip: l.adminPeopleAddMany,
-                  onPressed: () => _openAddMany(context),
-                  child: const Icon(Icons.group_add_rounded),
-                ),
-                const SizedBox(height: 10),
+                // Admin-only: the bulk endpoints create staff accounts too.
+                if (isAdmin) ...[
+                  FloatingActionButton.small(
+                    heroTag: 'fab_add_many',
+                    tooltip: l.adminPeopleAddMany,
+                    onPressed: () => _openAddMany(context),
+                    child: const Icon(Icons.group_add_rounded),
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 FloatingActionButton.extended(
                   heroTag: 'fab_add_user',
-                  onPressed: () => _showAddUserSheet(context, initialRole: activeRole),
+                  onPressed: () => _showAddUserSheet(
+                    context,
+                    initialRole: isAdmin ? activeRole : 'STUDENT',
+                    lockRole: !isAdmin,
+                  ),
                   icon: const Icon(Icons.person_add_rounded),
                   label: Text(addLabel),
                 ),
@@ -157,7 +168,7 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
               children: _roles.map((role) => _UserTab(
                 role: role,
                 search: _search,
-                isAdmin: isAdmin,
+                canDelete: isAdmin || (canDeleteStudents && role == 'STUDENT'),
                 onRefresh: () => ref.invalidate(_usersProvider(role)),
               )).toList(),
             ),
@@ -177,7 +188,11 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
     }
   }
 
-  Future<void> _showAddUserSheet(BuildContext context, {String initialRole = 'STUDENT'}) async {
+  Future<void> _showAddUserSheet(
+    BuildContext context, {
+    String initialRole = 'STUDENT',
+    bool lockRole = false,
+  }) async {
     // rootNavigator: true pushes onto the navigator above the shell so the
     // shell's AppBar + bottom nav are fully covered. Without this the stale
     // "Dashboard"/"People" title from the underlying tab kept showing.
@@ -185,6 +200,7 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen>
       MaterialPageRoute(builder: (_) => AdminAddUserScreen(
         repo: ref.read(adminRepositoryProvider),
         initialRole: initialRole,
+        lockRole: lockRole,
       )),
     );
     if (createdRole != null && createdRole.isNotEmpty) {
@@ -205,13 +221,15 @@ class _UserTab extends ConsumerWidget {
   const _UserTab({
     required this.role,
     required this.search,
-    required this.isAdmin,
+    required this.canDelete,
     required this.onRefresh,
   });
 
   final String role;
   final String search;
-  final bool isAdmin;
+  /// Whether rows in this tab offer "Delete" (admins always; a secretary only
+  /// on the Students tab once granted `students.delete`).
+  final bool canDelete;
   final VoidCallback onRefresh;
 
   @override
@@ -260,7 +278,7 @@ class _UserTab extends ConsumerWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (ctx, i) => _UserTile(
             user: filtered[i],
-            isAdmin: isAdmin,
+            canDelete: canDelete,
             onDelete: () => _confirmDelete(ctx, ref, filtered[i]),
             onEdit: () async {
               // Root navigator so the shell's AppBar/bottom-nav are covered
@@ -310,7 +328,8 @@ class _UserTab extends ConsumerWidget {
       } catch (_) {/* best-effort */}
       onRefresh();
     } catch (e) {
-      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(l.adminCancel)));
+      // Was showing the "Cancel" label here — say what actually went wrong.
+      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(content: Text(l.commonErrorWith(e))));
     }
   }
 
@@ -321,13 +340,13 @@ class _UserTab extends ConsumerWidget {
 class _UserTile extends StatelessWidget {
   const _UserTile({
     required this.user,
-    required this.isAdmin,
+    required this.canDelete,
     required this.onDelete,
     required this.onEdit,
   });
 
   final AdminUser user;
-  final bool isAdmin;
+  final bool canDelete;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
 
@@ -342,7 +361,7 @@ class _UserTile extends StatelessWidget {
     final onPalette = [cs.onPrimaryContainer, cs.onSecondaryContainer, cs.onTertiaryContainer];
     final k = user.name.runes.fold<int>(0, (a, b) => a + b) % palette.length;
     void openActions() =>
-        _openUserActions(context, isAdmin: isAdmin, onEdit: onEdit, onDelete: onDelete);
+        _openUserActions(context, canDelete: canDelete, onEdit: onEdit, onDelete: onDelete);
 
     return CmPress(
       onTap: openActions,
@@ -410,7 +429,7 @@ class _UserTile extends StatelessWidget {
 /// schedule / subject pickers.
 Future<void> _openUserActions(
   BuildContext context, {
-  required bool isAdmin,
+  required bool canDelete,
   required VoidCallback onEdit,
   required VoidCallback onDelete,
 }) async {
@@ -444,7 +463,7 @@ Future<void> _openUserActions(
               label: l.adminEditUser,
               onTap: () { Navigator.pop(sCtx); onEdit(); },
             ),
-            if (isAdmin) ...[
+            if (canDelete) ...[
               const SizedBox(height: 6),
               _GlassAction(
                 icon: Icons.delete_outline_rounded,
@@ -521,9 +540,17 @@ class _GlassAction extends StatelessWidget {
 // ── Add user — full-screen ─────────────────────────────────────────────────────
 
 class AdminAddUserScreen extends ConsumerStatefulWidget {
-  const AdminAddUserScreen({super.key, required this.repo, this.initialRole = 'STUDENT'});
+  const AdminAddUserScreen({
+    super.key,
+    required this.repo,
+    this.initialRole = 'STUDENT',
+    this.lockRole = false,
+  });
   final AdminRepository repo;
   final String initialRole;
+  /// Hide the role picker and keep [initialRole] — a secretary granted
+  /// `students.create` may only ever add students (the server enforces it too).
+  final bool lockRole;
 
   @override
   ConsumerState<AdminAddUserScreen> createState() => _AdminAddUserScreenState();
@@ -1012,28 +1039,30 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                       prefixIcon: const Icon(Icons.person_outline_rounded, size: 18),
                     ),
                   ),
-                  const SizedBox(height: 16),
                   // ── Role ───────────────────────────────────────────────────
-                  Text(l.adminRoleLabel, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: List.generate(_roles.length, (i) => ChoiceChip(
-                      label: Text(_roleLabels(l)[i]),
-                      selected: _role == _roles[i],
-                      onSelected: (_) => setState(() {
-                        _role = _roles[i];
-                        if (_role != 'STUDENT') _grade = null;
-                        // Homeroom assignment only applies to teachers.
-                        if (_role == 'TEACHER') {
-                          _loadHomeroomCohorts();
-                        } else {
-                          _homeroomCohortId = null;
-                        }
-                      }),
-                    )),
-                  ),
+                  if (!widget.lockRole) ...[
+                    const SizedBox(height: 16),
+                    Text(l.adminRoleLabel, style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: List.generate(_roles.length, (i) => ChoiceChip(
+                        label: Text(_roleLabels(l)[i]),
+                        selected: _role == _roles[i],
+                        onSelected: (_) => setState(() {
+                          _role = _roles[i];
+                          if (_role != 'STUDENT') _grade = null;
+                          // Homeroom assignment only applies to teachers.
+                          if (_role == 'TEACHER') {
+                            _loadHomeroomCohorts();
+                          } else {
+                            _homeroomCohortId = null;
+                          }
+                        }),
+                      )),
+                    ),
+                  ],
                   // ── Homeroom class (teachers only) ─────────────────────────
                   if (_role == 'TEACHER') ...[
                     const SizedBox(height: 16),

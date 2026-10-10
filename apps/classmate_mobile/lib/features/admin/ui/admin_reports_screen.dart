@@ -317,9 +317,12 @@ class _MessageReportCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final reporter = _m(report['reporter']);
     final message = _m(report['message']);
     final sender = _m(message['sender']);
+    final reporterName = (reporter['name'] ?? '').toString().trim();
+    final senderName = (sender['name'] ?? '').toString().trim();
     final reason = (report['reason'] ?? '').toString().trim();
     final text = (message['text'] ?? '').toString().trim();
     final mediaUrl = (message['mediaUrl'] ?? '').toString().trim();
@@ -337,7 +340,12 @@ class _MessageReportCard extends ConsumerWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    '${reporter['name'] ?? 'Someone'} reported ${sender['name'] ?? 'a user'}',
+                    l.adminReportsReportedLine(
+                      reporterName.isEmpty
+                          ? l.adminReportsUnknownReporter
+                          : reporterName,
+                      senderName.isEmpty ? l.adminReportsUnknownUser : senderName,
+                    ),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),

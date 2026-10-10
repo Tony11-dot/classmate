@@ -184,7 +184,7 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
         _attachments.removeWhere(
             (a) => (a['_sourceMaterialId'] ?? '').toString() == picked);
         _attachments.add({
-          'title': (mat['title'] as String?) ?? 'Material',
+          'title': (mat['title'] as String?) ?? AppLocalizations.of(context)!.teacherSlotAttachmentsScreenMaterialFallback,
           'subject': mat['subject'],
           '_sourceMaterialId': picked,
           '_pendingMaterial': true,

@@ -328,15 +328,23 @@ Future<List<StudentNotificationItem>> _buildDerivedNotifications(Ref ref) async 
   for (final grade in unified.grades.latest) {
     final createdAt = _parseFlexibleDate(grade.date) ?? _parseFlexibleDate(unified.generatedAt) ?? DateTime.now();
     final subjectLabel = grade.subject.trim().isNotEmpty ? grade.subject.trim() : grade.courseName.trim();
+    final assessmentTitle = grade.assessmentTitle.trim();
+    final gradeLabel = grade.label ?? '${grade.grade.toStringAsFixed(grade.grade % 1 == 0 ? 0 : 1)} / ${grade.maxGrade ?? 100}';
     items.add(
       StudentNotificationItem(
         id: 'local-grade-${grade.id}',
+        // English copies are log/analytics fallbacks only — the screen renders
+        // the template in the app's language (see notifications_screen.dart).
         title: subjectLabel.isEmpty ? 'New grade posted' : 'New grade posted in $subjectLabel',
         template: subjectLabel.isEmpty
             ? StudentNotificationTemplate.newGradePosted
             : StudentNotificationTemplate.newGradePostedIn,
-        templateArgs: subjectLabel.isEmpty ? const {} : {'subject': subjectLabel},
-        body: '${grade.assessmentTitle.trim().isEmpty ? 'Assessment' : grade.assessmentTitle.trim()} • ${grade.label ?? '${grade.grade.toStringAsFixed(grade.grade % 1 == 0 ? 0 : 1)} / ${grade.maxGrade ?? 100}'}',
+        templateArgs: {
+          if (subjectLabel.isNotEmpty) 'subject': subjectLabel,
+          'assessment': assessmentTitle,
+          'grade': gradeLabel,
+        },
+        body: '${assessmentTitle.isEmpty ? 'Assessment' : assessmentTitle} • $gradeLabel',
         source: 'grades',
         createdAt: createdAt,
         severity: grade.grade < 70 ? StudentNotificationSeverity.warning : StudentNotificationSeverity.info,

@@ -499,10 +499,15 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                             (i) => ChoiceChip(
                               label: Text(_roleLabel(l, _roles[i], i)),
                               selected: _role == _roles[i],
-                              onSelected: (_) => setState(() {
-                                _role = _roles[i];
-                                if (_role != 'STUDENT') _grade = null;
-                              }),
+                              // Only an admin may change a role (the server
+                              // refuses it for secretaries); others see it
+                              // read-only.
+                              onSelected: ref.watch(authSessionProvider).primaryRole == 'ADMIN'
+                                  ? (_) => setState(() {
+                                      _role = _roles[i];
+                                      if (_role != 'STUDENT') _grade = null;
+                                    })
+                                  : null,
                             ),
                           ),
                         ),

@@ -1358,6 +1358,14 @@
   "examTitle": "Экзамен",
   "examNotFound": "Экзамен не найден",
   "examStudyWithNova": "Учиться с NOVA",
+  "examNovaPrepPrompt": "Помоги мне подготовиться к {title} по предмету {subject}. Сделай упор на {topic}.",
+  "@examNovaPrepPrompt": {
+    "placeholders": {
+      "title": {},
+      "subject": {},
+      "topic": {}
+    }
+  },
   "examAddToCalendar": "Добавить в календарь",
   "examCouldNotOpenCalendar": "Не удалось открыть календарь.",
   "formTitle": "Форма",
@@ -1483,6 +1491,7 @@
   "classroomsJoinTooltip": "Войти в класс",
   "classroomsJoinTitle": "Войти в класс",
   "classroomsJoinSubtitle": "Введите код, который дал вам учитель",
+  "classroomsJoinInvalidCode": "Код недействителен или истёк",
   "classroomsCouldNotOpenLink": "Не удалось открыть ссылку",
   "classroomsReorderTitle": "Изменить порядок классов",
   "classroomsNoClassroomsToReorder": "Нет классов для изменения порядка.",
@@ -1740,6 +1749,15 @@
   "adminReportsResolve": "Решить",
   "adminReportsReason": "Причина: {reason}",
   "adminReportsReportedOn": "Жалоба от {date}",
+  "adminReportsReportedLine": "Жалоба от {reporter} на {reported}",
+  "@adminReportsReportedLine": {
+    "placeholders": {
+      "reporter": {},
+      "reported": {}
+    }
+  },
+  "adminReportsUnknownReporter": "кого-то",
+  "adminReportsUnknownUser": "пользователя",
   "@adminReportsReason": {
     "placeholders": {
       "reason": {}
@@ -2521,6 +2539,7 @@
   "solutionsReportAction": "Пожаловаться",
   "solutionsReportSubmitted": "Спасибо — жалоба отправлена администраторам.",
   "solutionsReportAlready": "Вы уже пожаловались на это.",
+  "solutionsSharedSolutionFallback": "Общее решение",
   "solutionsBookPagesCount": "{count} стр.",
   "solutionsNoBooksYetForStudents": "Здесь пока нет книг. Их добавит ваш учитель.",
   "solutionsManageBooksTitle": "Управление книгами",
@@ -3445,6 +3464,7 @@
   "permissionsLoadFailed": "Не удалось загрузить права: {error}",
   "permissionsNoResults": "Нет прав по запросу «{query}»",
   "permissionsResetChanges": "Отменить изменения",
+  "permissionsRestoreDefaults": "Вернуть значения по умолчанию",
   "commonNoResults": "Ничего не найдено",
   "supportContactCopied": "Скопировано: {value}",
   "supportAiSubtitle": "Помощь по любым вопросам о ClassMate",
