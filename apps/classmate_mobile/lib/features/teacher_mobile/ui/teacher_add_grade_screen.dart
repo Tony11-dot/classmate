@@ -17,6 +17,7 @@ import '../../../ui/widgets/weight_formats_field.dart';
 import '../../../ui/widgets/semester_select_field.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 enum _AudienceMode { students, cohorts, grades }
 
 enum _GradeType { assignment, exam, other }
@@ -592,22 +593,15 @@ class _TeacherAddGradeScreenState
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final effective = _effectiveStudents;
     final inherited = _inheritedSource;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: CmBarTitle(AppLocalizations.of(context)!.teacherAddGradeTitle,
-            style: theme.textTheme.titleLarge
-                ?.copyWith(fontWeight: FontWeight.w800)),
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        title: AppLocalizations.of(context)!.teacherAddGradeTitle,
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),

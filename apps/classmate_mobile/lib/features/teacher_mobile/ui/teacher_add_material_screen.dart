@@ -19,6 +19,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/audience_students_summary.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class TeacherAddMaterialScreen extends ConsumerStatefulWidget {
   const TeacherAddMaterialScreen({
     super.key,
@@ -446,19 +447,9 @@ class _TeacherAddMaterialScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: CmBarTitle(
-          _isEditing ? l.teacherMaterialEditTitle : l.teacherMaterialAddTitle,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-        ),
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        title: _isEditing ? l.teacherMaterialEditTitle : l.teacherMaterialAddTitle,
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),

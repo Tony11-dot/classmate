@@ -10,6 +10,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 //  Data model
 // ─────────────────────────────────────────────────────────────────────────────
@@ -223,16 +224,9 @@ class _TeacherStudentGradeDetailScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Column(
+      appBar: CmSubBar(
+        onBack: () => Navigator.of(context).pop(),
+        titleWidget: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(

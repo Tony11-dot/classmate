@@ -10,6 +10,7 @@ import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class TeacherClassroomAddMeetingScreen extends ConsumerStatefulWidget {
   const TeacherClassroomAddMeetingScreen({
     super.key,
@@ -138,7 +139,6 @@ class _TeacherClassroomAddMeetingScreenState
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final locale = Localizations.localeOf(context).toString();
@@ -152,20 +152,9 @@ class _TeacherClassroomAddMeetingScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          AppLocalizations.of(context)!.teacherScheduleMeetingTitle,
-          style:
-              theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-        ),
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        title: AppLocalizations.of(context)!.teacherScheduleMeetingTitle,
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../glass/liquid_glass_card.dart';
+import 'cm_surfaces.dart';
 
 /// The one bar for sub-screens — details, editors, pickers: anything a person
 /// enters from another screen. No shell, no logo, no pill. A 44 pt glass back
@@ -64,7 +65,9 @@ class CmSubBar extends StatelessWidget implements PreferredSizeWidget {
 
     Widget? heading = titleWidget;
     if (heading == null && title != null) {
-      heading = Text(title!, maxLines: 1, overflow: TextOverflow.ellipsis, style: titleStyle);
+      // Long titles beside two actions shrink (down to 64 %) before they
+      // ellipsise — "New assignment" stays whole next to Save draft · Publish.
+      heading = CmBarTitle(title!, style: titleStyle);
     }
     if (heading != null && subtitle != null) {
       heading = Column(

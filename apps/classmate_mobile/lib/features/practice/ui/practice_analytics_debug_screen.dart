@@ -8,6 +8,7 @@ import 'practice_display_text.dart';
 import 'practice_mode_specs.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 Color _subjectAccent(String subject) {
   switch (subject.toLowerCase()) {
     case 'math':
@@ -96,9 +97,8 @@ class PracticeAnalyticsDebugScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: const BackButton(),
-        title: Text(l.practiceAnalyticsTitle),
+      appBar: CmSubBar(
+        title: l.practiceAnalyticsTitle,
       ),
       body: analytics.when(
         loading: () => const Center(child: CmLoading()),

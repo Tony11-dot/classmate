@@ -11,6 +11,7 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class TeacherCreateClassroomScreen extends ConsumerStatefulWidget {
   const TeacherCreateClassroomScreen({super.key, this.onCreated});
 
@@ -197,7 +198,6 @@ class _TeacherCreateClassroomScreenState
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final cohortStudents = _studentsFromSelectedCohorts;
@@ -205,17 +205,10 @@ class _TeacherCreateClassroomScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yClose,
-          icon: const Icon(Icons.close_rounded),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(AppLocalizations.of(context)!.teacherCreateClassroomNewTitle,
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+      appBar: CmSubBar(
+        backIcon: Icons.close_rounded,
+        onBack: () => Navigator.of(context).pop(),
+        title: AppLocalizations.of(context)!.teacherCreateClassroomNewTitle,
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),

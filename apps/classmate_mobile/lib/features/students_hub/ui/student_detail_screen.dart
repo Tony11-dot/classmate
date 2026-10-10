@@ -11,6 +11,7 @@ import '../../student_notes/data/notes_api.dart';
 import '../../student_notes/ui/note_editor_screen.dart';
 import '../data/students_hub_api.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Full-screen student page: Insights / Grades / Notes / Profile tabs.
 /// Notes stay private per author (the Notes tab only shows the viewer's own
 /// notes); Profile surfaces the student's approved parents with their phone
@@ -42,8 +43,8 @@ class StudentDetailScreen extends ConsumerWidget {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        appBar: AppBar(
-          title: Row(
+        appBar: CmSubBar(
+          titleWidget: Row(
             children: [
               CircleAvatar(
                 radius: 19,

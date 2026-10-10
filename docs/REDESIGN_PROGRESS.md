@@ -528,6 +528,9 @@ routes are sub-screens but keep the shell bar (`/admin/periods`, `/teacher/avera
 text-scale 1.5×/2.0× and phone-landscape sweeps over all 81 locale-aware screens are clean (0
 overflows), so the per-screen work is chrome + polish, not layout rescue.
 
+**Per-screen checklist:** `docs/PHASE2_CHECKLIST.md` — one row per reachable screen with Chrome /
+Bar / Polish ticks; updated every round.
+
 **Foundation (Round 26):** `CmSubBar` in `lib/ui/widgets/cm_sub_bar.dart` — a `PreferredSizeWidget`
 drop-in for `Scaffold.appBar` (glass 44 pt back button, titleLarge w900 title, optional subtitle,
 actions, optional `bottom`), transparent, no elevation; `_hideTopBarForRoute` extended for in-shell
@@ -536,7 +539,7 @@ sub-screens. Then each role below is one round: chrome check per route → sub-s
 | Role | Navbar tabs | Drawer tabs | Sub-screens (own bar) | Status |
 |---|---|---|---|---|
 | Student | Schedule · Classrooms · Practice · Insights · NOVA | Messages, Attendance, Grades, Assignments, Materials, Solutions, Bagrut, Meetings, Announcements, Notifications, Exams, Forms, Saved questions, Certificates, CMail · Profile, Plans, Settings, Support, About | assignment ✓ · meeting ✓ · announcement ✓ · exam · form · notification · classroom · chat · message request · new group · practice session/history/review · solutions subjects/books/pages/questions · bagrut list/exam/file · certificate · cmail compose/detail · note editor · reorder tools · classroom order · theme gallery · forgot password | ☑ R26 (build 320) |
-| Teacher | Schedule · Classrooms · Announcements · Insights · NOVA | Messages, Workspace, Cohorts, Attendance, Grades, Notifications, Assignments, Materials, Meetings, Solutions, Bagrut, Students, Exams, Certificates, Forms, CMail · Account | classroom detail/analytics · new announcement · create form · form responses · create/edit exam · exam grades · add grade · slot attachments · add material/meeting/assignment (+ classroom variants) · assignment detail · attendance mark · student detail · averages · create classroom · student grade detail | ☐ R27 |
+| Teacher | Schedule · Classrooms · Announcements · Insights · NOVA | Messages, Workspace, Cohorts, Attendance, Grades, Notifications, Assignments, Materials, Meetings, Solutions, Bagrut, Students, Exams, Certificates, Forms, CMail · Account | classroom detail/analytics · new announcement · create form · form responses · create/edit exam · exam grades · add grade · slot attachments · add material/meeting/assignment (+ classroom variants) · assignment detail · attendance mark · student detail · averages · create classroom · student grade detail | ☑ R27 (build 321) |
 | Parent | Home · Schedule · Overview · Messages · Announcements | Attendance, Grades, Exams, Certificates, Assignments, Meetings, Materials, Notifications, CMail · Account | child picker · the shared lifedoc details · chat | ☐ R28 |
 | Admin | — (drawer only) | Dashboard, People, Cohorts, Schedule, School, Grade scales, Permissions, Reports, Certificates, Export, Students, Settings, CMail · Messages, Announcements, Notifications · Account | periods · import users · cohort detail · add period · edit user · subject detail · school form · certificates per student | ☐ R29 |
 | Secretary | — (drawer only) | Home, Schedule, People, Cohorts, Certificates, Announcements, Messages, Export, CMail · Account | student editor · cohort detail · export sheet | ☐ R30 |
@@ -569,8 +572,22 @@ image viewer, video trimmer, NOVA chat and chat threads (message bars).
 - Checked: analyzer 50 (baseline); tests +73 −5 (baseline); rig: all converted screens render,
   no overflow
 
+## Round 27 (2026-10-10) — the Teacher role
+- **19 stock bars → `CmSubBar`:** add assignment / grade / material / meeting (+ the three
+  classroom-scoped variants), create classroom (close ✕), create exam, create form, form responses,
+  exam grades, assignment detail, new announcement, slot attachments (keeps its subtitle strip),
+  student detail (avatar title), student grade detail, averages, practice analytics. Two-line titles
+  and the avatar title ride along as `titleWidget`
+- **Chrome:** Averages is a sub-screen that lived in the shell with two bars — the shell bar is now
+  hidden there (`_hideTopBarForRoute`). The 5 navbar tabs and 16 drawer tabs keep the shell
+  (reviewed on the Teacher contact sheet: 21 tabs, 10 sub-screens)
+- `CmSubBar` titles shrink before they ellipsise (`CmBarTitle`, min 64 %) so "New assignment"
+  stays whole beside Save draft · Publish
+- Checked: analyzer 50 (baseline); tests +73 −5 (baseline); rig: 10 sub-screens + 4 navbar tabs +
+  teacher rig, no overflow
+
 ## Up next (in order)
-1. On-device QA pass of build 320 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 321 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

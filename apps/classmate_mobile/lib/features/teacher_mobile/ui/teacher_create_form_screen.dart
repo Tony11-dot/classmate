@@ -13,6 +13,7 @@ import '../data/teacher_mobile_repository.dart';
 import 'widgets/audience_section.dart';
 import 'widgets/audience_students_summary.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class _FormQuestion {
   _FormQuestion({required this.options});
   String text = '';
@@ -193,17 +194,15 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final l = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
-        leading: IconButton(tooltip: l.a11yBack, icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () { if (context.canPop()) context.pop(); }),
-        title: CmBarTitle(AppLocalizations.of(context)!.teacherCreateFormTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+      appBar: CmSubBar(
+        onBack: () { if (context.canPop()) context.pop(); },
+        title: AppLocalizations.of(context)!.teacherCreateFormTitle,
         actions: [
-          // Draft becomes an icon when the title + both labels can't share
-          // the bar (Russian, large text), so the title stays whole.
+          
+          
           if (cmBarIsTight(context,
               title: AppLocalizations.of(context)!.teacherCreateFormTitle,
               labels: [AppLocalizations.of(context)!.teacherFormSaveDraft, AppLocalizations.of(context)!.commonPublish],

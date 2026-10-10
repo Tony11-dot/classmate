@@ -8,6 +8,7 @@ import '../../../l10n/app_localizations.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class TeacherFormResponsesScreen extends ConsumerStatefulWidget {
   const TeacherFormResponsesScreen({
     super.key,
@@ -60,16 +61,9 @@ class _TeacherFormResponsesScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: Column(
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        titleWidget: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(

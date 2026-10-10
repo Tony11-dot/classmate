@@ -10,6 +10,7 @@ import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../data/teacher_mobile_repository.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class TeacherClassroomAddAssignmentScreen extends ConsumerStatefulWidget {
   const TeacherClassroomAddAssignmentScreen({
     super.key,
@@ -94,19 +95,9 @@ class _TeacherClassroomAddAssignmentScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          title,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-        ),
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        title: title,
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),

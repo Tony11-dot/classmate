@@ -12,7 +12,6 @@ import '../../../core/auth/auth_controller.dart';
 import '../../../core/semester/school_semester.dart';
 import '../../../core/util/friendly_date.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/semester_filter_bar.dart';
@@ -20,6 +19,7 @@ import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 // ── List screen ────────────────────────────────────────────────────────────────
 
 class TeacherMeetingsScreen extends ConsumerStatefulWidget {
@@ -589,11 +589,9 @@ class _TeacherAddMeetingScreenState extends ConsumerState<TeacherAddMeetingScree
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, elevation: 0, scrolledUnderElevation: 0,
-        leading: IconButton(tooltip: AppLocalizations.of(context)!.a11yBack, icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () => context.pop()),
-        title: CmBarTitle(_isEditing ? AppLocalizations.of(context)!.teacherMeetingEditTitle : AppLocalizations.of(context)!.teacherMeetingNewTitle,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        title: _isEditing ? AppLocalizations.of(context)!.teacherMeetingEditTitle : AppLocalizations.of(context)!.teacherMeetingNewTitle,
         actions: [
           Padding(padding: const EdgeInsetsDirectional.only(end: 12),
             child: FilledButton.icon(

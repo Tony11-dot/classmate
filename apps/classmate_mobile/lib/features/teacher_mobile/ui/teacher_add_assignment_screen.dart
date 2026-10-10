@@ -17,6 +17,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import 'widgets/classroom_library_picker.dart';
 import 'widgets/audience_students_summary.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class TeacherAddAssignmentScreen extends ConsumerStatefulWidget {
   const TeacherAddAssignmentScreen({
     super.key,
@@ -480,22 +481,12 @@ class _TeacherAddAssignmentScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: CmBarTitle(
-          _isEditing ? AppLocalizations.of(context)!.teacherAssignmentEditTitle : AppLocalizations.of(context)!.teacherAssignmentNewTitle,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-        ),
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        title: _isEditing ? AppLocalizations.of(context)!.teacherAssignmentEditTitle : AppLocalizations.of(context)!.teacherAssignmentNewTitle,
         actions: [
-          // When the title + both labels can't share the bar (Russian, large
-          // text) the draft action becomes an icon so the title stays whole.
+          
+          
           if (cmBarIsTight(context,
               title: _isEditing ? AppLocalizations.of(context)!.teacherAssignmentEditTitle : AppLocalizations.of(context)!.teacherAssignmentNewTitle,
               labels: [AppLocalizations.of(context)!.teacherFormSaveDraft, AppLocalizations.of(context)!.commonPublish]))

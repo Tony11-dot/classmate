@@ -12,6 +12,7 @@ import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/attachment_pill.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class TeacherAssignmentDetailScreen extends ConsumerStatefulWidget {
   const TeacherAssignmentDetailScreen({
     super.key,
@@ -149,20 +150,9 @@ class _TeacherAssignmentDetailScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: Text(
-          widget.assignmentTitle ?? AppLocalizations.of(context)!.teacherAssignmentDetailScreenTitle,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-          overflow: TextOverflow.ellipsis,
-        ),
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        title: widget.assignmentTitle ?? AppLocalizations.of(context)!.teacherAssignmentDetailScreenTitle,
         actions: [
           if (_submissions.isNotEmpty)
             Padding(

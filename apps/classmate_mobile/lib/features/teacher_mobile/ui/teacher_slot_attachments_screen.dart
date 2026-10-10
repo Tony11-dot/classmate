@@ -13,6 +13,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_error_state.dart';
 import '../data/teacher_mobile_repository.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Manages the materials attached to a single teacher schedule slot.
 ///
 /// Tap any attachment to open it externally, swipe / X to detach, or
@@ -136,8 +137,8 @@ class _TeacherSlotAttachmentsScreenState
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.commonAttachments),
+      appBar: CmSubBar(
+        title: AppLocalizations.of(context)!.commonAttachments,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(28),
           child: Padding(

@@ -16,6 +16,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../../lifedoc/announcements_provider.dart';
 import '../data/teacher_mobile_repository.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 // Role descriptor. The CODE (id) is stable and used in the API payload;
 // the display label is resolved at build time via AppLocalizations so it
 // translates.
@@ -405,21 +406,10 @@ class _TeacherNewAnnouncementScreenState
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () =>
+      appBar: CmSubBar(
+        onBack: () =>
               context.canPop() ? context.pop() : context.go('/announcements'),
-        ),
-        title: CmBarTitle(
-          l.teacherNewAnnouncementAction,
-          style: theme.textTheme.titleLarge
-              ?.copyWith(fontWeight: FontWeight.w800),
-        ),
+        title: l.teacherNewAnnouncementAction,
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),

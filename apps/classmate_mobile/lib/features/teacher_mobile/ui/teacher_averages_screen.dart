@@ -15,6 +15,7 @@ import '../data/subject_average.dart';
 import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Teacher screen to manage first-class "subject averages" — weighted grade
 /// formulas per (cohort, subject). Each average has one or more formats, and
 /// each format is a set of {assessment, weight%} components summing to 100.
@@ -160,13 +161,9 @@ class _TeacherAveragesScreenState extends ConsumerState<TeacherAveragesScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-        title: Text(l.averagesTitle),
+      appBar: CmSubBar(
+        onBack: () => Navigator.of(context).maybePop(),
+        title: l.averagesTitle,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEditor(),

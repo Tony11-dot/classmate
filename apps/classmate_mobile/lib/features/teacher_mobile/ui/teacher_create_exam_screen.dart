@@ -16,6 +16,7 @@ import 'widgets/audience_section.dart';
 import 'widgets/audience_students_summary.dart';
 import 'widgets/classroom_library_picker.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class TeacherCreateExamScreen extends ConsumerStatefulWidget {
   const TeacherCreateExamScreen({super.key, this.initialExam});
   final Map<String, dynamic>? initialExam;
@@ -324,23 +325,12 @@ class _TeacherCreateExamScreenState extends ConsumerState<TeacherCreateExamScree
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: CmBarTitle(
-          _isEditing ? AppLocalizations.of(context)!.teacherExamEditTitle : AppLocalizations.of(context)!.teacherExamNewTitle,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-        ),
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        title: _isEditing ? AppLocalizations.of(context)!.teacherExamEditTitle : AppLocalizations.of(context)!.teacherExamNewTitle,
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 12),

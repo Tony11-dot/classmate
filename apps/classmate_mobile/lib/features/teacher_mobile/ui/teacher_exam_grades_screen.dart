@@ -13,6 +13,7 @@ import '../data/teacher_mobile_repository.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class TeacherExamGradesScreen extends ConsumerStatefulWidget {
   const TeacherExamGradesScreen({super.key, required this.exam});
   final Map<String, dynamic> exam;
@@ -274,16 +275,9 @@ class _TeacherExamGradesScreenState extends ConsumerState<TeacherExamGradesScree
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: Column(
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        titleWidget: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
