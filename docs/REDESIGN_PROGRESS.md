@@ -351,8 +351,30 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
   `title/body` fallbacks on templated notifications and announcements are log-only
 - Checked: analyzer 50 (baseline); API `tsc` clean; tests and rig below
 
+## Round 19 (2026-10-10) — the practice catalog, OS banners and error toasts in the app's language
+- **Practice topics.** The grade-aware topic catalog (231 topics across 18 subjects — "Counting",
+  "Human body systems", "The Cold War"…) showed its English labels in every language; only 58 had
+  strings. Every topic now has he/ar/fr/ru, and the picker, the session header, history and saved
+  questions all read through the same `localizedPracticeTopicSegment`
+- **OS notification banners.** The system notification (and the in-app snackbar) for a synced event
+  used the English log fallback ("New grade posted in Math") even though the in-app list was
+  localized. Both now share the Notifications screen's text (`notification_text.dart`); the Android
+  channel is "ClassMate updates" in the app's language and "+2 more" is a real plural
+- **API error toasts.** The fallback text for a failed request with no usable server message ("Your
+  session has expired…", "You don't have permission…", 5xx) was English in every toast and banner
+  that prints the error. The API layer now reads the UI language the app root sets on it, so every
+  `'$e'` comes out localized. Server-generated messages (NestJS validation) still arrive in English
+- **Small ones**: the admin Cohorts empty state ("No grade 9 students found"), the PDF viewer's
+  "Unable to preview" line, the form builder's default "Option 1 / Option 2" choices, and the
+  practice session no longer bakes an English "solution unavailable" sentence into a question (the
+  view shows its own localized line; history hides an empty explanation block). 245 new strings in
+  he/ar/fr/ru
+- Left as is: the `novaPlans` specs in `nova_plan_models.dart` and the repository's "Week Schedule"
+  title — nothing renders them
+- Checked: analyzer 50 (baseline); tests and rig below
+
 ## Up next (in order)
-1. On-device QA pass of build 312 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 313 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

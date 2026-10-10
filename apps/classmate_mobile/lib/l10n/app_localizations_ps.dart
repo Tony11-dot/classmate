@@ -10415,4 +10415,782 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get a11yJumpToLatest => '‹‹Jump to latest messages››';
+
+  @override
+  String get notificationsChannelName => '‹‹ClassMate updates››';
+
+  @override
+  String get notificationsChannelDescription =>
+      '‹‹Academic, classroom and study notifications.››';
+
+  @override
+  String notificationsSnackMore(String title, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$title +$count more',
+      one: '$title +$count more',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String get errApiBadRequest =>
+      '‹‹Invalid request. Please check your input.››';
+
+  @override
+  String get errApiSessionExpired =>
+      '‹‹Your session has expired. Please sign in again.››';
+
+  @override
+  String get errApiForbidden => '‹‹You don’t have permission to do this.››';
+
+  @override
+  String get errApiNotFound =>
+      '‹‹The item you’re looking for could not be found.››';
+
+  @override
+  String get errApiConflict =>
+      '‹‹A conflict occurred. This item may already exist.››';
+
+  @override
+  String get errApiTooManyRequests =>
+      '‹‹You’re making requests too quickly. Please wait a moment.››';
+
+  @override
+  String get errApiServer =>
+      '‹‹Something went wrong on our end. Please try again.››';
+
+  @override
+  String get errApiGeneric => '‹‹An error occurred. Please try again.››';
+
+  @override
+  String adminCohortsNoGradeStudents(String grade) {
+    return '‹‹No grade $grade students found››';
+  }
+
+  @override
+  String get adminCohortsNoStudentsInGrades =>
+      '‹‹No students found in this cohort’s grades››';
+
+  @override
+  String teacherFormDefaultOption(int n) {
+    return '‹‹Option $n››';
+  }
+
+  @override
+  String get practiceTopicCounting => '‹‹Counting››';
+
+  @override
+  String get practiceTopicAddition => '‹‹Addition››';
+
+  @override
+  String get practiceTopicSubtraction => '‹‹Subtraction››';
+
+  @override
+  String get practiceTopicNumberBonds => '‹‹Number bonds››';
+
+  @override
+  String get practiceTopicPlaceValue => '‹‹Place value››';
+
+  @override
+  String get practiceTopicShapes => '‹‹Shapes››';
+
+  @override
+  String get practiceTopicComparingNumbers => '‹‹Comparing numbers››';
+
+  @override
+  String get practiceTopicTimeAndMoney => '‹‹Time and money››';
+
+  @override
+  String get practiceTopicPatterns => '‹‹Patterns››';
+
+  @override
+  String get practiceTopicMultiplication => '‹‹Multiplication››';
+
+  @override
+  String get practiceTopicDivision => '‹‹Division››';
+
+  @override
+  String get practiceTopicFractions => '‹‹Fractions››';
+
+  @override
+  String get practiceTopicDecimals => '‹‹Decimals››';
+
+  @override
+  String get practiceTopicPercentages => '‹‹Percentages››';
+
+  @override
+  String get practiceTopicFactorsAndMultiples => '‹‹Factors and multiples››';
+
+  @override
+  String get practiceTopicAreaAndPerimeter => '‹‹Area and perimeter››';
+
+  @override
+  String get practiceTopicMeasurement => '‹‹Measurement››';
+
+  @override
+  String get practiceTopicWordProblems => '‹‹Word problems››';
+
+  @override
+  String get practiceTopicIntegers => '‹‹Integers››';
+
+  @override
+  String get practiceTopicExpressions => '‹‹Expressions››';
+
+  @override
+  String get practiceTopicRatiosAndProportion => '‹‹Ratios and proportion››';
+
+  @override
+  String get practiceTopicExponents => '‹‹Exponents››';
+
+  @override
+  String get practiceTopicAngles => '‹‹Angles››';
+
+  @override
+  String get practiceTopicPythagoras => '‹‹Pythagoras››';
+
+  @override
+  String get practiceTopicPushAndPull => '‹‹Push and pull››';
+
+  @override
+  String get practiceTopicLightAndShadow => '‹‹Light and shadow››';
+
+  @override
+  String get practiceTopicMagnets => '‹‹Magnets››';
+
+  @override
+  String get practiceTopicFloatingAndSinking => '‹‹Floating and sinking››';
+
+  @override
+  String get practiceTopicDayAndNight => '‹‹Day and night››';
+
+  @override
+  String get practiceTopicForcesAndMotion => '‹‹Forces and motion››';
+
+  @override
+  String get practiceTopicElectricityBasics => '‹‹Electricity basics››';
+
+  @override
+  String get practiceTopicLightAndSound => '‹‹Light and sound››';
+
+  @override
+  String get practiceTopicSimpleMachines => '‹‹Simple machines››';
+
+  @override
+  String get practiceTopicHeatAndTemperature => '‹‹Heat and temperature››';
+
+  @override
+  String get practiceTopicMotionAndSpeed => '‹‹Motion and speed››';
+
+  @override
+  String get practiceTopicDensity => '‹‹Density››';
+
+  @override
+  String get practiceTopicPressure => '‹‹Pressure››';
+
+  @override
+  String get practiceTopicWavesAndSound => '‹‹Waves and sound››';
+
+  @override
+  String get practiceTopicLightAndOptics => '‹‹Light and optics››';
+
+  @override
+  String get practiceTopicOhmsLaw => '‹‹Ohm\'s law››';
+
+  @override
+  String get practiceTopicMaterialsAroundUs => '‹‹Materials around us››';
+
+  @override
+  String get practiceTopicSolidLiquidGas => '‹‹Solid, liquid, gas››';
+
+  @override
+  String get practiceTopicWater => '‹‹Water››';
+
+  @override
+  String get practiceTopicMixingThings => '‹‹Mixing things››';
+
+  @override
+  String get practiceTopicStatesOfMatter => '‹‹States of matter››';
+
+  @override
+  String get practiceTopicPropertiesOfMaterials =>
+      '‹‹Properties of materials››';
+
+  @override
+  String get practiceTopicMixturesAndSolutions => '‹‹Mixtures and solutions››';
+
+  @override
+  String get practiceTopicChangesOfState => '‹‹Changes of state››';
+
+  @override
+  String get practiceTopicAcidsAndBasesAroundUs =>
+      '‹‹Acids and bases around us››';
+
+  @override
+  String get practiceTopicAtomsAndMolecules => '‹‹Atoms and molecules››';
+
+  @override
+  String get practiceTopicElementsAndCompounds => '‹‹Elements and compounds››';
+
+  @override
+  String get practiceTopicThePeriodicTable => '‹‹The periodic table››';
+
+  @override
+  String get practiceTopicMixturesAndSeparation =>
+      '‹‹Mixtures and separation››';
+
+  @override
+  String get practiceTopicChemicalReactions => '‹‹Chemical reactions››';
+
+  @override
+  String get practiceTopicAtomicStructure => '‹‹Atomic structure››';
+
+  @override
+  String get practiceTopicOxidationAndReduction =>
+      '‹‹Oxidation and reduction››';
+
+  @override
+  String get practiceTopicLivingThings => '‹‹Living things››';
+
+  @override
+  String get practiceTopicPlants => '‹‹Plants››';
+
+  @override
+  String get practiceTopicAnimals => '‹‹Animals››';
+
+  @override
+  String get practiceTopicMyBody => '‹‹My body››';
+
+  @override
+  String get practiceTopicTheSenses => '‹‹The senses››';
+
+  @override
+  String get practiceTopicHumanBodySystems => '‹‹Human body systems››';
+
+  @override
+  String get practiceTopicPlantsAndPhotosynthesis =>
+      '‹‹Plants and photosynthesis››';
+
+  @override
+  String get practiceTopicAnimalGroups => '‹‹Animal groups››';
+
+  @override
+  String get practiceTopicHabitatsAndFoodChains =>
+      '‹‹Habitats and food chains››';
+
+  @override
+  String get practiceTopicHealthAndNutrition => '‹‹Health and nutrition››';
+
+  @override
+  String get practiceTopicPhotosynthesis => '‹‹Photosynthesis››';
+
+  @override
+  String get practiceTopicReproduction => '‹‹Reproduction››';
+
+  @override
+  String get practiceTopicMicroorganisms => '‹‹Microorganisms››';
+
+  @override
+  String get practiceTopicHumanPhysiology => '‹‹Human physiology››';
+
+  @override
+  String get practiceTopicBiochemistry => '‹‹Biochemistry››';
+
+  @override
+  String get practiceTopicBodySystems => '‹‹Body systems››';
+
+  @override
+  String get practiceTopicWhatIsAComputer => '‹‹What is a computer››';
+
+  @override
+  String get practiceTopicMouseAndKeyboard => '‹‹Mouse and keyboard››';
+
+  @override
+  String get practiceTopicPatternsAndSequences => '‹‹Patterns and sequences››';
+
+  @override
+  String get practiceTopicStayingSafeOnline => '‹‹Staying safe online››';
+
+  @override
+  String get practiceTopicBlockCoding => '‹‹Block coding››';
+
+  @override
+  String get practiceTopicInternetSafety => '‹‹Internet safety››';
+
+  @override
+  String get practiceTopicFlowcharts => '‹‹Flowcharts››';
+
+  @override
+  String get practiceTopicObjectOrientedBasics => '‹‹Object-oriented basics››';
+
+  @override
+  String get practiceTopicReading => '‹‹Reading››';
+
+  @override
+  String get practiceTopicSimpleSentences => '‹‹Simple sentences››';
+
+  @override
+  String get practiceTopicSpelling => '‹‹Spelling››';
+
+  @override
+  String get practiceTopicLiterature => '‹‹Literature››';
+
+  @override
+  String get practiceTopicWritingAndComposition =>
+      '‹‹Writing and composition››';
+
+  @override
+  String get practiceTopicLinguistics => '‹‹Linguistics››';
+
+  @override
+  String get practiceTopicMyFamilyAndCommunity => '‹‹My family and community››';
+
+  @override
+  String get practiceTopicHolidaysAndTraditions =>
+      '‹‹Holidays and traditions››';
+
+  @override
+  String get practiceTopicLongAgoAndToday => '‹‹Long ago and today››';
+
+  @override
+  String get practiceTopicAncientCivilizations => '‹‹Ancient civilizations››';
+
+  @override
+  String get practiceTopicLocalHistory => '‹‹Local history››';
+
+  @override
+  String get practiceTopicTimelines => '‹‹Timelines››';
+
+  @override
+  String get practiceTopicExplorers => '‹‹Explorers››';
+
+  @override
+  String get practiceTopicTheAncientWorld => '‹‹The ancient world››';
+
+  @override
+  String get practiceTopicTheMiddleAges => '‹‹The Middle Ages››';
+
+  @override
+  String get practiceTopicNationalism => '‹‹Nationalism››';
+
+  @override
+  String get practiceTopicIndustrialRevolution => '‹‹Industrial revolution››';
+
+  @override
+  String get practiceTopicModernHistory => '‹‹Modern history››';
+
+  @override
+  String get practiceTopicWorldWarI => '‹‹World War I››';
+
+  @override
+  String get practiceTopicWorldWarII => '‹‹World War II››';
+
+  @override
+  String get practiceTopicTheHolocaust => '‹‹The Holocaust››';
+
+  @override
+  String get practiceTopicHistoryOfIsrael => '‹‹History of Israel››';
+
+  @override
+  String get practiceTopicTheModernMiddleEast => '‹‹The modern Middle East››';
+
+  @override
+  String get practiceTopicNationalismAndDemocracy =>
+      '‹‹Nationalism and democracy››';
+
+  @override
+  String get practiceTopicTheColdWar => '‹‹The Cold War››';
+
+  @override
+  String get practiceTopicMyNeighborhood => '‹‹My neighborhood››';
+
+  @override
+  String get practiceTopicMapsBasics => '‹‹Maps basics››';
+
+  @override
+  String get practiceTopicWeather => '‹‹Weather››';
+
+  @override
+  String get practiceTopicLandAndWater => '‹‹Land and water››';
+
+  @override
+  String get practiceTopicContinentsAndOceans => '‹‹Continents and oceans››';
+
+  @override
+  String get practiceTopicMapsAndGlobes => '‹‹Maps and globes››';
+
+  @override
+  String get practiceTopicClimate => '‹‹Climate››';
+
+  @override
+  String get practiceTopicNaturalResources => '‹‹Natural resources››';
+
+  @override
+  String get practiceTopicPhysicalGeography => '‹‹Physical geography››';
+
+  @override
+  String get practiceTopicClimateAndWeather => '‹‹Climate and weather››';
+
+  @override
+  String get practiceTopicPopulation => '‹‹Population››';
+
+  @override
+  String get practiceTopicSettlement => '‹‹Settlement››';
+
+  @override
+  String get practiceTopicEconomicGeography => '‹‹Economic geography››';
+
+  @override
+  String get practiceTopicHumanGeography => '‹‹Human geography››';
+
+  @override
+  String get practiceTopicClimateChange => '‹‹Climate change››';
+
+  @override
+  String get practiceTopicGlobalization => '‹‹Globalization››';
+
+  @override
+  String get practiceTopicUrbanGeography => '‹‹Urban geography››';
+
+  @override
+  String get practiceTopicGeopolitics => '‹‹Geopolitics››';
+
+  @override
+  String get practiceTopicRulesAndFairness => '‹‹Rules and fairness››';
+
+  @override
+  String get practiceTopicMyCommunity => '‹‹My community››';
+
+  @override
+  String get practiceTopicHelpingOthers => '‹‹Helping others››';
+
+  @override
+  String get practiceTopicRightsAndResponsibilities =>
+      '‹‹Rights and responsibilities››';
+
+  @override
+  String get practiceTopicGovernmentBasics => '‹‹Government basics››';
+
+  @override
+  String get practiceTopicCommunityAndDemocracy =>
+      '‹‹Community and democracy››';
+
+  @override
+  String get practiceTopicDemocracy => '‹‹Democracy››';
+
+  @override
+  String get practiceTopicGovernmentAndLaw => '‹‹Government and law››';
+
+  @override
+  String get practiceTopicRightsAndDuties => '‹‹Rights and duties››';
+
+  @override
+  String get practiceTopicSocietyAndState => '‹‹Society and state››';
+
+  @override
+  String get practiceTopicDemocracyAndRegime => '‹‹Democracy and regime››';
+
+  @override
+  String get practiceTopicHumanAndCivilRights => '‹‹Human and civil rights››';
+
+  @override
+  String get practiceTopicTheStateOfIsrael => '‹‹The State of Israel››';
+
+  @override
+  String get practiceTopicLawAndGovernment => '‹‹Law and government››';
+
+  @override
+  String get practiceTopicCitizenshipAndSociety =>
+      '‹‹Citizenship and society››';
+
+  @override
+  String get practiceTopicBatteriesAndBulbs => '‹‹Batteries and bulbs››';
+
+  @override
+  String get practiceTopicConductorsAndInsulators =>
+      '‹‹Conductors and insulators››';
+
+  @override
+  String get practiceTopicSimpleCircuits => '‹‹Simple circuits››';
+
+  @override
+  String get practiceTopicElectricCircuits => '‹‹Electric circuits››';
+
+  @override
+  String get practiceTopicCurrentAndVoltage => '‹‹Current and voltage››';
+
+  @override
+  String get practiceTopicResistors => '‹‹Resistors››';
+
+  @override
+  String get practiceTopicSeriesAndParallel => '‹‹Series and parallel››';
+
+  @override
+  String get practiceTopicComponents => '‹‹Components››';
+
+  @override
+  String get practiceTopicSeriesAndParallelCircuits =>
+      '‹‹Series and parallel circuits››';
+
+  @override
+  String get practiceTopicCapacitors => '‹‹Capacitors››';
+
+  @override
+  String get practiceTopicDiodes => '‹‹Diodes››';
+
+  @override
+  String get practiceTopicTransistors => '‹‹Transistors››';
+
+  @override
+  String get practiceTopicLogicGates => '‹‹Logic gates››';
+
+  @override
+  String get practiceTopicDigitalElectronics => '‹‹Digital electronics››';
+
+  @override
+  String get practiceTopicLeversAndWheels => '‹‹Levers and wheels››';
+
+  @override
+  String get practiceTopicGears => '‹‹Gears››';
+
+  @override
+  String get practiceTopicGearsAndLevers => '‹‹Gears and levers››';
+
+  @override
+  String get practiceTopicMaterials => '‹‹Materials››';
+
+  @override
+  String get practiceTopicStatics => '‹‹Statics››';
+
+  @override
+  String get practiceTopicForcesAndMoments => '‹‹Forces and moments››';
+
+  @override
+  String get practiceTopicDynamics => '‹‹Dynamics››';
+
+  @override
+  String get practiceTopicStrengthOfMaterials => '‹‹Strength of materials››';
+
+  @override
+  String get practiceTopicMachineElements => '‹‹Machine elements››';
+
+  @override
+  String get practiceTopicFeelingsAndEmotions => '‹‹Feelings and emotions››';
+
+  @override
+  String get practiceTopicFriendship => '‹‹Friendship››';
+
+  @override
+  String get practiceTopicGettingAlong => '‹‹Getting along››';
+
+  @override
+  String get practiceTopicEmotionsAndBehavior => '‹‹Emotions and behavior››';
+
+  @override
+  String get practiceTopicMemoryAndLearning => '‹‹Memory and learning››';
+
+  @override
+  String get practiceTopicPersonality => '‹‹Personality››';
+
+  @override
+  String get practiceTopicCommunication => '‹‹Communication››';
+
+  @override
+  String get practiceTopicIntroductionToPsychology =>
+      '‹‹Introduction to psychology››';
+
+  @override
+  String get practiceTopicLearningAndMemory => '‹‹Learning and memory››';
+
+  @override
+  String get practiceTopicDevelopmentalPsychology =>
+      '‹‹Developmental psychology››';
+
+  @override
+  String get practiceTopicSocialPsychology => '‹‹Social psychology››';
+
+  @override
+  String get practiceTopicCognition => '‹‹Cognition››';
+
+  @override
+  String get practiceTopicPsychologicalDisorders =>
+      '‹‹Psychological disorders››';
+
+  @override
+  String get practiceTopicResearchMethods => '‹‹Research methods››';
+
+  @override
+  String get practiceTopicFamilyAndCommunity => '‹‹Family and community››';
+
+  @override
+  String get practiceTopicGroupsWeBelongTo => '‹‹Groups we belong to››';
+
+  @override
+  String get practiceTopicSocietyAndGroups => '‹‹Society and groups››';
+
+  @override
+  String get practiceTopicCulture => '‹‹Culture››';
+
+  @override
+  String get practiceTopicFamilyAndInstitutions =>
+      '‹‹Family and institutions››';
+
+  @override
+  String get practiceTopicNormsAndRoles => '‹‹Norms and roles››';
+
+  @override
+  String get practiceTopicIntroductionToSociology =>
+      '‹‹Introduction to sociology››';
+
+  @override
+  String get practiceTopicSocialization => '‹‹Socialization››';
+
+  @override
+  String get practiceTopicSocialInstitutions => '‹‹Social institutions››';
+
+  @override
+  String get practiceTopicCultureAndIdentity => '‹‹Culture and identity››';
+
+  @override
+  String get practiceTopicSocialStratification => '‹‹Social stratification››';
+
+  @override
+  String get practiceTopicDeviance => '‹‹Deviance››';
+
+  @override
+  String get practiceTopicNatureAroundUs => '‹‹Nature around us››';
+
+  @override
+  String get practiceTopicCaringForPlantsAndAnimals =>
+      '‹‹Caring for plants and animals››';
+
+  @override
+  String get practiceTopicRecycling => '‹‹Recycling››';
+
+  @override
+  String get practiceTopicEcosystems => '‹‹Ecosystems››';
+
+  @override
+  String get practiceTopicRecyclingAndWaste => '‹‹Recycling and waste››';
+
+  @override
+  String get practiceTopicWaterAndEnergy => '‹‹Water and energy››';
+
+  @override
+  String get practiceTopicPollution => '‹‹Pollution››';
+
+  @override
+  String get practiceTopicBiodiversity => '‹‹Biodiversity››';
+
+  @override
+  String get practiceTopicSustainability => '‹‹Sustainability››';
+
+  @override
+  String get practiceTopicPollutionAndRemediation =>
+      '‹‹Pollution and remediation››';
+
+  @override
+  String get practiceTopicConservation => '‹‹Conservation››';
+
+  @override
+  String get practiceTopicEnergyResources => '‹‹Energy resources››';
+
+  @override
+  String get practiceTopicGreetings => '‹‹Greetings››';
+
+  @override
+  String get practiceTopicNumbersAndColors => '‹‹Numbers and colors››';
+
+  @override
+  String get practiceTopicBasicVocabulary => '‹‹Basic vocabulary››';
+
+  @override
+  String get practiceTopicPresentTense => '‹‹Present tense››';
+
+  @override
+  String get practiceTopicSimpleConversation => '‹‹Simple conversation››';
+
+  @override
+  String get practiceTopicVerbTenses => '‹‹Verb tenses››';
+
+  @override
+  String get practiceTopicConversation => '‹‹Conversation››';
+
+  @override
+  String get practiceTopicStoriesAndPictures => '‹‹Stories and pictures››';
+
+  @override
+  String get practiceTopicMakingAShortVideo => '‹‹Making a short video››';
+
+  @override
+  String get practiceTopicMediaAndMessages => '‹‹Media and messages››';
+
+  @override
+  String get practiceTopicFilmBasics => '‹‹Film basics››';
+
+  @override
+  String get practiceTopicStorytelling => '‹‹Storytelling››';
+
+  @override
+  String get practiceTopicAdvertising => '‹‹Advertising››';
+
+  @override
+  String get practiceTopicFilmLanguage => '‹‹Film language››';
+
+  @override
+  String get practiceTopicMediaAnalysis => '‹‹Media analysis››';
+
+  @override
+  String get practiceTopicGenres => '‹‹Genres››';
+
+  @override
+  String get practiceTopicProduction => '‹‹Production››';
+
+  @override
+  String get practiceTopicJournalism => '‹‹Journalism››';
+
+  @override
+  String get practiceTopicAdvertisingAndPersuasion =>
+      '‹‹Advertising and persuasion››';
+
+  @override
+  String get practiceTopicHolidaysAndStories => '‹‹Holidays and stories››';
+
+  @override
+  String get practiceTopicValues => '‹‹Values››';
+
+  @override
+  String get practiceTopicTraditions => '‹‹Traditions››';
+
+  @override
+  String get practiceTopicSacredTexts => '‹‹Sacred texts››';
+
+  @override
+  String get practiceTopicHolidays => '‹‹Holidays››';
+
+  @override
+  String get practiceTopicValuesAndEthics => '‹‹Values and ethics››';
+
+  @override
+  String get practiceTopicScriptures => '‹‹Scriptures››';
+
+  @override
+  String get practiceTopicTraditionsAndPractices =>
+      '‹‹Traditions and practices››';
+
+  @override
+  String get practiceTopicEthics => '‹‹Ethics››';
+
+  @override
+  String get practiceTopicHistoryOfReligion => '‹‹History of religion››';
+
+  @override
+  String get practiceTopicEthicsAndPhilosophy => '‹‹Ethics and philosophy››';
+
+  @override
+  String get practiceTopicWorldReligions => '‹‹World religions››';
+
+  @override
+  String get practiceTopicReligionAndSociety => '‹‹Religion and society››';
 }

@@ -17590,6 +17590,1476 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Jump to latest messages'**
   String get a11yJumpToLatest;
+
+  /// No description provided for @notificationsChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'ClassMate updates'**
+  String get notificationsChannelName;
+
+  /// No description provided for @notificationsChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Academic, classroom and study notifications.'**
+  String get notificationsChannelDescription;
+
+  /// No description provided for @notificationsSnackMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{title} +{count} more} other{{title} +{count} more}}'**
+  String notificationsSnackMore(String title, int count);
+
+  /// No description provided for @errApiBadRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid request. Please check your input.'**
+  String get errApiBadRequest;
+
+  /// No description provided for @errApiSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please sign in again.'**
+  String get errApiSessionExpired;
+
+  /// No description provided for @errApiForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You don’t have permission to do this.'**
+  String get errApiForbidden;
+
+  /// No description provided for @errApiNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'The item you’re looking for could not be found.'**
+  String get errApiNotFound;
+
+  /// No description provided for @errApiConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'A conflict occurred. This item may already exist.'**
+  String get errApiConflict;
+
+  /// No description provided for @errApiTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re making requests too quickly. Please wait a moment.'**
+  String get errApiTooManyRequests;
+
+  /// No description provided for @errApiServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on our end. Please try again.'**
+  String get errApiServer;
+
+  /// No description provided for @errApiGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get errApiGeneric;
+
+  /// No description provided for @adminCohortsNoGradeStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'No grade {grade} students found'**
+  String adminCohortsNoGradeStudents(String grade);
+
+  /// No description provided for @adminCohortsNoStudentsInGrades.
+  ///
+  /// In en, this message translates to:
+  /// **'No students found in this cohort’s grades'**
+  String get adminCohortsNoStudentsInGrades;
+
+  /// No description provided for @teacherFormDefaultOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Option {n}'**
+  String teacherFormDefaultOption(int n);
+
+  /// No description provided for @practiceTopicCounting.
+  ///
+  /// In en, this message translates to:
+  /// **'Counting'**
+  String get practiceTopicCounting;
+
+  /// No description provided for @practiceTopicAddition.
+  ///
+  /// In en, this message translates to:
+  /// **'Addition'**
+  String get practiceTopicAddition;
+
+  /// No description provided for @practiceTopicSubtraction.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtraction'**
+  String get practiceTopicSubtraction;
+
+  /// No description provided for @practiceTopicNumberBonds.
+  ///
+  /// In en, this message translates to:
+  /// **'Number bonds'**
+  String get practiceTopicNumberBonds;
+
+  /// No description provided for @practiceTopicPlaceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Place value'**
+  String get practiceTopicPlaceValue;
+
+  /// No description provided for @practiceTopicShapes.
+  ///
+  /// In en, this message translates to:
+  /// **'Shapes'**
+  String get practiceTopicShapes;
+
+  /// No description provided for @practiceTopicComparingNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparing numbers'**
+  String get practiceTopicComparingNumbers;
+
+  /// No description provided for @practiceTopicTimeAndMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Time and money'**
+  String get practiceTopicTimeAndMoney;
+
+  /// No description provided for @practiceTopicPatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns'**
+  String get practiceTopicPatterns;
+
+  /// No description provided for @practiceTopicMultiplication.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiplication'**
+  String get practiceTopicMultiplication;
+
+  /// No description provided for @practiceTopicDivision.
+  ///
+  /// In en, this message translates to:
+  /// **'Division'**
+  String get practiceTopicDivision;
+
+  /// No description provided for @practiceTopicFractions.
+  ///
+  /// In en, this message translates to:
+  /// **'Fractions'**
+  String get practiceTopicFractions;
+
+  /// No description provided for @practiceTopicDecimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimals'**
+  String get practiceTopicDecimals;
+
+  /// No description provided for @practiceTopicPercentages.
+  ///
+  /// In en, this message translates to:
+  /// **'Percentages'**
+  String get practiceTopicPercentages;
+
+  /// No description provided for @practiceTopicFactorsAndMultiples.
+  ///
+  /// In en, this message translates to:
+  /// **'Factors and multiples'**
+  String get practiceTopicFactorsAndMultiples;
+
+  /// No description provided for @practiceTopicAreaAndPerimeter.
+  ///
+  /// In en, this message translates to:
+  /// **'Area and perimeter'**
+  String get practiceTopicAreaAndPerimeter;
+
+  /// No description provided for @practiceTopicMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurement'**
+  String get practiceTopicMeasurement;
+
+  /// No description provided for @practiceTopicWordProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'Word problems'**
+  String get practiceTopicWordProblems;
+
+  /// No description provided for @practiceTopicIntegers.
+  ///
+  /// In en, this message translates to:
+  /// **'Integers'**
+  String get practiceTopicIntegers;
+
+  /// No description provided for @practiceTopicExpressions.
+  ///
+  /// In en, this message translates to:
+  /// **'Expressions'**
+  String get practiceTopicExpressions;
+
+  /// No description provided for @practiceTopicRatiosAndProportion.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratios and proportion'**
+  String get practiceTopicRatiosAndProportion;
+
+  /// No description provided for @practiceTopicExponents.
+  ///
+  /// In en, this message translates to:
+  /// **'Exponents'**
+  String get practiceTopicExponents;
+
+  /// No description provided for @practiceTopicAngles.
+  ///
+  /// In en, this message translates to:
+  /// **'Angles'**
+  String get practiceTopicAngles;
+
+  /// No description provided for @practiceTopicPythagoras.
+  ///
+  /// In en, this message translates to:
+  /// **'Pythagoras'**
+  String get practiceTopicPythagoras;
+
+  /// No description provided for @practiceTopicPushAndPull.
+  ///
+  /// In en, this message translates to:
+  /// **'Push and pull'**
+  String get practiceTopicPushAndPull;
+
+  /// No description provided for @practiceTopicLightAndShadow.
+  ///
+  /// In en, this message translates to:
+  /// **'Light and shadow'**
+  String get practiceTopicLightAndShadow;
+
+  /// No description provided for @practiceTopicMagnets.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnets'**
+  String get practiceTopicMagnets;
+
+  /// No description provided for @practiceTopicFloatingAndSinking.
+  ///
+  /// In en, this message translates to:
+  /// **'Floating and sinking'**
+  String get practiceTopicFloatingAndSinking;
+
+  /// No description provided for @practiceTopicDayAndNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Day and night'**
+  String get practiceTopicDayAndNight;
+
+  /// No description provided for @practiceTopicForcesAndMotion.
+  ///
+  /// In en, this message translates to:
+  /// **'Forces and motion'**
+  String get practiceTopicForcesAndMotion;
+
+  /// No description provided for @practiceTopicElectricityBasics.
+  ///
+  /// In en, this message translates to:
+  /// **'Electricity basics'**
+  String get practiceTopicElectricityBasics;
+
+  /// No description provided for @practiceTopicLightAndSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Light and sound'**
+  String get practiceTopicLightAndSound;
+
+  /// No description provided for @practiceTopicSimpleMachines.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple machines'**
+  String get practiceTopicSimpleMachines;
+
+  /// No description provided for @practiceTopicHeatAndTemperature.
+  ///
+  /// In en, this message translates to:
+  /// **'Heat and temperature'**
+  String get practiceTopicHeatAndTemperature;
+
+  /// No description provided for @practiceTopicMotionAndSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Motion and speed'**
+  String get practiceTopicMotionAndSpeed;
+
+  /// No description provided for @practiceTopicDensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Density'**
+  String get practiceTopicDensity;
+
+  /// No description provided for @practiceTopicPressure.
+  ///
+  /// In en, this message translates to:
+  /// **'Pressure'**
+  String get practiceTopicPressure;
+
+  /// No description provided for @practiceTopicWavesAndSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Waves and sound'**
+  String get practiceTopicWavesAndSound;
+
+  /// No description provided for @practiceTopicLightAndOptics.
+  ///
+  /// In en, this message translates to:
+  /// **'Light and optics'**
+  String get practiceTopicLightAndOptics;
+
+  /// No description provided for @practiceTopicOhmsLaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Ohm\'s law'**
+  String get practiceTopicOhmsLaw;
+
+  /// No description provided for @practiceTopicMaterialsAroundUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials around us'**
+  String get practiceTopicMaterialsAroundUs;
+
+  /// No description provided for @practiceTopicSolidLiquidGas.
+  ///
+  /// In en, this message translates to:
+  /// **'Solid, liquid, gas'**
+  String get practiceTopicSolidLiquidGas;
+
+  /// No description provided for @practiceTopicWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get practiceTopicWater;
+
+  /// No description provided for @practiceTopicMixingThings.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixing things'**
+  String get practiceTopicMixingThings;
+
+  /// No description provided for @practiceTopicStatesOfMatter.
+  ///
+  /// In en, this message translates to:
+  /// **'States of matter'**
+  String get practiceTopicStatesOfMatter;
+
+  /// No description provided for @practiceTopicPropertiesOfMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Properties of materials'**
+  String get practiceTopicPropertiesOfMaterials;
+
+  /// No description provided for @practiceTopicMixturesAndSolutions.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixtures and solutions'**
+  String get practiceTopicMixturesAndSolutions;
+
+  /// No description provided for @practiceTopicChangesOfState.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes of state'**
+  String get practiceTopicChangesOfState;
+
+  /// No description provided for @practiceTopicAcidsAndBasesAroundUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Acids and bases around us'**
+  String get practiceTopicAcidsAndBasesAroundUs;
+
+  /// No description provided for @practiceTopicAtomsAndMolecules.
+  ///
+  /// In en, this message translates to:
+  /// **'Atoms and molecules'**
+  String get practiceTopicAtomsAndMolecules;
+
+  /// No description provided for @practiceTopicElementsAndCompounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Elements and compounds'**
+  String get practiceTopicElementsAndCompounds;
+
+  /// No description provided for @practiceTopicThePeriodicTable.
+  ///
+  /// In en, this message translates to:
+  /// **'The periodic table'**
+  String get practiceTopicThePeriodicTable;
+
+  /// No description provided for @practiceTopicMixturesAndSeparation.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixtures and separation'**
+  String get practiceTopicMixturesAndSeparation;
+
+  /// No description provided for @practiceTopicChemicalReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Chemical reactions'**
+  String get practiceTopicChemicalReactions;
+
+  /// No description provided for @practiceTopicAtomicStructure.
+  ///
+  /// In en, this message translates to:
+  /// **'Atomic structure'**
+  String get practiceTopicAtomicStructure;
+
+  /// No description provided for @practiceTopicOxidationAndReduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Oxidation and reduction'**
+  String get practiceTopicOxidationAndReduction;
+
+  /// No description provided for @practiceTopicLivingThings.
+  ///
+  /// In en, this message translates to:
+  /// **'Living things'**
+  String get practiceTopicLivingThings;
+
+  /// No description provided for @practiceTopicPlants.
+  ///
+  /// In en, this message translates to:
+  /// **'Plants'**
+  String get practiceTopicPlants;
+
+  /// No description provided for @practiceTopicAnimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Animals'**
+  String get practiceTopicAnimals;
+
+  /// No description provided for @practiceTopicMyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'My body'**
+  String get practiceTopicMyBody;
+
+  /// No description provided for @practiceTopicTheSenses.
+  ///
+  /// In en, this message translates to:
+  /// **'The senses'**
+  String get practiceTopicTheSenses;
+
+  /// No description provided for @practiceTopicHumanBodySystems.
+  ///
+  /// In en, this message translates to:
+  /// **'Human body systems'**
+  String get practiceTopicHumanBodySystems;
+
+  /// No description provided for @practiceTopicPlantsAndPhotosynthesis.
+  ///
+  /// In en, this message translates to:
+  /// **'Plants and photosynthesis'**
+  String get practiceTopicPlantsAndPhotosynthesis;
+
+  /// No description provided for @practiceTopicAnimalGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Animal groups'**
+  String get practiceTopicAnimalGroups;
+
+  /// No description provided for @practiceTopicHabitatsAndFoodChains.
+  ///
+  /// In en, this message translates to:
+  /// **'Habitats and food chains'**
+  String get practiceTopicHabitatsAndFoodChains;
+
+  /// No description provided for @practiceTopicHealthAndNutrition.
+  ///
+  /// In en, this message translates to:
+  /// **'Health and nutrition'**
+  String get practiceTopicHealthAndNutrition;
+
+  /// No description provided for @practiceTopicPhotosynthesis.
+  ///
+  /// In en, this message translates to:
+  /// **'Photosynthesis'**
+  String get practiceTopicPhotosynthesis;
+
+  /// No description provided for @practiceTopicReproduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reproduction'**
+  String get practiceTopicReproduction;
+
+  /// No description provided for @practiceTopicMicroorganisms.
+  ///
+  /// In en, this message translates to:
+  /// **'Microorganisms'**
+  String get practiceTopicMicroorganisms;
+
+  /// No description provided for @practiceTopicHumanPhysiology.
+  ///
+  /// In en, this message translates to:
+  /// **'Human physiology'**
+  String get practiceTopicHumanPhysiology;
+
+  /// No description provided for @practiceTopicBiochemistry.
+  ///
+  /// In en, this message translates to:
+  /// **'Biochemistry'**
+  String get practiceTopicBiochemistry;
+
+  /// No description provided for @practiceTopicBodySystems.
+  ///
+  /// In en, this message translates to:
+  /// **'Body systems'**
+  String get practiceTopicBodySystems;
+
+  /// No description provided for @practiceTopicWhatIsAComputer.
+  ///
+  /// In en, this message translates to:
+  /// **'What is a computer'**
+  String get practiceTopicWhatIsAComputer;
+
+  /// No description provided for @practiceTopicMouseAndKeyboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Mouse and keyboard'**
+  String get practiceTopicMouseAndKeyboard;
+
+  /// No description provided for @practiceTopicPatternsAndSequences.
+  ///
+  /// In en, this message translates to:
+  /// **'Patterns and sequences'**
+  String get practiceTopicPatternsAndSequences;
+
+  /// No description provided for @practiceTopicStayingSafeOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Staying safe online'**
+  String get practiceTopicStayingSafeOnline;
+
+  /// No description provided for @practiceTopicBlockCoding.
+  ///
+  /// In en, this message translates to:
+  /// **'Block coding'**
+  String get practiceTopicBlockCoding;
+
+  /// No description provided for @practiceTopicInternetSafety.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet safety'**
+  String get practiceTopicInternetSafety;
+
+  /// No description provided for @practiceTopicFlowcharts.
+  ///
+  /// In en, this message translates to:
+  /// **'Flowcharts'**
+  String get practiceTopicFlowcharts;
+
+  /// No description provided for @practiceTopicObjectOrientedBasics.
+  ///
+  /// In en, this message translates to:
+  /// **'Object-oriented basics'**
+  String get practiceTopicObjectOrientedBasics;
+
+  /// No description provided for @practiceTopicReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get practiceTopicReading;
+
+  /// No description provided for @practiceTopicSimpleSentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple sentences'**
+  String get practiceTopicSimpleSentences;
+
+  /// No description provided for @practiceTopicSpelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Spelling'**
+  String get practiceTopicSpelling;
+
+  /// No description provided for @practiceTopicLiterature.
+  ///
+  /// In en, this message translates to:
+  /// **'Literature'**
+  String get practiceTopicLiterature;
+
+  /// No description provided for @practiceTopicWritingAndComposition.
+  ///
+  /// In en, this message translates to:
+  /// **'Writing and composition'**
+  String get practiceTopicWritingAndComposition;
+
+  /// No description provided for @practiceTopicLinguistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Linguistics'**
+  String get practiceTopicLinguistics;
+
+  /// No description provided for @practiceTopicMyFamilyAndCommunity.
+  ///
+  /// In en, this message translates to:
+  /// **'My family and community'**
+  String get practiceTopicMyFamilyAndCommunity;
+
+  /// No description provided for @practiceTopicHolidaysAndTraditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Holidays and traditions'**
+  String get practiceTopicHolidaysAndTraditions;
+
+  /// No description provided for @practiceTopicLongAgoAndToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Long ago and today'**
+  String get practiceTopicLongAgoAndToday;
+
+  /// No description provided for @practiceTopicAncientCivilizations.
+  ///
+  /// In en, this message translates to:
+  /// **'Ancient civilizations'**
+  String get practiceTopicAncientCivilizations;
+
+  /// No description provided for @practiceTopicLocalHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Local history'**
+  String get practiceTopicLocalHistory;
+
+  /// No description provided for @practiceTopicTimelines.
+  ///
+  /// In en, this message translates to:
+  /// **'Timelines'**
+  String get practiceTopicTimelines;
+
+  /// No description provided for @practiceTopicExplorers.
+  ///
+  /// In en, this message translates to:
+  /// **'Explorers'**
+  String get practiceTopicExplorers;
+
+  /// No description provided for @practiceTopicTheAncientWorld.
+  ///
+  /// In en, this message translates to:
+  /// **'The ancient world'**
+  String get practiceTopicTheAncientWorld;
+
+  /// No description provided for @practiceTopicTheMiddleAges.
+  ///
+  /// In en, this message translates to:
+  /// **'The Middle Ages'**
+  String get practiceTopicTheMiddleAges;
+
+  /// No description provided for @practiceTopicNationalism.
+  ///
+  /// In en, this message translates to:
+  /// **'Nationalism'**
+  String get practiceTopicNationalism;
+
+  /// No description provided for @practiceTopicIndustrialRevolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Industrial revolution'**
+  String get practiceTopicIndustrialRevolution;
+
+  /// No description provided for @practiceTopicModernHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Modern history'**
+  String get practiceTopicModernHistory;
+
+  /// No description provided for @practiceTopicWorldWarI.
+  ///
+  /// In en, this message translates to:
+  /// **'World War I'**
+  String get practiceTopicWorldWarI;
+
+  /// No description provided for @practiceTopicWorldWarII.
+  ///
+  /// In en, this message translates to:
+  /// **'World War II'**
+  String get practiceTopicWorldWarII;
+
+  /// No description provided for @practiceTopicTheHolocaust.
+  ///
+  /// In en, this message translates to:
+  /// **'The Holocaust'**
+  String get practiceTopicTheHolocaust;
+
+  /// No description provided for @practiceTopicHistoryOfIsrael.
+  ///
+  /// In en, this message translates to:
+  /// **'History of Israel'**
+  String get practiceTopicHistoryOfIsrael;
+
+  /// No description provided for @practiceTopicTheModernMiddleEast.
+  ///
+  /// In en, this message translates to:
+  /// **'The modern Middle East'**
+  String get practiceTopicTheModernMiddleEast;
+
+  /// No description provided for @practiceTopicNationalismAndDemocracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Nationalism and democracy'**
+  String get practiceTopicNationalismAndDemocracy;
+
+  /// No description provided for @practiceTopicTheColdWar.
+  ///
+  /// In en, this message translates to:
+  /// **'The Cold War'**
+  String get practiceTopicTheColdWar;
+
+  /// No description provided for @practiceTopicMyNeighborhood.
+  ///
+  /// In en, this message translates to:
+  /// **'My neighborhood'**
+  String get practiceTopicMyNeighborhood;
+
+  /// No description provided for @practiceTopicMapsBasics.
+  ///
+  /// In en, this message translates to:
+  /// **'Maps basics'**
+  String get practiceTopicMapsBasics;
+
+  /// No description provided for @practiceTopicWeather.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather'**
+  String get practiceTopicWeather;
+
+  /// No description provided for @practiceTopicLandAndWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Land and water'**
+  String get practiceTopicLandAndWater;
+
+  /// No description provided for @practiceTopicContinentsAndOceans.
+  ///
+  /// In en, this message translates to:
+  /// **'Continents and oceans'**
+  String get practiceTopicContinentsAndOceans;
+
+  /// No description provided for @practiceTopicMapsAndGlobes.
+  ///
+  /// In en, this message translates to:
+  /// **'Maps and globes'**
+  String get practiceTopicMapsAndGlobes;
+
+  /// No description provided for @practiceTopicClimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Climate'**
+  String get practiceTopicClimate;
+
+  /// No description provided for @practiceTopicNaturalResources.
+  ///
+  /// In en, this message translates to:
+  /// **'Natural resources'**
+  String get practiceTopicNaturalResources;
+
+  /// No description provided for @practiceTopicPhysicalGeography.
+  ///
+  /// In en, this message translates to:
+  /// **'Physical geography'**
+  String get practiceTopicPhysicalGeography;
+
+  /// No description provided for @practiceTopicClimateAndWeather.
+  ///
+  /// In en, this message translates to:
+  /// **'Climate and weather'**
+  String get practiceTopicClimateAndWeather;
+
+  /// No description provided for @practiceTopicPopulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Population'**
+  String get practiceTopicPopulation;
+
+  /// No description provided for @practiceTopicSettlement.
+  ///
+  /// In en, this message translates to:
+  /// **'Settlement'**
+  String get practiceTopicSettlement;
+
+  /// No description provided for @practiceTopicEconomicGeography.
+  ///
+  /// In en, this message translates to:
+  /// **'Economic geography'**
+  String get practiceTopicEconomicGeography;
+
+  /// No description provided for @practiceTopicHumanGeography.
+  ///
+  /// In en, this message translates to:
+  /// **'Human geography'**
+  String get practiceTopicHumanGeography;
+
+  /// No description provided for @practiceTopicClimateChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Climate change'**
+  String get practiceTopicClimateChange;
+
+  /// No description provided for @practiceTopicGlobalization.
+  ///
+  /// In en, this message translates to:
+  /// **'Globalization'**
+  String get practiceTopicGlobalization;
+
+  /// No description provided for @practiceTopicUrbanGeography.
+  ///
+  /// In en, this message translates to:
+  /// **'Urban geography'**
+  String get practiceTopicUrbanGeography;
+
+  /// No description provided for @practiceTopicGeopolitics.
+  ///
+  /// In en, this message translates to:
+  /// **'Geopolitics'**
+  String get practiceTopicGeopolitics;
+
+  /// No description provided for @practiceTopicRulesAndFairness.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules and fairness'**
+  String get practiceTopicRulesAndFairness;
+
+  /// No description provided for @practiceTopicMyCommunity.
+  ///
+  /// In en, this message translates to:
+  /// **'My community'**
+  String get practiceTopicMyCommunity;
+
+  /// No description provided for @practiceTopicHelpingOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Helping others'**
+  String get practiceTopicHelpingOthers;
+
+  /// No description provided for @practiceTopicRightsAndResponsibilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Rights and responsibilities'**
+  String get practiceTopicRightsAndResponsibilities;
+
+  /// No description provided for @practiceTopicGovernmentBasics.
+  ///
+  /// In en, this message translates to:
+  /// **'Government basics'**
+  String get practiceTopicGovernmentBasics;
+
+  /// No description provided for @practiceTopicCommunityAndDemocracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Community and democracy'**
+  String get practiceTopicCommunityAndDemocracy;
+
+  /// No description provided for @practiceTopicDemocracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Democracy'**
+  String get practiceTopicDemocracy;
+
+  /// No description provided for @practiceTopicGovernmentAndLaw.
+  ///
+  /// In en, this message translates to:
+  /// **'Government and law'**
+  String get practiceTopicGovernmentAndLaw;
+
+  /// No description provided for @practiceTopicRightsAndDuties.
+  ///
+  /// In en, this message translates to:
+  /// **'Rights and duties'**
+  String get practiceTopicRightsAndDuties;
+
+  /// No description provided for @practiceTopicSocietyAndState.
+  ///
+  /// In en, this message translates to:
+  /// **'Society and state'**
+  String get practiceTopicSocietyAndState;
+
+  /// No description provided for @practiceTopicDemocracyAndRegime.
+  ///
+  /// In en, this message translates to:
+  /// **'Democracy and regime'**
+  String get practiceTopicDemocracyAndRegime;
+
+  /// No description provided for @practiceTopicHumanAndCivilRights.
+  ///
+  /// In en, this message translates to:
+  /// **'Human and civil rights'**
+  String get practiceTopicHumanAndCivilRights;
+
+  /// No description provided for @practiceTopicTheStateOfIsrael.
+  ///
+  /// In en, this message translates to:
+  /// **'The State of Israel'**
+  String get practiceTopicTheStateOfIsrael;
+
+  /// No description provided for @practiceTopicLawAndGovernment.
+  ///
+  /// In en, this message translates to:
+  /// **'Law and government'**
+  String get practiceTopicLawAndGovernment;
+
+  /// No description provided for @practiceTopicCitizenshipAndSociety.
+  ///
+  /// In en, this message translates to:
+  /// **'Citizenship and society'**
+  String get practiceTopicCitizenshipAndSociety;
+
+  /// No description provided for @practiceTopicBatteriesAndBulbs.
+  ///
+  /// In en, this message translates to:
+  /// **'Batteries and bulbs'**
+  String get practiceTopicBatteriesAndBulbs;
+
+  /// No description provided for @practiceTopicConductorsAndInsulators.
+  ///
+  /// In en, this message translates to:
+  /// **'Conductors and insulators'**
+  String get practiceTopicConductorsAndInsulators;
+
+  /// No description provided for @practiceTopicSimpleCircuits.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple circuits'**
+  String get practiceTopicSimpleCircuits;
+
+  /// No description provided for @practiceTopicElectricCircuits.
+  ///
+  /// In en, this message translates to:
+  /// **'Electric circuits'**
+  String get practiceTopicElectricCircuits;
+
+  /// No description provided for @practiceTopicCurrentAndVoltage.
+  ///
+  /// In en, this message translates to:
+  /// **'Current and voltage'**
+  String get practiceTopicCurrentAndVoltage;
+
+  /// No description provided for @practiceTopicResistors.
+  ///
+  /// In en, this message translates to:
+  /// **'Resistors'**
+  String get practiceTopicResistors;
+
+  /// No description provided for @practiceTopicSeriesAndParallel.
+  ///
+  /// In en, this message translates to:
+  /// **'Series and parallel'**
+  String get practiceTopicSeriesAndParallel;
+
+  /// No description provided for @practiceTopicComponents.
+  ///
+  /// In en, this message translates to:
+  /// **'Components'**
+  String get practiceTopicComponents;
+
+  /// No description provided for @practiceTopicSeriesAndParallelCircuits.
+  ///
+  /// In en, this message translates to:
+  /// **'Series and parallel circuits'**
+  String get practiceTopicSeriesAndParallelCircuits;
+
+  /// No description provided for @practiceTopicCapacitors.
+  ///
+  /// In en, this message translates to:
+  /// **'Capacitors'**
+  String get practiceTopicCapacitors;
+
+  /// No description provided for @practiceTopicDiodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Diodes'**
+  String get practiceTopicDiodes;
+
+  /// No description provided for @practiceTopicTransistors.
+  ///
+  /// In en, this message translates to:
+  /// **'Transistors'**
+  String get practiceTopicTransistors;
+
+  /// No description provided for @practiceTopicLogicGates.
+  ///
+  /// In en, this message translates to:
+  /// **'Logic gates'**
+  String get practiceTopicLogicGates;
+
+  /// No description provided for @practiceTopicDigitalElectronics.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital electronics'**
+  String get practiceTopicDigitalElectronics;
+
+  /// No description provided for @practiceTopicLeversAndWheels.
+  ///
+  /// In en, this message translates to:
+  /// **'Levers and wheels'**
+  String get practiceTopicLeversAndWheels;
+
+  /// No description provided for @practiceTopicGears.
+  ///
+  /// In en, this message translates to:
+  /// **'Gears'**
+  String get practiceTopicGears;
+
+  /// No description provided for @practiceTopicGearsAndLevers.
+  ///
+  /// In en, this message translates to:
+  /// **'Gears and levers'**
+  String get practiceTopicGearsAndLevers;
+
+  /// No description provided for @practiceTopicMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Materials'**
+  String get practiceTopicMaterials;
+
+  /// No description provided for @practiceTopicStatics.
+  ///
+  /// In en, this message translates to:
+  /// **'Statics'**
+  String get practiceTopicStatics;
+
+  /// No description provided for @practiceTopicForcesAndMoments.
+  ///
+  /// In en, this message translates to:
+  /// **'Forces and moments'**
+  String get practiceTopicForcesAndMoments;
+
+  /// No description provided for @practiceTopicDynamics.
+  ///
+  /// In en, this message translates to:
+  /// **'Dynamics'**
+  String get practiceTopicDynamics;
+
+  /// No description provided for @practiceTopicStrengthOfMaterials.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength of materials'**
+  String get practiceTopicStrengthOfMaterials;
+
+  /// No description provided for @practiceTopicMachineElements.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine elements'**
+  String get practiceTopicMachineElements;
+
+  /// No description provided for @practiceTopicFeelingsAndEmotions.
+  ///
+  /// In en, this message translates to:
+  /// **'Feelings and emotions'**
+  String get practiceTopicFeelingsAndEmotions;
+
+  /// No description provided for @practiceTopicFriendship.
+  ///
+  /// In en, this message translates to:
+  /// **'Friendship'**
+  String get practiceTopicFriendship;
+
+  /// No description provided for @practiceTopicGettingAlong.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting along'**
+  String get practiceTopicGettingAlong;
+
+  /// No description provided for @practiceTopicEmotionsAndBehavior.
+  ///
+  /// In en, this message translates to:
+  /// **'Emotions and behavior'**
+  String get practiceTopicEmotionsAndBehavior;
+
+  /// No description provided for @practiceTopicMemoryAndLearning.
+  ///
+  /// In en, this message translates to:
+  /// **'Memory and learning'**
+  String get practiceTopicMemoryAndLearning;
+
+  /// No description provided for @practiceTopicPersonality.
+  ///
+  /// In en, this message translates to:
+  /// **'Personality'**
+  String get practiceTopicPersonality;
+
+  /// No description provided for @practiceTopicCommunication.
+  ///
+  /// In en, this message translates to:
+  /// **'Communication'**
+  String get practiceTopicCommunication;
+
+  /// No description provided for @practiceTopicIntroductionToPsychology.
+  ///
+  /// In en, this message translates to:
+  /// **'Introduction to psychology'**
+  String get practiceTopicIntroductionToPsychology;
+
+  /// No description provided for @practiceTopicLearningAndMemory.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning and memory'**
+  String get practiceTopicLearningAndMemory;
+
+  /// No description provided for @practiceTopicDevelopmentalPsychology.
+  ///
+  /// In en, this message translates to:
+  /// **'Developmental psychology'**
+  String get practiceTopicDevelopmentalPsychology;
+
+  /// No description provided for @practiceTopicSocialPsychology.
+  ///
+  /// In en, this message translates to:
+  /// **'Social psychology'**
+  String get practiceTopicSocialPsychology;
+
+  /// No description provided for @practiceTopicCognition.
+  ///
+  /// In en, this message translates to:
+  /// **'Cognition'**
+  String get practiceTopicCognition;
+
+  /// No description provided for @practiceTopicPsychologicalDisorders.
+  ///
+  /// In en, this message translates to:
+  /// **'Psychological disorders'**
+  String get practiceTopicPsychologicalDisorders;
+
+  /// No description provided for @practiceTopicResearchMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'Research methods'**
+  String get practiceTopicResearchMethods;
+
+  /// No description provided for @practiceTopicFamilyAndCommunity.
+  ///
+  /// In en, this message translates to:
+  /// **'Family and community'**
+  String get practiceTopicFamilyAndCommunity;
+
+  /// No description provided for @practiceTopicGroupsWeBelongTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups we belong to'**
+  String get practiceTopicGroupsWeBelongTo;
+
+  /// No description provided for @practiceTopicSocietyAndGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Society and groups'**
+  String get practiceTopicSocietyAndGroups;
+
+  /// No description provided for @practiceTopicCulture.
+  ///
+  /// In en, this message translates to:
+  /// **'Culture'**
+  String get practiceTopicCulture;
+
+  /// No description provided for @practiceTopicFamilyAndInstitutions.
+  ///
+  /// In en, this message translates to:
+  /// **'Family and institutions'**
+  String get practiceTopicFamilyAndInstitutions;
+
+  /// No description provided for @practiceTopicNormsAndRoles.
+  ///
+  /// In en, this message translates to:
+  /// **'Norms and roles'**
+  String get practiceTopicNormsAndRoles;
+
+  /// No description provided for @practiceTopicIntroductionToSociology.
+  ///
+  /// In en, this message translates to:
+  /// **'Introduction to sociology'**
+  String get practiceTopicIntroductionToSociology;
+
+  /// No description provided for @practiceTopicSocialization.
+  ///
+  /// In en, this message translates to:
+  /// **'Socialization'**
+  String get practiceTopicSocialization;
+
+  /// No description provided for @practiceTopicSocialInstitutions.
+  ///
+  /// In en, this message translates to:
+  /// **'Social institutions'**
+  String get practiceTopicSocialInstitutions;
+
+  /// No description provided for @practiceTopicCultureAndIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Culture and identity'**
+  String get practiceTopicCultureAndIdentity;
+
+  /// No description provided for @practiceTopicSocialStratification.
+  ///
+  /// In en, this message translates to:
+  /// **'Social stratification'**
+  String get practiceTopicSocialStratification;
+
+  /// No description provided for @practiceTopicDeviance.
+  ///
+  /// In en, this message translates to:
+  /// **'Deviance'**
+  String get practiceTopicDeviance;
+
+  /// No description provided for @practiceTopicNatureAroundUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Nature around us'**
+  String get practiceTopicNatureAroundUs;
+
+  /// No description provided for @practiceTopicCaringForPlantsAndAnimals.
+  ///
+  /// In en, this message translates to:
+  /// **'Caring for plants and animals'**
+  String get practiceTopicCaringForPlantsAndAnimals;
+
+  /// No description provided for @practiceTopicRecycling.
+  ///
+  /// In en, this message translates to:
+  /// **'Recycling'**
+  String get practiceTopicRecycling;
+
+  /// No description provided for @practiceTopicEcosystems.
+  ///
+  /// In en, this message translates to:
+  /// **'Ecosystems'**
+  String get practiceTopicEcosystems;
+
+  /// No description provided for @practiceTopicRecyclingAndWaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Recycling and waste'**
+  String get practiceTopicRecyclingAndWaste;
+
+  /// No description provided for @practiceTopicWaterAndEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Water and energy'**
+  String get practiceTopicWaterAndEnergy;
+
+  /// No description provided for @practiceTopicPollution.
+  ///
+  /// In en, this message translates to:
+  /// **'Pollution'**
+  String get practiceTopicPollution;
+
+  /// No description provided for @practiceTopicBiodiversity.
+  ///
+  /// In en, this message translates to:
+  /// **'Biodiversity'**
+  String get practiceTopicBiodiversity;
+
+  /// No description provided for @practiceTopicSustainability.
+  ///
+  /// In en, this message translates to:
+  /// **'Sustainability'**
+  String get practiceTopicSustainability;
+
+  /// No description provided for @practiceTopicPollutionAndRemediation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pollution and remediation'**
+  String get practiceTopicPollutionAndRemediation;
+
+  /// No description provided for @practiceTopicConservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Conservation'**
+  String get practiceTopicConservation;
+
+  /// No description provided for @practiceTopicEnergyResources.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy resources'**
+  String get practiceTopicEnergyResources;
+
+  /// No description provided for @practiceTopicGreetings.
+  ///
+  /// In en, this message translates to:
+  /// **'Greetings'**
+  String get practiceTopicGreetings;
+
+  /// No description provided for @practiceTopicNumbersAndColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Numbers and colors'**
+  String get practiceTopicNumbersAndColors;
+
+  /// No description provided for @practiceTopicBasicVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic vocabulary'**
+  String get practiceTopicBasicVocabulary;
+
+  /// No description provided for @practiceTopicPresentTense.
+  ///
+  /// In en, this message translates to:
+  /// **'Present tense'**
+  String get practiceTopicPresentTense;
+
+  /// No description provided for @practiceTopicSimpleConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple conversation'**
+  String get practiceTopicSimpleConversation;
+
+  /// No description provided for @practiceTopicVerbTenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Verb tenses'**
+  String get practiceTopicVerbTenses;
+
+  /// No description provided for @practiceTopicConversation.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get practiceTopicConversation;
+
+  /// No description provided for @practiceTopicStoriesAndPictures.
+  ///
+  /// In en, this message translates to:
+  /// **'Stories and pictures'**
+  String get practiceTopicStoriesAndPictures;
+
+  /// No description provided for @practiceTopicMakingAShortVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Making a short video'**
+  String get practiceTopicMakingAShortVideo;
+
+  /// No description provided for @practiceTopicMediaAndMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Media and messages'**
+  String get practiceTopicMediaAndMessages;
+
+  /// No description provided for @practiceTopicFilmBasics.
+  ///
+  /// In en, this message translates to:
+  /// **'Film basics'**
+  String get practiceTopicFilmBasics;
+
+  /// No description provided for @practiceTopicStorytelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Storytelling'**
+  String get practiceTopicStorytelling;
+
+  /// No description provided for @practiceTopicAdvertising.
+  ///
+  /// In en, this message translates to:
+  /// **'Advertising'**
+  String get practiceTopicAdvertising;
+
+  /// No description provided for @practiceTopicFilmLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Film language'**
+  String get practiceTopicFilmLanguage;
+
+  /// No description provided for @practiceTopicMediaAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Media analysis'**
+  String get practiceTopicMediaAnalysis;
+
+  /// No description provided for @practiceTopicGenres.
+  ///
+  /// In en, this message translates to:
+  /// **'Genres'**
+  String get practiceTopicGenres;
+
+  /// No description provided for @practiceTopicProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Production'**
+  String get practiceTopicProduction;
+
+  /// No description provided for @practiceTopicJournalism.
+  ///
+  /// In en, this message translates to:
+  /// **'Journalism'**
+  String get practiceTopicJournalism;
+
+  /// No description provided for @practiceTopicAdvertisingAndPersuasion.
+  ///
+  /// In en, this message translates to:
+  /// **'Advertising and persuasion'**
+  String get practiceTopicAdvertisingAndPersuasion;
+
+  /// No description provided for @practiceTopicHolidaysAndStories.
+  ///
+  /// In en, this message translates to:
+  /// **'Holidays and stories'**
+  String get practiceTopicHolidaysAndStories;
+
+  /// No description provided for @practiceTopicValues.
+  ///
+  /// In en, this message translates to:
+  /// **'Values'**
+  String get practiceTopicValues;
+
+  /// No description provided for @practiceTopicTraditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditions'**
+  String get practiceTopicTraditions;
+
+  /// No description provided for @practiceTopicSacredTexts.
+  ///
+  /// In en, this message translates to:
+  /// **'Sacred texts'**
+  String get practiceTopicSacredTexts;
+
+  /// No description provided for @practiceTopicHolidays.
+  ///
+  /// In en, this message translates to:
+  /// **'Holidays'**
+  String get practiceTopicHolidays;
+
+  /// No description provided for @practiceTopicValuesAndEthics.
+  ///
+  /// In en, this message translates to:
+  /// **'Values and ethics'**
+  String get practiceTopicValuesAndEthics;
+
+  /// No description provided for @practiceTopicScriptures.
+  ///
+  /// In en, this message translates to:
+  /// **'Scriptures'**
+  String get practiceTopicScriptures;
+
+  /// No description provided for @practiceTopicTraditionsAndPractices.
+  ///
+  /// In en, this message translates to:
+  /// **'Traditions and practices'**
+  String get practiceTopicTraditionsAndPractices;
+
+  /// No description provided for @practiceTopicEthics.
+  ///
+  /// In en, this message translates to:
+  /// **'Ethics'**
+  String get practiceTopicEthics;
+
+  /// No description provided for @practiceTopicHistoryOfReligion.
+  ///
+  /// In en, this message translates to:
+  /// **'History of religion'**
+  String get practiceTopicHistoryOfReligion;
+
+  /// No description provided for @practiceTopicEthicsAndPhilosophy.
+  ///
+  /// In en, this message translates to:
+  /// **'Ethics and philosophy'**
+  String get practiceTopicEthicsAndPhilosophy;
+
+  /// No description provided for @practiceTopicWorldReligions.
+  ///
+  /// In en, this message translates to:
+  /// **'World religions'**
+  String get practiceTopicWorldReligions;
+
+  /// No description provided for @practiceTopicReligionAndSociety.
+  ///
+  /// In en, this message translates to:
+  /// **'Religion and society'**
+  String get practiceTopicReligionAndSociety;
 }
 
 class _AppLocalizationsDelegate

@@ -10489,4 +10489,768 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get a11yJumpToLatest => 'Aller aux derniers messages';
+
+  @override
+  String get notificationsChannelName => 'Mises à jour ClassMate';
+
+  @override
+  String get notificationsChannelDescription =>
+      'Notifications scolaires, de classe et d’étude.';
+
+  @override
+  String notificationsSnackMore(String title, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$title +$count autres',
+      one: '$title +$count autre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get errApiBadRequest => 'Requête invalide. Vérifiez votre saisie.';
+
+  @override
+  String get errApiSessionExpired =>
+      'Votre session a expiré. Reconnectez-vous.';
+
+  @override
+  String get errApiForbidden => 'Vous n’avez pas l’autorisation de faire cela.';
+
+  @override
+  String get errApiNotFound => 'L’élément recherché est introuvable.';
+
+  @override
+  String get errApiConflict =>
+      'Un conflit est survenu. Cet élément existe peut-être déjà.';
+
+  @override
+  String get errApiTooManyRequests =>
+      'Trop de requêtes en peu de temps. Patientez un instant.';
+
+  @override
+  String get errApiServer =>
+      'Un problème est survenu de notre côté. Réessayez.';
+
+  @override
+  String get errApiGeneric => 'Une erreur est survenue. Réessayez.';
+
+  @override
+  String adminCohortsNoGradeStudents(String grade) {
+    return 'Aucun élève trouvé pour le niveau $grade';
+  }
+
+  @override
+  String get adminCohortsNoStudentsInGrades =>
+      'Aucun élève trouvé dans les niveaux de ce groupe';
+
+  @override
+  String teacherFormDefaultOption(int n) {
+    return 'Option $n';
+  }
+
+  @override
+  String get practiceTopicCounting => 'Compter';
+
+  @override
+  String get practiceTopicAddition => 'Addition';
+
+  @override
+  String get practiceTopicSubtraction => 'Soustraction';
+
+  @override
+  String get practiceTopicNumberBonds => 'Décompositions de nombres';
+
+  @override
+  String get practiceTopicPlaceValue => 'Valeur de position';
+
+  @override
+  String get practiceTopicShapes => 'Formes';
+
+  @override
+  String get practiceTopicComparingNumbers => 'Comparer des nombres';
+
+  @override
+  String get practiceTopicTimeAndMoney => 'Le temps et l’argent';
+
+  @override
+  String get practiceTopicPatterns => 'Motifs';
+
+  @override
+  String get practiceTopicMultiplication => 'Multiplication';
+
+  @override
+  String get practiceTopicDivision => 'Division';
+
+  @override
+  String get practiceTopicFractions => 'Fractions';
+
+  @override
+  String get practiceTopicDecimals => 'Nombres décimaux';
+
+  @override
+  String get practiceTopicPercentages => 'Pourcentages';
+
+  @override
+  String get practiceTopicFactorsAndMultiples => 'Diviseurs et multiples';
+
+  @override
+  String get practiceTopicAreaAndPerimeter => 'Aire et périmètre';
+
+  @override
+  String get practiceTopicMeasurement => 'Mesures';
+
+  @override
+  String get practiceTopicWordProblems => 'Problèmes';
+
+  @override
+  String get practiceTopicIntegers => 'Nombres entiers';
+
+  @override
+  String get practiceTopicExpressions => 'Expressions';
+
+  @override
+  String get practiceTopicRatiosAndProportion => 'Rapports et proportions';
+
+  @override
+  String get practiceTopicExponents => 'Puissances';
+
+  @override
+  String get practiceTopicAngles => 'Angles';
+
+  @override
+  String get practiceTopicPythagoras => 'Pythagore';
+
+  @override
+  String get practiceTopicPushAndPull => 'Pousser et tirer';
+
+  @override
+  String get practiceTopicLightAndShadow => 'Lumière et ombre';
+
+  @override
+  String get practiceTopicMagnets => 'Aimants';
+
+  @override
+  String get practiceTopicFloatingAndSinking => 'Flotter et couler';
+
+  @override
+  String get practiceTopicDayAndNight => 'Le jour et la nuit';
+
+  @override
+  String get practiceTopicForcesAndMotion => 'Forces et mouvement';
+
+  @override
+  String get practiceTopicElectricityBasics => 'Bases de l’électricité';
+
+  @override
+  String get practiceTopicLightAndSound => 'Lumière et son';
+
+  @override
+  String get practiceTopicSimpleMachines => 'Machines simples';
+
+  @override
+  String get practiceTopicHeatAndTemperature => 'Chaleur et température';
+
+  @override
+  String get practiceTopicMotionAndSpeed => 'Mouvement et vitesse';
+
+  @override
+  String get practiceTopicDensity => 'Masse volumique';
+
+  @override
+  String get practiceTopicPressure => 'Pression';
+
+  @override
+  String get practiceTopicWavesAndSound => 'Ondes et son';
+
+  @override
+  String get practiceTopicLightAndOptics => 'Lumière et optique';
+
+  @override
+  String get practiceTopicOhmsLaw => 'Loi d’Ohm';
+
+  @override
+  String get practiceTopicMaterialsAroundUs => 'Les matériaux autour de nous';
+
+  @override
+  String get practiceTopicSolidLiquidGas => 'Solide, liquide, gaz';
+
+  @override
+  String get practiceTopicWater => 'L’eau';
+
+  @override
+  String get practiceTopicMixingThings => 'Mélanger des substances';
+
+  @override
+  String get practiceTopicStatesOfMatter => 'États de la matière';
+
+  @override
+  String get practiceTopicPropertiesOfMaterials => 'Propriétés des matériaux';
+
+  @override
+  String get practiceTopicMixturesAndSolutions => 'Mélanges et solutions';
+
+  @override
+  String get practiceTopicChangesOfState => 'Changements d’état';
+
+  @override
+  String get practiceTopicAcidsAndBasesAroundUs =>
+      'Acides et bases au quotidien';
+
+  @override
+  String get practiceTopicAtomsAndMolecules => 'Atomes et molécules';
+
+  @override
+  String get practiceTopicElementsAndCompounds => 'Éléments et composés';
+
+  @override
+  String get practiceTopicThePeriodicTable => 'Le tableau périodique';
+
+  @override
+  String get practiceTopicMixturesAndSeparation => 'Mélanges et séparation';
+
+  @override
+  String get practiceTopicChemicalReactions => 'Réactions chimiques';
+
+  @override
+  String get practiceTopicAtomicStructure => 'Structure atomique';
+
+  @override
+  String get practiceTopicOxidationAndReduction => 'Oxydoréduction';
+
+  @override
+  String get practiceTopicLivingThings => 'Les êtres vivants';
+
+  @override
+  String get practiceTopicPlants => 'Les plantes';
+
+  @override
+  String get practiceTopicAnimals => 'Les animaux';
+
+  @override
+  String get practiceTopicMyBody => 'Mon corps';
+
+  @override
+  String get practiceTopicTheSenses => 'Les sens';
+
+  @override
+  String get practiceTopicHumanBodySystems => 'Systèmes du corps humain';
+
+  @override
+  String get practiceTopicPlantsAndPhotosynthesis => 'Plantes et photosynthèse';
+
+  @override
+  String get practiceTopicAnimalGroups => 'Groupes d’animaux';
+
+  @override
+  String get practiceTopicHabitatsAndFoodChains =>
+      'Habitats et chaînes alimentaires';
+
+  @override
+  String get practiceTopicHealthAndNutrition => 'Santé et nutrition';
+
+  @override
+  String get practiceTopicPhotosynthesis => 'Photosynthèse';
+
+  @override
+  String get practiceTopicReproduction => 'Reproduction';
+
+  @override
+  String get practiceTopicMicroorganisms => 'Micro-organismes';
+
+  @override
+  String get practiceTopicHumanPhysiology => 'Physiologie humaine';
+
+  @override
+  String get practiceTopicBiochemistry => 'Biochimie';
+
+  @override
+  String get practiceTopicBodySystems => 'Systèmes du corps';
+
+  @override
+  String get practiceTopicWhatIsAComputer => 'Qu’est-ce qu’un ordinateur';
+
+  @override
+  String get practiceTopicMouseAndKeyboard => 'Souris et clavier';
+
+  @override
+  String get practiceTopicPatternsAndSequences => 'Motifs et séquences';
+
+  @override
+  String get practiceTopicStayingSafeOnline => 'Rester en sécurité en ligne';
+
+  @override
+  String get practiceTopicBlockCoding => 'Programmation par blocs';
+
+  @override
+  String get practiceTopicInternetSafety => 'Sécurité sur Internet';
+
+  @override
+  String get practiceTopicFlowcharts => 'Organigrammes';
+
+  @override
+  String get practiceTopicObjectOrientedBasics =>
+      'Bases de la programmation orientée objet';
+
+  @override
+  String get practiceTopicReading => 'Lecture';
+
+  @override
+  String get practiceTopicSimpleSentences => 'Phrases simples';
+
+  @override
+  String get practiceTopicSpelling => 'Orthographe';
+
+  @override
+  String get practiceTopicLiterature => 'Littérature';
+
+  @override
+  String get practiceTopicWritingAndComposition => 'Écriture et rédaction';
+
+  @override
+  String get practiceTopicLinguistics => 'Linguistique';
+
+  @override
+  String get practiceTopicMyFamilyAndCommunity => 'Ma famille et ma communauté';
+
+  @override
+  String get practiceTopicHolidaysAndTraditions => 'Fêtes et traditions';
+
+  @override
+  String get practiceTopicLongAgoAndToday => 'Autrefois et aujourd’hui';
+
+  @override
+  String get practiceTopicAncientCivilizations => 'Civilisations anciennes';
+
+  @override
+  String get practiceTopicLocalHistory => 'Histoire locale';
+
+  @override
+  String get practiceTopicTimelines => 'Frises chronologiques';
+
+  @override
+  String get practiceTopicExplorers => 'Les explorateurs';
+
+  @override
+  String get practiceTopicTheAncientWorld => 'Le monde antique';
+
+  @override
+  String get practiceTopicTheMiddleAges => 'Le Moyen Âge';
+
+  @override
+  String get practiceTopicNationalism => 'Nationalisme';
+
+  @override
+  String get practiceTopicIndustrialRevolution => 'Révolution industrielle';
+
+  @override
+  String get practiceTopicModernHistory => 'Histoire moderne';
+
+  @override
+  String get practiceTopicWorldWarI => 'Première Guerre mondiale';
+
+  @override
+  String get practiceTopicWorldWarII => 'Seconde Guerre mondiale';
+
+  @override
+  String get practiceTopicTheHolocaust => 'La Shoah';
+
+  @override
+  String get practiceTopicHistoryOfIsrael => 'Histoire d’Israël';
+
+  @override
+  String get practiceTopicTheModernMiddleEast => 'Le Moyen-Orient moderne';
+
+  @override
+  String get practiceTopicNationalismAndDemocracy =>
+      'Nationalisme et démocratie';
+
+  @override
+  String get practiceTopicTheColdWar => 'La guerre froide';
+
+  @override
+  String get practiceTopicMyNeighborhood => 'Mon quartier';
+
+  @override
+  String get practiceTopicMapsBasics => 'Bases des cartes';
+
+  @override
+  String get practiceTopicWeather => 'La météo';
+
+  @override
+  String get practiceTopicLandAndWater => 'Terre et eau';
+
+  @override
+  String get practiceTopicContinentsAndOceans => 'Continents et océans';
+
+  @override
+  String get practiceTopicMapsAndGlobes => 'Cartes et globes';
+
+  @override
+  String get practiceTopicClimate => 'Climat';
+
+  @override
+  String get practiceTopicNaturalResources => 'Ressources naturelles';
+
+  @override
+  String get practiceTopicPhysicalGeography => 'Géographie physique';
+
+  @override
+  String get practiceTopicClimateAndWeather => 'Climat et météo';
+
+  @override
+  String get practiceTopicPopulation => 'Population';
+
+  @override
+  String get practiceTopicSettlement => 'Peuplement';
+
+  @override
+  String get practiceTopicEconomicGeography => 'Géographie économique';
+
+  @override
+  String get practiceTopicHumanGeography => 'Géographie humaine';
+
+  @override
+  String get practiceTopicClimateChange => 'Changement climatique';
+
+  @override
+  String get practiceTopicGlobalization => 'Mondialisation';
+
+  @override
+  String get practiceTopicUrbanGeography => 'Géographie urbaine';
+
+  @override
+  String get practiceTopicGeopolitics => 'Géopolitique';
+
+  @override
+  String get practiceTopicRulesAndFairness => 'Règles et équité';
+
+  @override
+  String get practiceTopicMyCommunity => 'Ma communauté';
+
+  @override
+  String get practiceTopicHelpingOthers => 'Aider les autres';
+
+  @override
+  String get practiceTopicRightsAndResponsibilities =>
+      'Droits et responsabilités';
+
+  @override
+  String get practiceTopicGovernmentBasics => 'Bases du gouvernement';
+
+  @override
+  String get practiceTopicCommunityAndDemocracy => 'Communauté et démocratie';
+
+  @override
+  String get practiceTopicDemocracy => 'Démocratie';
+
+  @override
+  String get practiceTopicGovernmentAndLaw => 'Gouvernement et droit';
+
+  @override
+  String get practiceTopicRightsAndDuties => 'Droits et devoirs';
+
+  @override
+  String get practiceTopicSocietyAndState => 'Société et État';
+
+  @override
+  String get practiceTopicDemocracyAndRegime => 'Démocratie et régime';
+
+  @override
+  String get practiceTopicHumanAndCivilRights => 'Droits humains et civiques';
+
+  @override
+  String get practiceTopicTheStateOfIsrael => 'L’État d’Israël';
+
+  @override
+  String get practiceTopicLawAndGovernment => 'Droit et gouvernement';
+
+  @override
+  String get practiceTopicCitizenshipAndSociety => 'Citoyenneté et société';
+
+  @override
+  String get practiceTopicBatteriesAndBulbs => 'Piles et ampoules';
+
+  @override
+  String get practiceTopicConductorsAndInsulators => 'Conducteurs et isolants';
+
+  @override
+  String get practiceTopicSimpleCircuits => 'Circuits simples';
+
+  @override
+  String get practiceTopicElectricCircuits => 'Circuits électriques';
+
+  @override
+  String get practiceTopicCurrentAndVoltage => 'Courant et tension';
+
+  @override
+  String get practiceTopicResistors => 'Résistances';
+
+  @override
+  String get practiceTopicSeriesAndParallel => 'Série et parallèle';
+
+  @override
+  String get practiceTopicComponents => 'Composants';
+
+  @override
+  String get practiceTopicSeriesAndParallelCircuits =>
+      'Circuits en série et en parallèle';
+
+  @override
+  String get practiceTopicCapacitors => 'Condensateurs';
+
+  @override
+  String get practiceTopicDiodes => 'Diodes';
+
+  @override
+  String get practiceTopicTransistors => 'Transistors';
+
+  @override
+  String get practiceTopicLogicGates => 'Portes logiques';
+
+  @override
+  String get practiceTopicDigitalElectronics => 'Électronique numérique';
+
+  @override
+  String get practiceTopicLeversAndWheels => 'Leviers et roues';
+
+  @override
+  String get practiceTopicGears => 'Engrenages';
+
+  @override
+  String get practiceTopicGearsAndLevers => 'Engrenages et leviers';
+
+  @override
+  String get practiceTopicMaterials => 'Matériaux';
+
+  @override
+  String get practiceTopicStatics => 'Statique';
+
+  @override
+  String get practiceTopicForcesAndMoments => 'Forces et moments';
+
+  @override
+  String get practiceTopicDynamics => 'Dynamique';
+
+  @override
+  String get practiceTopicStrengthOfMaterials => 'Résistance des matériaux';
+
+  @override
+  String get practiceTopicMachineElements => 'Éléments de machines';
+
+  @override
+  String get practiceTopicFeelingsAndEmotions => 'Sentiments et émotions';
+
+  @override
+  String get practiceTopicFriendship => 'L’amitié';
+
+  @override
+  String get practiceTopicGettingAlong => 'Bien s’entendre';
+
+  @override
+  String get practiceTopicEmotionsAndBehavior => 'Émotions et comportement';
+
+  @override
+  String get practiceTopicMemoryAndLearning => 'Mémoire et apprentissage';
+
+  @override
+  String get practiceTopicPersonality => 'Personnalité';
+
+  @override
+  String get practiceTopicCommunication => 'Communication';
+
+  @override
+  String get practiceTopicIntroductionToPsychology =>
+      'Introduction à la psychologie';
+
+  @override
+  String get practiceTopicLearningAndMemory => 'Apprentissage et mémoire';
+
+  @override
+  String get practiceTopicDevelopmentalPsychology =>
+      'Psychologie du développement';
+
+  @override
+  String get practiceTopicSocialPsychology => 'Psychologie sociale';
+
+  @override
+  String get practiceTopicCognition => 'Cognition';
+
+  @override
+  String get practiceTopicPsychologicalDisorders => 'Troubles psychologiques';
+
+  @override
+  String get practiceTopicResearchMethods => 'Méthodes de recherche';
+
+  @override
+  String get practiceTopicFamilyAndCommunity => 'Famille et communauté';
+
+  @override
+  String get practiceTopicGroupsWeBelongTo =>
+      'Les groupes auxquels nous appartenons';
+
+  @override
+  String get practiceTopicSocietyAndGroups => 'Société et groupes';
+
+  @override
+  String get practiceTopicCulture => 'Culture';
+
+  @override
+  String get practiceTopicFamilyAndInstitutions => 'Famille et institutions';
+
+  @override
+  String get practiceTopicNormsAndRoles => 'Normes et rôles';
+
+  @override
+  String get practiceTopicIntroductionToSociology =>
+      'Introduction à la sociologie';
+
+  @override
+  String get practiceTopicSocialization => 'Socialisation';
+
+  @override
+  String get practiceTopicSocialInstitutions => 'Institutions sociales';
+
+  @override
+  String get practiceTopicCultureAndIdentity => 'Culture et identité';
+
+  @override
+  String get practiceTopicSocialStratification => 'Stratification sociale';
+
+  @override
+  String get practiceTopicDeviance => 'Déviance';
+
+  @override
+  String get practiceTopicNatureAroundUs => 'La nature autour de nous';
+
+  @override
+  String get practiceTopicCaringForPlantsAndAnimals =>
+      'Prendre soin des plantes et des animaux';
+
+  @override
+  String get practiceTopicRecycling => 'Recyclage';
+
+  @override
+  String get practiceTopicEcosystems => 'Écosystèmes';
+
+  @override
+  String get practiceTopicRecyclingAndWaste => 'Recyclage et déchets';
+
+  @override
+  String get practiceTopicWaterAndEnergy => 'Eau et énergie';
+
+  @override
+  String get practiceTopicPollution => 'Pollution';
+
+  @override
+  String get practiceTopicBiodiversity => 'Biodiversité';
+
+  @override
+  String get practiceTopicSustainability => 'Développement durable';
+
+  @override
+  String get practiceTopicPollutionAndRemediation => 'Pollution et dépollution';
+
+  @override
+  String get practiceTopicConservation => 'Conservation';
+
+  @override
+  String get practiceTopicEnergyResources => 'Ressources énergétiques';
+
+  @override
+  String get practiceTopicGreetings => 'Salutations';
+
+  @override
+  String get practiceTopicNumbersAndColors => 'Nombres et couleurs';
+
+  @override
+  String get practiceTopicBasicVocabulary => 'Vocabulaire de base';
+
+  @override
+  String get practiceTopicPresentTense => 'Le présent';
+
+  @override
+  String get practiceTopicSimpleConversation => 'Conversation simple';
+
+  @override
+  String get practiceTopicVerbTenses => 'Temps des verbes';
+
+  @override
+  String get practiceTopicConversation => 'Conversation';
+
+  @override
+  String get practiceTopicStoriesAndPictures => 'Histoires et images';
+
+  @override
+  String get practiceTopicMakingAShortVideo => 'Réaliser une courte vidéo';
+
+  @override
+  String get practiceTopicMediaAndMessages => 'Médias et messages';
+
+  @override
+  String get practiceTopicFilmBasics => 'Bases du cinéma';
+
+  @override
+  String get practiceTopicStorytelling => 'Narration';
+
+  @override
+  String get practiceTopicAdvertising => 'Publicité';
+
+  @override
+  String get practiceTopicFilmLanguage => 'Langage cinématographique';
+
+  @override
+  String get practiceTopicMediaAnalysis => 'Analyse des médias';
+
+  @override
+  String get practiceTopicGenres => 'Genres';
+
+  @override
+  String get practiceTopicProduction => 'Production';
+
+  @override
+  String get practiceTopicJournalism => 'Journalisme';
+
+  @override
+  String get practiceTopicAdvertisingAndPersuasion => 'Publicité et persuasion';
+
+  @override
+  String get practiceTopicHolidaysAndStories => 'Fêtes et récits';
+
+  @override
+  String get practiceTopicValues => 'Valeurs';
+
+  @override
+  String get practiceTopicTraditions => 'Traditions';
+
+  @override
+  String get practiceTopicSacredTexts => 'Textes sacrés';
+
+  @override
+  String get practiceTopicHolidays => 'Fêtes';
+
+  @override
+  String get practiceTopicValuesAndEthics => 'Valeurs et éthique';
+
+  @override
+  String get practiceTopicScriptures => 'Écritures';
+
+  @override
+  String get practiceTopicTraditionsAndPractices => 'Traditions et pratiques';
+
+  @override
+  String get practiceTopicEthics => 'Éthique';
+
+  @override
+  String get practiceTopicHistoryOfReligion => 'Histoire des religions';
+
+  @override
+  String get practiceTopicEthicsAndPhilosophy => 'Éthique et philosophie';
+
+  @override
+  String get practiceTopicWorldReligions => 'Religions du monde';
+
+  @override
+  String get practiceTopicReligionAndSociety => 'Religion et société';
 }

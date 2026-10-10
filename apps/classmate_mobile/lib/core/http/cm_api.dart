@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:ui' show Locale;
 
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
 import '../config/env.dart';
+import '../../l10n/app_localizations.dart';
 
 class CMApiException implements Exception {
   CMApiException({
@@ -11,6 +13,19 @@ class CMApiException implements Exception {
     required this.uri,
     required this.body,
   });
+
+  /// The language the UI currently renders in, set by the app root. Exceptions
+  /// have no BuildContext, so this is how [friendlyMessage] (and therefore
+  /// every `'$e'` shown in a toast or banner) comes out localized. Null → English.
+  static Locale? uiLocale;
+
+  static AppLocalizations _l10n() {
+    try {
+      return lookupAppLocalizations(uiLocale ?? const Locale('en'));
+    } catch (_) {
+      return lookupAppLocalizations(const Locale('en'));
+    }
+  }
 
   final int statusCode;
   final Uri uri;
@@ -32,15 +47,16 @@ class CMApiException implements Exception {
         if (msg is String && msg.isNotEmpty && !_isTechnical(msg)) return msg;
       }
     } catch (_) {}
+    final l = _l10n();
     return switch (statusCode) {
-      400 => 'Invalid request. Please check your input.',
-      401 => 'Your session has expired. Please sign in again.',
-      403 => 'You don\'t have permission to do this.',
-      404 => 'The item you\'re looking for could not be found.',
-      409 => 'A conflict occurred. This item may already exist.',
-      429 => 'You\'re making requests too quickly. Please wait a moment.',
-      _ when statusCode >= 500 => 'Something went wrong on our end. Please try again.',
-      _ => 'An error occurred. Please try again.',
+      400 => l.errApiBadRequest,
+      401 => l.errApiSessionExpired,
+      403 => l.errApiForbidden,
+      404 => l.errApiNotFound,
+      409 => l.errApiConflict,
+      429 => l.errApiTooManyRequests,
+      _ when statusCode >= 500 => l.errApiServer,
+      _ => l.errApiGeneric,
     };
   }
 

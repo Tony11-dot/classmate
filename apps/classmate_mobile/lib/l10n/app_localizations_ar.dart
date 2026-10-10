@@ -10421,4 +10421,760 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get a11yJumpToLatest => 'الانتقال إلى أحدث الرسائل';
+
+  @override
+  String get notificationsChannelName => 'تحديثات ClassMate';
+
+  @override
+  String get notificationsChannelDescription =>
+      'إشعارات الدراسة والصف والتدريب.';
+
+  @override
+  String notificationsSnackMore(String title, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$title و$count أخرى',
+      many: '$title و$count أخرى',
+      few: '$title و$count أخرى',
+      two: '$title واثنتان أخريان',
+      one: '$title وواحدة أخرى',
+      zero: '$title',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get errApiBadRequest => 'طلب غير صالح. تحقق مما أدخلته.';
+
+  @override
+  String get errApiSessionExpired =>
+      'انتهت صلاحية الجلسة. سجّل الدخول مرة أخرى.';
+
+  @override
+  String get errApiForbidden => 'ليست لديك صلاحية لهذا الإجراء.';
+
+  @override
+  String get errApiNotFound => 'لم يتم العثور على العنصر المطلوب.';
+
+  @override
+  String get errApiConflict => 'حدث تعارض. قد يكون هذا العنصر موجودًا بالفعل.';
+
+  @override
+  String get errApiTooManyRequests =>
+      'طلبات كثيرة في وقت قصير. انتظر لحظة وحاول مجددًا.';
+
+  @override
+  String get errApiServer => 'حدث خطأ من جهتنا. حاول مرة أخرى.';
+
+  @override
+  String get errApiGeneric => 'حدث خطأ. حاول مرة أخرى.';
+
+  @override
+  String adminCohortsNoGradeStudents(String grade) {
+    return 'لم يتم العثور على طلاب في الصف $grade';
+  }
+
+  @override
+  String get adminCohortsNoStudentsInGrades =>
+      'لم يتم العثور على طلاب في صفوف هذه المجموعة';
+
+  @override
+  String teacherFormDefaultOption(int n) {
+    return 'الخيار $n';
+  }
+
+  @override
+  String get practiceTopicCounting => 'العدّ';
+
+  @override
+  String get practiceTopicAddition => 'الجمع';
+
+  @override
+  String get practiceTopicSubtraction => 'الطرح';
+
+  @override
+  String get practiceTopicNumberBonds => 'تركيبات الأعداد';
+
+  @override
+  String get practiceTopicPlaceValue => 'القيمة المكانية';
+
+  @override
+  String get practiceTopicShapes => 'الأشكال';
+
+  @override
+  String get practiceTopicComparingNumbers => 'مقارنة الأعداد';
+
+  @override
+  String get practiceTopicTimeAndMoney => 'الوقت والنقود';
+
+  @override
+  String get practiceTopicPatterns => 'الأنماط';
+
+  @override
+  String get practiceTopicMultiplication => 'الضرب';
+
+  @override
+  String get practiceTopicDivision => 'القسمة';
+
+  @override
+  String get practiceTopicFractions => 'الكسور';
+
+  @override
+  String get practiceTopicDecimals => 'الأعداد العشرية';
+
+  @override
+  String get practiceTopicPercentages => 'النسب المئوية';
+
+  @override
+  String get practiceTopicFactorsAndMultiples => 'العوامل والمضاعفات';
+
+  @override
+  String get practiceTopicAreaAndPerimeter => 'المساحة والمحيط';
+
+  @override
+  String get practiceTopicMeasurement => 'القياس';
+
+  @override
+  String get practiceTopicWordProblems => 'المسائل الكلامية';
+
+  @override
+  String get practiceTopicIntegers => 'الأعداد الصحيحة';
+
+  @override
+  String get practiceTopicExpressions => 'التعابير الجبرية';
+
+  @override
+  String get practiceTopicRatiosAndProportion => 'النسبة والتناسب';
+
+  @override
+  String get practiceTopicExponents => 'الأسس';
+
+  @override
+  String get practiceTopicAngles => 'الزوايا';
+
+  @override
+  String get practiceTopicPythagoras => 'نظرية فيثاغورس';
+
+  @override
+  String get practiceTopicPushAndPull => 'الدفع والسحب';
+
+  @override
+  String get practiceTopicLightAndShadow => 'الضوء والظل';
+
+  @override
+  String get practiceTopicMagnets => 'المغناطيس';
+
+  @override
+  String get practiceTopicFloatingAndSinking => 'الطفو والغرق';
+
+  @override
+  String get practiceTopicDayAndNight => 'الليل والنهار';
+
+  @override
+  String get practiceTopicForcesAndMotion => 'القوى والحركة';
+
+  @override
+  String get practiceTopicElectricityBasics => 'أساسيات الكهرباء';
+
+  @override
+  String get practiceTopicLightAndSound => 'الضوء والصوت';
+
+  @override
+  String get practiceTopicSimpleMachines => 'الآلات البسيطة';
+
+  @override
+  String get practiceTopicHeatAndTemperature => 'الحرارة ودرجة الحرارة';
+
+  @override
+  String get practiceTopicMotionAndSpeed => 'الحركة والسرعة';
+
+  @override
+  String get practiceTopicDensity => 'الكثافة';
+
+  @override
+  String get practiceTopicPressure => 'الضغط';
+
+  @override
+  String get practiceTopicWavesAndSound => 'الموجات والصوت';
+
+  @override
+  String get practiceTopicLightAndOptics => 'الضوء والبصريات';
+
+  @override
+  String get practiceTopicOhmsLaw => 'قانون أوم';
+
+  @override
+  String get practiceTopicMaterialsAroundUs => 'المواد من حولنا';
+
+  @override
+  String get practiceTopicSolidLiquidGas => 'صلب، سائل، غاز';
+
+  @override
+  String get practiceTopicWater => 'الماء';
+
+  @override
+  String get practiceTopicMixingThings => 'خلط المواد';
+
+  @override
+  String get practiceTopicStatesOfMatter => 'حالات المادة';
+
+  @override
+  String get practiceTopicPropertiesOfMaterials => 'خصائص المواد';
+
+  @override
+  String get practiceTopicMixturesAndSolutions => 'المخاليط والمحاليل';
+
+  @override
+  String get practiceTopicChangesOfState => 'تغيرات الحالة';
+
+  @override
+  String get practiceTopicAcidsAndBasesAroundUs => 'الأحماض والقواعد من حولنا';
+
+  @override
+  String get practiceTopicAtomsAndMolecules => 'الذرات والجزيئات';
+
+  @override
+  String get practiceTopicElementsAndCompounds => 'العناصر والمركبات';
+
+  @override
+  String get practiceTopicThePeriodicTable => 'الجدول الدوري';
+
+  @override
+  String get practiceTopicMixturesAndSeparation => 'المخاليط وفصلها';
+
+  @override
+  String get practiceTopicChemicalReactions => 'التفاعلات الكيميائية';
+
+  @override
+  String get practiceTopicAtomicStructure => 'بنية الذرة';
+
+  @override
+  String get practiceTopicOxidationAndReduction => 'الأكسدة والاختزال';
+
+  @override
+  String get practiceTopicLivingThings => 'الكائنات الحية';
+
+  @override
+  String get practiceTopicPlants => 'النباتات';
+
+  @override
+  String get practiceTopicAnimals => 'الحيوانات';
+
+  @override
+  String get practiceTopicMyBody => 'جسمي';
+
+  @override
+  String get practiceTopicTheSenses => 'الحواس';
+
+  @override
+  String get practiceTopicHumanBodySystems => 'أجهزة جسم الإنسان';
+
+  @override
+  String get practiceTopicPlantsAndPhotosynthesis => 'النباتات والتمثيل الضوئي';
+
+  @override
+  String get practiceTopicAnimalGroups => 'مجموعات الحيوانات';
+
+  @override
+  String get practiceTopicHabitatsAndFoodChains => 'المواطن والسلاسل الغذائية';
+
+  @override
+  String get practiceTopicHealthAndNutrition => 'الصحة والتغذية';
+
+  @override
+  String get practiceTopicPhotosynthesis => 'التمثيل الضوئي';
+
+  @override
+  String get practiceTopicReproduction => 'التكاثر';
+
+  @override
+  String get practiceTopicMicroorganisms => 'الكائنات الدقيقة';
+
+  @override
+  String get practiceTopicHumanPhysiology => 'فسيولوجيا الإنسان';
+
+  @override
+  String get practiceTopicBiochemistry => 'الكيمياء الحيوية';
+
+  @override
+  String get practiceTopicBodySystems => 'أجهزة الجسم';
+
+  @override
+  String get practiceTopicWhatIsAComputer => 'ما هو الحاسوب';
+
+  @override
+  String get practiceTopicMouseAndKeyboard => 'الفأرة ولوحة المفاتيح';
+
+  @override
+  String get practiceTopicPatternsAndSequences => 'الأنماط والمتتاليات';
+
+  @override
+  String get practiceTopicStayingSafeOnline => 'السلامة على الإنترنت';
+
+  @override
+  String get practiceTopicBlockCoding => 'البرمجة بالكتل';
+
+  @override
+  String get practiceTopicInternetSafety => 'أمان الإنترنت';
+
+  @override
+  String get practiceTopicFlowcharts => 'المخططات الانسيابية';
+
+  @override
+  String get practiceTopicObjectOrientedBasics => 'أساسيات البرمجة الكائنية';
+
+  @override
+  String get practiceTopicReading => 'القراءة';
+
+  @override
+  String get practiceTopicSimpleSentences => 'جمل بسيطة';
+
+  @override
+  String get practiceTopicSpelling => 'الإملاء';
+
+  @override
+  String get practiceTopicLiterature => 'الأدب';
+
+  @override
+  String get practiceTopicWritingAndComposition => 'الكتابة والتعبير';
+
+  @override
+  String get practiceTopicLinguistics => 'اللسانيات';
+
+  @override
+  String get practiceTopicMyFamilyAndCommunity => 'عائلتي ومجتمعي';
+
+  @override
+  String get practiceTopicHolidaysAndTraditions => 'الأعياد والتقاليد';
+
+  @override
+  String get practiceTopicLongAgoAndToday => 'قديمًا واليوم';
+
+  @override
+  String get practiceTopicAncientCivilizations => 'الحضارات القديمة';
+
+  @override
+  String get practiceTopicLocalHistory => 'التاريخ المحلي';
+
+  @override
+  String get practiceTopicTimelines => 'الخطوط الزمنية';
+
+  @override
+  String get practiceTopicExplorers => 'المستكشفون';
+
+  @override
+  String get practiceTopicTheAncientWorld => 'العالم القديم';
+
+  @override
+  String get practiceTopicTheMiddleAges => 'العصور الوسطى';
+
+  @override
+  String get practiceTopicNationalism => 'القومية';
+
+  @override
+  String get practiceTopicIndustrialRevolution => 'الثورة الصناعية';
+
+  @override
+  String get practiceTopicModernHistory => 'التاريخ الحديث';
+
+  @override
+  String get practiceTopicWorldWarI => 'الحرب العالمية الأولى';
+
+  @override
+  String get practiceTopicWorldWarII => 'الحرب العالمية الثانية';
+
+  @override
+  String get practiceTopicTheHolocaust => 'المحرقة';
+
+  @override
+  String get practiceTopicHistoryOfIsrael => 'تاريخ إسرائيل';
+
+  @override
+  String get practiceTopicTheModernMiddleEast => 'الشرق الأوسط الحديث';
+
+  @override
+  String get practiceTopicNationalismAndDemocracy => 'القومية والديمقراطية';
+
+  @override
+  String get practiceTopicTheColdWar => 'الحرب الباردة';
+
+  @override
+  String get practiceTopicMyNeighborhood => 'حيّي';
+
+  @override
+  String get practiceTopicMapsBasics => 'أساسيات الخرائط';
+
+  @override
+  String get practiceTopicWeather => 'الطقس';
+
+  @override
+  String get practiceTopicLandAndWater => 'اليابسة والماء';
+
+  @override
+  String get practiceTopicContinentsAndOceans => 'القارات والمحيطات';
+
+  @override
+  String get practiceTopicMapsAndGlobes => 'الخرائط والكرة الأرضية';
+
+  @override
+  String get practiceTopicClimate => 'المناخ';
+
+  @override
+  String get practiceTopicNaturalResources => 'الموارد الطبيعية';
+
+  @override
+  String get practiceTopicPhysicalGeography => 'الجغرافيا الطبيعية';
+
+  @override
+  String get practiceTopicClimateAndWeather => 'المناخ والطقس';
+
+  @override
+  String get practiceTopicPopulation => 'السكان';
+
+  @override
+  String get practiceTopicSettlement => 'التجمعات السكانية';
+
+  @override
+  String get practiceTopicEconomicGeography => 'الجغرافيا الاقتصادية';
+
+  @override
+  String get practiceTopicHumanGeography => 'الجغرافيا البشرية';
+
+  @override
+  String get practiceTopicClimateChange => 'تغير المناخ';
+
+  @override
+  String get practiceTopicGlobalization => 'العولمة';
+
+  @override
+  String get practiceTopicUrbanGeography => 'الجغرافيا الحضرية';
+
+  @override
+  String get practiceTopicGeopolitics => 'الجيوسياسة';
+
+  @override
+  String get practiceTopicRulesAndFairness => 'القواعد والإنصاف';
+
+  @override
+  String get practiceTopicMyCommunity => 'مجتمعي';
+
+  @override
+  String get practiceTopicHelpingOthers => 'مساعدة الآخرين';
+
+  @override
+  String get practiceTopicRightsAndResponsibilities => 'الحقوق والمسؤوليات';
+
+  @override
+  String get practiceTopicGovernmentBasics => 'أساسيات الحكم';
+
+  @override
+  String get practiceTopicCommunityAndDemocracy => 'المجتمع والديمقراطية';
+
+  @override
+  String get practiceTopicDemocracy => 'الديمقراطية';
+
+  @override
+  String get practiceTopicGovernmentAndLaw => 'الحكم والقانون';
+
+  @override
+  String get practiceTopicRightsAndDuties => 'الحقوق والواجبات';
+
+  @override
+  String get practiceTopicSocietyAndState => 'المجتمع والدولة';
+
+  @override
+  String get practiceTopicDemocracyAndRegime => 'الديمقراطية ونظام الحكم';
+
+  @override
+  String get practiceTopicHumanAndCivilRights => 'حقوق الإنسان والمواطن';
+
+  @override
+  String get practiceTopicTheStateOfIsrael => 'دولة إسرائيل';
+
+  @override
+  String get practiceTopicLawAndGovernment => 'القانون والحكم';
+
+  @override
+  String get practiceTopicCitizenshipAndSociety => 'المواطنة والمجتمع';
+
+  @override
+  String get practiceTopicBatteriesAndBulbs => 'البطاريات والمصابيح';
+
+  @override
+  String get practiceTopicConductorsAndInsulators => 'الموصلات والعوازل';
+
+  @override
+  String get practiceTopicSimpleCircuits => 'الدوائر البسيطة';
+
+  @override
+  String get practiceTopicElectricCircuits => 'الدوائر الكهربائية';
+
+  @override
+  String get practiceTopicCurrentAndVoltage => 'التيار والجهد';
+
+  @override
+  String get practiceTopicResistors => 'المقاومات';
+
+  @override
+  String get practiceTopicSeriesAndParallel => 'التوالي والتوازي';
+
+  @override
+  String get practiceTopicComponents => 'المكونات';
+
+  @override
+  String get practiceTopicSeriesAndParallelCircuits => 'دوائر التوالي والتوازي';
+
+  @override
+  String get practiceTopicCapacitors => 'المكثفات';
+
+  @override
+  String get practiceTopicDiodes => 'الثنائيات';
+
+  @override
+  String get practiceTopicTransistors => 'الترانزستورات';
+
+  @override
+  String get practiceTopicLogicGates => 'البوابات المنطقية';
+
+  @override
+  String get practiceTopicDigitalElectronics => 'الإلكترونيات الرقمية';
+
+  @override
+  String get practiceTopicLeversAndWheels => 'الروافع والعجلات';
+
+  @override
+  String get practiceTopicGears => 'التروس';
+
+  @override
+  String get practiceTopicGearsAndLevers => 'التروس والروافع';
+
+  @override
+  String get practiceTopicMaterials => 'المواد';
+
+  @override
+  String get practiceTopicStatics => 'الاستاتيكا';
+
+  @override
+  String get practiceTopicForcesAndMoments => 'القوى والعزوم';
+
+  @override
+  String get practiceTopicDynamics => 'الديناميكا';
+
+  @override
+  String get practiceTopicStrengthOfMaterials => 'مقاومة المواد';
+
+  @override
+  String get practiceTopicMachineElements => 'عناصر الآلات';
+
+  @override
+  String get practiceTopicFeelingsAndEmotions => 'المشاعر والعواطف';
+
+  @override
+  String get practiceTopicFriendship => 'الصداقة';
+
+  @override
+  String get practiceTopicGettingAlong => 'التوافق مع الآخرين';
+
+  @override
+  String get practiceTopicEmotionsAndBehavior => 'العواطف والسلوك';
+
+  @override
+  String get practiceTopicMemoryAndLearning => 'الذاكرة والتعلم';
+
+  @override
+  String get practiceTopicPersonality => 'الشخصية';
+
+  @override
+  String get practiceTopicCommunication => 'التواصل';
+
+  @override
+  String get practiceTopicIntroductionToPsychology => 'مدخل إلى علم النفس';
+
+  @override
+  String get practiceTopicLearningAndMemory => 'التعلم والذاكرة';
+
+  @override
+  String get practiceTopicDevelopmentalPsychology => 'علم نفس النمو';
+
+  @override
+  String get practiceTopicSocialPsychology => 'علم النفس الاجتماعي';
+
+  @override
+  String get practiceTopicCognition => 'الإدراك';
+
+  @override
+  String get practiceTopicPsychologicalDisorders => 'الاضطرابات النفسية';
+
+  @override
+  String get practiceTopicResearchMethods => 'مناهج البحث';
+
+  @override
+  String get practiceTopicFamilyAndCommunity => 'الأسرة والمجتمع';
+
+  @override
+  String get practiceTopicGroupsWeBelongTo => 'المجموعات التي ننتمي إليها';
+
+  @override
+  String get practiceTopicSocietyAndGroups => 'المجتمع والجماعات';
+
+  @override
+  String get practiceTopicCulture => 'الثقافة';
+
+  @override
+  String get practiceTopicFamilyAndInstitutions => 'الأسرة والمؤسسات';
+
+  @override
+  String get practiceTopicNormsAndRoles => 'المعايير والأدوار';
+
+  @override
+  String get practiceTopicIntroductionToSociology => 'مدخل إلى علم الاجتماع';
+
+  @override
+  String get practiceTopicSocialization => 'التنشئة الاجتماعية';
+
+  @override
+  String get practiceTopicSocialInstitutions => 'المؤسسات الاجتماعية';
+
+  @override
+  String get practiceTopicCultureAndIdentity => 'الثقافة والهوية';
+
+  @override
+  String get practiceTopicSocialStratification => 'التدرج الاجتماعي';
+
+  @override
+  String get practiceTopicDeviance => 'الانحراف الاجتماعي';
+
+  @override
+  String get practiceTopicNatureAroundUs => 'الطبيعة من حولنا';
+
+  @override
+  String get practiceTopicCaringForPlantsAndAnimals =>
+      'العناية بالنباتات والحيوانات';
+
+  @override
+  String get practiceTopicRecycling => 'إعادة التدوير';
+
+  @override
+  String get practiceTopicEcosystems => 'النظم البيئية';
+
+  @override
+  String get practiceTopicRecyclingAndWaste => 'إعادة التدوير والنفايات';
+
+  @override
+  String get practiceTopicWaterAndEnergy => 'الماء والطاقة';
+
+  @override
+  String get practiceTopicPollution => 'التلوث';
+
+  @override
+  String get practiceTopicBiodiversity => 'التنوع البيولوجي';
+
+  @override
+  String get practiceTopicSustainability => 'الاستدامة';
+
+  @override
+  String get practiceTopicPollutionAndRemediation => 'التلوث والمعالجة';
+
+  @override
+  String get practiceTopicConservation => 'الحفاظ على البيئة';
+
+  @override
+  String get practiceTopicEnergyResources => 'مصادر الطاقة';
+
+  @override
+  String get practiceTopicGreetings => 'التحيات';
+
+  @override
+  String get practiceTopicNumbersAndColors => 'الأرقام والألوان';
+
+  @override
+  String get practiceTopicBasicVocabulary => 'المفردات الأساسية';
+
+  @override
+  String get practiceTopicPresentTense => 'زمن المضارع';
+
+  @override
+  String get practiceTopicSimpleConversation => 'محادثة بسيطة';
+
+  @override
+  String get practiceTopicVerbTenses => 'أزمنة الفعل';
+
+  @override
+  String get practiceTopicConversation => 'المحادثة';
+
+  @override
+  String get practiceTopicStoriesAndPictures => 'القصص والصور';
+
+  @override
+  String get practiceTopicMakingAShortVideo => 'صنع فيديو قصير';
+
+  @override
+  String get practiceTopicMediaAndMessages => 'الإعلام والرسائل';
+
+  @override
+  String get practiceTopicFilmBasics => 'أساسيات السينما';
+
+  @override
+  String get practiceTopicStorytelling => 'السرد القصصي';
+
+  @override
+  String get practiceTopicAdvertising => 'الإعلان';
+
+  @override
+  String get practiceTopicFilmLanguage => 'لغة السينما';
+
+  @override
+  String get practiceTopicMediaAnalysis => 'تحليل الإعلام';
+
+  @override
+  String get practiceTopicGenres => 'الأنواع';
+
+  @override
+  String get practiceTopicProduction => 'الإنتاج';
+
+  @override
+  String get practiceTopicJournalism => 'الصحافة';
+
+  @override
+  String get practiceTopicAdvertisingAndPersuasion => 'الإعلان والإقناع';
+
+  @override
+  String get practiceTopicHolidaysAndStories => 'الأعياد والقصص';
+
+  @override
+  String get practiceTopicValues => 'القيم';
+
+  @override
+  String get practiceTopicTraditions => 'التقاليد';
+
+  @override
+  String get practiceTopicSacredTexts => 'النصوص المقدسة';
+
+  @override
+  String get practiceTopicHolidays => 'الأعياد';
+
+  @override
+  String get practiceTopicValuesAndEthics => 'القيم والأخلاق';
+
+  @override
+  String get practiceTopicScriptures => 'الكتب المقدسة';
+
+  @override
+  String get practiceTopicTraditionsAndPractices => 'التقاليد والممارسات';
+
+  @override
+  String get practiceTopicEthics => 'الأخلاق';
+
+  @override
+  String get practiceTopicHistoryOfReligion => 'تاريخ الدين';
+
+  @override
+  String get practiceTopicEthicsAndPhilosophy => 'الأخلاق والفلسفة';
+
+  @override
+  String get practiceTopicWorldReligions => 'أديان العالم';
+
+  @override
+  String get practiceTopicReligionAndSociety => 'الدين والمجتمع';
 }

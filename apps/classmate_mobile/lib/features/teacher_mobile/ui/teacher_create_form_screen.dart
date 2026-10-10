@@ -14,10 +14,11 @@ import 'widgets/audience_section.dart';
 import 'widgets/audience_students_summary.dart';
 
 class _FormQuestion {
+  _FormQuestion({required this.options});
   String text = '';
   String type = 'short';
   bool required = false;
-  List<String> options = ['Option 1', 'Option 2'];
+  List<String> options;
   int scaleMin = 1;
   int scaleMax = 5;
   String scaleMinLabel = '';
@@ -95,7 +96,10 @@ class _TeacherCreateFormScreenState extends ConsumerState<TeacherCreateFormScree
       _courses.map((c) => c.subject).where((s) => s.isNotEmpty).toSet().toList()..sort();
 
   void _addQuestion() {
-    setState(() => _questions.add(_FormQuestion()));
+    final l = AppLocalizations.of(context)!;
+    setState(() => _questions.add(_FormQuestion(
+          options: [l.teacherFormDefaultOption(1), l.teacherFormDefaultOption(2)],
+        )));
   }
 
   Future<void> _save({required bool published}) async {
@@ -479,7 +483,11 @@ class _QuestionCardState extends State<_QuestionCard> {
                 setState(() {
                   q.type = val;
                   if (['multipleChoice', 'checkboxes', 'dropdown'].contains(val) && q.options.isEmpty) {
-                    q.options = ['Option 1', 'Option 2'];
+                    final l = AppLocalizations.of(context)!;
+                    q.options = [
+                      l.teacherFormDefaultOption(1),
+                      l.teacherFormDefaultOption(2),
+                    ];
                   }
                 });
                 widget.onChanged();

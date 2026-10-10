@@ -227,16 +227,18 @@ class _PracticeHistoryReviewScreenState
                       tone: Colors.green,
                       child: CMRichContent(data: correctLabel),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      l.practiceSessionExplanation,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                        fontWeight: FontWeight.w700,
+                    if (q.explanation.trim().isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        l.practiceSessionExplanation,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    CMRichContent(data: q.explanation),
+                      const SizedBox(height: 4),
+                      CMRichContent(data: q.explanation),
+                    ],
                   ],
                 ),
               ),

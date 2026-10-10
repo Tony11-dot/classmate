@@ -5,6 +5,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'notifications_models.dart';
+import '../../l10n/app_localizations.dart';
+import 'notification_text.dart';
 
 final localNotificationsServiceProvider = Provider<LocalNotificationsService>((
   ref,
@@ -86,24 +88,30 @@ class LocalNotificationsService {
     return pending;
   }
 
-  Future<void> showNotification(StudentNotificationItem item) async {
+  /// [l] is the app's current language: the banner, its body and the Android
+  /// channel name all come out localized (templated items are rebuilt from
+  /// the strings file, see notification_text.dart).
+  Future<void> showNotification(
+      StudentNotificationItem item, AppLocalizations l) async {
     if (kIsWeb) return;
     await initialize();
 
     // A clean, minimal title with a leading category emoji — and NO ugly
     // machine-code subtitle line ("new_message", "grade_posted", …). The
     // title already says what happened; the emoji makes the type scannable.
-    final title = _titleWithEmoji(item.title, item.source);
+    final title =
+        _titleWithEmoji(notificationTitleLocalized(l, item), item.source);
+    final body = notificationBodyLocalized(l, item);
 
     final details = NotificationDetails(
       android: AndroidNotificationDetails(
         'classmate_updates',
-        'ClassMate updates',
-        channelDescription: 'Academic, classroom, and study notifications.',
+        l.notificationsChannelName,
+        channelDescription: l.notificationsChannelDescription,
         importance: Importance.max,
         priority: Priority.high,
         category: AndroidNotificationCategory.status,
-        styleInformation: BigTextStyleInformation(item.body),
+        styleInformation: BigTextStyleInformation(body),
       ),
       iOS: const DarwinNotificationDetails(
         presentAlert: true,
@@ -121,7 +129,7 @@ class LocalNotificationsService {
     await _plugin.show(
       id: _stableId(item.id),
       title: title,
-      body: item.body,
+      body: body,
       notificationDetails: details,
       // Deep-link on the resolved entityId (formId, …), NOT item.id — that's
       // the notification's own row id and 404'd the form. Empty entityId falls

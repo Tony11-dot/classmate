@@ -16,69 +16,7 @@ import 'notifications_models.dart';
 import 'notifications_provider.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/cm_refresh_indicator.dart';
-
-/// Translate a notification title when the item carries a known
-/// template; fall back to the literal text for server-pushed items.
-String _notificationTitleLocalized(
-    BuildContext context, StudentNotificationItem item) {
-  final t = item.template;
-  if (t == null) return item.title;
-  final l = AppLocalizations.of(context)!;
-  switch (t) {
-    case StudentNotificationTemplate.newGradePosted:
-      return l.notificationNewGradePosted;
-    case StudentNotificationTemplate.newGradePostedIn:
-      return l.notificationNewGradePostedIn(
-        (item.templateArgs['subject'] ?? '').toString(),
-      );
-    case StudentNotificationTemplate.attendanceAbsent:
-      return l.notificationAbsenceRecorded;
-    case StudentNotificationTemplate.attendanceLate:
-      return l.notificationLateRecorded;
-    case StudentNotificationTemplate.attendanceExcused:
-      return l.notificationExcusedRecorded;
-    case StudentNotificationTemplate.attendanceUpdated:
-      return l.notificationAttendanceUpdated;
-  }
-}
-
-/// Same for the body: templated items rebuild `assessment • grade` with
-/// the assessment fallback word in the app's language.
-String _notificationBodyLocalized(
-    BuildContext context, StudentNotificationItem item) {
-  final t = item.template;
-  if (t == null) return item.body;
-  switch (t) {
-    case StudentNotificationTemplate.newGradePosted:
-    case StudentNotificationTemplate.newGradePostedIn:
-      final grade = (item.templateArgs['grade'] ?? '').toString().trim();
-      if (grade.isEmpty) return item.body;
-      final assessment =
-          (item.templateArgs['assessment'] ?? '').toString().trim();
-      final l = AppLocalizations.of(context)!;
-      return '${assessment.isEmpty ? l.gradesAssessmentFallback : assessment} • $grade';
-    case StudentNotificationTemplate.attendanceAbsent:
-    case StudentNotificationTemplate.attendanceLate:
-    case StudentNotificationTemplate.attendanceExcused:
-    case StudentNotificationTemplate.attendanceUpdated:
-      final l = AppLocalizations.of(context)!;
-      final subject = (item.templateArgs['subject'] ?? '').toString().trim();
-      final rawPeriod = item.templateArgs['period'];
-      final period = rawPeriod is int ? rawPeriod : int.tryParse('$rawPeriod') ?? 0;
-      final statusLabel = switch ((item.templateArgs['status'] ?? '').toString()) {
-        'absent' => l.attendanceStatusAbsent,
-        'late' => l.attendanceStatusLate,
-        'justified' => l.attendanceStatusExcused,
-        'present' => l.attendanceStatusPresent,
-        _ => l.attendanceStatusRecorded,
-      };
-      return [
-        if (subject.isNotEmpty) subject,
-        if (period > 0) l.teacherPeriod(period),
-        statusLabel,
-      ].join(' • ');
-  }
-}
+import 'notification_text.dart';
 
 String _friendlyNotificationDateTime(BuildContext context, DateTime value) {
   return FriendlyDate.dateTime(value);
@@ -464,7 +402,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                                   children: [
                                                     Expanded(
                                                       child: Text(
-                                                        _notificationTitleLocalized(context, item),
+                                                        notificationTitleLocalized(AppLocalizations.of(context)!, item),
                                                         style: TextStyle(
                                                           fontWeight: item.isRead ? FontWeight.w700 : FontWeight.w900,
                                                           fontSize: 15,
@@ -485,7 +423,7 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                                                 ),
                                                 const SizedBox(height: 6),
                                                 Text(
-                                                  _notificationBodyLocalized(context, item),
+                                                  notificationBodyLocalized(AppLocalizations.of(context)!, item),
                                                   maxLines: 2,
                                                   overflow: TextOverflow.ellipsis,
                                                   style: TextStyle(color: cs.onSurfaceVariant, height: 1.35),
@@ -825,7 +763,7 @@ class _NotificationDetailBody extends ConsumerWidget {
           color: cs.surfaceContainerLow,
           border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
           child: Text(
-            _notificationBodyLocalized(context, freshItem),
+            notificationBodyLocalized(AppLocalizations.of(context)!, freshItem),
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.55),
           ),
         ),

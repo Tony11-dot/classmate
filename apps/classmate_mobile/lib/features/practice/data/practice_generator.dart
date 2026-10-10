@@ -423,9 +423,8 @@ class PracticeGenerator {
         'End question',
       ],
       correctIndex: 1,
-      explanation: dto.solutionLatex.isNotEmpty
-          ? dto.solutionLatex
-          : 'Official Bagrut-style solution unavailable.',
+      // Empty → the session view shows its localized "no explanation" line.
+      explanation: dto.solutionLatex,
       recommendedTimeSeconds: 3600,
     );
   }
@@ -645,7 +644,7 @@ class PracticeGenerator {
         _asString(map['explanation']) ??
         _asString(map['solution']) ??
         _asString(map['reasoning']) ??
-        'Review the logic carefully and ask NOVA for a full walkthrough.';
+        ''; // empty → the session view shows its localized fallback
 
     final recommendedTimeSeconds =
         _asInt(map['recommendedTimeSeconds']) ??

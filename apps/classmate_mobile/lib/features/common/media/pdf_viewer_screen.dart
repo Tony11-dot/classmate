@@ -245,7 +245,7 @@ class _ErrorBody extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    error ?? 'Unable to preview PDF.',
+                    error ?? l.bagrutPreviewUnavailable,
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.white70),
                   ),

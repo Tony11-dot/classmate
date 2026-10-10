@@ -16,6 +16,8 @@ import '../features/lifedoc/notifications_local_service.dart';
 import '../features/lifedoc/notifications_provider.dart';
 import '../ui/nav/desktop_chrome_shell.dart';
 import '../l10n/app_localizations.dart';
+import '../core/http/cm_api.dart';
+import '../features/lifedoc/notification_text.dart';
 
 final appScaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -70,6 +72,9 @@ class ClassMateApp extends ConsumerWidget {
       theme: themes.light,
       darkTheme: themes.dark,
       builder: (context, child) {
+        // Data classes have no BuildContext: tell the API layer which language
+        // the UI renders in so its error fallbacks come out localized.
+        CMApiException.uiLocale = Localizations.maybeLocaleOf(context);
         final mediaQuery = MediaQuery.maybeOf(context);
         // Accessibility (WCAG 1.4.4 / IS 5568): honor the OS / Dynamic-Type
         // font-size setting instead of discarding it. Take the incoming OS
@@ -225,6 +230,7 @@ class _NotificationReceiverHostState
       _didBaseline = true;
 
       if (!mounted || synced.isEmpty) return;
+      final l = AppLocalizations.of(context)!;
 
       // Only raise an OS notification / snackbar for REAL server-pushed
       // events — never for the client-derived insight items ("all good",
@@ -246,16 +252,18 @@ class _NotificationReceiverHostState
 
       final localNotifications = ref.read(localNotificationsServiceProvider);
       for (final item in newItems) {
-        await localNotifications.showNotification(item);
+        await localNotifications.showNotification(item, l);
       }
 
-      final first = newItems.first;
-      final extra = newItems.length > 1 ? ' +${newItems.length - 1} more' : '';
+      final firstTitle = notificationTitleLocalized(l, newItems.first);
+      final text = newItems.length > 1
+          ? l.notificationsSnackMore(firstTitle, newItems.length - 1)
+          : firstTitle;
       appScaffoldMessengerKey.currentState
         ?..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text('${first.title}$extra'),
+            content: Text(text),
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 4),
           ),

@@ -415,10 +415,12 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
         : l.adminCohortsGradeOnly(sorted.join(', '));
   }
 
-  String get _emptyMsg {
+  String _emptyMsg(AppLocalizations l) {
     final gs = widget.cohortGrades;
-    if (gs.length <= 1) return 'No grade ${gs.isEmpty ? '?' : gs.first} students found';
-    return 'No students found in this cohort\'s grades';
+    if (gs.length <= 1) {
+      return l.adminCohortsNoGradeStudents(gs.isEmpty ? '?' : '${gs.first}');
+    }
+    return l.adminCohortsNoStudentsInGrades;
   }
 
   @override
@@ -520,7 +522,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                       ? Center(
                           child: Text(
                             _showGradeOnly
-                                ? _emptyMsg
+                                ? _emptyMsg(l)
                                 : AppLocalizations.of(context)!.adminExportNoStudents,
                             style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
                           ),

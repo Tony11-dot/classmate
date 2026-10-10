@@ -10474,4 +10474,768 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get a11yJumpToLatest => 'К последним сообщениям';
+
+  @override
+  String get notificationsChannelName => 'Обновления ClassMate';
+
+  @override
+  String get notificationsChannelDescription =>
+      'Уведомления об учёбе, классе и занятиях.';
+
+  @override
+  String notificationsSnackMore(String title, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$title и ещё $count',
+      many: '$title и ещё $count',
+      few: '$title и ещё $count',
+      one: '$title и ещё $count',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get errApiBadRequest => 'Неверный запрос. Проверьте введённые данные.';
+
+  @override
+  String get errApiSessionExpired => 'Сеанс истёк. Войдите снова.';
+
+  @override
+  String get errApiForbidden => 'У вас нет прав для этого действия.';
+
+  @override
+  String get errApiNotFound => 'Запрошенный элемент не найден.';
+
+  @override
+  String get errApiConflict =>
+      'Возник конфликт. Возможно, этот элемент уже существует.';
+
+  @override
+  String get errApiTooManyRequests =>
+      'Слишком много запросов. Подождите немного.';
+
+  @override
+  String get errApiServer =>
+      'Что-то пошло не так на нашей стороне. Попробуйте ещё раз.';
+
+  @override
+  String get errApiGeneric => 'Произошла ошибка. Попробуйте ещё раз.';
+
+  @override
+  String adminCohortsNoGradeStudents(String grade) {
+    return 'Учеников $grade-го класса не найдено';
+  }
+
+  @override
+  String get adminCohortsNoStudentsInGrades =>
+      'В классах этой группы учеников не найдено';
+
+  @override
+  String teacherFormDefaultOption(int n) {
+    return 'Вариант $n';
+  }
+
+  @override
+  String get practiceTopicCounting => 'Счёт';
+
+  @override
+  String get practiceTopicAddition => 'Сложение';
+
+  @override
+  String get practiceTopicSubtraction => 'Вычитание';
+
+  @override
+  String get practiceTopicNumberBonds => 'Состав числа';
+
+  @override
+  String get practiceTopicPlaceValue => 'Разряды чисел';
+
+  @override
+  String get practiceTopicShapes => 'Фигуры';
+
+  @override
+  String get practiceTopicComparingNumbers => 'Сравнение чисел';
+
+  @override
+  String get practiceTopicTimeAndMoney => 'Время и деньги';
+
+  @override
+  String get practiceTopicPatterns => 'Закономерности';
+
+  @override
+  String get practiceTopicMultiplication => 'Умножение';
+
+  @override
+  String get practiceTopicDivision => 'Деление';
+
+  @override
+  String get practiceTopicFractions => 'Дроби';
+
+  @override
+  String get practiceTopicDecimals => 'Десятичные дроби';
+
+  @override
+  String get practiceTopicPercentages => 'Проценты';
+
+  @override
+  String get practiceTopicFactorsAndMultiples => 'Делители и кратные';
+
+  @override
+  String get practiceTopicAreaAndPerimeter => 'Площадь и периметр';
+
+  @override
+  String get practiceTopicMeasurement => 'Измерения';
+
+  @override
+  String get practiceTopicWordProblems => 'Текстовые задачи';
+
+  @override
+  String get practiceTopicIntegers => 'Целые числа';
+
+  @override
+  String get practiceTopicExpressions => 'Выражения';
+
+  @override
+  String get practiceTopicRatiosAndProportion => 'Отношения и пропорции';
+
+  @override
+  String get practiceTopicExponents => 'Степени';
+
+  @override
+  String get practiceTopicAngles => 'Углы';
+
+  @override
+  String get practiceTopicPythagoras => 'Теорема Пифагора';
+
+  @override
+  String get practiceTopicPushAndPull => 'Толкать и тянуть';
+
+  @override
+  String get practiceTopicLightAndShadow => 'Свет и тень';
+
+  @override
+  String get practiceTopicMagnets => 'Магниты';
+
+  @override
+  String get practiceTopicFloatingAndSinking => 'Плавание и погружение';
+
+  @override
+  String get practiceTopicDayAndNight => 'День и ночь';
+
+  @override
+  String get practiceTopicForcesAndMotion => 'Силы и движение';
+
+  @override
+  String get practiceTopicElectricityBasics => 'Основы электричества';
+
+  @override
+  String get practiceTopicLightAndSound => 'Свет и звук';
+
+  @override
+  String get practiceTopicSimpleMachines => 'Простые механизмы';
+
+  @override
+  String get practiceTopicHeatAndTemperature => 'Тепло и температура';
+
+  @override
+  String get practiceTopicMotionAndSpeed => 'Движение и скорость';
+
+  @override
+  String get practiceTopicDensity => 'Плотность';
+
+  @override
+  String get practiceTopicPressure => 'Давление';
+
+  @override
+  String get practiceTopicWavesAndSound => 'Волны и звук';
+
+  @override
+  String get practiceTopicLightAndOptics => 'Свет и оптика';
+
+  @override
+  String get practiceTopicOhmsLaw => 'Закон Ома';
+
+  @override
+  String get practiceTopicMaterialsAroundUs => 'Вещества вокруг нас';
+
+  @override
+  String get practiceTopicSolidLiquidGas => 'Твёрдое, жидкое, газ';
+
+  @override
+  String get practiceTopicWater => 'Вода';
+
+  @override
+  String get practiceTopicMixingThings => 'Смешивание веществ';
+
+  @override
+  String get practiceTopicStatesOfMatter => 'Агрегатные состояния';
+
+  @override
+  String get practiceTopicPropertiesOfMaterials => 'Свойства веществ';
+
+  @override
+  String get practiceTopicMixturesAndSolutions => 'Смеси и растворы';
+
+  @override
+  String get practiceTopicChangesOfState => 'Изменения состояния';
+
+  @override
+  String get practiceTopicAcidsAndBasesAroundUs =>
+      'Кислоты и основания вокруг нас';
+
+  @override
+  String get practiceTopicAtomsAndMolecules => 'Атомы и молекулы';
+
+  @override
+  String get practiceTopicElementsAndCompounds => 'Элементы и соединения';
+
+  @override
+  String get practiceTopicThePeriodicTable => 'Периодическая таблица';
+
+  @override
+  String get practiceTopicMixturesAndSeparation => 'Смеси и их разделение';
+
+  @override
+  String get practiceTopicChemicalReactions => 'Химические реакции';
+
+  @override
+  String get practiceTopicAtomicStructure => 'Строение атома';
+
+  @override
+  String get practiceTopicOxidationAndReduction => 'Окисление и восстановление';
+
+  @override
+  String get practiceTopicLivingThings => 'Живые организмы';
+
+  @override
+  String get practiceTopicPlants => 'Растения';
+
+  @override
+  String get practiceTopicAnimals => 'Животные';
+
+  @override
+  String get practiceTopicMyBody => 'Моё тело';
+
+  @override
+  String get practiceTopicTheSenses => 'Органы чувств';
+
+  @override
+  String get practiceTopicHumanBodySystems => 'Системы организма человека';
+
+  @override
+  String get practiceTopicPlantsAndPhotosynthesis => 'Растения и фотосинтез';
+
+  @override
+  String get practiceTopicAnimalGroups => 'Группы животных';
+
+  @override
+  String get practiceTopicHabitatsAndFoodChains =>
+      'Среды обитания и пищевые цепи';
+
+  @override
+  String get practiceTopicHealthAndNutrition => 'Здоровье и питание';
+
+  @override
+  String get practiceTopicPhotosynthesis => 'Фотосинтез';
+
+  @override
+  String get practiceTopicReproduction => 'Размножение';
+
+  @override
+  String get practiceTopicMicroorganisms => 'Микроорганизмы';
+
+  @override
+  String get practiceTopicHumanPhysiology => 'Физиология человека';
+
+  @override
+  String get practiceTopicBiochemistry => 'Биохимия';
+
+  @override
+  String get practiceTopicBodySystems => 'Системы организма';
+
+  @override
+  String get practiceTopicWhatIsAComputer => 'Что такое компьютер';
+
+  @override
+  String get practiceTopicMouseAndKeyboard => 'Мышь и клавиатура';
+
+  @override
+  String get practiceTopicPatternsAndSequences =>
+      'Закономерности и последовательности';
+
+  @override
+  String get practiceTopicStayingSafeOnline => 'Безопасность в интернете';
+
+  @override
+  String get practiceTopicBlockCoding => 'Блочное программирование';
+
+  @override
+  String get practiceTopicInternetSafety => 'Безопасность в сети';
+
+  @override
+  String get practiceTopicFlowcharts => 'Блок-схемы';
+
+  @override
+  String get practiceTopicObjectOrientedBasics => 'Основы ООП';
+
+  @override
+  String get practiceTopicReading => 'Чтение';
+
+  @override
+  String get practiceTopicSimpleSentences => 'Простые предложения';
+
+  @override
+  String get practiceTopicSpelling => 'Правописание';
+
+  @override
+  String get practiceTopicLiterature => 'Литература';
+
+  @override
+  String get practiceTopicWritingAndComposition => 'Письмо и сочинение';
+
+  @override
+  String get practiceTopicLinguistics => 'Лингвистика';
+
+  @override
+  String get practiceTopicMyFamilyAndCommunity => 'Моя семья и общество';
+
+  @override
+  String get practiceTopicHolidaysAndTraditions => 'Праздники и традиции';
+
+  @override
+  String get practiceTopicLongAgoAndToday => 'Раньше и сейчас';
+
+  @override
+  String get practiceTopicAncientCivilizations => 'Древние цивилизации';
+
+  @override
+  String get practiceTopicLocalHistory => 'Краеведение';
+
+  @override
+  String get practiceTopicTimelines => 'Хронология';
+
+  @override
+  String get practiceTopicExplorers => 'Первооткрыватели';
+
+  @override
+  String get practiceTopicTheAncientWorld => 'Древний мир';
+
+  @override
+  String get practiceTopicTheMiddleAges => 'Средние века';
+
+  @override
+  String get practiceTopicNationalism => 'Национализм';
+
+  @override
+  String get practiceTopicIndustrialRevolution => 'Промышленная революция';
+
+  @override
+  String get practiceTopicModernHistory => 'Новейшая история';
+
+  @override
+  String get practiceTopicWorldWarI => 'Первая мировая война';
+
+  @override
+  String get practiceTopicWorldWarII => 'Вторая мировая война';
+
+  @override
+  String get practiceTopicTheHolocaust => 'Холокост';
+
+  @override
+  String get practiceTopicHistoryOfIsrael => 'История Израиля';
+
+  @override
+  String get practiceTopicTheModernMiddleEast => 'Современный Ближний Восток';
+
+  @override
+  String get practiceTopicNationalismAndDemocracy => 'Национализм и демократия';
+
+  @override
+  String get practiceTopicTheColdWar => 'Холодная война';
+
+  @override
+  String get practiceTopicMyNeighborhood => 'Мой район';
+
+  @override
+  String get practiceTopicMapsBasics => 'Основы карт';
+
+  @override
+  String get practiceTopicWeather => 'Погода';
+
+  @override
+  String get practiceTopicLandAndWater => 'Суша и вода';
+
+  @override
+  String get practiceTopicContinentsAndOceans => 'Материки и океаны';
+
+  @override
+  String get practiceTopicMapsAndGlobes => 'Карты и глобусы';
+
+  @override
+  String get practiceTopicClimate => 'Климат';
+
+  @override
+  String get practiceTopicNaturalResources => 'Природные ресурсы';
+
+  @override
+  String get practiceTopicPhysicalGeography => 'Физическая география';
+
+  @override
+  String get practiceTopicClimateAndWeather => 'Климат и погода';
+
+  @override
+  String get practiceTopicPopulation => 'Население';
+
+  @override
+  String get practiceTopicSettlement => 'Расселение';
+
+  @override
+  String get practiceTopicEconomicGeography => 'Экономическая география';
+
+  @override
+  String get practiceTopicHumanGeography => 'Социальная география';
+
+  @override
+  String get practiceTopicClimateChange => 'Изменение климата';
+
+  @override
+  String get practiceTopicGlobalization => 'Глобализация';
+
+  @override
+  String get practiceTopicUrbanGeography => 'География городов';
+
+  @override
+  String get practiceTopicGeopolitics => 'Геополитика';
+
+  @override
+  String get practiceTopicRulesAndFairness => 'Правила и справедливость';
+
+  @override
+  String get practiceTopicMyCommunity => 'Моё сообщество';
+
+  @override
+  String get practiceTopicHelpingOthers => 'Помощь другим';
+
+  @override
+  String get practiceTopicRightsAndResponsibilities =>
+      'Права и ответственность';
+
+  @override
+  String get practiceTopicGovernmentBasics =>
+      'Основы государственного устройства';
+
+  @override
+  String get practiceTopicCommunityAndDemocracy => 'Общество и демократия';
+
+  @override
+  String get practiceTopicDemocracy => 'Демократия';
+
+  @override
+  String get practiceTopicGovernmentAndLaw => 'Власть и закон';
+
+  @override
+  String get practiceTopicRightsAndDuties => 'Права и обязанности';
+
+  @override
+  String get practiceTopicSocietyAndState => 'Общество и государство';
+
+  @override
+  String get practiceTopicDemocracyAndRegime => 'Демократия и форма правления';
+
+  @override
+  String get practiceTopicHumanAndCivilRights => 'Права человека и гражданина';
+
+  @override
+  String get practiceTopicTheStateOfIsrael => 'Государство Израиль';
+
+  @override
+  String get practiceTopicLawAndGovernment => 'Закон и власть';
+
+  @override
+  String get practiceTopicCitizenshipAndSociety => 'Гражданство и общество';
+
+  @override
+  String get practiceTopicBatteriesAndBulbs => 'Батарейки и лампочки';
+
+  @override
+  String get practiceTopicConductorsAndInsulators => 'Проводники и изоляторы';
+
+  @override
+  String get practiceTopicSimpleCircuits => 'Простые цепи';
+
+  @override
+  String get practiceTopicElectricCircuits => 'Электрические цепи';
+
+  @override
+  String get practiceTopicCurrentAndVoltage => 'Ток и напряжение';
+
+  @override
+  String get practiceTopicResistors => 'Резисторы';
+
+  @override
+  String get practiceTopicSeriesAndParallel =>
+      'Последовательное и параллельное соединение';
+
+  @override
+  String get practiceTopicComponents => 'Компоненты';
+
+  @override
+  String get practiceTopicSeriesAndParallelCircuits =>
+      'Последовательные и параллельные цепи';
+
+  @override
+  String get practiceTopicCapacitors => 'Конденсаторы';
+
+  @override
+  String get practiceTopicDiodes => 'Диоды';
+
+  @override
+  String get practiceTopicTransistors => 'Транзисторы';
+
+  @override
+  String get practiceTopicLogicGates => 'Логические элементы';
+
+  @override
+  String get practiceTopicDigitalElectronics => 'Цифровая электроника';
+
+  @override
+  String get practiceTopicLeversAndWheels => 'Рычаги и колёса';
+
+  @override
+  String get practiceTopicGears => 'Шестерни';
+
+  @override
+  String get practiceTopicGearsAndLevers => 'Шестерни и рычаги';
+
+  @override
+  String get practiceTopicMaterials => 'Материалы';
+
+  @override
+  String get practiceTopicStatics => 'Статика';
+
+  @override
+  String get practiceTopicForcesAndMoments => 'Силы и моменты';
+
+  @override
+  String get practiceTopicDynamics => 'Динамика';
+
+  @override
+  String get practiceTopicStrengthOfMaterials => 'Сопротивление материалов';
+
+  @override
+  String get practiceTopicMachineElements => 'Детали машин';
+
+  @override
+  String get practiceTopicFeelingsAndEmotions => 'Чувства и эмоции';
+
+  @override
+  String get practiceTopicFriendship => 'Дружба';
+
+  @override
+  String get practiceTopicGettingAlong => 'Умение ладить с другими';
+
+  @override
+  String get practiceTopicEmotionsAndBehavior => 'Эмоции и поведение';
+
+  @override
+  String get practiceTopicMemoryAndLearning => 'Память и обучение';
+
+  @override
+  String get practiceTopicPersonality => 'Личность';
+
+  @override
+  String get practiceTopicCommunication => 'Общение';
+
+  @override
+  String get practiceTopicIntroductionToPsychology => 'Введение в психологию';
+
+  @override
+  String get practiceTopicLearningAndMemory => 'Обучение и память';
+
+  @override
+  String get practiceTopicDevelopmentalPsychology => 'Психология развития';
+
+  @override
+  String get practiceTopicSocialPsychology => 'Социальная психология';
+
+  @override
+  String get practiceTopicCognition => 'Когнитивные процессы';
+
+  @override
+  String get practiceTopicPsychologicalDisorders => 'Психические расстройства';
+
+  @override
+  String get practiceTopicResearchMethods => 'Методы исследования';
+
+  @override
+  String get practiceTopicFamilyAndCommunity => 'Семья и общество';
+
+  @override
+  String get practiceTopicGroupsWeBelongTo =>
+      'Группы, к которым мы принадлежим';
+
+  @override
+  String get practiceTopicSocietyAndGroups => 'Общество и группы';
+
+  @override
+  String get practiceTopicCulture => 'Культура';
+
+  @override
+  String get practiceTopicFamilyAndInstitutions => 'Семья и институты';
+
+  @override
+  String get practiceTopicNormsAndRoles => 'Нормы и роли';
+
+  @override
+  String get practiceTopicIntroductionToSociology => 'Введение в социологию';
+
+  @override
+  String get practiceTopicSocialization => 'Социализация';
+
+  @override
+  String get practiceTopicSocialInstitutions => 'Социальные институты';
+
+  @override
+  String get practiceTopicCultureAndIdentity => 'Культура и идентичность';
+
+  @override
+  String get practiceTopicSocialStratification => 'Социальная стратификация';
+
+  @override
+  String get practiceTopicDeviance => 'Девиантное поведение';
+
+  @override
+  String get practiceTopicNatureAroundUs => 'Природа вокруг нас';
+
+  @override
+  String get practiceTopicCaringForPlantsAndAnimals =>
+      'Уход за растениями и животными';
+
+  @override
+  String get practiceTopicRecycling => 'Переработка отходов';
+
+  @override
+  String get practiceTopicEcosystems => 'Экосистемы';
+
+  @override
+  String get practiceTopicRecyclingAndWaste => 'Переработка и отходы';
+
+  @override
+  String get practiceTopicWaterAndEnergy => 'Вода и энергия';
+
+  @override
+  String get practiceTopicPollution => 'Загрязнение';
+
+  @override
+  String get practiceTopicBiodiversity => 'Биоразнообразие';
+
+  @override
+  String get practiceTopicSustainability => 'Устойчивое развитие';
+
+  @override
+  String get practiceTopicPollutionAndRemediation =>
+      'Загрязнение и восстановление';
+
+  @override
+  String get practiceTopicConservation => 'Охрана природы';
+
+  @override
+  String get practiceTopicEnergyResources => 'Энергетические ресурсы';
+
+  @override
+  String get practiceTopicGreetings => 'Приветствия';
+
+  @override
+  String get practiceTopicNumbersAndColors => 'Числа и цвета';
+
+  @override
+  String get practiceTopicBasicVocabulary => 'Базовая лексика';
+
+  @override
+  String get practiceTopicPresentTense => 'Настоящее время';
+
+  @override
+  String get practiceTopicSimpleConversation => 'Простой разговор';
+
+  @override
+  String get practiceTopicVerbTenses => 'Времена глаголов';
+
+  @override
+  String get practiceTopicConversation => 'Разговорная речь';
+
+  @override
+  String get practiceTopicStoriesAndPictures => 'Истории и картинки';
+
+  @override
+  String get practiceTopicMakingAShortVideo => 'Создание короткого видео';
+
+  @override
+  String get practiceTopicMediaAndMessages => 'Медиа и сообщения';
+
+  @override
+  String get practiceTopicFilmBasics => 'Основы кино';
+
+  @override
+  String get practiceTopicStorytelling => 'Сторителлинг';
+
+  @override
+  String get practiceTopicAdvertising => 'Реклама';
+
+  @override
+  String get practiceTopicFilmLanguage => 'Киноязык';
+
+  @override
+  String get practiceTopicMediaAnalysis => 'Анализ медиа';
+
+  @override
+  String get practiceTopicGenres => 'Жанры';
+
+  @override
+  String get practiceTopicProduction => 'Производство';
+
+  @override
+  String get practiceTopicJournalism => 'Журналистика';
+
+  @override
+  String get practiceTopicAdvertisingAndPersuasion => 'Реклама и убеждение';
+
+  @override
+  String get practiceTopicHolidaysAndStories => 'Праздники и истории';
+
+  @override
+  String get practiceTopicValues => 'Ценности';
+
+  @override
+  String get practiceTopicTraditions => 'Традиции';
+
+  @override
+  String get practiceTopicSacredTexts => 'Священные тексты';
+
+  @override
+  String get practiceTopicHolidays => 'Праздники';
+
+  @override
+  String get practiceTopicValuesAndEthics => 'Ценности и этика';
+
+  @override
+  String get practiceTopicScriptures => 'Священное Писание';
+
+  @override
+  String get practiceTopicTraditionsAndPractices => 'Традиции и обряды';
+
+  @override
+  String get practiceTopicEthics => 'Этика';
+
+  @override
+  String get practiceTopicHistoryOfReligion => 'История религии';
+
+  @override
+  String get practiceTopicEthicsAndPhilosophy => 'Этика и философия';
+
+  @override
+  String get practiceTopicWorldReligions => 'Мировые религии';
+
+  @override
+  String get practiceTopicReligionAndSociety => 'Религия и общество';
 }
