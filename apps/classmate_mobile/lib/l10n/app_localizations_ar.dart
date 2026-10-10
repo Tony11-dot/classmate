@@ -11560,4 +11560,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get errSrvMinistryDisabled => 'تسجيل الدخول عبر الوزارة غير مفعّل.';
+
+  @override
+  String a11yScheduleCell(Object day, Object period) {
+    return '$day، $period';
+  }
+
+  @override
+  String a11yScheduleCellEmpty(Object day, Object period) {
+    return '$day، $period: فارغ';
+  }
 }

@@ -1159,16 +1159,28 @@ class _StepBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    // 44pt hit area (HIG) around the same 34pt disc.
     return Semantics(
       button: true,
       label: label,
       child: Material(
-        color: cs.surfaceContainerHighest,
+        color: Colors.transparent,
         shape: const CircleBorder(),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          child: SizedBox(width: 34, height: 34, child: Icon(icon, size: 18, color: cs.primary)),
+          child: SizedBox(
+            width: 44,
+            height: 44,
+            child: Center(
+              child: Container(
+                width: 34,
+                height: 34,
+                decoration: ShapeDecoration(color: cs.surfaceContainerHighest, shape: const CircleBorder()),
+                child: Icon(icon, size: 18, color: cs.primary),
+              ),
+            ),
+          ),
         ),
       ),
     );

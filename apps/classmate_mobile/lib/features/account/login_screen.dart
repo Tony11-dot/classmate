@@ -202,6 +202,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         symbolsOpacity: 0.9,
         child: SafeArea(
           child: GestureDetector(
+            // Tap-anywhere keyboard dismissal — not a control, keep it out of
+            // the accessibility tree.
+            excludeFromSemantics: true,
             onTap: () => FocusScope.of(context).unfocus(),
             child: Stack(children: [
               if (isAddMode)
@@ -366,7 +369,8 @@ class _LoginCard extends StatelessWidget {
             child: TextButton(
               onPressed: loading ? null : () => GoRouter.of(context).push('/forgot-password'),
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+                // 44pt tall hit area (HIG); the label itself is unchanged.
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),

@@ -1005,11 +1005,15 @@ class _ViewToggle extends StatelessWidget {
     Widget seg(String label, _AnnouncementsView v, IconData icon) {
       final selected = view == v;
       return Expanded(
-        child: GestureDetector(
+        child: Semantics(
+          button: true,
+          selected: selected,
+          child: GestureDetector(
           onTap: () => onChanged(v),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
-            padding: const EdgeInsets.symmetric(vertical: 10),
+            // 12 + 2 (card inset) keeps the pill 48 tall with 44pt segments.
+            padding: const EdgeInsets.symmetric(vertical: 12),
             decoration: BoxDecoration(
               color: selected ? cs.primary : Colors.transparent,
               borderRadius: BorderRadius.circular(999),
@@ -1029,12 +1033,13 @@ class _ViewToggle extends StatelessWidget {
               ],
             ),
           ),
+          ),
         ),
       );
     }
 
     return LiquidGlassCard(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(2),
       borderRadius: BorderRadius.circular(999),
       color: cs.surfaceContainerLow,
       border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),

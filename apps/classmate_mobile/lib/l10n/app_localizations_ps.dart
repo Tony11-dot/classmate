@@ -11592,4 +11592,14 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get errSrvMinistryDisabled => '‹‹Ministry sign-in isn’t enabled.››';
+
+  @override
+  String a11yScheduleCell(Object day, Object period) {
+    return '‹‹$day, $period››';
+  }
+
+  @override
+  String a11yScheduleCellEmpty(Object day, Object period) {
+    return '‹‹$day, $period: empty››';
+  }
 }

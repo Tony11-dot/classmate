@@ -4099,5 +4099,7 @@
   "errSrvNovaBadReply": "Не удалось прочитать ответ NOVA. Попробуйте снова.",
   "errSrvNovaUnavailable": "NOVA сейчас недоступна. Попробуйте чуть позже.",
   "errSrvMinistrySignIn": "Вход через министерство не удался. Попробуйте снова.",
-  "errSrvMinistryDisabled": "Вход через министерство не включён."
+  "errSrvMinistryDisabled": "Вход через министерство не включён.",
+  "a11yScheduleCell": "{day}, {period}",
+  "a11yScheduleCellEmpty": "{day}, {period}: пусто"
 }

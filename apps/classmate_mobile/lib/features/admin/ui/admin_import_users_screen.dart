@@ -454,6 +454,8 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
         Wrap(spacing: 8, runSpacing: 8, children: [
           CmPress(
             onTap: _saving ? null : _pasteNames,
+            child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3.5), // 44pt hit height
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
               decoration: BoxDecoration(
@@ -465,6 +467,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
                 const SizedBox(width: 6),
                 Text(l.adminAddManyPasteNames, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: cs.primary)),
               ]),
+            ),
             ),
           ),
           // Set role for ALL rows.
@@ -489,7 +492,9 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     );
   }
 
-  Widget _toolChip(ColorScheme cs, IconData icon, String label) => Container(
+  Widget _toolChip(ColorScheme cs, IconData icon, String label) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 3.5), // 44pt hit height
+    child: Container(
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
     decoration: BoxDecoration(
       color: cs.surfaceContainerHigh,
@@ -501,6 +506,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
       Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
       const Icon(Icons.arrow_drop_down_rounded, size: 18),
     ]),
+    ),
   );
 
   // ── Wide (spreadsheet) layout ─────────────────────────────────────────────

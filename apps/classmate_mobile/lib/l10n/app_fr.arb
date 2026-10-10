@@ -3950,5 +3950,7 @@
   "errSrvNovaBadReply": "La réponse de NOVA n’a pas pu être lue. Réessayez.",
   "errSrvNovaUnavailable": "NOVA n’est pas disponible pour le moment. Réessayez dans un instant.",
   "errSrvMinistrySignIn": "La connexion via le ministère a échoué. Réessayez.",
-  "errSrvMinistryDisabled": "La connexion via le ministère n’est pas activée."
+  "errSrvMinistryDisabled": "La connexion via le ministère n’est pas activée.",
+  "a11yScheduleCell": "{day}, {period}",
+  "a11yScheduleCellEmpty": "{day}, {period} : vide"
 }

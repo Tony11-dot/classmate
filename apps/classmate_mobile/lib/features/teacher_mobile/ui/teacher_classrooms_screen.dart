@@ -347,6 +347,7 @@ class _TeacherClassroomsScreenState
             bottom: 124,
             child: FloatingActionButton(
               heroTag: 'fab_create_classroom',
+              tooltip: AppLocalizations.of(context)!.teacherCreateClassroomTooltip,
               backgroundColor: cs.primaryContainer,
               foregroundColor: cs.onPrimaryContainer,
               onPressed: _showCreateClassroomSheet,

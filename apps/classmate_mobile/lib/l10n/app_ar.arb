@@ -3950,5 +3950,7 @@
   "errSrvNovaBadReply": "تعذر قراءة إجابة NOVA. حاول مجددًا.",
   "errSrvNovaUnavailable": "NOVA غير متاح الآن. حاول مجددًا بعد قليل.",
   "errSrvMinistrySignIn": "لم ينجح تسجيل الدخول عبر الوزارة. حاول مجددًا.",
-  "errSrvMinistryDisabled": "تسجيل الدخول عبر الوزارة غير مفعّل."
+  "errSrvMinistryDisabled": "تسجيل الدخول عبر الوزارة غير مفعّل.",
+  "a11yScheduleCell": "{day}، {period}",
+  "a11yScheduleCellEmpty": "{day}، {period}: فارغ"
 }

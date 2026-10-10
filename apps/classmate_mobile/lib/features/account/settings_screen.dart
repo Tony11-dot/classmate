@@ -799,7 +799,11 @@ class _ThemeTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
+          Semantics(
+            button: true,
+            selected: selected,
+            label: label,
+            child: GestureDetector(
             onTap: onTap,
             onLongPress: (onEdit != null || onDelete != null)
                 ? () => _openMenu(context)
@@ -848,9 +852,12 @@ class _ThemeTile extends StatelessWidget {
                   ),
               ],
             ),
+            ),
           ),
           const SizedBox(height: 6),
-          Row(
+          // The tile above already announces the name — don't read it twice.
+          ExcludeSemantics(
+            child: Row(
             children: [
               Expanded(
                 child: Text(
@@ -866,6 +873,7 @@ class _ThemeTile extends StatelessWidget {
                 ),
               ),
             ],
+          ),
           ),
         ],
       ),

@@ -11664,4 +11664,14 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get errSrvMinistryDisabled =>
       'La connexion via le ministère n’est pas activée.';
+
+  @override
+  String a11yScheduleCell(Object day, Object period) {
+    return '$day, $period';
+  }
+
+  @override
+  String a11yScheduleCellEmpty(Object day, Object period) {
+    return '$day, $period : vide';
+  }
 }

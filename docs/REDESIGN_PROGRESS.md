@@ -479,8 +479,42 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
   redesign, not a fix; no Cupertino icons anywhere; elevations already come from the tokens
 - Checked: analyzer 50 (baseline); tests +73 −5 (baseline)
 
+## Round 25 (2026-10-10) — the accessibility audit: names, tap targets, signal colours
+- **Audit.** The rig now evaluates Flutter's three accessibility guidelines on every shot (WCAG
+  text contrast, 44 pt tap targets, unlabeled tap targets) and prints `A11Y [screen]: …`. The
+  first English/light pass over 77 screens flagged 135 nodes on 28 screens: 50 contrast, 42
+  tap-target, 43 unlabeled
+- **Names (43 → 0).** The seven shell FABs and the Classrooms FAB had no accessible name (VoiceOver
+  said "button") — each now carries its screen's existing action string as the tooltip (New
+  announcement, Create exam, Add grade, Create form, Schedule meeting, New assignment, Add material,
+  Create classroom). The 20 theme tiles announce their name and selected state (the caption under
+  the swatch is excluded so it isn't read twice). Admin schedule grid cells say "Monday, Period 3"
+  or "Monday, Period 3: empty" (2 new keys × 6 locales). Permissions role chips are one node —
+  name, state, tap — instead of a nameless switch beside a label. The login screen's tap-anywhere
+  keyboard dismissal is out of the tree
+- **Tap targets (42 → 24), visuals kept.** Forgot-password row 28 → 44 pt; attachment pills (14
+  screens) keep their 34 pt look inside a 44 pt hit area; the school-settings grade steppers get a
+  44 pt hit circle around the same 34 pt disc; import toolbar chips 37 → 44 via invisible padding;
+  parent-notifications filter pills and the announcements Received | Published toggle are 44 pt
+  (the toggle's glass rim went 4 → 2 so the pill stays 48 tall); the Practice "Details" ⓘ is 44
+  wide with the glyph where it was. Left alone: Material-standard 40 pt segmented and tonal
+  buttons, the 32 pt inline "Create new exam", the 30 pt "No parent" chip in the import grid, the
+  40 pt schedule date pill
+- **Contrast — 2 real, 48 not.** 28 flags are the bottom-navbar labels (off-limits) and 1 its
+  badge. 19 are measurement artefacts: the guideline takes the most common "dark" colour inside
+  the text rect, and at 1× that is an anti-aliased blend (#C7CBD0, #DFE3E8…) or a card edge, not
+  the text — a theme probe (`test/_mk/probe_test.dart`) shows the real pairs: onSurfaceVariant on
+  surface 8.9:1, tonal buttons 13:1, helper texts 8.5:1. The two real ones were the signal
+  tokens: success green #12935B and attention amber #B4710F sat at 3.7:1 on light surfaces (and
+  white on them at 3.9:1). Light values are now #0F7D4D / #99600A — ≥4.6:1 as text on every light
+  surface tint and ≥4.9:1 for white on the fill; dark values unchanged
+- Also: the custom chips, pills and toggles built on GestureDetector (`_FilterChipItem`,
+  `_FreqChip`, `_Pill`, `_ViewToggle`) now declare button / selected / enabled semantics
+- Checked: analyzer 50 (baseline); tests +73 −5 (baseline); rig re-audit over the 23 touched
+  screens: 0 unlabeled, no overflow; before/after pixdiff shows only the intended deltas
+
 ## Up next (in order)
-1. On-device QA pass of build 318 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 319 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

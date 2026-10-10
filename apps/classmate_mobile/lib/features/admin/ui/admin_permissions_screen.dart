@@ -467,7 +467,10 @@ class _RoleChip extends StatelessWidget {
     final tokens = CmTokens.of(context);
     // The whole chip toggles, not just the small switch — tapping the role
     // name used to do nothing, which read as "not clickable" (QA round 2, #2).
-    return CmPress(
+    // One accessibility node: the role name, the switch state and the tap —
+    // a bare Switch next to a Text read as an unnamed toggle.
+    return MergeSemantics(
+      child: CmPress(
       onTap: () => onChanged(!value),
       child: Container(
         padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 4, 4),
@@ -501,6 +504,7 @@ class _RoleChip extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }

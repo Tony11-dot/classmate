@@ -188,14 +188,18 @@ class _Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Material(
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
       color: selected ? cs.primary : cs.surfaceContainerHighest,
       borderRadius: BorderRadius.circular(999),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          // vertical 12 → a 44pt tall pill (HIG tap target).
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -211,6 +215,7 @@ class _Pill extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -571,13 +571,20 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                 button: true,
                 label: l.a11yInfo,
                 child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () => _showModeInfoSheet(context),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 8),
-                    child: Icon(
-                      Icons.help_outline_rounded,
-                      size: 16,
-                      color: cs.onSurfaceVariant,
+                  // 44 wide × the header's 30 tall — the icon keeps its spot
+                  // at the end, the tap area no longer stops at its glyph.
+                  child: SizedBox(
+                    width: 44,
+                    height: 30,
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Icon(
+                        Icons.help_outline_rounded,
+                        size: 16,
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ),

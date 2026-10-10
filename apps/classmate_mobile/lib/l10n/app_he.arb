@@ -3950,5 +3950,7 @@
   "errSrvNovaBadReply": "לא ניתן היה לקרוא את התשובה של NOVA. נסו שוב.",
   "errSrvNovaUnavailable": "NOVA לא זמינה כרגע. נסו שוב בעוד רגע.",
   "errSrvMinistrySignIn": "ההתחברות דרך משרד החינוך לא הצליחה. נסו שוב.",
-  "errSrvMinistryDisabled": "ההתחברות דרך משרד החינוך לא מופעלת."
+  "errSrvMinistryDisabled": "ההתחברות דרך משרד החינוך לא מופעלת.",
+  "a11yScheduleCell": "{day}, {period}",
+  "a11yScheduleCellEmpty": "{day}, {period}: ריק"
 }

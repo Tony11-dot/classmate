@@ -788,6 +788,8 @@ class _ScheduleGrid extends StatelessWidget {
                         return _GridCell(
                           width: _cellW,
                           height: _cellH,
+                          day: day,
+                          period: period,
                           slots: slots,
                           onTap: () => onCellTap(day, period),
                         );
@@ -805,8 +807,17 @@ class _ScheduleGrid extends StatelessWidget {
 }
 
 class _GridCell extends StatelessWidget {
-  const _GridCell({required this.width, required this.height, required this.slots, required this.onTap});
+  const _GridCell({
+    required this.width,
+    required this.height,
+    required this.day,
+    required this.period,
+    required this.slots,
+    required this.onTap,
+  });
   final double width;
+  final int day;
+  final int period;
   /// Minimum cell height (the row's "default" rhythm). Cells with several
   /// stacked slots grow beyond this so every period is visible — see the
   /// IntrinsicHeight row in [_ScheduleGrid.build].
@@ -817,9 +828,20 @@ class _GridCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     final hasSlots = slots.isNotEmpty;
+    // Screen readers: "Monday, Period 3" (+ the slot texts), or "…: empty"
+    // for a blank cell that would otherwise be an unnamed tap target.
+    final dayName = _localizedDayName(context, day, short: false);
+    final periodName = l.teacherPeriod(period);
+    final cellLabel = hasSlots
+        ? l.a11yScheduleCell(dayName, periodName)
+        : l.a11yScheduleCellEmpty(dayName, periodName);
 
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      label: cellLabel,
+      child: GestureDetector(
       onTap: onTap,
       child: Container(
         width: width,
@@ -838,6 +860,7 @@ class _GridCell extends StatelessWidget {
                 children: slots.map((s) => _SlotCard(slot: s)).toList(),
               )
             : null,
+      ),
       ),
     );
   }
@@ -951,7 +974,11 @@ class _FilterChipItem extends StatelessWidget {
     final fg = selected
         ? cs.primary
         : (disabled ? cs.onSurfaceVariant.withValues(alpha: 0.5) : cs.onSurfaceVariant);
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      enabled: !disabled,
+      selected: selected,
+      child: GestureDetector(
       onTap: disabled ? null : onTap,
       child: Container(
         padding: EdgeInsetsDirectional.only(
@@ -982,6 +1009,7 @@ class _FilterChipItem extends StatelessWidget {
             ],
           ],
         ),
+      ),
       ),
     );
   }
@@ -2547,7 +2575,10 @@ class _FreqChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
@@ -2565,6 +2596,7 @@ class _FreqChip extends StatelessWidget {
             color: selected ? cs.onPrimary : cs.onSurface,
           ),
         ),
+      ),
       ),
     );
   }

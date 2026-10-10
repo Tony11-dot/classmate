@@ -92,9 +92,17 @@ class AttachmentPill extends StatelessWidget {
     final isFile = type != 'link';
     final displayName = name.isNotEmpty ? name : url;
 
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      link: !isFile,
+      child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => _open(context),
-      child: Container(
+      // 5pt of invisible padding above/below lifts the hit area to 44pt
+      // while the pill itself keeps its 34pt height.
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isFile
@@ -129,6 +137,8 @@ class AttachmentPill extends StatelessWidget {
             Icon(Icons.open_in_new_rounded, size: 11, color: cs.primary.withValues(alpha: 0.6)),
           ],
         ),
+        ),
+      ),
       ),
     );
   }

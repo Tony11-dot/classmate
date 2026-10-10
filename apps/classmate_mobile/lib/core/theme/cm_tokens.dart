@@ -75,11 +75,13 @@ class CmTokens extends ThemeExtension<CmTokens> {
           offset: Offset(0, dy),
         );
     return CmTokens(
-      good: dark ? const Color(0xFF45D08A) : const Color(0xFF12935B),
+      // Light values sit at ≥4.6:1 on every light surface tint so signal text
+      // ("94%", "due soon") and white-on-signal fills both pass WCAG AA.
+      good: dark ? const Color(0xFF45D08A) : const Color(0xFF0F7D4D),
       onGood: dark ? const Color(0xFF04140B) : Colors.white,
       goodContainer: dark ? const Color(0xFF123024) : const Color(0xFFDCF5E9),
       onGoodContainer: dark ? const Color(0xFFBBF0D4) : const Color(0xFF0B5234),
-      warn: dark ? const Color(0xFFE6A34A) : const Color(0xFFB4710F),
+      warn: dark ? const Color(0xFFE6A34A) : const Color(0xFF99600A),
       onWarn: dark ? const Color(0xFF231402) : Colors.white,
       warnContainer: dark ? const Color(0xFF3A2C13) : const Color(0xFFFBEEDB),
       onWarnContainer: dark ? const Color(0xFFF6DBB0) : const Color(0xFF6B4400),

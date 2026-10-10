@@ -481,6 +481,7 @@ class AppShell extends ConsumerWidget {
 
   Widget? _buildFab(BuildContext context, WidgetRef ref, String loc, bool isTeacherLike, {bool isAdminLike = false}) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     // Secretary can post announcements — allow isAdminLike to reach the FAB logic too
     if (!isTeacherLike && !isAdminLike) return null;
     if (loc == '/announcements') {
@@ -488,6 +489,7 @@ class AppShell extends ConsumerWidget {
       if (!ref.watch(authSessionProvider).can('announcements.post')) return null;
       return FloatingActionButton(
         heroTag: 'fab_announce',
+        tooltip: l.teacherNewAnnouncementAction,
         backgroundColor: cs.primaryContainer,
         foregroundColor: cs.onPrimaryContainer,
         onPressed: () => context.push('/teacher/announcements/new'),
@@ -497,6 +499,7 @@ class AppShell extends ConsumerWidget {
     if (loc == '/teacher/exams') {
       return FloatingActionButton(
         heroTag: 'fab_exams',
+        tooltip: l.teacherExamNewTitle,
         backgroundColor: cs.primaryContainer,
         foregroundColor: cs.onPrimaryContainer,
         onPressed: () => context.push('/teacher/exams/create'),
@@ -506,6 +509,7 @@ class AppShell extends ConsumerWidget {
     if (loc.startsWith('/teacher/grades')) {
       return FloatingActionButton(
         heroTag: 'fab_grades_add',
+        tooltip: l.teacherAddGradeTitle,
         backgroundColor: cs.primaryContainer,
         foregroundColor: cs.onPrimaryContainer,
         onPressed: () => context.push('/teacher/grades/add'),
@@ -515,6 +519,7 @@ class AppShell extends ConsumerWidget {
     if (loc == '/teacher/forms') {
       return FloatingActionButton(
         heroTag: 'fab_forms',
+        tooltip: l.teacherCreateFormTitle,
         backgroundColor: cs.secondaryContainer,
         foregroundColor: cs.onSecondaryContainer,
         onPressed: () {
@@ -526,6 +531,7 @@ class AppShell extends ConsumerWidget {
     if (loc == '/teacher/meetings') {
       return FloatingActionButton(
         heroTag: 'fab_meetings',
+        tooltip: l.teacherMeetingNewTitle,
         backgroundColor: cs.primaryContainer,
         foregroundColor: cs.onPrimaryContainer,
         onPressed: () => context.push('/teacher/meetings/add'),
@@ -535,6 +541,7 @@ class AppShell extends ConsumerWidget {
     if (loc == '/teacher/assignments') {
       return FloatingActionButton(
         heroTag: 'fab_assignments',
+        tooltip: l.teacherAssignmentNewTitle,
         backgroundColor: cs.primaryContainer,
         foregroundColor: cs.onPrimaryContainer,
         onPressed: () => context.push('/teacher/assignments/add'),
@@ -544,6 +551,7 @@ class AppShell extends ConsumerWidget {
     if (loc == '/teacher/materials') {
       return FloatingActionButton(
         heroTag: 'fab_materials',
+        tooltip: l.teacherMaterialAddTitle,
         backgroundColor: cs.primaryContainer,
         foregroundColor: cs.onPrimaryContainer,
         onPressed: () => context.push('/teacher/materials/add'),

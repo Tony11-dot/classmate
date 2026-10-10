@@ -19714,6 +19714,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ministry sign-in isn’t enabled.'**
   String get errSrvMinistryDisabled;
+
+  /// No description provided for @a11yScheduleCell.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {period}'**
+  String a11yScheduleCell(Object day, Object period);
+
+  /// No description provided for @a11yScheduleCellEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {period}: empty'**
+  String a11yScheduleCellEmpty(Object day, Object period);
 }
 
 class _AppLocalizationsDelegate

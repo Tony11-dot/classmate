@@ -5859,5 +5859,19 @@
   "errSrvNovaBadReply": "NOVA’s answer couldn’t be read. Try again.",
   "errSrvNovaUnavailable": "NOVA isn’t available right now. Try again in a moment.",
   "errSrvMinistrySignIn": "Ministry sign-in didn’t work. Try again.",
-  "errSrvMinistryDisabled": "Ministry sign-in isn’t enabled."
+  "errSrvMinistryDisabled": "Ministry sign-in isn’t enabled.",
+  "a11yScheduleCell": "{day}, {period}",
+  "@a11yScheduleCell": {
+    "placeholders": {
+      "day": {},
+      "period": {}
+    }
+  },
+  "a11yScheduleCellEmpty": "{day}, {period}: empty",
+  "@a11yScheduleCellEmpty": {
+    "placeholders": {
+      "day": {},
+      "period": {}
+    }
+  }
 }

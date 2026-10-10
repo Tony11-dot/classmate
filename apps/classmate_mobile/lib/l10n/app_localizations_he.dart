@@ -11372,4 +11372,14 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get errSrvMinistryDisabled => 'ההתחברות דרך משרד החינוך לא מופעלת.';
+
+  @override
+  String a11yScheduleCell(Object day, Object period) {
+    return '$day, $period';
+  }
+
+  @override
+  String a11yScheduleCellEmpty(Object day, Object period) {
+    return '$day, $period: ריק';
+  }
 }
