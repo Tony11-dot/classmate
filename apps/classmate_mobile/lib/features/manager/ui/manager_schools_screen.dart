@@ -10,6 +10,7 @@ import 'manager_shell.dart';
 import 'manager_school_form_screen.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class ManagerSchoolsScreen extends ConsumerStatefulWidget {
   const ManagerSchoolsScreen({super.key});
 
@@ -204,8 +205,8 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.navSchools),
+      appBar: CmSubBar(showBack: false, 
+        title: l.navSchools,
         actions: const [ManagerLogoutAction()],
       ),
       floatingActionButton: FloatingActionButton.extended(

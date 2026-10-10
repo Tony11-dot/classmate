@@ -181,17 +181,17 @@ Legend: ✅ done · ☐ pending · — not applicable · R## = round that did it
 | Student editor | (pushed) | sub | ✅ | ✅ R30 | ✅ |
 | Cohort detail · Edit user · Export sheet | (pushed) | sub | ✅ | ✅ R29 | ✅ |
 
-## Manager (R31)
+## Manager (R31 ✅ chrome + bar; polish reviewed R31)
 
 | Screen | Route | Kind | Chrome | Bar | Polish |
 |---|---|---|---|---|---|
-| Console home | /manager/home | root | ☐ | — | ☐ |
-| Schools | (pushed) | sub | ☐ | ☐ | ☐ |
-| Managers | (pushed) | sub | ☐ | ☐ | ☐ |
-| Bagrut exams | (pushed) | sub | ☐ | ☐ | ☐ |
-| Bagrut manage | (pushed) | sub | ☐ | ☐ | ☐ |
-| School form | (pushed) | sub | ☐ | ☐ | ☐ |
-| Exam form | (pushed) | sub | ☐ | ☐ | ☐ |
+| Console home | /manager/home | root | ✅ | — | ✅ |
+| Schools | (pushed) | console tab | ✅ | ✅ R31 (no back) | ✅ |
+| Managers | (pushed) | console tab | ✅ | ✅ R31 (no back) | ✅ |
+| Bagrut exams | (pushed) | sub | ✅ | ✅ R31 | ✅ |
+| Bagrut manage | (pushed) | console tab | ✅ | ✅ R31 (no back) | ✅ |
+| School form | (pushed) | sub | ✅ | ✅ R31 | ✅ |
+| Exam form | (pushed) | sub | ✅ | ✅ R31 | ✅ |
 
 ## Cross-role surfaces (own bars, kept)
 

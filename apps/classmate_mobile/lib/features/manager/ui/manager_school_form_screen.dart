@@ -9,6 +9,7 @@ import '../../../core/http/server_messages.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/manager_api.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Create-school form — the in-app replacement for the old /cms "Create" tab.
 class ManagerSchoolFormScreen extends ConsumerStatefulWidget {
   const ManagerSchoolFormScreen({super.key});
@@ -137,7 +138,7 @@ class _ManagerSchoolFormScreenState
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l.managerNewSchool)),
+      appBar: CmSubBar(title: l.managerNewSchool),
       body: AbsorbPointer(
         absorbing: _submitting,
         child: ListView(

@@ -9,6 +9,7 @@ import '../../bagrut/data/bagrut_api.dart';
 import '../../bagrut/domain/bagrut_models.dart';
 import '../../bagrut/domain/bagrut_subjects.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// One file slot (per kind) — either an already-uploaded file or a freshly
 /// picked one waiting to be uploaded on save.
 class _FileSlot {
@@ -175,7 +176,9 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
     final subjectTitle = bagrutSubjectTitle(widget.subjectKey, locale);
     final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.existing == null ? '${l.managerNewExam} · $subjectTitle' : l.managerEditExam)),
+      appBar: CmSubBar(
+        title: widget.existing == null ? '${l.managerNewExam} · $subjectTitle' : l.managerEditExam,
+      ),
       body: AbsorbPointer(
         absorbing: _submitting,
         child: ListView(

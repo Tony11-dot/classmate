@@ -11,6 +11,7 @@ import '../../bagrut/domain/bagrut_models.dart';
 import '../../bagrut/domain/bagrut_subjects.dart';
 import 'manager_exam_form_screen.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class ManagerBagrutExamsScreen extends ConsumerStatefulWidget {
   const ManagerBagrutExamsScreen({super.key, required this.subjectKey});
 
@@ -78,7 +79,7 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
     final locale = Localizations.localeOf(context).languageCode;
     final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(bagrutSubjectTitle(widget.subjectKey, locale))),
+      appBar: CmSubBar(title: bagrutSubjectTitle(widget.subjectKey, locale)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addOrEdit(),
         icon: const Icon(Icons.add_rounded),

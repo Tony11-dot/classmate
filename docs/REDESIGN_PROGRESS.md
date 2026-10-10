@@ -543,7 +543,7 @@ sub-screens. Then each role below is one round: chrome check per route → sub-s
 | Parent | Home · Schedule · Overview · Messages · Announcements | Attendance, Grades, Exams, Certificates, Assignments, Meetings, Materials, Notifications, CMail · Account | child picker · the shared lifedoc details · chat | ☑ R28 (build 322) |
 | Admin | — (drawer only) | Dashboard, People, Cohorts, Schedule, School, Grade scales, Permissions, Reports, Certificates, Export, Students, Settings, CMail · Messages, Announcements, Notifications · Account | periods · import users · cohort detail · add period · edit user · subject detail · school form · certificates per student | ☑ R29 (build 322) |
 | Secretary | — (drawer only) | Home, Schedule, People, Cohorts, Certificates, Announcements, Messages, Export, CMail · Account | student editor · cohort detail · export sheet | ☑ R30 (build 322) |
-| Manager | — (console) | Home: Schools · Managers · Bagrut exams | school form · exam form · bagrut manage | ☐ R31 |
+| Manager | — (console) | Home: Schools · Managers · Bagrut exams | school form · exam form · bagrut manage | ☑ R31 (build 322) |
 
 Kept as specialised full-screen surfaces (own dark/overlay bars, not converted): chat media preview,
 image viewer, video trimmer, NOVA chat and chat threads (message bars).
@@ -617,6 +617,17 @@ image viewer, video trimmer, NOVA chat and chat threads (message bars).
   Students tool, whose stock bar (cohort name + average pill) is now `CmSubBar` with the pill as its
   action
 - Checked: analyzer 50 (baseline); rig: s-home, s-students, no overflow
+
+## Round 31 (2026-10-10) — the Manager console
+- The console is its own shell: a Material bottom bar with Schools · Managers · Bagrut, each a tab
+  root inside an IndexedStack. Their stock bars are `CmSubBar` without a back button (nothing to
+  pop); Schools keeps the logout action. The pushed pages — New school, the Bagrut exams list, New /
+  edit exam — carry the bar with the back button
+- Chrome verified on the Manager contact sheet (3 tabs, 4 sub-screens); no overflow
+- **Phase 2 chrome sweep complete:** every role, every tab, every sub-screen is on the checklist
+  with Chrome and Bar ticked; 0 stock Material `AppBar`s remain outside the five purpose-built
+  surfaces (chat thread, NOVA chat, media preview, image viewer, video trimmer)
+- Checked: analyzer 50 (baseline); tests +73 −5 (baseline)
 
 ## Up next (in order)
 1. On-device QA pass of build 322 (TestFlight / Play internal). Natan retests Permissions on

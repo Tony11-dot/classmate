@@ -9,6 +9,7 @@ import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/manager_api.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class ManagerManagersScreen extends ConsumerStatefulWidget {
   const ManagerManagersScreen({super.key});
 
@@ -125,7 +126,7 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(l.navManagers)),
+      appBar: CmSubBar(showBack: false, title: l.navManagers),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _add,
         icon: const Icon(Icons.person_add_rounded),

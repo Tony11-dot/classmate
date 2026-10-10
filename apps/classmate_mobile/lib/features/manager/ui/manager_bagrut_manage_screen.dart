@@ -8,6 +8,7 @@ import '../../../ui/widgets/cm_surfaces.dart';
 import '../../bagrut/domain/bagrut_subjects.dart';
 import 'manager_bagrut_exams_screen.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Manager Bagrut tab — pick a subject to manage its past exams.
 class ManagerBagrutManageScreen extends StatelessWidget {
   const ManagerBagrutManageScreen({super.key});
@@ -19,7 +20,7 @@ class ManagerBagrutManageScreen extends StatelessWidget {
     // name (same rule as the student Bagrut grid).
     final scale = MediaQuery.textScalerOf(context).scale(1);
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.navBagrut)),
+      appBar: CmSubBar(showBack: false, title: AppLocalizations.of(context)!.navBagrut),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
