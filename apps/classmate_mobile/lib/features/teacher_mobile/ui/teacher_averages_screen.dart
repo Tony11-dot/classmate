@@ -683,7 +683,7 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
                     alignment: AlignmentDirectional.centerStart,
                     child: TextButton.icon(
                       onPressed: () => setState(() => _formats.add(_FormatDraft())),
-                      icon: const Icon(Icons.add, size: 18),
+                      icon: const Icon(Icons.add_rounded, size: 18),
                       label: Text(l.averagesAddFormat),
                     ),
                   ),
@@ -769,7 +769,7 @@ class _AverageEditorSheetState extends ConsumerState<_AverageEditorSheet> {
               children: [
                 TextButton.icon(
                   onPressed: () => setState(() => f.components.add(_ComponentDraft())),
-                  icon: const Icon(Icons.add, size: 18),
+                  icon: const Icon(Icons.add_rounded, size: 18),
                   label: Text(l.averagesAddGrade),
                 ),
                 const Spacer(),

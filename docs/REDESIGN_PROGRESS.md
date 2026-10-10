@@ -465,8 +465,22 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
 - Checked: dead-end controls (none beyond intentional tap-swallowers); emails and the reset page
   already render `dir="rtl"` (round 13); analyzer 50 (baseline); tests +73 −5 (baseline)
 
+## Round 24 (2026-10-10) — one icon family + the last 18 rig screens leak-checked
+- **Icons.** The app draws its icons from Material's rounded family; 17 controls still used the
+  plain set (`Icons.add` on nine "Add" buttons, the form builder's radio/checkbox placeholders,
+  the password eye, the PDF viewer's open-in-browser, a close ✕). All rounded now — one stroke
+  style everywhere; nothing else changes
+- **Leak check closed.** The seven older rig tests (schedule, grades, NOVA, classrooms, deck,
+  teacher, more — 18 shots) didn't honor the locale define, so round 20's pseudo-locale pass
+  never saw them. They do now; the ‹‹…›› run over them reports mock data only (names, chat
+  text, subjects, "Period 1 · 90 min" labels from the fixtures). All 95 rig screens are covered
+- Measured and left as is: corner radii — the 14/18/20/24 values outside the token scale are
+  per-screen choices from rounds 1–12 (chat bubbles, chips, cards) and a mass change would be a
+  redesign, not a fix; no Cupertino icons anywhere; elevations already come from the tokens
+- Checked: analyzer 50 (baseline); tests +73 −5 (baseline)
+
 ## Up next (in order)
-1. On-device QA pass of build 317 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 318 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

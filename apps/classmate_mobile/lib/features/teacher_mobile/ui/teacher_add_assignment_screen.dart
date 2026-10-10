@@ -988,7 +988,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                         duration: const Duration(milliseconds: 150),
                         child: sel
                             ? Icon(Icons.check_circle_rounded, key: const ValueKey('c'), color: cs.primary)
-                            : Icon(Icons.radio_button_unchecked, key: const ValueKey('u'), color: cs.outlineVariant),
+                            : Icon(Icons.radio_button_unchecked_rounded, key: const ValueKey('u'), color: cs.outlineVariant),
                       ),
                       onTap: () => _toggle(item.id),
                     );

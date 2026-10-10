@@ -621,7 +621,7 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                                             gmax,
                                           ]),
                                         ),
-                                        icon: const Icon(Icons.add, size: 18),
+                                        icon: const Icon(Icons.add_rounded, size: 18),
                                         label: Text(l.adminPrincipalAddRange),
                                       ),
                                     ),
@@ -943,7 +943,7 @@ class _SetPasswordDialogState extends State<_SetPasswordDialog> {
             decoration: InputDecoration(
               labelText: l.adminEditUserNewPasswordLabel,
               suffixIcon: IconButton(
-                icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
+                icon: Icon(_obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded),
                 tooltip: _obscure ? l.a11yShowPassword : l.a11yHidePassword,
                 onPressed: () => setState(() => _obscure = !_obscure),
               ),

@@ -1155,7 +1155,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
                               alignment: AlignmentDirectional.centerStart,
                               child: TextButton.icon(
                                 onPressed: () => setState(() => _principalRanges.add([gmin, gmax])),
-                                icon: const Icon(Icons.add, size: 18),
+                                icon: const Icon(Icons.add_rounded, size: 18),
                                 label: Text(l.adminPrincipalAddRange),
                               ),
                             ),

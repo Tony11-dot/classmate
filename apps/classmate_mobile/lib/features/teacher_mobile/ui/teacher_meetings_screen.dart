@@ -933,7 +933,7 @@ class _PersonPickerSheetState extends State<_PersonPickerSheet> {
                     style: TextStyle(fontWeight: FontWeight.w700, color: sel ? cs.onPrimaryContainer : cs.onSurface))),
                 title: Text(item.label, style: const TextStyle(fontWeight: FontWeight.w600)),
                 subtitle: item.subtitle.isNotEmpty ? Text(item.subtitle) : null,
-                trailing: sel ? Icon(Icons.check_circle_rounded, color: cs.primary) : Icon(Icons.radio_button_unchecked, color: cs.outlineVariant),
+                trailing: sel ? Icon(Icons.check_circle_rounded, color: cs.primary) : Icon(Icons.radio_button_unchecked_rounded, color: cs.outlineVariant),
                 onTap: () => _toggle(item.id));
             })),
           Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),

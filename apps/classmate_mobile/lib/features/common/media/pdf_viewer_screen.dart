@@ -252,7 +252,7 @@ class _ErrorBody extends StatelessWidget {
                   const SizedBox(height: 16),
                   FilledButton.icon(
                     onPressed: onOpen,
-                    icon: const Icon(Icons.open_in_new),
+                    icon: const Icon(Icons.open_in_new_rounded),
                     label: Text(l.mediaOpenExternally),
                   ),
                 ],

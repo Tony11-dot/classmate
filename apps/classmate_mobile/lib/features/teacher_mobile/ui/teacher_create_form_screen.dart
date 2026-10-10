@@ -555,8 +555,8 @@ class _QuestionCardState extends State<_QuestionCard> {
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(children: [
-                if (isMC) Icon(Icons.radio_button_unchecked, size: 18, color: cs.onSurfaceVariant)
-                else if (isCB) Icon(Icons.check_box_outline_blank, size: 18, color: cs.onSurfaceVariant)
+                if (isMC) Icon(Icons.radio_button_unchecked_rounded, size: 18, color: cs.onSurfaceVariant)
+                else if (isCB) Icon(Icons.check_box_outline_blank_rounded, size: 18, color: cs.onSurfaceVariant)
                 else Text('${oi + 1}.', style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
                 const SizedBox(width: 8),
                 // Give the option a real, boxed field with vertical padding so
@@ -574,14 +574,14 @@ class _QuestionCardState extends State<_QuestionCard> {
                     decoration: const InputDecoration(filled: false, border: InputBorder.none, isDense: true, contentPadding: EdgeInsets.zero),
                     onChanged: (v) => setState(() => q.options[oi] = v)))),
                 if (q.options.length > 1)
-                  IconButton(tooltip: AppLocalizations.of(context)!.a11yRemove, icon: const Icon(Icons.close, size: 16), visualDensity: VisualDensity.compact,
+                  IconButton(tooltip: AppLocalizations.of(context)!.a11yRemove, icon: const Icon(Icons.close_rounded, size: 16), visualDensity: VisualDensity.compact,
                     onPressed: () => setState(() => q.options.removeAt(oi)), padding: const EdgeInsetsDirectional.only(start: 4)),
               ]),
             );
           }),
           TextButton.icon(
             onPressed: () => setState(() => q.options.add('')),
-            icon: const Icon(Icons.add, size: 16), label: Text(AppLocalizations.of(context)!.teacherFormAddOptionButton),
+            icon: const Icon(Icons.add_rounded, size: 16), label: Text(AppLocalizations.of(context)!.teacherFormAddOptionButton),
             style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 4), visualDensity: VisualDensity.compact)),
         ]);
       case 'linearScale':

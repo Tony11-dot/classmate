@@ -425,7 +425,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
             });
             if (mounted) Navigator.of(context).maybePop();
           },
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(l.adminScheduleAddGrade),
         ),
         // Full-screen & immersive: no app top bar — a slim inline header (back +
@@ -669,7 +669,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
         const SizedBox(height: 14),
         FilledButton.icon(
           onPressed: () => _addToAverage(g),
-          icon: const Icon(Icons.add),
+          icon: const Icon(Icons.add_rounded),
           label: Text(l.adminScheduleAddGrade),
         ),
         const SizedBox(height: 8),

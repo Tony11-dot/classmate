@@ -377,7 +377,7 @@ class _GradeScaleEditorSheetState extends ConsumerState<_GradeScaleEditorSheet> 
                     alignment: AlignmentDirectional.centerStart,
                     child: TextButton.icon(
                       onPressed: () => setState(() => _labels.add(_LabelDraft())),
-                      icon: const Icon(Icons.add, size: 18),
+                      icon: const Icon(Icons.add_rounded, size: 18),
                       label: Text(l.gradeScaleAddLabel),
                     ),
                   ),

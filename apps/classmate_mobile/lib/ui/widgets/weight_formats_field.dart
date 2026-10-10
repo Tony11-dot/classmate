@@ -113,7 +113,7 @@ class _WeightFormatsFieldState extends State<WeightFormatsField> {
           alignment: AlignmentDirectional.centerStart,
           child: TextButton.icon(
             onPressed: () => setState(() => _ctrls.add(TextEditingController())),
-            icon: const Icon(Icons.add, size: 18),
+            icon: const Icon(Icons.add_rounded, size: 18),
             label: Text(l.gradeAddFormat),
           ),
         ),
