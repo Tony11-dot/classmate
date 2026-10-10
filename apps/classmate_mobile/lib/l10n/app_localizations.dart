@@ -17476,6 +17476,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Attached'**
   String get managerAttached;
+
+  /// No description provided for @teacherClassroomNameMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a classroom name.'**
+  String get teacherClassroomNameMissing;
+
+  /// No description provided for @teacherClassroomSubjectMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a subject.'**
+  String get teacherClassroomSubjectMissing;
+
+  /// No description provided for @teacherAddStudentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Add {count} student} other{Add {count} students}}'**
+  String teacherAddStudentsCount(int count);
+
+  /// No description provided for @commonDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String commonDueDate(String date);
+
+  /// No description provided for @adminDashboardRecordsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} record} other{{count} records}}'**
+  String adminDashboardRecordsCount(int count);
+
+  /// No description provided for @chatForwardRecentChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent chats'**
+  String get chatForwardRecentChats;
+
+  /// No description provided for @chatForwardOtherChats.
+  ///
+  /// In en, this message translates to:
+  /// **'Other chats'**
+  String get chatForwardOtherChats;
+
+  /// No description provided for @bagrutPreviewUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to preview this file.'**
+  String get bagrutPreviewUnavailable;
+
+  /// No description provided for @bagrutPreviewUnavailableRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to preview this file. Check your connection and try again.'**
+  String get bagrutPreviewUnavailableRetry;
+
+  /// No description provided for @notificationAbsenceRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'🚩 Absence recorded'**
+  String get notificationAbsenceRecorded;
+
+  /// No description provided for @notificationLateRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'⏰ Late arrival recorded'**
+  String get notificationLateRecorded;
+
+  /// No description provided for @notificationExcusedRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Absence marked as excused'**
+  String get notificationExcusedRecorded;
+
+  /// No description provided for @notificationAttendanceUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'📋 Attendance updated'**
+  String get notificationAttendanceUpdated;
+
+  /// No description provided for @a11yIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase'**
+  String get a11yIncrease;
+
+  /// No description provided for @a11yDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease'**
+  String get a11yDecrease;
+
+  /// No description provided for @a11ySend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get a11ySend;
+
+  /// No description provided for @a11yCancelReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel reply'**
+  String get a11yCancelReply;
+
+  /// No description provided for @a11yDiscardRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard recording'**
+  String get a11yDiscardRecording;
+
+  /// No description provided for @a11yJumpToLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to latest messages'**
+  String get a11yJumpToLatest;
 }
 
 class _AppLocalizationsDelegate

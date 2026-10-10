@@ -31,6 +31,14 @@ String _notificationTitleLocalized(
       return l.notificationNewGradePostedIn(
         (item.templateArgs['subject'] ?? '').toString(),
       );
+    case StudentNotificationTemplate.attendanceAbsent:
+      return l.notificationAbsenceRecorded;
+    case StudentNotificationTemplate.attendanceLate:
+      return l.notificationLateRecorded;
+    case StudentNotificationTemplate.attendanceExcused:
+      return l.notificationExcusedRecorded;
+    case StudentNotificationTemplate.attendanceUpdated:
+      return l.notificationAttendanceUpdated;
   }
 }
 
@@ -49,6 +57,26 @@ String _notificationBodyLocalized(
           (item.templateArgs['assessment'] ?? '').toString().trim();
       final l = AppLocalizations.of(context)!;
       return '${assessment.isEmpty ? l.gradesAssessmentFallback : assessment} • $grade';
+    case StudentNotificationTemplate.attendanceAbsent:
+    case StudentNotificationTemplate.attendanceLate:
+    case StudentNotificationTemplate.attendanceExcused:
+    case StudentNotificationTemplate.attendanceUpdated:
+      final l = AppLocalizations.of(context)!;
+      final subject = (item.templateArgs['subject'] ?? '').toString().trim();
+      final rawPeriod = item.templateArgs['period'];
+      final period = rawPeriod is int ? rawPeriod : int.tryParse('$rawPeriod') ?? 0;
+      final statusLabel = switch ((item.templateArgs['status'] ?? '').toString()) {
+        'absent' => l.attendanceStatusAbsent,
+        'late' => l.attendanceStatusLate,
+        'justified' => l.attendanceStatusExcused,
+        'present' => l.attendanceStatusPresent,
+        _ => l.attendanceStatusRecorded,
+      };
+      return [
+        if (subject.isNotEmpty) subject,
+        if (period > 0) l.teacherPeriod(period),
+        statusLabel,
+      ].join(' • ');
   }
 }
 

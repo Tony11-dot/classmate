@@ -134,10 +134,10 @@ class _TeacherClassroomDetailScreenState
     }
   }
 
-  String get _subtitle {
+  String _subtitle(AppLocalizations l) {
     final parts = <String>[];
     if ((widget.cohortName ?? '').isNotEmpty) parts.add(widget.cohortName!);
-    if ((widget.grade ?? 0) > 0) parts.add('Grade ${widget.grade}');
+    if ((widget.grade ?? 0) > 0) parts.add(l.gradeLevelLabel(widget.grade!));
     return parts.isEmpty ? widget.subject : parts.join(' · ');
   }
 
@@ -155,7 +155,7 @@ class _TeacherClassroomDetailScreenState
           _TopHeader(
             icon: _subjectIcon(widget.subject),
             subject: displayName,
-            subtitle: _subtitle,
+            subtitle: _subtitle(AppLocalizations.of(context)!),
             tabsCollapsed: _tabsCollapsed,
             onBack: () {
               if (context.canPop()) context.pop();
@@ -669,7 +669,7 @@ class _AssignmentsTabState extends ConsumerState<_AssignmentsTab> {
                   title: (item['title'] ?? '').toString(),
                   subtitle: description,
                   trailing: due != null
-                      ? 'Due ${MaterialLocalizations.of(context).formatMediumDate(due)}'
+                      ? AppLocalizations.of(context)!.commonDueDate(MaterialLocalizations.of(context).formatMediumDate(due))
                       : '',
                   onTap: id.isNotEmpty ? () => context.push('/teacher/assignments/$id/detail', extra: (item['title'] ?? '').toString()) : null,
                   onDelete: id.isNotEmpty ? () => _delete(id, source: source) : null,
@@ -1329,9 +1329,11 @@ class _PeopleTabState extends ConsumerState<_PeopleTab> {
                   studentId: p.userId,
                   name: p.displayName,
                   email: '',
-                  gradeLevel: null,
+                  gradeLevel: p.grade,
                   cohortId: '',
-                  cohortName: p.gradeLabel,
+                  // Raw parts when the server sends them (localized by the
+                  // row); the server's English label only as a fallback.
+                  cohortName: p.grade != null ? p.cohortShortName : p.gradeLabel,
                   subjects: const [],
                   coursesBySubject: const {},
                 ))
@@ -1480,8 +1482,11 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                     itemBuilder: (ctx, i) {
                       final s = filtered[i];
                       final isSelected = _selected.contains(s.studentId);
+                      final l = AppLocalizations.of(ctx)!;
                       final gradeLabel = s.gradeLevel != null
-                          ? 'Grade ${s.gradeLevel}${s.cohortName.isNotEmpty ? " · ${s.cohortName}" : ""}'
+                          ? (s.cohortName.isNotEmpty
+                              ? l.adminScheduleGradeWithCohort('${s.gradeLevel}', s.cohortName)
+                              : l.gradeLevelLabel(s.gradeLevel!))
                           : s.cohortName;
                       return Material(
                         color: Colors.transparent,
@@ -1546,7 +1551,9 @@ class _StudentPickerSheetState extends State<_StudentPickerSheet> {
                   minimumSize: const Size.fromHeight(50),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                child: Text(_selected.isEmpty ? 'Done' : 'Add ${_selected.length} student${_selected.length == 1 ? "" : "s"}'),
+                child: Text(_selected.isEmpty
+                    ? AppLocalizations.of(ctx)!.commonDone
+                    : AppLocalizations.of(ctx)!.teacherAddStudentsCount(_selected.length)),
               ),
             ),
           ),

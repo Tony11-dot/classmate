@@ -3490,5 +3490,45 @@
   "managerTermHelper": "summer_a, winter…",
   "managerFilesHelper": "ملف الأسئلة هو الملف الرئيسي؛ البقية اختيارية.",
   "managerCreateExam": "إنشاء الامتحان",
-  "managerAttached": "مرفق"
+  "managerAttached": "مرفق",
+  "teacherClassroomNameMissing": "أدخل اسم الصف.",
+  "teacherClassroomSubjectMissing": "اختر مادة.",
+  "teacherAddStudentsCount": "{count, plural, =0{إضافة} =1{إضافة طالب واحد} two{إضافة طالبين} few{إضافة {count} طلاب} many{إضافة {count} طالبًا} other{إضافة {count} طالب}}",
+  "@teacherAddStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonDueDate": "الموعد النهائي {date}",
+  "@commonDueDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "adminDashboardRecordsCount": "{count, plural, =0{لا سجلات} =1{سجل واحد} two{سجلان} few{{count} سجلات} many{{count} سجلًا} other{{count} سجل}}",
+  "@adminDashboardRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatForwardRecentChats": "المحادثات الأخيرة",
+  "chatForwardOtherChats": "محادثات أخرى",
+  "bagrutPreviewUnavailable": "لا يمكن عرض هذا الملف.",
+  "bagrutPreviewUnavailableRetry": "لا يمكن عرض هذا الملف. تحقق من الاتصال وحاول مرة أخرى.",
+  "notificationAbsenceRecorded": "🚩 تم تسجيل غياب",
+  "notificationLateRecorded": "⏰ تم تسجيل تأخير",
+  "notificationExcusedRecorded": "✅ تم اعتبار الغياب معذورًا",
+  "notificationAttendanceUpdated": "📋 تم تحديث الحضور",
+  "a11yIncrease": "زيادة",
+  "a11yDecrease": "تقليل",
+  "a11ySend": "إرسال",
+  "a11yCancelReply": "إلغاء الرد",
+  "a11yDiscardRecording": "حذف التسجيل",
+  "a11yJumpToLatest": "الانتقال إلى أحدث الرسائل"
 }

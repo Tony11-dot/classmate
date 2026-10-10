@@ -10172,4 +10172,84 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get managerAttached => 'מצורף';
+
+  @override
+  String get teacherClassroomNameMissing => 'הזן שם לכיתה.';
+
+  @override
+  String get teacherClassroomSubjectMissing => 'בחר מקצוע.';
+
+  @override
+  String teacherAddStudentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'הוסף $count תלמידים',
+      many: 'הוסף $count תלמידים',
+      two: 'הוסף $count תלמידים',
+      one: 'הוסף תלמיד אחד',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commonDueDate(String date) {
+    return 'להגשה עד $date';
+  }
+
+  @override
+  String adminDashboardRecordsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count רשומות',
+      many: '$count רשומות',
+      two: '$count רשומות',
+      one: 'רשומה אחת',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatForwardRecentChats => 'שיחות אחרונות';
+
+  @override
+  String get chatForwardOtherChats => 'שיחות אחרות';
+
+  @override
+  String get bagrutPreviewUnavailable => 'לא ניתן להציג תצוגה מקדימה של הקובץ.';
+
+  @override
+  String get bagrutPreviewUnavailableRetry =>
+      'לא ניתן להציג תצוגה מקדימה של הקובץ. בדוק את החיבור ונסה שוב.';
+
+  @override
+  String get notificationAbsenceRecorded => '🚩 נרשמה היעדרות';
+
+  @override
+  String get notificationLateRecorded => '⏰ נרשם איחור';
+
+  @override
+  String get notificationExcusedRecorded => '✅ ההיעדרות סומנה כמוצדקת';
+
+  @override
+  String get notificationAttendanceUpdated => '📋 הנוכחות עודכנה';
+
+  @override
+  String get a11yIncrease => 'הגדלה';
+
+  @override
+  String get a11yDecrease => 'הקטנה';
+
+  @override
+  String get a11ySend => 'שליחה';
+
+  @override
+  String get a11yCancelReply => 'ביטול התגובה';
+
+  @override
+  String get a11yDiscardRecording => 'מחיקת ההקלטה';
+
+  @override
+  String get a11yJumpToLatest => 'קפיצה להודעות האחרונות';
 }

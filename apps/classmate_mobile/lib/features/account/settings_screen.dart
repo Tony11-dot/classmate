@@ -832,12 +832,16 @@ class _ThemeTile extends StatelessWidget {
                       color: cs.surface.withValues(alpha: 0.85),
                       shape: const CircleBorder(),
                       clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () => _openMenu(context),
-                        child: Padding(
-                          padding: const EdgeInsets.all(3),
-                          child: Icon(Icons.more_horiz_rounded,
-                              size: 16, color: cs.onSurface),
+                      child: Semantics(
+                        button: true,
+                        label: AppLocalizations.of(context)!.a11yMore,
+                        child: InkWell(
+                          onTap: () => _openMenu(context),
+                          child: Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: Icon(Icons.more_horiz_rounded,
+                                size: 16, color: cs.onSurface),
+                          ),
                         ),
                       ),
                     ),

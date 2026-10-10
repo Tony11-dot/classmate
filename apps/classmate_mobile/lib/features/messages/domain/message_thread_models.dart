@@ -1,6 +1,7 @@
 import '../../chat_core/domain/chat_request_state.dart';
 import '../../chat_core/domain/chat_thread_type.dart';
 import '../../chat_core/utils/chat_time.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// The newest visible message of a thread, as structured data — kind, raw
 /// text, sender — so the inbox row can compose a LOCALIZED preview
@@ -97,7 +98,11 @@ class MessageDirectoryPerson {
   final String displayName;
   final String initials;
   final String schoolName;
+  /// Server-built English label ("Grade 7 · A"). Use [gradeLabelLocalized].
   final String gradeLabel;
+  /// Raw grade + cohort short name when the server sends them.
+  final int? grade;
+  final String cohortShortName;
   final String role; // lowercase: 'student' | 'teacher' | 'parent' | 'admin' | etc.
 
   const MessageDirectoryPerson({
@@ -106,8 +111,20 @@ class MessageDirectoryPerson {
     required this.initials,
     this.schoolName = '',
     this.gradeLabel = '',
+    this.grade,
+    this.cohortShortName = '',
     this.role = '',
   });
+
+  /// [gradeLabel] in the app's language; falls back to the server's label
+  /// when the raw grade wasn't sent.
+  String gradeLabelLocalized(AppLocalizations l) {
+    final g = grade;
+    if (g == null) return gradeLabel;
+    return cohortShortName.isNotEmpty
+        ? l.adminScheduleGradeWithCohort('$g', cohortShortName)
+        : l.gradeLevelLabel(g);
+  }
 }
 
 class MessageReplyRef {

@@ -7,6 +7,10 @@ enum StudentNotificationSeverity { info, warning, critical }
 enum StudentNotificationTemplate {
   newGradePosted,
   newGradePostedIn,
+  attendanceAbsent,
+  attendanceLate,
+  attendanceExcused,
+  attendanceUpdated,
 }
 
 class StudentNotificationItem {

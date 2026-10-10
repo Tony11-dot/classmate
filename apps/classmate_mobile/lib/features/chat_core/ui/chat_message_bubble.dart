@@ -1689,23 +1689,29 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
                     ),
                     const Spacer(),
                     // ── Centre play/pause ────────────────────────────────
-                    GestureDetector(
-                      onTap: () async {
-                        if (!ready) return;
-                        isPlaying ? await c.pause() : await c.play();
-                        setState(() {});
-                      },
-                      child: Container(
-                        width: 72, height: 72,
-                        decoration: const BoxDecoration(
-                          color: Colors.black54,
-                          shape: BoxShape.circle,
-                        ),
-                        alignment: Alignment.center,
-                        child: Icon(
-                          isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                          color: Colors.white,
-                          size: 46,
+                    Semantics(
+                      button: true,
+                      label: isPlaying
+                          ? AppLocalizations.of(context)!.a11yPause
+                          : AppLocalizations.of(context)!.a11yPlay,
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (!ready) return;
+                          isPlaying ? await c.pause() : await c.play();
+                          setState(() {});
+                        },
+                        child: Container(
+                          width: 72, height: 72,
+                          decoration: const BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(
+                            isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                            color: Colors.white,
+                            size: 46,
+                          ),
                         ),
                       ),
                     ),

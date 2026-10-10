@@ -3639,5 +3639,45 @@
   "managerTermHelper": "summer_a, winter…",
   "managerFilesHelper": "Файл «Вопросы» — основной; остальные необязательны.",
   "managerCreateExam": "Создать экзамен",
-  "managerAttached": "Прикреплён"
+  "managerAttached": "Прикреплён",
+  "teacherClassroomNameMissing": "Введите название класса.",
+  "teacherClassroomSubjectMissing": "Выберите предмет.",
+  "teacherAddStudentsCount": "{count, plural, one{Добавить {count} ученика} few{Добавить {count} учеников} many{Добавить {count} учеников} other{Добавить {count} ученика}}",
+  "@teacherAddStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonDueDate": "Срок: {date}",
+  "@commonDueDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "adminDashboardRecordsCount": "{count, plural, one{{count} запись} few{{count} записи} many{{count} записей} other{{count} записи}}",
+  "@adminDashboardRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatForwardRecentChats": "Недавние чаты",
+  "chatForwardOtherChats": "Другие чаты",
+  "bagrutPreviewUnavailable": "Не удалось открыть предпросмотр файла.",
+  "bagrutPreviewUnavailableRetry": "Не удалось открыть предпросмотр файла. Проверьте соединение и попробуйте ещё раз.",
+  "notificationAbsenceRecorded": "🚩 Отмечено отсутствие",
+  "notificationLateRecorded": "⏰ Отмечено опоздание",
+  "notificationExcusedRecorded": "✅ Отсутствие по уважительной причине",
+  "notificationAttendanceUpdated": "📋 Посещаемость обновлена",
+  "a11yIncrease": "Увеличить",
+  "a11yDecrease": "Уменьшить",
+  "a11ySend": "Отправить",
+  "a11yCancelReply": "Отменить ответ",
+  "a11yDiscardRecording": "Удалить запись",
+  "a11yJumpToLatest": "К последним сообщениям"
 }

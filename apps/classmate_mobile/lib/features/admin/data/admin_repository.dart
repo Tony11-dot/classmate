@@ -806,13 +806,14 @@ class AdminCohort {
         : l.adminCohortGradesList(sorted.join(', '));
   }
 
-  /// Compact label for tight chips: "G7", "G7-9", "G7,9,11".
+  /// Compact, script-neutral label for the grade badge: "7", "7-9", "7,9,11".
+  /// (No Latin "G" prefix — the badge sits next to a localized grade line.)
   String get gradeChip {
-    if (grades.isEmpty) return 'G$grade';
-    if (grades.length == 1) return 'G${grades.first}';
+    if (grades.isEmpty) return '$grade';
+    if (grades.length == 1) return '${grades.first}';
     final sorted = [...grades]..sort();
     final isRange = sorted.last - sorted.first == sorted.length - 1;
-    return isRange ? 'G${sorted.first}-${sorted.last}' : 'G${sorted.join(',')}';
+    return isRange ? '${sorted.first}-${sorted.last}' : sorted.join(',');
   }
 
   factory AdminCohort.fromJson(Map<String, dynamic> m) {

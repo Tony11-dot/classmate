@@ -1812,12 +1812,16 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
               ),
             ),
             const SizedBox(width: 4),
-            InkWell(
-              onTap: () => _removeDraftAttachment(a),
-              borderRadius: BorderRadius.circular(999),
-              child: const Padding(
-                padding: EdgeInsets.all(2),
-                child: Icon(Icons.close_rounded, size: 16),
+            Semantics(
+              button: true,
+              label: AppLocalizations.of(context)!.a11yRemove,
+              child: InkWell(
+                onTap: () => _removeDraftAttachment(a),
+                borderRadius: BorderRadius.circular(999),
+                child: const Padding(
+                  padding: EdgeInsets.all(2),
+                  child: Icon(Icons.close_rounded, size: 16),
+                ),
               ),
             ),
           ],

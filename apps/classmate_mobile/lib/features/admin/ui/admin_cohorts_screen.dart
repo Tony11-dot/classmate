@@ -613,7 +613,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
                                           ),
                                           if (cohortName.isNotEmpty || grade != null)
                                             Text(
-                                              [if (grade != null) 'Grade $grade', if (cohortName.isNotEmpty) cohortName].join(' · '),
+                                              [if (grade != null) l.adminCohortGradeFormat('$grade'), if (cohortName.isNotEmpty) cohortName].join(' · '),
                                               style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                                             ),
                                         ],

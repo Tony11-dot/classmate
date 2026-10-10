@@ -248,28 +248,33 @@ class _SendButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SizedBox(
-      height: 40,
-      width: 40,
-      child: Material(
-        color: (onPressed == null)
-            ? theme.disabledColor
-            : theme.colorScheme.primary,
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onPressed,
-          child: Center(
-            child: isSending
-                ? const CmLoading(size: 18)
-                : Transform.rotate(
-                    angle: -math.pi / 4,
-                    child: Icon(
-                      Icons.send_rounded,
-                      size: 18,
-                      color: theme.colorScheme.onPrimary,
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      label: AppLocalizations.of(context)!.a11ySend,
+      child: SizedBox(
+        height: 40,
+        width: 40,
+        child: Material(
+          color: (onPressed == null)
+              ? theme.disabledColor
+              : theme.colorScheme.primary,
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onPressed,
+            child: Center(
+              child: isSending
+                  ? const CmLoading(size: 18)
+                  : Transform.rotate(
+                      angle: -math.pi / 4,
+                      child: Icon(
+                        Icons.send_rounded,
+                        size: 18,
+                        color: theme.colorScheme.onPrimary,
+                      ),
                     ),
-                  ),
+            ),
           ),
         ),
       ),

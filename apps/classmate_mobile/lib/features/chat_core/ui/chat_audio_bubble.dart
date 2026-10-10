@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import 'package:just_audio/just_audio.dart';
 import 'chat_ticks.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ChatAudioBubble extends StatefulWidget {
   const ChatAudioBubble({
@@ -230,20 +231,25 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
         : scheme.onSurface.withValues(alpha: 0.60);
 
     // ── Play / pause (plain glyph, no circle — as in the reference) ────────
-    final playBtn = GestureDetector(
-      onTap: _loading ? null : _togglePlay,
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        width: 36,
-        height: 44,
-        child: Center(
-          child: _loading
-              ? CmLoading(size: 18, color: ink.withValues(alpha: 0.75))
-              : Icon(
-                  _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                  color: ink.withValues(alpha: 0.75),
-                  size: 34,
-                ),
+    final l = AppLocalizations.of(context)!;
+    final playBtn = Semantics(
+      button: true,
+      label: _isPlaying ? l.a11yPause : l.a11yPlay,
+      child: GestureDetector(
+        onTap: _loading ? null : _togglePlay,
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          width: 36,
+          height: 44,
+          child: Center(
+            child: _loading
+                ? CmLoading(size: 18, color: ink.withValues(alpha: 0.75))
+                : Icon(
+                    _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                    color: ink.withValues(alpha: 0.75),
+                    size: 34,
+                  ),
+          ),
         ),
       ),
     );

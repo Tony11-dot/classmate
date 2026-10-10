@@ -10337,4 +10337,88 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get managerAttached => 'مرفق';
+
+  @override
+  String get teacherClassroomNameMissing => 'أدخل اسم الصف.';
+
+  @override
+  String get teacherClassroomSubjectMissing => 'اختر مادة.';
+
+  @override
+  String teacherAddStudentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'إضافة $count طالب',
+      many: 'إضافة $count طالبًا',
+      few: 'إضافة $count طلاب',
+      two: 'إضافة طالبين',
+      one: 'إضافة طالب واحد',
+      zero: 'إضافة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commonDueDate(String date) {
+    return 'الموعد النهائي $date';
+  }
+
+  @override
+  String adminDashboardRecordsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count سجل',
+      many: '$count سجلًا',
+      few: '$count سجلات',
+      two: 'سجلان',
+      one: 'سجل واحد',
+      zero: 'لا سجلات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatForwardRecentChats => 'المحادثات الأخيرة';
+
+  @override
+  String get chatForwardOtherChats => 'محادثات أخرى';
+
+  @override
+  String get bagrutPreviewUnavailable => 'لا يمكن عرض هذا الملف.';
+
+  @override
+  String get bagrutPreviewUnavailableRetry =>
+      'لا يمكن عرض هذا الملف. تحقق من الاتصال وحاول مرة أخرى.';
+
+  @override
+  String get notificationAbsenceRecorded => '🚩 تم تسجيل غياب';
+
+  @override
+  String get notificationLateRecorded => '⏰ تم تسجيل تأخير';
+
+  @override
+  String get notificationExcusedRecorded => '✅ تم اعتبار الغياب معذورًا';
+
+  @override
+  String get notificationAttendanceUpdated => '📋 تم تحديث الحضور';
+
+  @override
+  String get a11yIncrease => 'زيادة';
+
+  @override
+  String get a11yDecrease => 'تقليل';
+
+  @override
+  String get a11ySend => 'إرسال';
+
+  @override
+  String get a11yCancelReply => 'إلغاء الرد';
+
+  @override
+  String get a11yDiscardRecording => 'حذف التسجيل';
+
+  @override
+  String get a11yJumpToLatest => 'الانتقال إلى أحدث الرسائل';
 }

@@ -1242,9 +1242,9 @@ class _ParentTileState extends State<_ParentTile> {
                                   style: const TextStyle(fontWeight: FontWeight.w600),
                                 ),
                               ),
-                              if (c.summary.isNotEmpty)
+                              if (c.summaryLocalized(l).isNotEmpty)
                                 Text(
-                                  c.summary,
+                                  c.summaryLocalized(l),
                                   style: TextStyle(
                                     color: cs.onSurfaceVariant,
                                     fontSize: 12,

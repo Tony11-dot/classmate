@@ -321,8 +321,38 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
   add-subject, show/hide password and clear-file buttons were the last 7 of 148 without one
 - Checked: analyzer 50 (baseline); tests and rig below
 
+## Round 18 (2026-10-10) — the English behind the data, part 2 + the last unnamed controls
+- **Grade labels built in code.** "Grade 7 · A" was still assembled in English in six places that
+  bypass the strings file: the teacher's Create classroom student picker and its "N students in
+  selected cohorts" line, the classroom header subtitle, the Add students sheet (rows, the "Add 3
+  students" button — now a real plural — and "Done"), the parent-child summary in New announcement,
+  the admin Cohorts student rows, and the people directory in New chat / New group / Add participants.
+  The server built that last one; it now also sends the raw grade and cohort name so the app renders
+  the label in its own language (search matches both). The teacher's assignment card says
+  "Due <date>" in the app's language; the admin dashboard's attendance tiles say "12 records" as a
+  real plural and the "G7" badge drops its Latin "G" (the number alone, next to the cohort name) —
+  likewise the grade tiles on the admin Cohorts and secretary Students lists ("7", "7-9"), the
+  cohort pills on the admin Edit user screen (now "Grade 7" / "Grades 7, 9" in the app's language)
+  and the grade line under each child in the parent's child picker
+- **Attendance notifications** ("Absence recorded", "Late arrival recorded", "Absence marked as
+  excused", "Attendance updated") were English with the server's raw status word in the body. They
+  now use the same template mechanism as the grade notifications: localized title and a
+  "Subject • Period 3 • Absent" body built from the app's own attendance terms
+- **Three forgotten strings**: the forward sheet's "Recent chats" / "Other chats" headers, the Bagrut
+  preview error ("Unable to preview this file…") and the Create classroom validation toasts ("Enter a
+  classroom name." / "Select a subject." / "Error: …")
+- **Names for the last icon-only controls** that weren't `IconButton`s (so round 17's sweep missed
+  them): the school-settings grade stepper's − / + ("Decrease" / "Increase"), NOVA's Send and
+  attachment ×, the chat composer's cancel-reply × and discard-recording bin, voice-note and video
+  play/pause, the "jump to latest" chat pill and the theme card's ⋯ menu. 19 new strings in
+  he/ar/fr/ru
+- Left as is: `practice_mode_specs.dart` keeps English `label/subtitle/flow/bestFor` fields that
+  nothing renders (the screens use the localized `practiceModeLabel/Description`); the English
+  `title/body` fallbacks on templated notifications and announcements are log-only
+- Checked: analyzer 50 (baseline); API `tsc` clean; tests and rig below
+
 ## Up next (in order)
-1. On-device QA pass of build 311 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 312 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

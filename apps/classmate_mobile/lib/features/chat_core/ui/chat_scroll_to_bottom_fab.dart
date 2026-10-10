@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Animated scroll-to-bottom FAB used across DM, classroom, and NOVA.
 ///
@@ -80,37 +81,41 @@ class _ChatScrollToBottomFabState extends State<ChatScrollToBottomFab>
             opacity: _fade,
             child: Transform.translate(
               offset: Offset(0, _slide.value),
-              child: GestureDetector(
-                onTap: widget.onPressed,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    // ── Main pill ───────────────────────────────────
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerLow,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: cs.onSurface,
-                        size: 24,
-                      ),
-                    ),
-                    // ── Unread badge ────────────────────────────────
-                    if (widget.hasUnreadBelow)
-                      Positioned(
-                        right: -2,
-                        top: -2,
-                        child: _UnreadBadge(
-                          count: widget.unreadCount,
-                          color: cs.primary,
-                          surface: cs.surfaceContainerHighest,
+              child: Semantics(
+                button: true,
+                label: AppLocalizations.of(context)!.a11yJumpToLatest,
+                child: GestureDetector(
+                  onTap: widget.onPressed,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // ── Main pill ─────────────────────────────────
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerLow,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: cs.onSurface,
+                          size: 24,
                         ),
                       ),
-                  ],
+                      // ── Unread badge ──────────────────────────────
+                      if (widget.hasUnreadBelow)
+                        Positioned(
+                          right: -2,
+                          top: -2,
+                          child: _UnreadBadge(
+                            count: widget.unreadCount,
+                            color: cs.primary,
+                            surface: cs.surfaceContainerHighest,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

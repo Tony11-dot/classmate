@@ -117,8 +117,9 @@ class _TeacherCreateClassroomScreenState
   Future<void> _save() async {
     final name = _nameCtrl.text.trim();
     final subject = _selectedSubject?.trim() ?? '';
-    if (name.isEmpty) { _snack('Enter a classroom name.'); return; }
-    if (subject.isEmpty) { _snack('Select a subject.'); return; }
+    final l = AppLocalizations.of(context)!;
+    if (name.isEmpty) { _snack(l.teacherClassroomNameMissing); return; }
+    if (subject.isEmpty) { _snack(l.teacherClassroomSubjectMissing); return; }
 
     setState(() => _saving = true);
     try {
@@ -135,7 +136,7 @@ class _TeacherCreateClassroomScreenState
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      _snack('Error: $e', isError: true);
+      _snack(AppLocalizations.of(context)!.commonErrorWith('$e'), isError: true);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -182,7 +183,7 @@ class _TeacherCreateClassroomScreenState
         items: _allStudents.map((s) => _PickerItem(
           id: s.studentId,
           label: s.name,
-          subtitle: s.gradeLevel != null ? 'Grade ${s.gradeLevel}' : '',
+          subtitle: s.gradeLevel != null ? AppLocalizations.of(context)!.gradeLevelLabel(s.gradeLevel!) : '',
         )).toList(),
         selected: Set.from(_selectedStudentIds),
         onToggle: (id) => setState(() {
@@ -307,7 +308,7 @@ class _TeacherCreateClassroomScreenState
                         : Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('${cohortStudents.length} student${cohortStudents.length == 1 ? '' : 's'} from selected cohorts',
+                              Text(AppLocalizations.of(context)!.adminScheduleStudentsInCohorts(cohortStudents.length, _selectedCohortIds.length),
                                   style: theme.textTheme.labelMedium?.copyWith(color: cs.onSurfaceVariant, fontWeight: FontWeight.w600)),
                               const SizedBox(height: 8),
                               Wrap(

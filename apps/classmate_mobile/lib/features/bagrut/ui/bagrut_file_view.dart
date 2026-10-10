@@ -148,8 +148,8 @@ class _BagrutFileScreenState extends State<_BagrutFileScreen> {
               // open-externally fallback is all the user needs.
               Text(
                 _error == null
-                    ? 'Unable to preview this file.'
-                    : 'Unable to preview this file. Check your connection and try again.',
+                    ? AppLocalizations.of(context)!.bagrutPreviewUnavailable
+                    : AppLocalizations.of(context)!.bagrutPreviewUnavailableRetry,
                 style: const TextStyle(color: Colors.white70),
                 textAlign: TextAlign.center,
               ),

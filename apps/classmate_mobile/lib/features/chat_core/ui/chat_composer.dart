@@ -405,12 +405,16 @@ class ChatComposer extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          InkWell(
-            borderRadius: BorderRadius.circular(999),
-            onTap: onCancelReply,
-            child: const Padding(
-              padding: EdgeInsets.all(3),
-              child: Icon(Icons.close_rounded, size: 16),
+          Semantics(
+            button: true,
+            label: AppLocalizations.of(context)!.a11yCancelReply,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(999),
+              onTap: onCancelReply,
+              child: const Padding(
+                padding: EdgeInsets.all(3),
+                child: Icon(Icons.close_rounded, size: 16),
+              ),
             ),
           ),
         ],
@@ -785,6 +789,7 @@ class ChatComposer extends StatelessWidget {
               _miniIconButton(
                 context,
                 icon: Icons.delete_outline_rounded,
+                label: AppLocalizations.of(context)!.a11yDiscardRecording,
                 color: scheme.error,
                 onTap: enabled ? (onTrashRecording ?? onMic) : null,
               ),
@@ -842,22 +847,28 @@ class ChatComposer extends StatelessWidget {
   Widget _miniIconButton(
     BuildContext context, {
     required IconData icon,
+    required String label,
     required Color color,
     Color? fill,
     VoidCallback? onTap,
   }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: 34,
-        height: 34,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: fill ?? Colors.transparent,
+    return Semantics(
+      button: true,
+      enabled: onTap != null,
+      label: label,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: fill ?? Colors.transparent,
+          ),
+          alignment: Alignment.center,
+          child: Icon(icon, size: 18, color: color),
         ),
-        alignment: Alignment.center,
-        child: Icon(icon, size: 18, color: color),
       ),
     );
   }

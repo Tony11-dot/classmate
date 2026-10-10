@@ -10392,4 +10392,86 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get managerAttached => 'Прикреплён';
+
+  @override
+  String get teacherClassroomNameMissing => 'Введите название класса.';
+
+  @override
+  String get teacherClassroomSubjectMissing => 'Выберите предмет.';
+
+  @override
+  String teacherAddStudentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Добавить $count ученика',
+      many: 'Добавить $count учеников',
+      few: 'Добавить $count учеников',
+      one: 'Добавить $count ученика',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commonDueDate(String date) {
+    return 'Срок: $date';
+  }
+
+  @override
+  String adminDashboardRecordsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count записи',
+      many: '$count записей',
+      few: '$count записи',
+      one: '$count запись',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatForwardRecentChats => 'Недавние чаты';
+
+  @override
+  String get chatForwardOtherChats => 'Другие чаты';
+
+  @override
+  String get bagrutPreviewUnavailable =>
+      'Не удалось открыть предпросмотр файла.';
+
+  @override
+  String get bagrutPreviewUnavailableRetry =>
+      'Не удалось открыть предпросмотр файла. Проверьте соединение и попробуйте ещё раз.';
+
+  @override
+  String get notificationAbsenceRecorded => '🚩 Отмечено отсутствие';
+
+  @override
+  String get notificationLateRecorded => '⏰ Отмечено опоздание';
+
+  @override
+  String get notificationExcusedRecorded =>
+      '✅ Отсутствие по уважительной причине';
+
+  @override
+  String get notificationAttendanceUpdated => '📋 Посещаемость обновлена';
+
+  @override
+  String get a11yIncrease => 'Увеличить';
+
+  @override
+  String get a11yDecrease => 'Уменьшить';
+
+  @override
+  String get a11ySend => 'Отправить';
+
+  @override
+  String get a11yCancelReply => 'Отменить ответ';
+
+  @override
+  String get a11yDiscardRecording => 'Удалить запись';
+
+  @override
+  String get a11yJumpToLatest => 'К последним сообщениям';
 }

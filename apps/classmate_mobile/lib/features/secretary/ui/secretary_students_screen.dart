@@ -405,7 +405,7 @@ class _CohortCard extends StatelessWidget {
               ),
               child: Center(
                 child: Text(
-                  'G${cohort.grade}',
+                  '${cohort.grade}',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 14,

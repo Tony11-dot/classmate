@@ -10339,4 +10339,80 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get managerAttached => '‹‹Attached››';
+
+  @override
+  String get teacherClassroomNameMissing => '‹‹Enter a classroom name.››';
+
+  @override
+  String get teacherClassroomSubjectMissing => '‹‹Select a subject.››';
+
+  @override
+  String teacherAddStudentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Add $count students',
+      one: 'Add $count student',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String commonDueDate(String date) {
+    return '‹‹Due $date››';
+  }
+
+  @override
+  String adminDashboardRecordsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '$count record',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String get chatForwardRecentChats => '‹‹Recent chats››';
+
+  @override
+  String get chatForwardOtherChats => '‹‹Other chats››';
+
+  @override
+  String get bagrutPreviewUnavailable => '‹‹Unable to preview this file.››';
+
+  @override
+  String get bagrutPreviewUnavailableRetry =>
+      '‹‹Unable to preview this file. Check your connection and try again.››';
+
+  @override
+  String get notificationAbsenceRecorded => '‹‹🚩 Absence recorded››';
+
+  @override
+  String get notificationLateRecorded => '‹‹⏰ Late arrival recorded››';
+
+  @override
+  String get notificationExcusedRecorded => '‹‹✅ Absence marked as excused››';
+
+  @override
+  String get notificationAttendanceUpdated => '‹‹📋 Attendance updated››';
+
+  @override
+  String get a11yIncrease => '‹‹Increase››';
+
+  @override
+  String get a11yDecrease => '‹‹Decrease››';
+
+  @override
+  String get a11ySend => '‹‹Send››';
+
+  @override
+  String get a11yCancelReply => '‹‹Cancel reply››';
+
+  @override
+  String get a11yDiscardRecording => '‹‹Discard recording››';
+
+  @override
+  String get a11yJumpToLatest => '‹‹Jump to latest messages››';
 }

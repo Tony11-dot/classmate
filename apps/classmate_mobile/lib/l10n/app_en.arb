@@ -5399,5 +5399,45 @@
   "managerTermHelper": "summer_a, winter…",
   "managerFilesHelper": "Questions is the main file; the rest are optional.",
   "managerCreateExam": "Create exam",
-  "managerAttached": "Attached"
+  "managerAttached": "Attached",
+  "teacherClassroomNameMissing": "Enter a classroom name.",
+  "teacherClassroomSubjectMissing": "Select a subject.",
+  "teacherAddStudentsCount": "{count, plural, one{Add {count} student} other{Add {count} students}}",
+  "@teacherAddStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonDueDate": "Due {date}",
+  "@commonDueDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "adminDashboardRecordsCount": "{count, plural, one{{count} record} other{{count} records}}",
+  "@adminDashboardRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatForwardRecentChats": "Recent chats",
+  "chatForwardOtherChats": "Other chats",
+  "bagrutPreviewUnavailable": "Unable to preview this file.",
+  "bagrutPreviewUnavailableRetry": "Unable to preview this file. Check your connection and try again.",
+  "notificationAbsenceRecorded": "🚩 Absence recorded",
+  "notificationLateRecorded": "⏰ Late arrival recorded",
+  "notificationExcusedRecorded": "✅ Absence marked as excused",
+  "notificationAttendanceUpdated": "📋 Attendance updated",
+  "a11yIncrease": "Increase",
+  "a11yDecrease": "Decrease",
+  "a11ySend": "Send",
+  "a11yCancelReply": "Cancel reply",
+  "a11yDiscardRecording": "Discard recording",
+  "a11yJumpToLatest": "Jump to latest messages"
 }

@@ -1356,6 +1356,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
           (p) =>
               p.displayName.toLowerCase().contains(q) ||
               p.gradeLabel.toLowerCase().contains(q) ||
+              p.gradeLabelLocalized(AppLocalizations.of(context)!).toLowerCase().contains(q) ||
               p.schoolName.toLowerCase().contains(q),
         )
         .toList();
@@ -1384,6 +1385,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final l = AppLocalizations.of(context)!;
     final filtered = _filtered;
     final n = _selected.length;
 
@@ -1486,7 +1488,7 @@ class _AddParticipantsSheetState extends State<_AddParticipantsSheet> {
                       final p = filtered[i];
                       final selected = _selected.contains(p.userId);
                       final subtitle = [
-                        if (p.gradeLabel.isNotEmpty) p.gradeLabel,
+                        if (p.gradeLabelLocalized(l).isNotEmpty) p.gradeLabelLocalized(l),
                         if (p.schoolName.isNotEmpty) p.schoolName,
                       ].join(' · ');
 

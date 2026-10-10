@@ -1151,20 +1151,25 @@ class _FieldLabel extends StatelessWidget {
 }
 
 class _StepBtn extends StatelessWidget {
-  const _StepBtn({required this.icon, required this.onTap});
+  const _StepBtn({required this.icon, required this.label, required this.onTap});
   final IconData icon;
+  final String label;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return Material(
-      color: cs.surfaceContainerHighest,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(width: 34, height: 34, child: Icon(icon, size: 18, color: cs.primary)),
+    return Semantics(
+      button: true,
+      label: label,
+      child: Material(
+        color: cs.surfaceContainerHighest,
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(width: 34, height: 34, child: Icon(icon, size: 18, color: cs.primary)),
+        ),
       ),
     );
   }
@@ -1226,6 +1231,7 @@ class _GradeStepperState extends State<_GradeStepper> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
@@ -1250,7 +1256,7 @@ class _GradeStepperState extends State<_GradeStepper> {
           // is tappable/typeable for direct entry.
           Row(
             children: [
-              _StepBtn(icon: Icons.remove_rounded, onTap: () => _bump(-1)),
+              _StepBtn(icon: Icons.remove_rounded, label: l.a11yDecrease, onTap: () => _bump(-1)),
               Expanded(
                 child: TextField(
                   controller: _ctrl,
@@ -1272,7 +1278,7 @@ class _GradeStepperState extends State<_GradeStepper> {
                   onTapOutside: (_) => _focus.unfocus(),
                 ),
               ),
-              _StepBtn(icon: Icons.add_rounded, onTap: () => _bump(1)),
+              _StepBtn(icon: Icons.add_rounded, label: l.a11yIncrease, onTap: () => _bump(1)),
             ],
           ),
         ],

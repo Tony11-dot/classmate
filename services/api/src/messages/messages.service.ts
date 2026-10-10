@@ -477,6 +477,9 @@ export class MessagesService {
             role: primaryRole.toLowerCase(),
             schoolName: '',
             gradeLabel,
+            // Raw parts so the app can render the label in its own language.
+            grade: cohort?.grade ?? null,
+            cohortShortName,
           };
         }),
     };

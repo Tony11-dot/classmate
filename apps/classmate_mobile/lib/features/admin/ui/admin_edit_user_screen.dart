@@ -502,7 +502,9 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                               // Only an admin may change a role (the server
                               // refuses it for secretaries); others see it
                               // read-only.
-                              onSelected: ref.watch(authSessionProvider).primaryRole == 'ADMIN'
+                              onSelected:
+                                  ref.watch(authSessionProvider).primaryRole ==
+                                      'ADMIN'
                                   ? (_) => setState(() {
                                       _role = _roles[i];
                                       if (_role != 'STUDENT') _grade = null;
@@ -689,15 +691,24 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
                                           .toList()
                                     : (grade != null ? [grade] : const <int>[]);
                                 final gradeLabel = grades.length <= 1
-                                    ? (grades.isEmpty ? '' : 'G${grades.first}')
+                                    ? (grades.isEmpty
+                                          ? ''
+                                          : l.adminCohortGradeFormat(
+                                              '${grades.first}',
+                                            ))
                                     : (() {
                                         final sorted = [...grades]..sort();
                                         final isRange =
                                             sorted.last - sorted.first ==
                                             sorted.length - 1;
                                         return isRange
-                                            ? 'G${sorted.first}-${sorted.last}'
-                                            : 'G${sorted.join(',')}';
+                                            ? l.adminCohortGradeRange(
+                                                sorted.first,
+                                                sorted.last,
+                                              )
+                                            : l.adminCohortGradesList(
+                                                sorted.join(', '),
+                                              );
                                       })();
                                 return CmPill(
                                   icon: Icons.groups_rounded,

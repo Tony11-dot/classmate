@@ -43,6 +43,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
           if (q.isEmpty) return true;
           return p.displayName.toLowerCase().contains(q) ||
               p.gradeLabel.toLowerCase().contains(q) ||
+              p.gradeLabelLocalized(l).toLowerCase().contains(q) ||
               p.schoolName.toLowerCase().contains(q);
         })
         .toList(growable: false);
@@ -195,8 +196,8 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
                   final person = filtered[index];
                   final selected = _selected.contains(person.userId);
                   final meta = [
-                    if (person.gradeLabel.trim().isNotEmpty)
-                      person.gradeLabel.trim(),
+                    if (person.gradeLabelLocalized(l).trim().isNotEmpty)
+                      person.gradeLabelLocalized(l).trim(),
                     if (person.schoolName.trim().isNotEmpty)
                       person.schoolName.trim(),
                   ].join(' • ');

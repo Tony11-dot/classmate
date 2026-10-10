@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/parent_models.dart';
 import '../../data/parent_repository.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Horizontally-scrollable chip list — one chip per linked child.
 /// Selecting a chip writes to selectedChildProvider; every parent
@@ -15,6 +16,7 @@ class ChildPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
     final selected = ref.watch(selectedChildProvider);
 
     // First-render: if nothing's selected yet AND we have children, auto-pick
@@ -67,9 +69,9 @@ class ChildPicker extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
-                    if (c.gradeLabel.isNotEmpty)
+                    if (c.gradeLabelLocalized(l).isNotEmpty)
                       Text(
-                        c.gradeLabel,
+                        c.gradeLabelLocalized(l),
                         style: TextStyle(
                           fontSize: 12,
                           color: cs.onSurfaceVariant,

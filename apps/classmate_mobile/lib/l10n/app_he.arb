@@ -3490,5 +3490,45 @@
   "managerTermHelper": "summer_a, winter…",
   "managerFilesHelper": "קובץ השאלות הוא הקובץ הראשי; השאר אופציונליים.",
   "managerCreateExam": "יצירת בחינה",
-  "managerAttached": "מצורף"
+  "managerAttached": "מצורף",
+  "teacherClassroomNameMissing": "הזן שם לכיתה.",
+  "teacherClassroomSubjectMissing": "בחר מקצוע.",
+  "teacherAddStudentsCount": "{count, plural, =1{הוסף תלמיד אחד} two{הוסף {count} תלמידים} many{הוסף {count} תלמידים} other{הוסף {count} תלמידים}}",
+  "@teacherAddStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonDueDate": "להגשה עד {date}",
+  "@commonDueDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "adminDashboardRecordsCount": "{count, plural, =1{רשומה אחת} two{{count} רשומות} many{{count} רשומות} other{{count} רשומות}}",
+  "@adminDashboardRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatForwardRecentChats": "שיחות אחרונות",
+  "chatForwardOtherChats": "שיחות אחרות",
+  "bagrutPreviewUnavailable": "לא ניתן להציג תצוגה מקדימה של הקובץ.",
+  "bagrutPreviewUnavailableRetry": "לא ניתן להציג תצוגה מקדימה של הקובץ. בדוק את החיבור ונסה שוב.",
+  "notificationAbsenceRecorded": "🚩 נרשמה היעדרות",
+  "notificationLateRecorded": "⏰ נרשם איחור",
+  "notificationExcusedRecorded": "✅ ההיעדרות סומנה כמוצדקת",
+  "notificationAttendanceUpdated": "📋 הנוכחות עודכנה",
+  "a11yIncrease": "הגדלה",
+  "a11yDecrease": "הקטנה",
+  "a11ySend": "שליחה",
+  "a11yCancelReply": "ביטול התגובה",
+  "a11yDiscardRecording": "מחיקת ההקלטה",
+  "a11yJumpToLatest": "קפיצה להודעות האחרונות"
 }

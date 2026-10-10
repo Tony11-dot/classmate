@@ -244,6 +244,7 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                             q.isEmpty ||
                             p.displayName.toLowerCase().contains(q) ||
                             p.gradeLabel.toLowerCase().contains(q) ||
+                            p.gradeLabelLocalized(l).toLowerCase().contains(q) ||
                             p.schoolName.toLowerCase().contains(q);
                         return matchesSearch && _matchesFilter(p);
                       })
@@ -356,9 +357,9 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
                                             ],
                                           ],
                                         ),
-                                        if (person.gradeLabel.isNotEmpty)
+                                        if (person.gradeLabelLocalized(l).isNotEmpty)
                                           Text(
-                                            person.gradeLabel,
+                                            person.gradeLabelLocalized(l),
                                             style: theme.textTheme.bodySmall
                                                 ?.copyWith(
                                                   color: cs.onSurfaceVariant,

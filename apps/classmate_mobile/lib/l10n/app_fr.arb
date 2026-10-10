@@ -3490,5 +3490,45 @@
   "managerTermHelper": "summer_a, winter…",
   "managerFilesHelper": "Le fichier Questions est le principal ; les autres sont facultatifs.",
   "managerCreateExam": "Créer l’examen",
-  "managerAttached": "Joint"
+  "managerAttached": "Joint",
+  "teacherClassroomNameMissing": "Saisissez un nom de classe.",
+  "teacherClassroomSubjectMissing": "Choisissez une matière.",
+  "teacherAddStudentsCount": "{count, plural, one{Ajouter {count} élève} other{Ajouter {count} élèves}}",
+  "@teacherAddStudentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "commonDueDate": "À rendre le {date}",
+  "@commonDueDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "adminDashboardRecordsCount": "{count, plural, one{{count} enregistrement} other{{count} enregistrements}}",
+  "@adminDashboardRecordsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chatForwardRecentChats": "Discussions récentes",
+  "chatForwardOtherChats": "Autres discussions",
+  "bagrutPreviewUnavailable": "Impossible d’afficher l’aperçu de ce fichier.",
+  "bagrutPreviewUnavailableRetry": "Impossible d’afficher l’aperçu de ce fichier. Vérifiez votre connexion et réessayez.",
+  "notificationAbsenceRecorded": "🚩 Absence enregistrée",
+  "notificationLateRecorded": "⏰ Retard enregistré",
+  "notificationExcusedRecorded": "✅ Absence excusée",
+  "notificationAttendanceUpdated": "📋 Présence mise à jour",
+  "a11yIncrease": "Augmenter",
+  "a11yDecrease": "Diminuer",
+  "a11ySend": "Envoyer",
+  "a11yCancelReply": "Annuler la réponse",
+  "a11yDiscardRecording": "Supprimer l’enregistrement",
+  "a11yJumpToLatest": "Aller aux derniers messages"
 }

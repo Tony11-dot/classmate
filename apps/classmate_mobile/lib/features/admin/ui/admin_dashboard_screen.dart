@@ -685,7 +685,7 @@ class _AttendanceTile extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                'G${item.grade}',
+                '${item.grade}',
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   fontSize: 13,
@@ -704,7 +704,7 @@ class _AttendanceTile extends StatelessWidget {
                   style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  '${item.total} records',
+                  AppLocalizations.of(context)!.adminDashboardRecordsCount(item.total),
                   style: theme.textTheme.labelSmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 if (rate != null) ...[

@@ -254,12 +254,12 @@ class _ForwardPickerSheetState extends ConsumerState<_ForwardPickerSheet> {
                       const SizedBox(height: 8),
                     ],
                     if (recent.isNotEmpty) ...[
-                      _sectionHeader(context, 'Recent chats'),
+                      _sectionHeader(context, l.chatForwardRecentChats),
                       ...recent.map((item) => _itemTile(context, item, cs, theme)),
                       const SizedBox(height: 8),
                     ],
                     if (otherChats.isNotEmpty) ...[
-                      _sectionHeader(context, 'Other chats'),
+                      _sectionHeader(context, l.chatForwardOtherChats),
                       ...otherChats.map((item) => _itemTile(context, item, cs, theme)),
                     ],
                   ],

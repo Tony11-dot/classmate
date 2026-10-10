@@ -10412,4 +10412,81 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get managerAttached => 'Joint';
+
+  @override
+  String get teacherClassroomNameMissing => 'Saisissez un nom de classe.';
+
+  @override
+  String get teacherClassroomSubjectMissing => 'Choisissez une matière.';
+
+  @override
+  String teacherAddStudentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ajouter $count élèves',
+      one: 'Ajouter $count élève',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String commonDueDate(String date) {
+    return 'À rendre le $date';
+  }
+
+  @override
+  String adminDashboardRecordsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count enregistrements',
+      one: '$count enregistrement',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get chatForwardRecentChats => 'Discussions récentes';
+
+  @override
+  String get chatForwardOtherChats => 'Autres discussions';
+
+  @override
+  String get bagrutPreviewUnavailable =>
+      'Impossible d’afficher l’aperçu de ce fichier.';
+
+  @override
+  String get bagrutPreviewUnavailableRetry =>
+      'Impossible d’afficher l’aperçu de ce fichier. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get notificationAbsenceRecorded => '🚩 Absence enregistrée';
+
+  @override
+  String get notificationLateRecorded => '⏰ Retard enregistré';
+
+  @override
+  String get notificationExcusedRecorded => '✅ Absence excusée';
+
+  @override
+  String get notificationAttendanceUpdated => '📋 Présence mise à jour';
+
+  @override
+  String get a11yIncrease => 'Augmenter';
+
+  @override
+  String get a11yDecrease => 'Diminuer';
+
+  @override
+  String get a11ySend => 'Envoyer';
+
+  @override
+  String get a11yCancelReply => 'Annuler la réponse';
+
+  @override
+  String get a11yDiscardRecording => 'Supprimer l’enregistrement';
+
+  @override
+  String get a11yJumpToLatest => 'Aller aux derniers messages';
 }

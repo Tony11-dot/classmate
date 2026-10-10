@@ -9,6 +9,7 @@ import '../../../core/auth/auth_session.dart';
 import '../../../core/contracts/grade_scale.dart';
 import '../../../core/http/cm_api.dart';
 import 'subject_average.dart';
+import '../../../l10n/app_localizations.dart';
 
 final teacherMobileRepositoryProvider = Provider<TeacherMobileRepository>((ref) {
   final session = ref.watch(authSessionProvider);
@@ -1794,11 +1795,21 @@ class TeacherParentChild {
   final int? grade;
   final String cohortName;
 
+  /// English-only fallback for logs. Use [summaryLocalized] in UI.
   String get summary {
     if (grade != null && cohortName.isNotEmpty) return 'Grade $grade · $cohortName';
     if (grade != null) return 'Grade $grade';
     if (cohortName.isNotEmpty) return cohortName;
     return '';
+  }
+
+  /// [summary] in the app's language.
+  String summaryLocalized(AppLocalizations l) {
+    if (grade != null && cohortName.isNotEmpty) {
+      return l.adminScheduleGradeWithCohort('$grade', cohortName);
+    }
+    if (grade != null) return l.gradeLevelLabel(grade!);
+    return cohortName;
   }
 }
 

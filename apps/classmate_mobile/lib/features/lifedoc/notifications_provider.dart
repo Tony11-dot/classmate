@@ -378,8 +378,20 @@ Future<List<StudentNotificationItem>> _buildDerivedNotifications(Ref ref) async 
     items.add(
       StudentNotificationItem(
         id: 'local-attendance-${attendance.date}-${attendance.period}-${attendance.status}-$subjectLabel',
+        // English copies are log fallbacks — the screen renders the template.
         title: title,
         body: bodyParts.join(' • '),
+        template: switch (normalizedStatus) {
+          'absent' => StudentNotificationTemplate.attendanceAbsent,
+          'late' => StudentNotificationTemplate.attendanceLate,
+          'justified' => StudentNotificationTemplate.attendanceExcused,
+          _ => StudentNotificationTemplate.attendanceUpdated,
+        },
+        templateArgs: {
+          'subject': subjectLabel,
+          'period': attendance.period,
+          'status': normalizedStatus,
+        },
         source: 'attendance',
         createdAt: createdAt,
         severity: normalizedStatus == 'absent'
