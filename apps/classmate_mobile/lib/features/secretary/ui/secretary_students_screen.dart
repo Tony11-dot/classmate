@@ -13,6 +13,7 @@ import '../../../ui/widgets/cm_error_state.dart';
 import '../../admin/data/admin_repository.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 // ── Providers ─────────────────────────────────────────────────────────────────
 
 final _secOverviewProvider = FutureProvider.autoDispose<AdminOverview>((ref) {
@@ -513,14 +514,8 @@ class _SecretaryCohortDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          cohort.name,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-        ),
+      appBar: CmSubBar(
+        title: cohort.name,
         actions: [
           if (cohortAvgGrade != null)
             Padding(

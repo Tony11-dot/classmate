@@ -542,7 +542,7 @@ sub-screens. Then each role below is one round: chrome check per route → sub-s
 | Teacher | Schedule · Classrooms · Announcements · Insights · NOVA | Messages, Workspace, Cohorts, Attendance, Grades, Notifications, Assignments, Materials, Meetings, Solutions, Bagrut, Students, Exams, Certificates, Forms, CMail · Account | classroom detail/analytics · new announcement · create form · form responses · create/edit exam · exam grades · add grade · slot attachments · add material/meeting/assignment (+ classroom variants) · assignment detail · attendance mark · student detail · averages · create classroom · student grade detail | ☑ R27 (build 321) |
 | Parent | Home · Schedule · Overview · Messages · Announcements | Attendance, Grades, Exams, Certificates, Assignments, Meetings, Materials, Notifications, CMail · Account | child picker · the shared lifedoc details · chat | ☑ R28 (build 322) |
 | Admin | — (drawer only) | Dashboard, People, Cohorts, Schedule, School, Grade scales, Permissions, Reports, Certificates, Export, Students, Settings, CMail · Messages, Announcements, Notifications · Account | periods · import users · cohort detail · add period · edit user · subject detail · school form · certificates per student | ☑ R29 (build 322) |
-| Secretary | — (drawer only) | Home, Schedule, People, Cohorts, Certificates, Announcements, Messages, Export, CMail · Account | student editor · cohort detail · export sheet | ☐ R30 |
+| Secretary | — (drawer only) | Home, Schedule, People, Cohorts, Certificates, Announcements, Messages, Export, CMail · Account | student editor · cohort detail · export sheet | ☑ R30 (build 322) |
 | Manager | — (console) | Home: Schools · Managers · Bagrut exams | school form · exam form · bagrut manage | ☐ R31 |
 
 Kept as specialised full-screen surfaces (own dark/overlay bars, not converted): chat media preview,
@@ -609,6 +609,14 @@ image viewer, video trimmer, NOVA chat and chat threads (message bars).
   shell bar (Admin contact sheet: 11 tabs, 8 sub-screens)
 - Secretary and Manager stock bars were converted in the same pass and land in their own rounds
 - Checked: analyzer 50 (baseline); rig: all admin sub-screens render on the bar, no overflow
+
+## Round 30 (2026-10-10) — the Secretary role
+- **Chrome verified** (Secretary contact sheet): no navbar; Home, Students, Schedule and the other
+  drawer tabs keep the shell bar. The secretary's pushed pages are the admin ones converted in R29
+  (edit user, add students, cohort detail, export sheet) plus the cohort students page in the
+  Students tool, whose stock bar (cohort name + average pill) is now `CmSubBar` with the pill as its
+  action
+- Checked: analyzer 50 (baseline); rig: s-home, s-students, no overflow
 
 ## Up next (in order)
 1. On-device QA pass of build 322 (TestFlight / Play internal). Natan retests Permissions on

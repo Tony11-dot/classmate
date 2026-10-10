@@ -166,20 +166,20 @@ Legend: ✅ done · ☐ pending · — not applicable · R## = round that did it
 | Subject detail | (pushed) | sub | ✅ | ✅ R29 | ✅ |
 | Export options sheet | (sheet) | sub | ✅ | — (sheet) | ✅ |
 
-## Secretary (R30)
+## Secretary (R30 ✅ chrome + bar; polish reviewed R30)
 
 | Screen | Route | Kind | Chrome | Bar | Polish |
 |---|---|---|---|---|---|
-| Home | /secretary/home | drawer | ☐ | — | ☐ |
-| Schedule | /secretary/schedule | drawer | ☐ | — | ☐ |
-| Students | /secretary/students | drawer | ☐ | — | ☐ |
-| People | /secretary/people | drawer | ☐ | — | ☐ |
-| Cohorts | /secretary/cohorts | drawer | ☐ | — | ☐ |
-| Certificates | /secretary/certificates | drawer | ☐ | — | ☐ |
-| Announcements · Messages · Export · CMail | … | drawer | ☐ | — | ☐ |
-| Profile · Settings · Support · About | /profile … | drawer (Account) | ☐ | — | ☐ |
-| Student editor | (pushed) | sub | ☐ | ☐ | ☐ |
-| Cohort detail · Edit user · Export sheet | (pushed) | sub | ☐ | ☐ | ☐ |
+| Home | /secretary/home | drawer | ✅ | — | ✅ |
+| Schedule | /secretary/schedule | drawer | ✅ | — | ✅ |
+| Students | /secretary/students | drawer | ✅ | — | ✅ |
+| People | /secretary/people | drawer | ✅ | — | ✅ |
+| Cohorts | /secretary/cohorts | drawer | ✅ | — | ✅ |
+| Certificates | /secretary/certificates | drawer | ✅ | — | ✅ |
+| Announcements · Messages · Export · CMail | … | drawer | ✅ | — | ✅ |
+| Profile · Settings · Support · About | /profile … | drawer (Account) | ✅ | — | ✅ |
+| Student editor | (pushed) | sub | ✅ | ✅ R30 | ✅ |
+| Cohort detail · Edit user · Export sheet | (pushed) | sub | ✅ | ✅ R29 | ✅ |
 
 ## Manager (R31)
 
