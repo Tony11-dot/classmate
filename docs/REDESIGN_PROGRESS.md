@@ -373,8 +373,27 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
   title — nothing renders them
 - Checked: analyzer 50 (baseline); tests and rig below
 
+## Round 20 (2026-10-10) — the pseudo-locale leak run
+- **New check.** The shot rig can now run every screen in the `ps` pseudo-locale with
+  `--dart-define=LEAK=true`: every localized string renders wrapped in ‹‹…››, so any rendered Latin
+  text without the wrapper is either data or hard-coded English. 103 screens → 69 reports, almost all
+  mock data (names, course titles, chat text) or older rig tests that run in English. Four were real:
+- **Notification section pill / filter** showed the server's raw type ("NEW_ASSIGNMENT", "new_exam")
+  for everything except grades/attendance/practice/solutions. Every server kind now maps to the
+  section's own name (Assignments, Exams, Messages, Classrooms, Forms, Materials, Meetings,
+  Certificates, Announcements, Reports, NOVA); unknown values are humanized instead of shouted
+- **Theme gallery** section headers "CUSTOM / LIGHT / DARK" were literals → the Settings strings
+- **Bagrut subjects** had English + Hebrew names only, so ar/fr/ru saw English ("Hebrew Expression",
+  "Bible (Tanakh)") → names in all five languages; the subject search matches any of them
+- **Export sheet** language chips said "EN / AR / HE / FR / RU" → the language's own name, like the
+  Settings picker
+- Left as is: `navBagrut` stays "Bagrut" in the pseudo-locale (proper noun, the generator skips it);
+  the PDF viewer, About and Support show the support address as is; hint URLs and font names are
+  not strings to translate
+- Checked: analyzer 50 (baseline); tests and rig below
+
 ## Up next (in order)
-1. On-device QA pass of build 313 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 314 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

@@ -32,7 +32,7 @@ class _BagrutScreenState extends ConsumerState<BagrutScreen> {
     final subjects = kBagrutSubjects.where((s) {
       final q = _query.trim().toLowerCase();
       if (q.isEmpty) return true;
-      return s.en.toLowerCase().contains(q) || s.he.contains(_query.trim());
+      return s.allTitles.any((t) => t.toLowerCase().contains(q));
     }).toList();
 
     // No AppBar here — this screen lives inside the AppShell, whose top bar

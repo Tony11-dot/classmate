@@ -11193,4 +11193,7 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get practiceTopicReligionAndSociety => '‹‹Religion and society››';
+
+  @override
+  String get settingsThemeCustomSection => '‹‹Custom››';
 }

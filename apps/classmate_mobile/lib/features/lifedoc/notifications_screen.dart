@@ -56,23 +56,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
     return FriendlyDate.time(date);
   }
 
-  String _sourceLabel(BuildContext context, String source) {
-    final l = AppLocalizations.of(context)!;
-    switch (source.trim().toLowerCase()) {
-      case 'grades':
-        return l.navGrades;
-      case 'attendance':
-        return l.navAttendance;
-      case 'practice':
-        return l.navPractice;
-      case 'solutions':
-        return l.navSolutions;
-      case 'system':
-        return l.notificationsSourceSystem;
-      default:
-        return source.trim().isEmpty ? l.notificationsSourceSystem : source.trim();
-    }
-  }
+  String _sourceLabel(BuildContext context, String source) =>
+      notificationSourceLabel(AppLocalizations.of(context)!, source);
 
   IconData _iconFor(String source) {
     switch (source.trim().toLowerCase()) {
@@ -658,23 +643,8 @@ class _NotificationDetailBody extends ConsumerWidget {
 
   final StudentNotificationItem item;
 
-  String _sourceLabel(BuildContext context, String source) {
-    final l = AppLocalizations.of(context)!;
-    switch (source.trim().toLowerCase()) {
-      case 'grades':
-        return l.navGrades;
-      case 'attendance':
-        return l.navAttendance;
-      case 'practice':
-        return l.navPractice;
-      case 'solutions':
-        return l.navSolutions;
-      case 'system':
-        return l.notificationsSourceSystem;
-      default:
-        return source.trim().isEmpty ? l.notificationsSourceSystem : source.trim();
-    }
-  }
+  String _sourceLabel(BuildContext context, String source) =>
+      notificationSourceLabel(AppLocalizations.of(context)!, source);
 
   IconData _iconFor(String source) {
     switch (source.trim().toLowerCase()) {

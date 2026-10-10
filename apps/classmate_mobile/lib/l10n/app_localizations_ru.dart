@@ -11238,4 +11238,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get practiceTopicReligionAndSociety => 'Религия и общество';
+
+  @override
+  String get settingsThemeCustomSection => 'Пользовательские';
 }

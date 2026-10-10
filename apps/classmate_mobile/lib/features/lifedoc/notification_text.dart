@@ -64,3 +64,47 @@ String notificationBodyLocalized(
       ].join(' • ');
   }
 }
+
+/// The section a notification belongs to, in the app's language. The server
+/// sends its `NotificationKind` lower-cased ("new_assignment",
+/// "grade_posted", …); client-made items use the short keys ("grades").
+/// Unknown values are humanized rather than shown as a raw enum.
+String notificationSourceLabel(AppLocalizations l, String source) {
+  final s = source.trim().toLowerCase().replaceAll('-', '_');
+  return switch (s) {
+    '' || 'system' => l.notificationsSourceSystem,
+    'grades' || 'grade' || 'grade_posted' => l.navGrades,
+    'attendance' ||
+    'attendance_marked' ||
+    'attendance_recorded' ||
+    'attendance_alert' =>
+      l.navAttendance,
+    'practice' || 'practice_completed' => l.navPractice,
+    'solutions' || 'solution' => l.navSolutions,
+    'solution_report' || 'solution_reported' || 'reported_solution' =>
+      l.navReports,
+    'messages' ||
+    'chat' ||
+    'message' ||
+    'new_message' ||
+    'dm' ||
+    'dm_message' =>
+      l.navMessages,
+    'classrooms' ||
+    'classroom' ||
+    'classroom_message' ||
+    'classroom_invite' ||
+    'classroom_update' =>
+      l.navClassrooms,
+    'form' || 'forms' || 'new_form' => l.navForms,
+    'assignments' || 'assignment' || 'new_assignment' => l.navAssignments,
+    'meetings' || 'meeting' || 'new_meeting' => l.navMeetings,
+    'announcements' || 'announcement' => l.navAnnouncements,
+    'exam' || 'exams' || 'new_exam' => l.navExams,
+    'material' || 'materials' || 'new_material' => l.navMaterials,
+    'diploma' || 'diplomas' || 'certificate' || 'new_diploma' =>
+      l.navCertificates,
+    'nova' || 'tutor' => l.navNova,
+    _ => source.trim().replaceAll('_', ' '),
+  };
+}

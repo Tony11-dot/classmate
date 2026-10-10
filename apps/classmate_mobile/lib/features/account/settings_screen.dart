@@ -646,7 +646,7 @@ class ThemeGalleryScreen extends ConsumerWidget {
             ),
           ),
           if (t.customThemes.isNotEmpty) ...[
-            const _GalleryHeader('Custom'),
+            _GalleryHeader(l.settingsThemeCustomSection),
             Wrap(
               spacing: 14,
               runSpacing: 16,
@@ -675,13 +675,13 @@ class ThemeGalleryScreen extends ConsumerWidget {
               ],
             ),
           ],
-          const _GalleryHeader('Light'),
+          _GalleryHeader(l.settingsThemeLight),
           Wrap(
             spacing: 14,
             runSpacing: 16,
             children: [for (final c in light) presetTile(c)],
           ),
-          const _GalleryHeader('Dark'),
+          _GalleryHeader(l.settingsThemeDark),
           Wrap(
             spacing: 14,
             runSpacing: 16,

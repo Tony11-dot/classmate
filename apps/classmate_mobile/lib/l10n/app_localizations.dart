@@ -19060,6 +19060,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Religion and society'**
   String get practiceTopicReligionAndSociety;
+
+  /// No description provided for @settingsThemeCustomSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get settingsThemeCustomSection;
 }
 
 class _AppLocalizationsDelegate

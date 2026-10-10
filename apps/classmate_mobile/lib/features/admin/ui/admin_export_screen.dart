@@ -1950,11 +1950,11 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
             child: Row(
               children: [
                 for (final entry in const [
-                  ('en', '🇬🇧', 'EN'),
-                  ('ar', '🇸🇦', 'AR'),
-                  ('he', '🇮🇱', 'HE'),
-                  ('fr', '🇫🇷', 'FR'),
-                  ('ru', '🇷🇺', 'RU'),
+                  ('en', '🇬🇧', 'English'),
+                  ('ar', '🇸🇦', 'العربية'),
+                  ('he', '🇮🇱', 'עברית'),
+                  ('fr', '🇫🇷', 'Français'),
+                  ('ru', '🇷🇺', 'Русский'),
                 ])
                   Padding(
                     padding: const EdgeInsetsDirectional.only(end: 6),

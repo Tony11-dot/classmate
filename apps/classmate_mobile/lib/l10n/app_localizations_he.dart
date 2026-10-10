@@ -11005,4 +11005,7 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get practiceTopicReligionAndSociety => 'דת וחברה';
+
+  @override
+  String get settingsThemeCustomSection => 'מותאמות אישית';
 }
