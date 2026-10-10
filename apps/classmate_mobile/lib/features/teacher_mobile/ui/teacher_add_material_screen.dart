@@ -640,7 +640,9 @@ class _TeacherAddMaterialScreenState
                       // ── Action buttons ────────────────────────────────────
                       if (!_showLinkInput)
                         if (_links.isNotEmpty || _files.isNotEmpty) const SizedBox(height: 4),
-                      Row(children: [
+                      // Wrap, not Row: "Ajouter un lien" + "Ajouter un fichier" at
+                      // large text don't fit one line (overflowed 22 px fr / 53 px ru).
+                      Wrap(spacing: 8, runSpacing: 8, children: [
                         if (!_showLinkInput)
                           OutlinedButton.icon(
                             onPressed: () => setState(() => _showLinkInput = true),
@@ -651,7 +653,6 @@ class _TeacherAddMaterialScreenState
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
                             ),
                           ),
-                        if (!_showLinkInput) const SizedBox(width: 8),
                         OutlinedButton.icon(
                           onPressed: _pickFile,
                           icon: const Icon(Icons.attach_file_rounded, size: 15),

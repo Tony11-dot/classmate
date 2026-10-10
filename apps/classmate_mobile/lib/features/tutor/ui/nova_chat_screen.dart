@@ -21,6 +21,7 @@ import '../../chat_core/ui/chat_media_preview_screen.dart';
 import '../../chat_core/domain/outgoing_media.dart';
 import '../../../common/widgets/cm_ai_message.dart';
 import '../../../common/widgets/typing_dots.dart';
+import '../../../core/http/server_messages.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/glass/liquid_glass_card.dart';
 import '../../../ui/widgets/ambient_background.dart';
@@ -35,6 +36,14 @@ import '../providers/nova_plan_provider.dart';
 import '../providers/tutor_repository_provider.dart';
 import '../../billing/data/billing_repository.dart';
 import '../../billing/ui/plans_screen.dart';
+
+/// The server's `error` event carries English developer text
+/// ("NOVA is temporarily unavailable."); show it in the app's language.
+String _streamErrorText(Object? raw, AppLocalizations l) {
+  final text = raw?.toString().trim() ?? '';
+  if (text.isEmpty) return l.tutorFailedToStreamReply;
+  return localizeServerMessage(text, l) ?? text;
+}
 
 class _Msg {
   const _Msg({
@@ -610,7 +619,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                 setState(() {
                   _messages.add(_Msg(
                     role: 'assistant',
-                    content: '⚠️ ${(ev['message'] ?? l.tutorFailedToStreamReply).toString()}',
+                    content: '⚠️ ${_streamErrorText(ev['message'], l)}',
                   ));
                 });
               }
@@ -1074,7 +1083,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
                   setState(() {
                     _messages.add(_Msg(
                       role: 'assistant',
-                      content: '⚠️ ${(ev['message'] ?? l.tutorFailedToStreamReply).toString()}',
+                      content: '⚠️ ${_streamErrorText(ev['message'], l)}',
                     ));
                   });
                 }

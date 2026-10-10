@@ -449,8 +449,24 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
 - Checked: new `test/core/server_messages_test.dart` (families, values, unknown text, the
   English-only rule); analyzer 50 (baseline); tests +73 −5 (baseline +7)
 
+## Round 23 (2026-10-10) — stress pass 2: the long languages, dark mode, wide RTL
+- **Large text in Arabic, French and Russian** (1.3×, all 81 rig screens): Arabic clean; French
+  and Russian both broke the same row — the teacher's Add material "Add link / Add file" buttons
+  ("Ajouter un lien / Ajouter un fichier") overflowed 22 px and 53 px → the pair wraps to a
+  second line when it must (no change when it fits)
+- **Hebrew on iPad and desktop**: the sidebar, inbox rows, hero cards and quick actions all mirror;
+  no overflow
+- **Dark mode sample** (Settings, Attendance, NOVA, themes, login, the Hebrew chat): contrast and
+  bubble colours hold; nothing to change
+- **NOVA's stream errors** ("NOVA is temporarily unavailable." from the server's `error` event)
+  now go through the round-22 mapper like every other server message
+- **Rig**: button, chip, tab, input and dialog text styles now carry the Hebrew/Arabic fallback
+  fonts, so every RTL shot is legible (phones were always fine — the rig has no system fallback)
+- Checked: dead-end controls (none beyond intentional tap-swallowers); emails and the reset page
+  already render `dir="rtl"` (round 13); analyzer 50 (baseline); tests +73 −5 (baseline)
+
 ## Up next (in order)
-1. On-device QA pass of build 316 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 317 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 
