@@ -3800,5 +3800,155 @@
   "practiceTopicEthicsAndPhilosophy": "الأخلاق والفلسفة",
   "practiceTopicWorldReligions": "أديان العالم",
   "practiceTopicReligionAndSociety": "الدين والمجتمع",
-  "settingsThemeCustomSection": "مخصصة"
+  "settingsThemeCustomSection": "مخصصة",
+  "errSrvNoSchool": "حسابك غير مرتبط بمدرسة بعد. تواصل مع مدير المدرسة.",
+  "errSrvNotAllowed": "ليست لديك صلاحية للقيام بذلك.",
+  "errSrvOtherSchool": "هذا يخص مدرسة أخرى.",
+  "errSrvUserOtherSchool": "هذا المستخدم يخص مدرسة أخرى.",
+  "errSrvSignInRequired": "يرجى تسجيل الدخول مرة أخرى.",
+  "errSrvNotOnboarded": "لم يُعدّ ملف الطالب الخاص بك بعد. انضم إلى صفك بالرمز الذي حصلت عليه من المعلم.",
+  "errSrvInvalidCode": "الرمز غير صالح أو انتهت صلاحيته.",
+  "errSrvIncorrectCode": "الرمز غير صحيح. تحقق منه وحاول مجددًا.",
+  "errSrvTooManyAttempts": "محاولات خاطئة كثيرة. اطلب رمزًا جديدًا.",
+  "errSrvNoActiveCode": "لا يوجد رمز نشط. اطلب رمزًا جديدًا.",
+  "errSrvWaitBeforeCode": "{seconds, plural, one{انتظر ثانية واحدة قبل طلب رمز آخر.} two{انتظر ثانيتين قبل طلب رمز آخر.} few{انتظر {seconds} ثوانٍ قبل طلب رمز آخر.} many{انتظر {seconds} ثانية قبل طلب رمز آخر.} other{انتظر {seconds} ثانية قبل طلب رمز آخر.}}",
+  "@errSrvWaitBeforeCode": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvSameValue": "هذه هي قيمتك الحالية بالفعل.",
+  "errSrvEmailInUse": "عنوان البريد الإلكتروني هذا مستخدم في حساب آخر.",
+  "errSrvCodeMismatch": "صدر هذا الرمز لقيمة مختلفة. اطلب رمزًا جديدًا.",
+  "errSrvInvalidEmail": "أدخل عنوان بريد إلكتروني صالحًا.",
+  "errSrvInvalidPhone": "أدخل رقم الهاتف بالصيغة الدولية، مثل ‎+972 50 123 4567.",
+  "errSrvAssignmentNotFound": "هذه المهمة لم تعد موجودة.",
+  "errSrvExamNotFound": "هذا الامتحان لم يعد موجودًا.",
+  "errSrvFormNotFound": "هذا النموذج لم يعد موجودًا.",
+  "errSrvMailNotFound": "هذه الرسالة لم تعد موجودة.",
+  "errSrvMaterialNotFound": "هذه المادة لم تعد موجودة.",
+  "errSrvMeetingNotFound": "هذا الاجتماع لم يعد موجودًا.",
+  "errSrvMessageNotFound": "هذه الرسالة لم تعد موجودة.",
+  "errSrvThreadNotFound": "هذه المحادثة لم تعد موجودة.",
+  "errSrvClassroomNotFound": "هذا الفصل لم يعد موجودًا.",
+  "errSrvCohortNotFound": "هذه المجموعة لم تعد موجودة.",
+  "errSrvStudentNotFound": "تعذر العثور على الطالب.",
+  "errSrvStudentNotInCohort": "هذا الطالب ليس في هذه المجموعة.",
+  "errSrvUserNotFound": "تعذر العثور على المستخدم.",
+  "errSrvSchoolNotFound": "تعذر العثور على المدرسة.",
+  "errSrvCertificateNotFound": "هذه الشهادة لم تعد موجودة.",
+  "errSrvNoteNotFound": "هذه الملاحظة لم تعد موجودة.",
+  "errSrvReportNotFound": "هذا البلاغ لم يعد موجودًا.",
+  "errSrvSolutionNotFound": "هذا الحل لم يعد موجودًا.",
+  "errSrvPeriodNotFound": "هذه الحصة لم تعد موجودة.",
+  "errSrvNotFound": "هذا العنصر لم يعد موجودًا.",
+  "errSrvMessageYourself": "لا يمكنك مراسلة نفسك.",
+  "errSrvReportOwnMessage": "لا يمكنك الإبلاغ عن رسالتك.",
+  "errSrvGroupNeedsMembers": "تحتاج المجموعة إلى شخصين آخرين على الأقل.",
+  "errSrvRequestNotApproved": "لم يتم قبول هذا الطلب بعد.",
+  "errSrvEditMediaMessage": "لا يمكن تعديل رسائل الوسائط.",
+  "errSrvOnlyDirectBlock": "يمكن حظر المحادثات المباشرة فقط.",
+  "errSrvOnlyGroupAdminsPin": "يمكن لمشرفي المجموعة فقط تثبيت الرسائل.",
+  "errSrvOnlyGroupsLeave": "يمكنك مغادرة المجموعات فقط.",
+  "errSrvOnlyGroupsRename": "يمكن إعادة تسمية المجموعات فقط.",
+  "errSrvOnlyGroupsInvite": "رموز الدعوة متاحة للمجموعات فقط.",
+  "errSrvOnlyReceiverBlock": "يمكن فقط لمن تلقى الطلب حظره.",
+  "errSrvOnlySenderDelete": "يمكن للمرسل فقط حذف الرسالة للجميع.",
+  "errSrvOnlySenderEdit": "يمكن للمرسل فقط تعديل هذه الرسالة.",
+  "errSrvOnlySenderRecipients": "يمكن للمرسل فقط رؤية المستلمين.",
+  "errSrvOnlyOwnDmPin": "يمكنك تثبيت محادثاتك المباشرة فقط.",
+  "errSrvBlockedFromGroup": "هذا الشخص محظور من هذه المجموعة.",
+  "errSrvThreadBlocked": "هذه المحادثة محظورة.",
+  "errSrvNotPendingRequest": "هذه المحادثة ليست طلبًا معلقًا.",
+  "errSrvRemovedFromGroup": "تمت إزالتك من هذه المجموعة.",
+  "errSrvNoThreadAccess": "أنت لست جزءًا من هذه المحادثة.",
+  "errSrvNotClassroomMember": "أنت لست عضوًا في هذا الفصل.",
+  "errSrvParentsOwnChildren": "يمكن للوالدين مراسلة أطفالهم فقط.",
+  "errSrvStudentsOwnParents": "يمكن للطلاب مراسلة والديهم فقط.",
+  "errSrvFormAlreadySubmitted": "لقد أرسلت هذا النموذج من قبل.",
+  "errSrvPickRecipients": "اختر مستلمًا واحدًا على الأقل.",
+  "errSrvNoRecipients": "لا يوجد مستلمون مطابقون لهذا الجمهور.",
+  "errSrvExpiryBeforePublish": "يجب أن يكون وقت الانتهاء بعد وقت النشر.",
+  "errSrvInvalidDate": "أدخل تاريخًا صالحًا.",
+  "errSrvGradeNegative": "لا يمكن أن تكون العلامة سالبة.",
+  "errSrvInvalidGradeLabel": "”{label}“ ليست تسمية في سلم العلامات هذا.",
+  "@errSrvInvalidGradeLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvInvalidGradeRange": "يجب أن تكون الصفوف بين 1 و20، الأدنى أولًا.",
+  "errSrvInvalidSemester": "يجب أن تكون أشهر الفصل الدراسي بين 1 و12.",
+  "errSrvSemesterWeights": "يجب أن يكون مجموع أوزان الفصول 100.",
+  "errSrvAddSemester": "أضف فصلًا دراسيًا واحدًا على الأقل.",
+  "errSrvAddTwoLabels": "أضف تسميتين على الأقل (مثل A وB).",
+  "errSrvAddGradeRange": "أضف نطاق صفوف واحدًا على الأقل.",
+  "errSrvVariantIncomplete": "تحتاج كل نسخة إلى مكوّن واحد على الأقل.",
+  "errSrvNothingToUpdate": "لا يوجد ما يمكن تحديثه.",
+  "errSrvNoStudents": "اختر طالبًا واحدًا على الأقل.",
+  "errSrvHomeroomTaken": "لهذا الصف مربٍّ بالفعل.",
+  "errSrvClassroomNotTeachers": "هذا الفصل لا يخص المعلم المحدد.",
+  "errSrvInvalidUrl": "أدخل رابطًا كاملًا يبدأ بـ https://.",
+  "errSrvLinkOrAttachment": "أضف رابطًا أو ملفًا واحدًا على الأقل.",
+  "errSrvFileRequired": "أضف ملفًا واحدًا على الأقل.",
+  "errSrvImagesOnly": "يمكن رفع الصور فقط هنا.",
+  "errSrvImagesOrPdfOnly": "يمكن رفع الصور وملفات PDF فقط هنا.",
+  "errSrvFileTypeNotAllowed": "نوع الملف هذا غير مسموح به.",
+  "errSrvCsvEmpty": "ملف CSV فارغ.",
+  "errSrvBookHasSolutions": "{count, plural, one{لا يزال لهذا الكتاب حل واحد. احذفه أولًا.} two{لا يزال لهذا الكتاب حلّان. احذفهما أولًا.} few{لا يزال لهذا الكتاب {count} حلول. احذفها أولًا.} many{لا يزال لهذا الكتاب {count} حلًا. احذفها أولًا.} other{لا يزال لهذا الكتاب {count} حل. احذفها أولًا.}}",
+  "@errSrvBookHasSolutions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvBookNotFound": "هذا الكتاب ليس ضمن هذه المادة.",
+  "errSrvPagesPositive": "يجب أن تكون أرقام الصفحات موجبة.",
+  "errSrvEmailRegistered": "عنوان البريد الإلكتروني هذا مسجل بالفعل.",
+  "errSrvEmailOtherSchool": "‎{email} يخص حسابًا في مدرسة أخرى بالفعل. استخدم بريدًا إلكترونيًا آخر.",
+  "@errSrvEmailOtherSchool": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvUsernameTaken": "اسم المستخدم ”{username}“ مستخدم في مدرسة أخرى. اختر اسمًا آخر.",
+  "@errSrvUsernameTaken": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvPasswordTooShort": "{n, plural, one{يجب أن تتكون كلمة المرور من حرف واحد على الأقل.} two{يجب أن تتكون كلمة المرور من حرفين على الأقل.} few{يجب أن تتكون كلمة المرور من {n} أحرف على الأقل.} many{يجب أن تتكون كلمة المرور من {n} حرفًا على الأقل.} other{يجب أن تتكون كلمة المرور من {n} حرف على الأقل.}}",
+  "@errSrvPasswordTooShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvWrongPassword": "كلمة المرور غير صحيحة.",
+  "errSrvWrongCredentials": "البريد الإلكتروني أو اسم المستخدم أو كلمة المرور غير صحيحة.",
+  "errSrvStudentGradeRequired": "يجب تحديد الصف للطلاب.",
+  "errSrvNameRequired": "أدخل اسمًا.",
+  "errSrvIdentifierRequired": "أدخل بريدًا إلكترونيًا أو اسم مستخدم.",
+  "errSrvPasswordRequired": "أدخل كلمة مرور.",
+  "errSrvOwnerImmutable": "لا يمكن إزالة مالك المنصة من المديرين.",
+  "errSrvTitleRequired": "أدخل عنوانًا.",
+  "errSrvSubjectRequired": "اختر مادة.",
+  "errSrvTextRequired": "اكتب شيئًا أولًا.",
+  "errSrvYearRequired": "أدخل سنة صالحة.",
+  "errSrvPeriodInvalid": "اختر حصة بين 1 و20.",
+  "errSrvResetLinkExpired": "انتهت صلاحية رابط إعادة التعيين أو تم استخدامه بالفعل.",
+  "errSrvNovaBadReply": "تعذر قراءة إجابة NOVA. حاول مجددًا.",
+  "errSrvNovaUnavailable": "NOVA غير متاح الآن. حاول مجددًا بعد قليل.",
+  "errSrvMinistrySignIn": "لم ينجح تسجيل الدخول عبر الوزارة. حاول مجددًا.",
+  "errSrvMinistryDisabled": "تسجيل الدخول عبر الوزارة غير مفعّل."
 }

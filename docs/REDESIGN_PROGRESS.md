@@ -422,8 +422,35 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
 - Checked: 81 Hebrew shots before/after → 14 screens changed, every change a mirror shift (side-by-side
   diffs reviewed); analyzer 50 (baseline); tests +66 −5 (baseline)
 
+## Round 22 (2026-10-10) — the server's English, in the app's language + the stress sweep
+- **The last English letters.** The API answers every refused request with developer wording
+  (`{ "message": "Student not onboarded" }`, 331 distinct strings) and the app's error wrapper
+  showed any non-technical one as is — so Hebrew and Arabic toasts said "Invalid or expired code",
+  "You have already submitted this form", "Only the sender can edit this message". New
+  `core/http/server_messages.dart` maps 275 of the 331 strings — every one a person can reach from
+  the UI — to 108 app strings in all five languages (families collapse: nine "no school" wordings → one, 40
+  permission wordings → "You don’t have permission to do that", the not-found set → one per thing).
+  Values carry over: "Please wait 30s…" → a real plural, password length, grade label, email,
+  username, solution count
+- **Rule** (`CMApiException.friendlyMessage`): known text → app string; unknown text (validation
+  wording like "studentId is required") → shown raw only in an English UI, the status-based
+  message everywhere else; framework text ("Unauthorized", "ThrottlerException…") never
+- **Every path now goes through it**: the messages API's group-join and the classrooms and NOVA
+  repositories used to throw "label failed (400): {…}" or the raw server text — all three throw the
+  same sanitized exception now; the form-submit toast and the manager console's "Failed: …"
+  replies are localized; the password-change screen reads its `WRONG_PASSWORD` marker from the
+  body instead of the shown text
+- **Stress sweep.** All 81 rig screens were re-shot at 1.3× text (English and Hebrew), on iPad
+  (1366×1024) and on desktop (1440×900). Large text: clean. Wide screens: one real overflow — the
+  admin Import users grade dropdown spilled 6 px past its cell → `isExpanded`
+- Left as is: the forgot-password reply (the server already answers in the user's language,
+  round 13); class-validator arrays (already the generic message); the 56 developer-only
+  validation strings ("studentId is required") the UI prevents before sending
+- Checked: new `test/core/server_messages_test.dart` (families, values, unknown text, the
+  English-only rule); analyzer 50 (baseline); tests +73 −5 (baseline +7)
+
 ## Up next (in order)
-1. On-device QA pass of build 315 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 316 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

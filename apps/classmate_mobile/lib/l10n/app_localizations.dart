@@ -19066,6 +19066,654 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Custom'**
   String get settingsThemeCustomSection;
+
+  /// No description provided for @errSrvNoSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account isn’t linked to a school yet. Ask your school admin.'**
+  String get errSrvNoSchool;
+
+  /// No description provided for @errSrvNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You don’t have permission to do that.'**
+  String get errSrvNotAllowed;
+
+  /// No description provided for @errSrvOtherSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'That belongs to another school.'**
+  String get errSrvOtherSchool;
+
+  /// No description provided for @errSrvUserOtherSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'That user belongs to another school.'**
+  String get errSrvUserOtherSchool;
+
+  /// No description provided for @errSrvSignInRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please sign in again.'**
+  String get errSrvSignInRequired;
+
+  /// No description provided for @errSrvNotOnboarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Your student profile isn’t set up yet. Join your class with the code from your teacher.'**
+  String get errSrvNotOnboarded;
+
+  /// No description provided for @errSrvInvalidCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is invalid or has expired.'**
+  String get errSrvInvalidCode;
+
+  /// No description provided for @errSrvIncorrectCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code isn’t right. Check it and try again.'**
+  String get errSrvIncorrectCode;
+
+  /// No description provided for @errSrvTooManyAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many wrong attempts. Request a new code.'**
+  String get errSrvTooManyAttempts;
+
+  /// No description provided for @errSrvNoActiveCode.
+  ///
+  /// In en, this message translates to:
+  /// **'There’s no active code. Request a new one.'**
+  String get errSrvNoActiveCode;
+
+  /// No description provided for @errSrvWaitBeforeCode.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds, plural, one{Wait {seconds} second before requesting another code.} other{Wait {seconds} seconds before requesting another code.}}'**
+  String errSrvWaitBeforeCode(int seconds);
+
+  /// No description provided for @errSrvSameValue.
+  ///
+  /// In en, this message translates to:
+  /// **'That’s already your current value.'**
+  String get errSrvSameValue;
+
+  /// No description provided for @errSrvEmailInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'That email is already used by another account.'**
+  String get errSrvEmailInUse;
+
+  /// No description provided for @errSrvCodeMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'That code was issued for a different value. Request a new one.'**
+  String get errSrvCodeMismatch;
+
+  /// No description provided for @errSrvInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get errSrvInvalidEmail;
+
+  /// No description provided for @errSrvInvalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the phone number in international format, e.g. +972 50 123 4567.'**
+  String get errSrvInvalidPhone;
+
+  /// No description provided for @errSrvAssignmentNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That assignment no longer exists.'**
+  String get errSrvAssignmentNotFound;
+
+  /// No description provided for @errSrvExamNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That exam no longer exists.'**
+  String get errSrvExamNotFound;
+
+  /// No description provided for @errSrvFormNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That form no longer exists.'**
+  String get errSrvFormNotFound;
+
+  /// No description provided for @errSrvMailNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That mail no longer exists.'**
+  String get errSrvMailNotFound;
+
+  /// No description provided for @errSrvMaterialNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That material no longer exists.'**
+  String get errSrvMaterialNotFound;
+
+  /// No description provided for @errSrvMeetingNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That meeting no longer exists.'**
+  String get errSrvMeetingNotFound;
+
+  /// No description provided for @errSrvMessageNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That message no longer exists.'**
+  String get errSrvMessageNotFound;
+
+  /// No description provided for @errSrvThreadNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That conversation no longer exists.'**
+  String get errSrvThreadNotFound;
+
+  /// No description provided for @errSrvClassroomNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That classroom no longer exists.'**
+  String get errSrvClassroomNotFound;
+
+  /// No description provided for @errSrvCohortNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That class no longer exists.'**
+  String get errSrvCohortNotFound;
+
+  /// No description provided for @errSrvStudentNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That student couldn’t be found.'**
+  String get errSrvStudentNotFound;
+
+  /// No description provided for @errSrvStudentNotInCohort.
+  ///
+  /// In en, this message translates to:
+  /// **'That student isn’t in this class.'**
+  String get errSrvStudentNotInCohort;
+
+  /// No description provided for @errSrvUserNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That user couldn’t be found.'**
+  String get errSrvUserNotFound;
+
+  /// No description provided for @errSrvSchoolNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That school couldn’t be found.'**
+  String get errSrvSchoolNotFound;
+
+  /// No description provided for @errSrvCertificateNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That certificate no longer exists.'**
+  String get errSrvCertificateNotFound;
+
+  /// No description provided for @errSrvNoteNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That note no longer exists.'**
+  String get errSrvNoteNotFound;
+
+  /// No description provided for @errSrvReportNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That report no longer exists.'**
+  String get errSrvReportNotFound;
+
+  /// No description provided for @errSrvSolutionNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That solution no longer exists.'**
+  String get errSrvSolutionNotFound;
+
+  /// No description provided for @errSrvPeriodNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That period no longer exists.'**
+  String get errSrvPeriodNotFound;
+
+  /// No description provided for @errSrvNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That item no longer exists.'**
+  String get errSrvNotFound;
+
+  /// No description provided for @errSrvMessageYourself.
+  ///
+  /// In en, this message translates to:
+  /// **'You can’t message yourself.'**
+  String get errSrvMessageYourself;
+
+  /// No description provided for @errSrvReportOwnMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You can’t report your own message.'**
+  String get errSrvReportOwnMessage;
+
+  /// No description provided for @errSrvGroupNeedsMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'A group needs at least two other people.'**
+  String get errSrvGroupNeedsMembers;
+
+  /// No description provided for @errSrvRequestNotApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'This request hasn’t been accepted yet.'**
+  String get errSrvRequestNotApproved;
+
+  /// No description provided for @errSrvEditMediaMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Media messages can’t be edited.'**
+  String get errSrvEditMediaMessage;
+
+  /// No description provided for @errSrvOnlyDirectBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Only direct chats can be blocked.'**
+  String get errSrvOnlyDirectBlock;
+
+  /// No description provided for @errSrvOnlyGroupAdminsPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Only group admins can pin messages.'**
+  String get errSrvOnlyGroupAdminsPin;
+
+  /// No description provided for @errSrvOnlyGroupsLeave.
+  ///
+  /// In en, this message translates to:
+  /// **'You can only leave groups.'**
+  String get errSrvOnlyGroupsLeave;
+
+  /// No description provided for @errSrvOnlyGroupsRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Only groups can be renamed.'**
+  String get errSrvOnlyGroupsRename;
+
+  /// No description provided for @errSrvOnlyGroupsInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Only groups have invite codes.'**
+  String get errSrvOnlyGroupsInvite;
+
+  /// No description provided for @errSrvOnlyReceiverBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the person who received the request can block it.'**
+  String get errSrvOnlyReceiverBlock;
+
+  /// No description provided for @errSrvOnlySenderDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the sender can delete a message for everyone.'**
+  String get errSrvOnlySenderDelete;
+
+  /// No description provided for @errSrvOnlySenderEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the sender can edit this message.'**
+  String get errSrvOnlySenderEdit;
+
+  /// No description provided for @errSrvOnlySenderRecipients.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the sender can see the recipients.'**
+  String get errSrvOnlySenderRecipients;
+
+  /// No description provided for @errSrvOnlyOwnDmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'You can only pin your own direct chats.'**
+  String get errSrvOnlyOwnDmPin;
+
+  /// No description provided for @errSrvBlockedFromGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'That person is blocked from this group.'**
+  String get errSrvBlockedFromGroup;
+
+  /// No description provided for @errSrvThreadBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This chat is blocked.'**
+  String get errSrvThreadBlocked;
+
+  /// No description provided for @errSrvNotPendingRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'This chat isn’t a pending request.'**
+  String get errSrvNotPendingRequest;
+
+  /// No description provided for @errSrvRemovedFromGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'You were removed from this group.'**
+  String get errSrvRemovedFromGroup;
+
+  /// No description provided for @errSrvNoThreadAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re not part of this chat.'**
+  String get errSrvNoThreadAccess;
+
+  /// No description provided for @errSrvNotClassroomMember.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re not a member of this classroom.'**
+  String get errSrvNotClassroomMember;
+
+  /// No description provided for @errSrvParentsOwnChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Parents can only message their own children.'**
+  String get errSrvParentsOwnChildren;
+
+  /// No description provided for @errSrvStudentsOwnParents.
+  ///
+  /// In en, this message translates to:
+  /// **'Students can only message their own parents.'**
+  String get errSrvStudentsOwnParents;
+
+  /// No description provided for @errSrvFormAlreadySubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'You’ve already submitted this form.'**
+  String get errSrvFormAlreadySubmitted;
+
+  /// No description provided for @errSrvPickRecipients.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one recipient.'**
+  String get errSrvPickRecipients;
+
+  /// No description provided for @errSrvNoRecipients.
+  ///
+  /// In en, this message translates to:
+  /// **'No one matches this audience.'**
+  String get errSrvNoRecipients;
+
+  /// No description provided for @errSrvExpiryBeforePublish.
+  ///
+  /// In en, this message translates to:
+  /// **'The expiry time must come after the publish time.'**
+  String get errSrvExpiryBeforePublish;
+
+  /// No description provided for @errSrvInvalidDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid date.'**
+  String get errSrvInvalidDate;
+
+  /// No description provided for @errSrvGradeNegative.
+  ///
+  /// In en, this message translates to:
+  /// **'A grade can’t be negative.'**
+  String get errSrvGradeNegative;
+
+  /// No description provided for @errSrvInvalidGradeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'“{label}” isn’t a label on this grade scale.'**
+  String errSrvInvalidGradeLabel(String label);
+
+  /// No description provided for @errSrvInvalidGradeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade levels must be between 1 and 20, lowest first.'**
+  String get errSrvInvalidGradeRange;
+
+  /// No description provided for @errSrvInvalidSemester.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester months must be between 1 and 12.'**
+  String get errSrvInvalidSemester;
+
+  /// No description provided for @errSrvSemesterWeights.
+  ///
+  /// In en, this message translates to:
+  /// **'Semester weights must add up to 100.'**
+  String get errSrvSemesterWeights;
+
+  /// No description provided for @errSrvAddSemester.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one semester.'**
+  String get errSrvAddSemester;
+
+  /// No description provided for @errSrvAddTwoLabels.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least two labels (for example A, B).'**
+  String get errSrvAddTwoLabels;
+
+  /// No description provided for @errSrvAddGradeRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one grade range.'**
+  String get errSrvAddGradeRange;
+
+  /// No description provided for @errSrvVariantIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Each variant needs at least one component.'**
+  String get errSrvVariantIncomplete;
+
+  /// No description provided for @errSrvNothingToUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'There’s nothing to update.'**
+  String get errSrvNothingToUpdate;
+
+  /// No description provided for @errSrvNoStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one student.'**
+  String get errSrvNoStudents;
+
+  /// No description provided for @errSrvHomeroomTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'That class already has a homeroom teacher.'**
+  String get errSrvHomeroomTaken;
+
+  /// No description provided for @errSrvClassroomNotTeachers.
+  ///
+  /// In en, this message translates to:
+  /// **'That classroom doesn’t belong to the selected teacher.'**
+  String get errSrvClassroomNotTeachers;
+
+  /// No description provided for @errSrvInvalidUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a full link, starting with https://.'**
+  String get errSrvInvalidUrl;
+
+  /// No description provided for @errSrvLinkOrAttachment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a link or at least one file.'**
+  String get errSrvLinkOrAttachment;
+
+  /// No description provided for @errSrvFileRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one file.'**
+  String get errSrvFileRequired;
+
+  /// No description provided for @errSrvImagesOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only images can be uploaded here.'**
+  String get errSrvImagesOnly;
+
+  /// No description provided for @errSrvImagesOrPdfOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only images and PDFs can be uploaded here.'**
+  String get errSrvImagesOrPdfOnly;
+
+  /// No description provided for @errSrvFileTypeNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'That file type isn’t allowed.'**
+  String get errSrvFileTypeNotAllowed;
+
+  /// No description provided for @errSrvCsvEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'The CSV file is empty.'**
+  String get errSrvCsvEmpty;
+
+  /// No description provided for @errSrvBookHasSolutions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{This book still has {count} solution. Delete it first.} other{This book still has {count} solutions. Delete them first.}}'**
+  String errSrvBookHasSolutions(int count);
+
+  /// No description provided for @errSrvBookNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That book isn’t in this subject.'**
+  String get errSrvBookNotFound;
+
+  /// No description provided for @errSrvPagesPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Page numbers must be positive.'**
+  String get errSrvPagesPositive;
+
+  /// No description provided for @errSrvEmailRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'That email is already registered.'**
+  String get errSrvEmailRegistered;
+
+  /// No description provided for @errSrvEmailOtherSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'{email} already belongs to an account in another school. Use a different email.'**
+  String errSrvEmailOtherSchool(String email);
+
+  /// No description provided for @errSrvUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'The username “{username}” is taken by a user in another school. Choose a different one.'**
+  String errSrvUsernameTaken(String username);
+
+  /// No description provided for @errSrvPasswordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, one{The password must be at least {n} character.} other{The password must be at least {n} characters.}}'**
+  String errSrvPasswordTooShort(int n);
+
+  /// No description provided for @errSrvWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'That password isn’t right.'**
+  String get errSrvWrongPassword;
+
+  /// No description provided for @errSrvWrongCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect email, username or password.'**
+  String get errSrvWrongCredentials;
+
+  /// No description provided for @errSrvStudentGradeRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Students need a grade level.'**
+  String get errSrvStudentGradeRequired;
+
+  /// No description provided for @errSrvNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name.'**
+  String get errSrvNameRequired;
+
+  /// No description provided for @errSrvIdentifierRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an email or username.'**
+  String get errSrvIdentifierRequired;
+
+  /// No description provided for @errSrvPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a password.'**
+  String get errSrvPasswordRequired;
+
+  /// No description provided for @errSrvOwnerImmutable.
+  ///
+  /// In en, this message translates to:
+  /// **'The platform owner can’t be removed as a manager.'**
+  String get errSrvOwnerImmutable;
+
+  /// No description provided for @errSrvTitleRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a title.'**
+  String get errSrvTitleRequired;
+
+  /// No description provided for @errSrvSubjectRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a subject.'**
+  String get errSrvSubjectRequired;
+
+  /// No description provided for @errSrvTextRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Write something first.'**
+  String get errSrvTextRequired;
+
+  /// No description provided for @errSrvYearRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid year.'**
+  String get errSrvYearRequired;
+
+  /// No description provided for @errSrvPeriodInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a period between 1 and 20.'**
+  String get errSrvPeriodInvalid;
+
+  /// No description provided for @errSrvResetLinkExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'That reset link has expired or was already used.'**
+  String get errSrvResetLinkExpired;
+
+  /// No description provided for @errSrvNovaBadReply.
+  ///
+  /// In en, this message translates to:
+  /// **'NOVA’s answer couldn’t be read. Try again.'**
+  String get errSrvNovaBadReply;
+
+  /// No description provided for @errSrvNovaUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'NOVA isn’t available right now. Try again in a moment.'**
+  String get errSrvNovaUnavailable;
+
+  /// No description provided for @errSrvMinistrySignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Ministry sign-in didn’t work. Try again.'**
+  String get errSrvMinistrySignIn;
+
+  /// No description provided for @errSrvMinistryDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Ministry sign-in isn’t enabled.'**
+  String get errSrvMinistryDisabled;
 }
 
 class _AppLocalizationsDelegate

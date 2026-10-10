@@ -119,6 +119,12 @@ class ProfileController extends Notifier<ProfileState> {
       }
       return null;
     } catch (e) {
+      if (e is CMApiException) {
+        if (e.body.contains('WRONG_PASSWORD')) {
+          return profilePasswordErrorWrongPassword;
+        }
+        return e.friendlyMessage;
+      }
       final msg = e.toString();
       if (msg.contains('WRONG_PASSWORD')) {
         return profilePasswordErrorWrongPassword;

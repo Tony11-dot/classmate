@@ -11008,4 +11008,368 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get settingsThemeCustomSection => 'מותאמות אישית';
+
+  @override
+  String get errSrvNoSchool =>
+      'החשבון שלך עדיין לא מקושר לבית ספר. פנו למנהל בית הספר.';
+
+  @override
+  String get errSrvNotAllowed => 'אין לך הרשאה לבצע פעולה זו.';
+
+  @override
+  String get errSrvOtherSchool => 'זה שייך לבית ספר אחר.';
+
+  @override
+  String get errSrvUserOtherSchool => 'המשתמש שייך לבית ספר אחר.';
+
+  @override
+  String get errSrvSignInRequired => 'יש להתחבר מחדש.';
+
+  @override
+  String get errSrvNotOnboarded =>
+      'פרופיל התלמיד שלך עדיין לא הוגדר. הצטרפו לכיתה עם הקוד מהמורה.';
+
+  @override
+  String get errSrvInvalidCode => 'הקוד שגוי או שפג תוקפו.';
+
+  @override
+  String get errSrvIncorrectCode => 'הקוד לא נכון. בדקו ונסו שוב.';
+
+  @override
+  String get errSrvTooManyAttempts => 'יותר מדי ניסיונות שגויים. בקשו קוד חדש.';
+
+  @override
+  String get errSrvNoActiveCode => 'אין קוד פעיל. בקשו קוד חדש.';
+
+  @override
+  String errSrvWaitBeforeCode(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'המתינו $seconds שניות לפני בקשת קוד נוסף.',
+      one: 'המתינו שנייה אחת לפני בקשת קוד נוסף.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get errSrvSameValue => 'זה כבר הערך הנוכחי שלך.';
+
+  @override
+  String get errSrvEmailInUse => 'כתובת האימייל הזו כבר בשימוש בחשבון אחר.';
+
+  @override
+  String get errSrvCodeMismatch => 'הקוד הונפק לערך אחר. בקשו קוד חדש.';
+
+  @override
+  String get errSrvInvalidEmail => 'יש להזין כתובת אימייל תקינה.';
+
+  @override
+  String get errSrvInvalidPhone =>
+      'יש להזין את מספר הטלפון בפורמט בין-לאומי, למשל ‎+972 50 123 4567.';
+
+  @override
+  String get errSrvAssignmentNotFound => 'המטלה הזו כבר לא קיימת.';
+
+  @override
+  String get errSrvExamNotFound => 'המבחן הזה כבר לא קיים.';
+
+  @override
+  String get errSrvFormNotFound => 'הטופס הזה כבר לא קיים.';
+
+  @override
+  String get errSrvMailNotFound => 'ההודעה הזו כבר לא קיימת.';
+
+  @override
+  String get errSrvMaterialNotFound => 'החומר הזה כבר לא קיים.';
+
+  @override
+  String get errSrvMeetingNotFound => 'הפגישה הזו כבר לא קיימת.';
+
+  @override
+  String get errSrvMessageNotFound => 'ההודעה הזו כבר לא קיימת.';
+
+  @override
+  String get errSrvThreadNotFound => 'השיחה הזו כבר לא קיימת.';
+
+  @override
+  String get errSrvClassroomNotFound => 'הכיתה הזו כבר לא קיימת.';
+
+  @override
+  String get errSrvCohortNotFound => 'הקבוצה הזו כבר לא קיימת.';
+
+  @override
+  String get errSrvStudentNotFound => 'התלמיד לא נמצא.';
+
+  @override
+  String get errSrvStudentNotInCohort => 'התלמיד לא בקבוצה הזו.';
+
+  @override
+  String get errSrvUserNotFound => 'המשתמש לא נמצא.';
+
+  @override
+  String get errSrvSchoolNotFound => 'בית הספר לא נמצא.';
+
+  @override
+  String get errSrvCertificateNotFound => 'התעודה הזו כבר לא קיימת.';
+
+  @override
+  String get errSrvNoteNotFound => 'הפתק הזה כבר לא קיים.';
+
+  @override
+  String get errSrvReportNotFound => 'הדיווח הזה כבר לא קיים.';
+
+  @override
+  String get errSrvSolutionNotFound => 'הפתרון הזה כבר לא קיים.';
+
+  @override
+  String get errSrvPeriodNotFound => 'השיעור הזה כבר לא קיים.';
+
+  @override
+  String get errSrvNotFound => 'הפריט הזה כבר לא קיים.';
+
+  @override
+  String get errSrvMessageYourself => 'אי אפשר לשלוח הודעה לעצמך.';
+
+  @override
+  String get errSrvReportOwnMessage => 'אי אפשר לדווח על הודעה של עצמך.';
+
+  @override
+  String get errSrvGroupNeedsMembers => 'קבוצה צריכה לפחות שני אנשים נוספים.';
+
+  @override
+  String get errSrvRequestNotApproved => 'הבקשה הזו עדיין לא אושרה.';
+
+  @override
+  String get errSrvEditMediaMessage => 'אי אפשר לערוך הודעות מדיה.';
+
+  @override
+  String get errSrvOnlyDirectBlock => 'אפשר לחסום רק שיחות אישיות.';
+
+  @override
+  String get errSrvOnlyGroupAdminsPin => 'רק מנהלי הקבוצה יכולים לנעוץ הודעות.';
+
+  @override
+  String get errSrvOnlyGroupsLeave => 'אפשר לעזוב רק קבוצות.';
+
+  @override
+  String get errSrvOnlyGroupsRename => 'אפשר לשנות שם רק לקבוצות.';
+
+  @override
+  String get errSrvOnlyGroupsInvite => 'רק לקבוצות יש קודי הזמנה.';
+
+  @override
+  String get errSrvOnlyReceiverBlock => 'רק מי שקיבל את הבקשה יכול לחסום אותה.';
+
+  @override
+  String get errSrvOnlySenderDelete => 'רק השולח יכול למחוק הודעה עבור כולם.';
+
+  @override
+  String get errSrvOnlySenderEdit => 'רק השולח יכול לערוך את ההודעה.';
+
+  @override
+  String get errSrvOnlySenderRecipients => 'רק השולח יכול לראות את הנמענים.';
+
+  @override
+  String get errSrvOnlyOwnDmPin => 'אפשר לנעוץ רק שיחות אישיות שלך.';
+
+  @override
+  String get errSrvBlockedFromGroup => 'האדם הזה חסום מהקבוצה.';
+
+  @override
+  String get errSrvThreadBlocked => 'השיחה הזו חסומה.';
+
+  @override
+  String get errSrvNotPendingRequest => 'השיחה הזו אינה בקשה ממתינה.';
+
+  @override
+  String get errSrvRemovedFromGroup => 'הוסרת מהקבוצה הזו.';
+
+  @override
+  String get errSrvNoThreadAccess => 'אינך חלק מהשיחה הזו.';
+
+  @override
+  String get errSrvNotClassroomMember => 'אינך חבר בכיתה הזו.';
+
+  @override
+  String get errSrvParentsOwnChildren =>
+      'הורים יכולים לשלוח הודעות רק לילדיהם.';
+
+  @override
+  String get errSrvStudentsOwnParents =>
+      'תלמידים יכולים לשלוח הודעות רק להוריהם.';
+
+  @override
+  String get errSrvFormAlreadySubmitted => 'כבר שלחת את הטופס הזה.';
+
+  @override
+  String get errSrvPickRecipients => 'יש לבחור לפחות נמען אחד.';
+
+  @override
+  String get errSrvNoRecipients => 'אין נמענים שתואמים את הקהל הזה.';
+
+  @override
+  String get errSrvExpiryBeforePublish =>
+      'זמן התפוגה חייב להיות אחרי זמן הפרסום.';
+
+  @override
+  String get errSrvInvalidDate => 'יש להזין תאריך תקין.';
+
+  @override
+  String get errSrvGradeNegative => 'ציון לא יכול להיות שלילי.';
+
+  @override
+  String errSrvInvalidGradeLabel(String label) {
+    return '„$label” אינו תווית בסולם הציונים הזה.';
+  }
+
+  @override
+  String get errSrvInvalidGradeRange =>
+      'השכבות חייבות להיות בין 1 ל-20, מהנמוכה לגבוהה.';
+
+  @override
+  String get errSrvInvalidSemester => 'חודשי הסמסטר חייבים להיות בין 1 ל-12.';
+
+  @override
+  String get errSrvSemesterWeights => 'משקלי הסמסטרים חייבים להסתכם ב-100.';
+
+  @override
+  String get errSrvAddSemester => 'יש להוסיף לפחות סמסטר אחד.';
+
+  @override
+  String get errSrvAddTwoLabels => 'יש להוסיף לפחות שתי תוויות (למשל A, B).';
+
+  @override
+  String get errSrvAddGradeRange => 'יש להוסיף לפחות טווח שכבות אחד.';
+
+  @override
+  String get errSrvVariantIncomplete => 'כל גרסה צריכה לפחות רכיב אחד.';
+
+  @override
+  String get errSrvNothingToUpdate => 'אין מה לעדכן.';
+
+  @override
+  String get errSrvNoStudents => 'יש לבחור לפחות תלמיד אחד.';
+
+  @override
+  String get errSrvHomeroomTaken => 'לכיתה הזו כבר יש מחנך.';
+
+  @override
+  String get errSrvClassroomNotTeachers => 'הכיתה הזו לא שייכת למורה שנבחר.';
+
+  @override
+  String get errSrvInvalidUrl => 'יש להזין קישור מלא שמתחיל ב-https://.';
+
+  @override
+  String get errSrvLinkOrAttachment => 'יש להוסיף קישור או לפחות קובץ אחד.';
+
+  @override
+  String get errSrvFileRequired => 'יש להוסיף לפחות קובץ אחד.';
+
+  @override
+  String get errSrvImagesOnly => 'אפשר להעלות כאן רק תמונות.';
+
+  @override
+  String get errSrvImagesOrPdfOnly => 'אפשר להעלות כאן רק תמונות וקובצי PDF.';
+
+  @override
+  String get errSrvFileTypeNotAllowed => 'סוג הקובץ הזה אינו מותר.';
+
+  @override
+  String get errSrvCsvEmpty => 'קובץ ה-CSV ריק.';
+
+  @override
+  String errSrvBookHasSolutions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'לספר הזה עדיין יש $count פתרונות. יש למחוק אותם קודם.',
+      one: 'לספר הזה עדיין יש פתרון אחד. יש למחוק אותו קודם.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get errSrvBookNotFound => 'הספר הזה לא במקצוע הזה.';
+
+  @override
+  String get errSrvPagesPositive => 'מספרי העמודים חייבים להיות חיוביים.';
+
+  @override
+  String get errSrvEmailRegistered => 'כתובת האימייל הזו כבר רשומה.';
+
+  @override
+  String errSrvEmailOtherSchool(String email) {
+    return '‎$email כבר שייך לחשבון בבית ספר אחר. השתמשו באימייל אחר.';
+  }
+
+  @override
+  String errSrvUsernameTaken(String username) {
+    return 'שם המשתמש „$username” תפוס על ידי משתמש בבית ספר אחר. בחרו שם אחר.';
+  }
+
+  @override
+  String errSrvPasswordTooShort(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'הסיסמה חייבת להכיל לפחות $n תווים.',
+      one: 'הסיסמה חייבת להכיל לפחות תו אחד.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get errSrvWrongPassword => 'הסיסמה לא נכונה.';
+
+  @override
+  String get errSrvWrongCredentials => 'אימייל, שם משתמש או סיסמה שגויים.';
+
+  @override
+  String get errSrvStudentGradeRequired => 'לתלמידים צריך להגדיר שכבה.';
+
+  @override
+  String get errSrvNameRequired => 'יש להזין שם.';
+
+  @override
+  String get errSrvIdentifierRequired => 'יש להזין אימייל או שם משתמש.';
+
+  @override
+  String get errSrvPasswordRequired => 'יש להזין סיסמה.';
+
+  @override
+  String get errSrvOwnerImmutable => 'אי אפשר להסיר את בעל הפלטפורמה מניהול.';
+
+  @override
+  String get errSrvTitleRequired => 'יש להזין כותרת.';
+
+  @override
+  String get errSrvSubjectRequired => 'יש לבחור מקצוע.';
+
+  @override
+  String get errSrvTextRequired => 'קודם יש לכתוב משהו.';
+
+  @override
+  String get errSrvYearRequired => 'יש להזין שנה תקינה.';
+
+  @override
+  String get errSrvPeriodInvalid => 'יש לבחור שיעור בין 1 ל-20.';
+
+  @override
+  String get errSrvResetLinkExpired =>
+      'קישור האיפוס פג תוקף או שכבר נעשה בו שימוש.';
+
+  @override
+  String get errSrvNovaBadReply =>
+      'לא ניתן היה לקרוא את התשובה של NOVA. נסו שוב.';
+
+  @override
+  String get errSrvNovaUnavailable => 'NOVA לא זמינה כרגע. נסו שוב בעוד רגע.';
+
+  @override
+  String get errSrvMinistrySignIn =>
+      'ההתחברות דרך משרד החינוך לא הצליחה. נסו שוב.';
+
+  @override
+  String get errSrvMinistryDisabled => 'ההתחברות דרך משרד החינוך לא מופעלת.';
 }

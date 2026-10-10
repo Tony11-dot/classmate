@@ -5557,5 +5557,155 @@
   "practiceTopicEthicsAndPhilosophy": "‹‹Ethics and philosophy››",
   "practiceTopicWorldReligions": "‹‹World religions››",
   "practiceTopicReligionAndSociety": "‹‹Religion and society››",
-  "settingsThemeCustomSection": "‹‹Custom››"
+  "settingsThemeCustomSection": "‹‹Custom››",
+  "errSrvNoSchool": "‹‹Your account isn’t linked to a school yet. Ask your school admin.››",
+  "errSrvNotAllowed": "‹‹You don’t have permission to do that.››",
+  "errSrvOtherSchool": "‹‹That belongs to another school.››",
+  "errSrvUserOtherSchool": "‹‹That user belongs to another school.››",
+  "errSrvSignInRequired": "‹‹Please sign in again.››",
+  "errSrvNotOnboarded": "‹‹Your student profile isn’t set up yet. Join your class with the code from your teacher.››",
+  "errSrvInvalidCode": "‹‹That code is invalid or has expired.››",
+  "errSrvIncorrectCode": "‹‹That code isn’t right. Check it and try again.››",
+  "errSrvTooManyAttempts": "‹‹Too many wrong attempts. Request a new code.››",
+  "errSrvNoActiveCode": "‹‹There’s no active code. Request a new one.››",
+  "errSrvWaitBeforeCode": "‹‹{seconds, plural, one{Wait {seconds} second before requesting another code.} other{Wait {seconds} seconds before requesting another code.}}››",
+  "@errSrvWaitBeforeCode": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvSameValue": "‹‹That’s already your current value.››",
+  "errSrvEmailInUse": "‹‹That email is already used by another account.››",
+  "errSrvCodeMismatch": "‹‹That code was issued for a different value. Request a new one.››",
+  "errSrvInvalidEmail": "‹‹Enter a valid email address.››",
+  "errSrvInvalidPhone": "‹‹Enter the phone number in international format, e.g. +972 50 123 4567.››",
+  "errSrvAssignmentNotFound": "‹‹That assignment no longer exists.››",
+  "errSrvExamNotFound": "‹‹That exam no longer exists.››",
+  "errSrvFormNotFound": "‹‹That form no longer exists.››",
+  "errSrvMailNotFound": "‹‹That mail no longer exists.››",
+  "errSrvMaterialNotFound": "‹‹That material no longer exists.››",
+  "errSrvMeetingNotFound": "‹‹That meeting no longer exists.››",
+  "errSrvMessageNotFound": "‹‹That message no longer exists.››",
+  "errSrvThreadNotFound": "‹‹That conversation no longer exists.››",
+  "errSrvClassroomNotFound": "‹‹That classroom no longer exists.››",
+  "errSrvCohortNotFound": "‹‹That class no longer exists.››",
+  "errSrvStudentNotFound": "‹‹That student couldn’t be found.››",
+  "errSrvStudentNotInCohort": "‹‹That student isn’t in this class.››",
+  "errSrvUserNotFound": "‹‹That user couldn’t be found.››",
+  "errSrvSchoolNotFound": "‹‹That school couldn’t be found.››",
+  "errSrvCertificateNotFound": "‹‹That certificate no longer exists.››",
+  "errSrvNoteNotFound": "‹‹That note no longer exists.››",
+  "errSrvReportNotFound": "‹‹That report no longer exists.››",
+  "errSrvSolutionNotFound": "‹‹That solution no longer exists.››",
+  "errSrvPeriodNotFound": "‹‹That period no longer exists.››",
+  "errSrvNotFound": "‹‹That item no longer exists.››",
+  "errSrvMessageYourself": "‹‹You can’t message yourself.››",
+  "errSrvReportOwnMessage": "‹‹You can’t report your own message.››",
+  "errSrvGroupNeedsMembers": "‹‹A group needs at least two other people.››",
+  "errSrvRequestNotApproved": "‹‹This request hasn’t been accepted yet.››",
+  "errSrvEditMediaMessage": "‹‹Media messages can’t be edited.››",
+  "errSrvOnlyDirectBlock": "‹‹Only direct chats can be blocked.››",
+  "errSrvOnlyGroupAdminsPin": "‹‹Only group admins can pin messages.››",
+  "errSrvOnlyGroupsLeave": "‹‹You can only leave groups.››",
+  "errSrvOnlyGroupsRename": "‹‹Only groups can be renamed.››",
+  "errSrvOnlyGroupsInvite": "‹‹Only groups have invite codes.››",
+  "errSrvOnlyReceiverBlock": "‹‹Only the person who received the request can block it.››",
+  "errSrvOnlySenderDelete": "‹‹Only the sender can delete a message for everyone.››",
+  "errSrvOnlySenderEdit": "‹‹Only the sender can edit this message.››",
+  "errSrvOnlySenderRecipients": "‹‹Only the sender can see the recipients.››",
+  "errSrvOnlyOwnDmPin": "‹‹You can only pin your own direct chats.››",
+  "errSrvBlockedFromGroup": "‹‹That person is blocked from this group.››",
+  "errSrvThreadBlocked": "‹‹This chat is blocked.››",
+  "errSrvNotPendingRequest": "‹‹This chat isn’t a pending request.››",
+  "errSrvRemovedFromGroup": "‹‹You were removed from this group.››",
+  "errSrvNoThreadAccess": "‹‹You’re not part of this chat.››",
+  "errSrvNotClassroomMember": "‹‹You’re not a member of this classroom.››",
+  "errSrvParentsOwnChildren": "‹‹Parents can only message their own children.››",
+  "errSrvStudentsOwnParents": "‹‹Students can only message their own parents.››",
+  "errSrvFormAlreadySubmitted": "‹‹You’ve already submitted this form.››",
+  "errSrvPickRecipients": "‹‹Pick at least one recipient.››",
+  "errSrvNoRecipients": "‹‹No one matches this audience.››",
+  "errSrvExpiryBeforePublish": "‹‹The expiry time must come after the publish time.››",
+  "errSrvInvalidDate": "‹‹Enter a valid date.››",
+  "errSrvGradeNegative": "‹‹A grade can’t be negative.››",
+  "errSrvInvalidGradeLabel": "‹‹“{label}” isn’t a label on this grade scale.››",
+  "@errSrvInvalidGradeLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvInvalidGradeRange": "‹‹Grade levels must be between 1 and 20, lowest first.››",
+  "errSrvInvalidSemester": "‹‹Semester months must be between 1 and 12.››",
+  "errSrvSemesterWeights": "‹‹Semester weights must add up to 100.››",
+  "errSrvAddSemester": "‹‹Add at least one semester.››",
+  "errSrvAddTwoLabels": "‹‹Add at least two labels (for example A, B).››",
+  "errSrvAddGradeRange": "‹‹Add at least one grade range.››",
+  "errSrvVariantIncomplete": "‹‹Each variant needs at least one component.››",
+  "errSrvNothingToUpdate": "‹‹There’s nothing to update.››",
+  "errSrvNoStudents": "‹‹Pick at least one student.››",
+  "errSrvHomeroomTaken": "‹‹That class already has a homeroom teacher.››",
+  "errSrvClassroomNotTeachers": "‹‹That classroom doesn’t belong to the selected teacher.››",
+  "errSrvInvalidUrl": "‹‹Enter a full link, starting with https://.››",
+  "errSrvLinkOrAttachment": "‹‹Add a link or at least one file.››",
+  "errSrvFileRequired": "‹‹Add at least one file.››",
+  "errSrvImagesOnly": "‹‹Only images can be uploaded here.››",
+  "errSrvImagesOrPdfOnly": "‹‹Only images and PDFs can be uploaded here.››",
+  "errSrvFileTypeNotAllowed": "‹‹That file type isn’t allowed.››",
+  "errSrvCsvEmpty": "‹‹The CSV file is empty.››",
+  "errSrvBookHasSolutions": "‹‹{count, plural, one{This book still has {count} solution. Delete it first.} other{This book still has {count} solutions. Delete them first.}}››",
+  "@errSrvBookHasSolutions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvBookNotFound": "‹‹That book isn’t in this subject.››",
+  "errSrvPagesPositive": "‹‹Page numbers must be positive.››",
+  "errSrvEmailRegistered": "‹‹That email is already registered.››",
+  "errSrvEmailOtherSchool": "‹‹{email} already belongs to an account in another school. Use a different email.››",
+  "@errSrvEmailOtherSchool": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvUsernameTaken": "‹‹The username “{username}” is taken by a user in another school. Choose a different one.››",
+  "@errSrvUsernameTaken": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvPasswordTooShort": "‹‹{n, plural, one{The password must be at least {n} character.} other{The password must be at least {n} characters.}}››",
+  "@errSrvPasswordTooShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvWrongPassword": "‹‹That password isn’t right.››",
+  "errSrvWrongCredentials": "‹‹Incorrect email, username or password.››",
+  "errSrvStudentGradeRequired": "‹‹Students need a grade level.››",
+  "errSrvNameRequired": "‹‹Enter a name.››",
+  "errSrvIdentifierRequired": "‹‹Enter an email or username.››",
+  "errSrvPasswordRequired": "‹‹Enter a password.››",
+  "errSrvOwnerImmutable": "‹‹The platform owner can’t be removed as a manager.››",
+  "errSrvTitleRequired": "‹‹Enter a title.››",
+  "errSrvSubjectRequired": "‹‹Choose a subject.››",
+  "errSrvTextRequired": "‹‹Write something first.››",
+  "errSrvYearRequired": "‹‹Enter a valid year.››",
+  "errSrvPeriodInvalid": "‹‹Choose a period between 1 and 20.››",
+  "errSrvResetLinkExpired": "‹‹That reset link has expired or was already used.››",
+  "errSrvNovaBadReply": "‹‹NOVA’s answer couldn’t be read. Try again.››",
+  "errSrvNovaUnavailable": "‹‹NOVA isn’t available right now. Try again in a moment.››",
+  "errSrvMinistrySignIn": "‹‹Ministry sign-in didn’t work. Try again.››",
+  "errSrvMinistryDisabled": "‹‹Ministry sign-in isn’t enabled.››"
 }

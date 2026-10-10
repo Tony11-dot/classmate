@@ -3949,5 +3949,155 @@
   "practiceTopicEthicsAndPhilosophy": "Этика и философия",
   "practiceTopicWorldReligions": "Мировые религии",
   "practiceTopicReligionAndSociety": "Религия и общество",
-  "settingsThemeCustomSection": "Пользовательские"
+  "settingsThemeCustomSection": "Пользовательские",
+  "errSrvNoSchool": "Ваш аккаунт ещё не привязан к школе. Обратитесь к администратору школы.",
+  "errSrvNotAllowed": "У вас нет прав для этого действия.",
+  "errSrvOtherSchool": "Это относится к другой школе.",
+  "errSrvUserOtherSchool": "Этот пользователь из другой школы.",
+  "errSrvSignInRequired": "Войдите в систему ещё раз.",
+  "errSrvNotOnboarded": "Профиль ученика ещё не настроен. Присоединитесь к классу по коду от учителя.",
+  "errSrvInvalidCode": "Код недействителен или его срок истёк.",
+  "errSrvIncorrectCode": "Код неверный. Проверьте и попробуйте снова.",
+  "errSrvTooManyAttempts": "Слишком много неверных попыток. Запросите новый код.",
+  "errSrvNoActiveCode": "Нет активного кода. Запросите новый.",
+  "errSrvWaitBeforeCode": "{seconds, plural, one{Подождите {seconds} секунду, прежде чем запросить новый код.} few{Подождите {seconds} секунды, прежде чем запросить новый код.} many{Подождите {seconds} секунд, прежде чем запросить новый код.} other{Подождите {seconds} секунды, прежде чем запросить новый код.}}",
+  "@errSrvWaitBeforeCode": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvSameValue": "Это и так ваше текущее значение.",
+  "errSrvEmailInUse": "Этот адрес эл. почты уже используется другим аккаунтом.",
+  "errSrvCodeMismatch": "Этот код выдан для другого значения. Запросите новый.",
+  "errSrvInvalidEmail": "Введите корректный адрес эл. почты.",
+  "errSrvInvalidPhone": "Введите номер в международном формате, например +972 50 123 4567.",
+  "errSrvAssignmentNotFound": "Этого задания больше нет.",
+  "errSrvExamNotFound": "Этого экзамена больше нет.",
+  "errSrvFormNotFound": "Этой формы больше нет.",
+  "errSrvMailNotFound": "Этого письма больше нет.",
+  "errSrvMaterialNotFound": "Этого материала больше нет.",
+  "errSrvMeetingNotFound": "Этой встречи больше нет.",
+  "errSrvMessageNotFound": "Этого сообщения больше нет.",
+  "errSrvThreadNotFound": "Этой беседы больше нет.",
+  "errSrvClassroomNotFound": "Этого класса больше нет.",
+  "errSrvCohortNotFound": "Этой группы больше нет.",
+  "errSrvStudentNotFound": "Ученик не найден.",
+  "errSrvStudentNotInCohort": "Этот ученик не входит в эту группу.",
+  "errSrvUserNotFound": "Пользователь не найден.",
+  "errSrvSchoolNotFound": "Школа не найдена.",
+  "errSrvCertificateNotFound": "Этого табеля больше нет.",
+  "errSrvNoteNotFound": "Этой заметки больше нет.",
+  "errSrvReportNotFound": "Этой жалобы больше нет.",
+  "errSrvSolutionNotFound": "Этого решения больше нет.",
+  "errSrvPeriodNotFound": "Этого урока больше нет.",
+  "errSrvNotFound": "Этого элемента больше нет.",
+  "errSrvMessageYourself": "Нельзя написать самому себе.",
+  "errSrvReportOwnMessage": "Нельзя пожаловаться на собственное сообщение.",
+  "errSrvGroupNeedsMembers": "В группе должно быть ещё минимум два человека.",
+  "errSrvRequestNotApproved": "Этот запрос ещё не принят.",
+  "errSrvEditMediaMessage": "Медиасообщения нельзя редактировать.",
+  "errSrvOnlyDirectBlock": "Блокировать можно только личные чаты.",
+  "errSrvOnlyGroupAdminsPin": "Закреплять сообщения могут только администраторы группы.",
+  "errSrvOnlyGroupsLeave": "Выйти можно только из группы.",
+  "errSrvOnlyGroupsRename": "Переименовать можно только группу.",
+  "errSrvOnlyGroupsInvite": "Коды приглашения есть только у групп.",
+  "errSrvOnlyReceiverBlock": "Заблокировать запрос может только его получатель.",
+  "errSrvOnlySenderDelete": "Удалить сообщение у всех может только отправитель.",
+  "errSrvOnlySenderEdit": "Редактировать сообщение может только отправитель.",
+  "errSrvOnlySenderRecipients": "Список получателей видит только отправитель.",
+  "errSrvOnlyOwnDmPin": "Закреплять можно только свои личные чаты.",
+  "errSrvBlockedFromGroup": "Этот человек заблокирован в группе.",
+  "errSrvThreadBlocked": "Этот чат заблокирован.",
+  "errSrvNotPendingRequest": "Этот чат не является ожидающим запросом.",
+  "errSrvRemovedFromGroup": "Вас удалили из этой группы.",
+  "errSrvNoThreadAccess": "Вы не участник этого чата.",
+  "errSrvNotClassroomMember": "Вы не участник этого класса.",
+  "errSrvParentsOwnChildren": "Родители могут писать только своим детям.",
+  "errSrvStudentsOwnParents": "Ученики могут писать только своим родителям.",
+  "errSrvFormAlreadySubmitted": "Вы уже отправили эту форму.",
+  "errSrvPickRecipients": "Выберите хотя бы одного получателя.",
+  "errSrvNoRecipients": "Под эту аудиторию никто не подходит.",
+  "errSrvExpiryBeforePublish": "Время окончания должно быть позже времени публикации.",
+  "errSrvInvalidDate": "Введите корректную дату.",
+  "errSrvGradeNegative": "Оценка не может быть отрицательной.",
+  "errSrvInvalidGradeLabel": "«{label}» нет в этой шкале оценок.",
+  "@errSrvInvalidGradeLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvInvalidGradeRange": "Классы должны быть от 1 до 20, сначала младший.",
+  "errSrvInvalidSemester": "Месяцы семестра должны быть от 1 до 12.",
+  "errSrvSemesterWeights": "Сумма весов семестров должна быть 100.",
+  "errSrvAddSemester": "Добавьте хотя бы один семестр.",
+  "errSrvAddTwoLabels": "Добавьте хотя бы две метки (например, A, B).",
+  "errSrvAddGradeRange": "Добавьте хотя бы один диапазон классов.",
+  "errSrvVariantIncomplete": "В каждом варианте должен быть хотя бы один компонент.",
+  "errSrvNothingToUpdate": "Нечего обновлять.",
+  "errSrvNoStudents": "Выберите хотя бы одного ученика.",
+  "errSrvHomeroomTaken": "У этого класса уже есть классный руководитель.",
+  "errSrvClassroomNotTeachers": "Этот класс не принадлежит выбранному учителю.",
+  "errSrvInvalidUrl": "Введите полную ссылку, начинающуюся с https://.",
+  "errSrvLinkOrAttachment": "Добавьте ссылку или хотя бы один файл.",
+  "errSrvFileRequired": "Добавьте хотя бы один файл.",
+  "errSrvImagesOnly": "Здесь можно загружать только изображения.",
+  "errSrvImagesOrPdfOnly": "Здесь можно загружать только изображения и PDF.",
+  "errSrvFileTypeNotAllowed": "Этот тип файла не поддерживается.",
+  "errSrvCsvEmpty": "CSV-файл пуст.",
+  "errSrvBookHasSolutions": "{count, plural, one{В этой книге ещё {count} решение. Сначала удалите его.} few{В этой книге ещё {count} решения. Сначала удалите их.} many{В этой книге ещё {count} решений. Сначала удалите их.} other{В этой книге ещё {count} решения. Сначала удалите их.}}",
+  "@errSrvBookHasSolutions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvBookNotFound": "Этой книги нет в этом предмете.",
+  "errSrvPagesPositive": "Номера страниц должны быть положительными.",
+  "errSrvEmailRegistered": "Этот адрес эл. почты уже зарегистрирован.",
+  "errSrvEmailOtherSchool": "{email} уже принадлежит аккаунту в другой школе. Используйте другой адрес.",
+  "@errSrvEmailOtherSchool": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvUsernameTaken": "Имя пользователя «{username}» занято пользователем из другой школы. Выберите другое.",
+  "@errSrvUsernameTaken": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvPasswordTooShort": "{n, plural, one{Пароль должен содержать не менее {n} символа.} few{Пароль должен содержать не менее {n} символов.} many{Пароль должен содержать не менее {n} символов.} other{Пароль должен содержать не менее {n} символа.}}",
+  "@errSrvPasswordTooShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvWrongPassword": "Неверный пароль.",
+  "errSrvWrongCredentials": "Неверный адрес эл. почты, имя пользователя или пароль.",
+  "errSrvStudentGradeRequired": "Для учеников нужно указать класс.",
+  "errSrvNameRequired": "Введите имя.",
+  "errSrvIdentifierRequired": "Введите эл. почту или имя пользователя.",
+  "errSrvPasswordRequired": "Введите пароль.",
+  "errSrvOwnerImmutable": "Владельца платформы нельзя удалить из менеджеров.",
+  "errSrvTitleRequired": "Введите название.",
+  "errSrvSubjectRequired": "Выберите предмет.",
+  "errSrvTextRequired": "Сначала напишите что-нибудь.",
+  "errSrvYearRequired": "Введите корректный год.",
+  "errSrvPeriodInvalid": "Выберите урок от 1 до 20.",
+  "errSrvResetLinkExpired": "Ссылка для сброса устарела или уже использована.",
+  "errSrvNovaBadReply": "Не удалось прочитать ответ NOVA. Попробуйте снова.",
+  "errSrvNovaUnavailable": "NOVA сейчас недоступна. Попробуйте чуть позже.",
+  "errSrvMinistrySignIn": "Вход через министерство не удался. Попробуйте снова.",
+  "errSrvMinistryDisabled": "Вход через министерство не включён."
 }

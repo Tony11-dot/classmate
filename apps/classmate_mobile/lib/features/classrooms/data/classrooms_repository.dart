@@ -5,18 +5,25 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/config/env.dart';
+import '../../../core/http/cm_api.dart';
 
-/// Non-2xx reply from the classrooms API. Same message as before, but typed
-/// so callers can tell a server rejection (4xx) from a network failure.
+/// Non-2xx reply from the classrooms API, typed so callers can tell a
+/// server rejection (4xx) from a network failure. `toString()` is the
+/// sanitized, localized message every `'$e'` toast shows; the raw status,
+/// path and body stay in [debugString] for logs.
 class ClassroomsApiException implements Exception {
   const ClassroomsApiException(this.label, this.statusCode, this.body);
   final String label;
   final int statusCode;
   final String body;
 
+  String get debugString =>
+      '$label failed ($statusCode): ${body.isEmpty ? 'empty body' : body}';
+
   @override
   String toString() =>
-      'Exception: $label failed ($statusCode): ${body.isEmpty ? 'empty body' : body}';
+      CMApiException(statusCode: statusCode, uri: Uri(path: label), body: body)
+          .friendlyMessage;
 }
 
 /// The server turned down a join code (wrong, expired or already used).

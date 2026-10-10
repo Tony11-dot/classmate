@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart';
 
+import '../../../core/http/cm_api.dart';
 import 'sse_client.dart';
 
 class TutorRepository {
@@ -57,10 +58,11 @@ class TutorRepository {
       res.statusCode == 200 || res.statusCode == 201;
 
   Never _fail(String label, http.Response res) {
-    final body = res.body;
-    final snippet = body.length > 500 ? '${body.substring(0, 500)}…' : body;
-    throw Exception(
-      '$label failed: ${res.statusCode} ${res.reasonPhrase} body=$snippet',
+    // Sanitized + localized in toString(); status/path/body in debugString.
+    throw CMApiException(
+      statusCode: res.statusCode,
+      uri: Uri(path: label),
+      body: res.body,
     );
   }
 

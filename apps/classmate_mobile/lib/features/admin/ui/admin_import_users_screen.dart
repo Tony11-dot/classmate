@@ -687,6 +687,7 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
     return DropdownButtonFormField<int>(
       initialValue: row.grade,
       isDense: true,
+      isExpanded: true,
       decoration: InputDecoration(labelText: label, isDense: true, border: const OutlineInputBorder()),
       items: [for (final g in grades) DropdownMenuItem(value: g, child: Text('$g'))],
       onChanged: (v) => setState(() => row.grade = v),

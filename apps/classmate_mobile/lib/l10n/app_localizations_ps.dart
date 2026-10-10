@@ -11196,4 +11196,400 @@ class AppLocalizationsPs extends AppLocalizations {
 
   @override
   String get settingsThemeCustomSection => '‹‹Custom››';
+
+  @override
+  String get errSrvNoSchool =>
+      '‹‹Your account isn’t linked to a school yet. Ask your school admin.››';
+
+  @override
+  String get errSrvNotAllowed => '‹‹You don’t have permission to do that.››';
+
+  @override
+  String get errSrvOtherSchool => '‹‹That belongs to another school.››';
+
+  @override
+  String get errSrvUserOtherSchool =>
+      '‹‹That user belongs to another school.››';
+
+  @override
+  String get errSrvSignInRequired => '‹‹Please sign in again.››';
+
+  @override
+  String get errSrvNotOnboarded =>
+      '‹‹Your student profile isn’t set up yet. Join your class with the code from your teacher.››';
+
+  @override
+  String get errSrvInvalidCode => '‹‹That code is invalid or has expired.››';
+
+  @override
+  String get errSrvIncorrectCode =>
+      '‹‹That code isn’t right. Check it and try again.››';
+
+  @override
+  String get errSrvTooManyAttempts =>
+      '‹‹Too many wrong attempts. Request a new code.››';
+
+  @override
+  String get errSrvNoActiveCode =>
+      '‹‹There’s no active code. Request a new one.››';
+
+  @override
+  String errSrvWaitBeforeCode(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'Wait $seconds seconds before requesting another code.',
+      one: 'Wait $seconds second before requesting another code.',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String get errSrvSameValue => '‹‹That’s already your current value.››';
+
+  @override
+  String get errSrvEmailInUse =>
+      '‹‹That email is already used by another account.››';
+
+  @override
+  String get errSrvCodeMismatch =>
+      '‹‹That code was issued for a different value. Request a new one.››';
+
+  @override
+  String get errSrvInvalidEmail => '‹‹Enter a valid email address.››';
+
+  @override
+  String get errSrvInvalidPhone =>
+      '‹‹Enter the phone number in international format, e.g. +972 50 123 4567.››';
+
+  @override
+  String get errSrvAssignmentNotFound =>
+      '‹‹That assignment no longer exists.››';
+
+  @override
+  String get errSrvExamNotFound => '‹‹That exam no longer exists.››';
+
+  @override
+  String get errSrvFormNotFound => '‹‹That form no longer exists.››';
+
+  @override
+  String get errSrvMailNotFound => '‹‹That mail no longer exists.››';
+
+  @override
+  String get errSrvMaterialNotFound => '‹‹That material no longer exists.››';
+
+  @override
+  String get errSrvMeetingNotFound => '‹‹That meeting no longer exists.››';
+
+  @override
+  String get errSrvMessageNotFound => '‹‹That message no longer exists.››';
+
+  @override
+  String get errSrvThreadNotFound => '‹‹That conversation no longer exists.››';
+
+  @override
+  String get errSrvClassroomNotFound => '‹‹That classroom no longer exists.››';
+
+  @override
+  String get errSrvCohortNotFound => '‹‹That class no longer exists.››';
+
+  @override
+  String get errSrvStudentNotFound => '‹‹That student couldn’t be found.››';
+
+  @override
+  String get errSrvStudentNotInCohort =>
+      '‹‹That student isn’t in this class.››';
+
+  @override
+  String get errSrvUserNotFound => '‹‹That user couldn’t be found.››';
+
+  @override
+  String get errSrvSchoolNotFound => '‹‹That school couldn’t be found.››';
+
+  @override
+  String get errSrvCertificateNotFound =>
+      '‹‹That certificate no longer exists.››';
+
+  @override
+  String get errSrvNoteNotFound => '‹‹That note no longer exists.››';
+
+  @override
+  String get errSrvReportNotFound => '‹‹That report no longer exists.››';
+
+  @override
+  String get errSrvSolutionNotFound => '‹‹That solution no longer exists.››';
+
+  @override
+  String get errSrvPeriodNotFound => '‹‹That period no longer exists.››';
+
+  @override
+  String get errSrvNotFound => '‹‹That item no longer exists.››';
+
+  @override
+  String get errSrvMessageYourself => '‹‹You can’t message yourself.››';
+
+  @override
+  String get errSrvReportOwnMessage => '‹‹You can’t report your own message.››';
+
+  @override
+  String get errSrvGroupNeedsMembers =>
+      '‹‹A group needs at least two other people.››';
+
+  @override
+  String get errSrvRequestNotApproved =>
+      '‹‹This request hasn’t been accepted yet.››';
+
+  @override
+  String get errSrvEditMediaMessage => '‹‹Media messages can’t be edited.››';
+
+  @override
+  String get errSrvOnlyDirectBlock => '‹‹Only direct chats can be blocked.››';
+
+  @override
+  String get errSrvOnlyGroupAdminsPin =>
+      '‹‹Only group admins can pin messages.››';
+
+  @override
+  String get errSrvOnlyGroupsLeave => '‹‹You can only leave groups.››';
+
+  @override
+  String get errSrvOnlyGroupsRename => '‹‹Only groups can be renamed.››';
+
+  @override
+  String get errSrvOnlyGroupsInvite => '‹‹Only groups have invite codes.››';
+
+  @override
+  String get errSrvOnlyReceiverBlock =>
+      '‹‹Only the person who received the request can block it.››';
+
+  @override
+  String get errSrvOnlySenderDelete =>
+      '‹‹Only the sender can delete a message for everyone.››';
+
+  @override
+  String get errSrvOnlySenderEdit =>
+      '‹‹Only the sender can edit this message.››';
+
+  @override
+  String get errSrvOnlySenderRecipients =>
+      '‹‹Only the sender can see the recipients.››';
+
+  @override
+  String get errSrvOnlyOwnDmPin =>
+      '‹‹You can only pin your own direct chats.››';
+
+  @override
+  String get errSrvBlockedFromGroup =>
+      '‹‹That person is blocked from this group.››';
+
+  @override
+  String get errSrvThreadBlocked => '‹‹This chat is blocked.››';
+
+  @override
+  String get errSrvNotPendingRequest =>
+      '‹‹This chat isn’t a pending request.››';
+
+  @override
+  String get errSrvRemovedFromGroup => '‹‹You were removed from this group.››';
+
+  @override
+  String get errSrvNoThreadAccess => '‹‹You’re not part of this chat.››';
+
+  @override
+  String get errSrvNotClassroomMember =>
+      '‹‹You’re not a member of this classroom.››';
+
+  @override
+  String get errSrvParentsOwnChildren =>
+      '‹‹Parents can only message their own children.››';
+
+  @override
+  String get errSrvStudentsOwnParents =>
+      '‹‹Students can only message their own parents.››';
+
+  @override
+  String get errSrvFormAlreadySubmitted =>
+      '‹‹You’ve already submitted this form.››';
+
+  @override
+  String get errSrvPickRecipients => '‹‹Pick at least one recipient.››';
+
+  @override
+  String get errSrvNoRecipients => '‹‹No one matches this audience.››';
+
+  @override
+  String get errSrvExpiryBeforePublish =>
+      '‹‹The expiry time must come after the publish time.››';
+
+  @override
+  String get errSrvInvalidDate => '‹‹Enter a valid date.››';
+
+  @override
+  String get errSrvGradeNegative => '‹‹A grade can’t be negative.››';
+
+  @override
+  String errSrvInvalidGradeLabel(String label) {
+    return '‹‹“$label” isn’t a label on this grade scale.››';
+  }
+
+  @override
+  String get errSrvInvalidGradeRange =>
+      '‹‹Grade levels must be between 1 and 20, lowest first.››';
+
+  @override
+  String get errSrvInvalidSemester =>
+      '‹‹Semester months must be between 1 and 12.››';
+
+  @override
+  String get errSrvSemesterWeights =>
+      '‹‹Semester weights must add up to 100.››';
+
+  @override
+  String get errSrvAddSemester => '‹‹Add at least one semester.››';
+
+  @override
+  String get errSrvAddTwoLabels =>
+      '‹‹Add at least two labels (for example A, B).››';
+
+  @override
+  String get errSrvAddGradeRange => '‹‹Add at least one grade range.››';
+
+  @override
+  String get errSrvVariantIncomplete =>
+      '‹‹Each variant needs at least one component.››';
+
+  @override
+  String get errSrvNothingToUpdate => '‹‹There’s nothing to update.››';
+
+  @override
+  String get errSrvNoStudents => '‹‹Pick at least one student.››';
+
+  @override
+  String get errSrvHomeroomTaken =>
+      '‹‹That class already has a homeroom teacher.››';
+
+  @override
+  String get errSrvClassroomNotTeachers =>
+      '‹‹That classroom doesn’t belong to the selected teacher.››';
+
+  @override
+  String get errSrvInvalidUrl =>
+      '‹‹Enter a full link, starting with https://.››';
+
+  @override
+  String get errSrvLinkOrAttachment => '‹‹Add a link or at least one file.››';
+
+  @override
+  String get errSrvFileRequired => '‹‹Add at least one file.››';
+
+  @override
+  String get errSrvImagesOnly => '‹‹Only images can be uploaded here.››';
+
+  @override
+  String get errSrvImagesOrPdfOnly =>
+      '‹‹Only images and PDFs can be uploaded here.››';
+
+  @override
+  String get errSrvFileTypeNotAllowed => '‹‹That file type isn’t allowed.››';
+
+  @override
+  String get errSrvCsvEmpty => '‹‹The CSV file is empty.››';
+
+  @override
+  String errSrvBookHasSolutions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'This book still has $count solutions. Delete them first.',
+      one: 'This book still has $count solution. Delete it first.',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String get errSrvBookNotFound => '‹‹That book isn’t in this subject.››';
+
+  @override
+  String get errSrvPagesPositive => '‹‹Page numbers must be positive.››';
+
+  @override
+  String get errSrvEmailRegistered => '‹‹That email is already registered.››';
+
+  @override
+  String errSrvEmailOtherSchool(String email) {
+    return '‹‹$email already belongs to an account in another school. Use a different email.››';
+  }
+
+  @override
+  String errSrvUsernameTaken(String username) {
+    return '‹‹The username “$username” is taken by a user in another school. Choose a different one.››';
+  }
+
+  @override
+  String errSrvPasswordTooShort(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'The password must be at least $n characters.',
+      one: 'The password must be at least $n character.',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String get errSrvWrongPassword => '‹‹That password isn’t right.››';
+
+  @override
+  String get errSrvWrongCredentials =>
+      '‹‹Incorrect email, username or password.››';
+
+  @override
+  String get errSrvStudentGradeRequired => '‹‹Students need a grade level.››';
+
+  @override
+  String get errSrvNameRequired => '‹‹Enter a name.››';
+
+  @override
+  String get errSrvIdentifierRequired => '‹‹Enter an email or username.››';
+
+  @override
+  String get errSrvPasswordRequired => '‹‹Enter a password.››';
+
+  @override
+  String get errSrvOwnerImmutable =>
+      '‹‹The platform owner can’t be removed as a manager.››';
+
+  @override
+  String get errSrvTitleRequired => '‹‹Enter a title.››';
+
+  @override
+  String get errSrvSubjectRequired => '‹‹Choose a subject.››';
+
+  @override
+  String get errSrvTextRequired => '‹‹Write something first.››';
+
+  @override
+  String get errSrvYearRequired => '‹‹Enter a valid year.››';
+
+  @override
+  String get errSrvPeriodInvalid => '‹‹Choose a period between 1 and 20.››';
+
+  @override
+  String get errSrvResetLinkExpired =>
+      '‹‹That reset link has expired or was already used.››';
+
+  @override
+  String get errSrvNovaBadReply =>
+      '‹‹NOVA’s answer couldn’t be read. Try again.››';
+
+  @override
+  String get errSrvNovaUnavailable =>
+      '‹‹NOVA isn’t available right now. Try again in a moment.››';
+
+  @override
+  String get errSrvMinistrySignIn =>
+      '‹‹Ministry sign-in didn’t work. Try again.››';
+
+  @override
+  String get errSrvMinistryDisabled => '‹‹Ministry sign-in isn’t enabled.››';
 }

@@ -5,6 +5,7 @@ import '../../../core/theme/cm_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../core/http/server_messages.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/manager_api.dart';
 
@@ -122,7 +123,8 @@ class _ManagerSchoolFormScreenState
         _snack(l.managerSchoolCreated(_name.text.trim()));
         Navigator.pop(context, true);
       } else {
-        _snack(l.commonFailedWith('${res['message'] ?? res}'));
+        _snack(l.commonFailedWith(
+            localizeServerMessage('${res['message'] ?? ''}', l) ?? '${res['message'] ?? res}'));
       }
     } catch (e) {
       _snack('$e');

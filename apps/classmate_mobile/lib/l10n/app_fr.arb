@@ -3800,5 +3800,155 @@
   "practiceTopicEthicsAndPhilosophy": "Éthique et philosophie",
   "practiceTopicWorldReligions": "Religions du monde",
   "practiceTopicReligionAndSociety": "Religion et société",
-  "settingsThemeCustomSection": "Personnalisés"
+  "settingsThemeCustomSection": "Personnalisés",
+  "errSrvNoSchool": "Votre compte n’est pas encore rattaché à une école. Contactez l’administration.",
+  "errSrvNotAllowed": "Vous n’avez pas l’autorisation de faire cela.",
+  "errSrvOtherSchool": "Cela appartient à une autre école.",
+  "errSrvUserOtherSchool": "Cet utilisateur appartient à une autre école.",
+  "errSrvSignInRequired": "Veuillez vous reconnecter.",
+  "errSrvNotOnboarded": "Votre profil élève n’est pas encore configuré. Rejoignez votre classe avec le code donné par votre enseignant.",
+  "errSrvInvalidCode": "Ce code est invalide ou a expiré.",
+  "errSrvIncorrectCode": "Ce code est incorrect. Vérifiez-le et réessayez.",
+  "errSrvTooManyAttempts": "Trop de tentatives incorrectes. Demandez un nouveau code.",
+  "errSrvNoActiveCode": "Aucun code actif. Demandez-en un nouveau.",
+  "errSrvWaitBeforeCode": "{seconds, plural, one{Attendez {seconds} seconde avant de demander un autre code.} other{Attendez {seconds} secondes avant de demander un autre code.}}",
+  "@errSrvWaitBeforeCode": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvSameValue": "C’est déjà votre valeur actuelle.",
+  "errSrvEmailInUse": "Cet e-mail est déjà utilisé par un autre compte.",
+  "errSrvCodeMismatch": "Ce code a été émis pour une autre valeur. Demandez-en un nouveau.",
+  "errSrvInvalidEmail": "Saisissez une adresse e-mail valide.",
+  "errSrvInvalidPhone": "Saisissez le numéro au format international, p. ex. +972 50 123 4567.",
+  "errSrvAssignmentNotFound": "Ce devoir n’existe plus.",
+  "errSrvExamNotFound": "Cet examen n’existe plus.",
+  "errSrvFormNotFound": "Ce formulaire n’existe plus.",
+  "errSrvMailNotFound": "Ce courrier n’existe plus.",
+  "errSrvMaterialNotFound": "Ce document n’existe plus.",
+  "errSrvMeetingNotFound": "Cette réunion n’existe plus.",
+  "errSrvMessageNotFound": "Ce message n’existe plus.",
+  "errSrvThreadNotFound": "Cette conversation n’existe plus.",
+  "errSrvClassroomNotFound": "Cette classe n’existe plus.",
+  "errSrvCohortNotFound": "Ce groupe n’existe plus.",
+  "errSrvStudentNotFound": "Cet élève est introuvable.",
+  "errSrvStudentNotInCohort": "Cet élève n’est pas dans ce groupe.",
+  "errSrvUserNotFound": "Cet utilisateur est introuvable.",
+  "errSrvSchoolNotFound": "Cette école est introuvable.",
+  "errSrvCertificateNotFound": "Ce bulletin n’existe plus.",
+  "errSrvNoteNotFound": "Cette note n’existe plus.",
+  "errSrvReportNotFound": "Ce signalement n’existe plus.",
+  "errSrvSolutionNotFound": "Cette solution n’existe plus.",
+  "errSrvPeriodNotFound": "Cette période n’existe plus.",
+  "errSrvNotFound": "Cet élément n’existe plus.",
+  "errSrvMessageYourself": "Vous ne pouvez pas vous envoyer de message.",
+  "errSrvReportOwnMessage": "Vous ne pouvez pas signaler votre propre message.",
+  "errSrvGroupNeedsMembers": "Un groupe doit compter au moins deux autres personnes.",
+  "errSrvRequestNotApproved": "Cette demande n’a pas encore été acceptée.",
+  "errSrvEditMediaMessage": "Les messages multimédias ne peuvent pas être modifiés.",
+  "errSrvOnlyDirectBlock": "Seules les discussions directes peuvent être bloquées.",
+  "errSrvOnlyGroupAdminsPin": "Seuls les administrateurs du groupe peuvent épingler des messages.",
+  "errSrvOnlyGroupsLeave": "Vous ne pouvez quitter que des groupes.",
+  "errSrvOnlyGroupsRename": "Seuls les groupes peuvent être renommés.",
+  "errSrvOnlyGroupsInvite": "Seuls les groupes ont des codes d’invitation.",
+  "errSrvOnlyReceiverBlock": "Seule la personne qui a reçu la demande peut la bloquer.",
+  "errSrvOnlySenderDelete": "Seul l’expéditeur peut supprimer un message pour tout le monde.",
+  "errSrvOnlySenderEdit": "Seul l’expéditeur peut modifier ce message.",
+  "errSrvOnlySenderRecipients": "Seul l’expéditeur peut voir les destinataires.",
+  "errSrvOnlyOwnDmPin": "Vous ne pouvez épingler que vos propres discussions directes.",
+  "errSrvBlockedFromGroup": "Cette personne est bloquée dans ce groupe.",
+  "errSrvThreadBlocked": "Cette discussion est bloquée.",
+  "errSrvNotPendingRequest": "Cette discussion n’est pas une demande en attente.",
+  "errSrvRemovedFromGroup": "Vous avez été retiré de ce groupe.",
+  "errSrvNoThreadAccess": "Vous ne faites pas partie de cette discussion.",
+  "errSrvNotClassroomMember": "Vous n’êtes pas membre de cette classe.",
+  "errSrvParentsOwnChildren": "Les parents ne peuvent écrire qu’à leurs propres enfants.",
+  "errSrvStudentsOwnParents": "Les élèves ne peuvent écrire qu’à leurs propres parents.",
+  "errSrvFormAlreadySubmitted": "Vous avez déjà envoyé ce formulaire.",
+  "errSrvPickRecipients": "Choisissez au moins un destinataire.",
+  "errSrvNoRecipients": "Personne ne correspond à cette audience.",
+  "errSrvExpiryBeforePublish": "La date d’expiration doit être postérieure à la date de publication.",
+  "errSrvInvalidDate": "Saisissez une date valide.",
+  "errSrvGradeNegative": "Une note ne peut pas être négative.",
+  "errSrvInvalidGradeLabel": "« {label} » n’est pas un libellé de cette échelle.",
+  "@errSrvInvalidGradeLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvInvalidGradeRange": "Les niveaux doivent être compris entre 1 et 20, le plus bas en premier.",
+  "errSrvInvalidSemester": "Les mois du semestre doivent être compris entre 1 et 12.",
+  "errSrvSemesterWeights": "La somme des pondérations des semestres doit être 100.",
+  "errSrvAddSemester": "Ajoutez au moins un semestre.",
+  "errSrvAddTwoLabels": "Ajoutez au moins deux libellés (par exemple A, B).",
+  "errSrvAddGradeRange": "Ajoutez au moins une plage de niveaux.",
+  "errSrvVariantIncomplete": "Chaque variante doit comporter au moins un élément.",
+  "errSrvNothingToUpdate": "Il n’y a rien à mettre à jour.",
+  "errSrvNoStudents": "Choisissez au moins un élève.",
+  "errSrvHomeroomTaken": "Cette classe a déjà un professeur principal.",
+  "errSrvClassroomNotTeachers": "Cette classe n’appartient pas à l’enseignant sélectionné.",
+  "errSrvInvalidUrl": "Saisissez un lien complet commençant par https://.",
+  "errSrvLinkOrAttachment": "Ajoutez un lien ou au moins un fichier.",
+  "errSrvFileRequired": "Ajoutez au moins un fichier.",
+  "errSrvImagesOnly": "Seules les images peuvent être envoyées ici.",
+  "errSrvImagesOrPdfOnly": "Seuls les images et les PDF peuvent être envoyés ici.",
+  "errSrvFileTypeNotAllowed": "Ce type de fichier n’est pas autorisé.",
+  "errSrvCsvEmpty": "Le fichier CSV est vide.",
+  "errSrvBookHasSolutions": "{count, plural, one{Ce livre contient encore {count} solution. Supprimez-la d’abord.} other{Ce livre contient encore {count} solutions. Supprimez-les d’abord.}}",
+  "@errSrvBookHasSolutions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvBookNotFound": "Ce livre ne fait pas partie de cette matière.",
+  "errSrvPagesPositive": "Les numéros de page doivent être positifs.",
+  "errSrvEmailRegistered": "Cet e-mail est déjà enregistré.",
+  "errSrvEmailOtherSchool": "{email} appartient déjà à un compte d’une autre école. Utilisez un autre e-mail.",
+  "@errSrvEmailOtherSchool": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvUsernameTaken": "Le nom d’utilisateur « {username} » est pris par un utilisateur d’une autre école. Choisissez-en un autre.",
+  "@errSrvUsernameTaken": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvPasswordTooShort": "{n, plural, one{Le mot de passe doit contenir au moins {n} caractère.} other{Le mot de passe doit contenir au moins {n} caractères.}}",
+  "@errSrvPasswordTooShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvWrongPassword": "Ce mot de passe est incorrect.",
+  "errSrvWrongCredentials": "E-mail, nom d’utilisateur ou mot de passe incorrect.",
+  "errSrvStudentGradeRequired": "Les élèves doivent avoir un niveau.",
+  "errSrvNameRequired": "Saisissez un nom.",
+  "errSrvIdentifierRequired": "Saisissez un e-mail ou un nom d’utilisateur.",
+  "errSrvPasswordRequired": "Saisissez un mot de passe.",
+  "errSrvOwnerImmutable": "Le propriétaire de la plateforme ne peut pas être retiré des gestionnaires.",
+  "errSrvTitleRequired": "Saisissez un titre.",
+  "errSrvSubjectRequired": "Choisissez une matière.",
+  "errSrvTextRequired": "Écrivez quelque chose d’abord.",
+  "errSrvYearRequired": "Saisissez une année valide.",
+  "errSrvPeriodInvalid": "Choisissez une période entre 1 et 20.",
+  "errSrvResetLinkExpired": "Ce lien de réinitialisation a expiré ou a déjà été utilisé.",
+  "errSrvNovaBadReply": "La réponse de NOVA n’a pas pu être lue. Réessayez.",
+  "errSrvNovaUnavailable": "NOVA n’est pas disponible pour le moment. Réessayez dans un instant.",
+  "errSrvMinistrySignIn": "La connexion via le ministère a échoué. Réessayez.",
+  "errSrvMinistryDisabled": "La connexion via le ministère n’est pas activée."
 }

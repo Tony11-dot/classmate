@@ -3800,5 +3800,155 @@
   "practiceTopicEthicsAndPhilosophy": "אתיקה ופילוסופיה",
   "practiceTopicWorldReligions": "דתות העולם",
   "practiceTopicReligionAndSociety": "דת וחברה",
-  "settingsThemeCustomSection": "מותאמות אישית"
+  "settingsThemeCustomSection": "מותאמות אישית",
+  "errSrvNoSchool": "החשבון שלך עדיין לא מקושר לבית ספר. פנו למנהל בית הספר.",
+  "errSrvNotAllowed": "אין לך הרשאה לבצע פעולה זו.",
+  "errSrvOtherSchool": "זה שייך לבית ספר אחר.",
+  "errSrvUserOtherSchool": "המשתמש שייך לבית ספר אחר.",
+  "errSrvSignInRequired": "יש להתחבר מחדש.",
+  "errSrvNotOnboarded": "פרופיל התלמיד שלך עדיין לא הוגדר. הצטרפו לכיתה עם הקוד מהמורה.",
+  "errSrvInvalidCode": "הקוד שגוי או שפג תוקפו.",
+  "errSrvIncorrectCode": "הקוד לא נכון. בדקו ונסו שוב.",
+  "errSrvTooManyAttempts": "יותר מדי ניסיונות שגויים. בקשו קוד חדש.",
+  "errSrvNoActiveCode": "אין קוד פעיל. בקשו קוד חדש.",
+  "errSrvWaitBeforeCode": "{seconds, plural, one{המתינו שנייה אחת לפני בקשת קוד נוסף.} other{המתינו {seconds} שניות לפני בקשת קוד נוסף.}}",
+  "@errSrvWaitBeforeCode": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvSameValue": "זה כבר הערך הנוכחי שלך.",
+  "errSrvEmailInUse": "כתובת האימייל הזו כבר בשימוש בחשבון אחר.",
+  "errSrvCodeMismatch": "הקוד הונפק לערך אחר. בקשו קוד חדש.",
+  "errSrvInvalidEmail": "יש להזין כתובת אימייל תקינה.",
+  "errSrvInvalidPhone": "יש להזין את מספר הטלפון בפורמט בין-לאומי, למשל ‎+972 50 123 4567.",
+  "errSrvAssignmentNotFound": "המטלה הזו כבר לא קיימת.",
+  "errSrvExamNotFound": "המבחן הזה כבר לא קיים.",
+  "errSrvFormNotFound": "הטופס הזה כבר לא קיים.",
+  "errSrvMailNotFound": "ההודעה הזו כבר לא קיימת.",
+  "errSrvMaterialNotFound": "החומר הזה כבר לא קיים.",
+  "errSrvMeetingNotFound": "הפגישה הזו כבר לא קיימת.",
+  "errSrvMessageNotFound": "ההודעה הזו כבר לא קיימת.",
+  "errSrvThreadNotFound": "השיחה הזו כבר לא קיימת.",
+  "errSrvClassroomNotFound": "הכיתה הזו כבר לא קיימת.",
+  "errSrvCohortNotFound": "הקבוצה הזו כבר לא קיימת.",
+  "errSrvStudentNotFound": "התלמיד לא נמצא.",
+  "errSrvStudentNotInCohort": "התלמיד לא בקבוצה הזו.",
+  "errSrvUserNotFound": "המשתמש לא נמצא.",
+  "errSrvSchoolNotFound": "בית הספר לא נמצא.",
+  "errSrvCertificateNotFound": "התעודה הזו כבר לא קיימת.",
+  "errSrvNoteNotFound": "הפתק הזה כבר לא קיים.",
+  "errSrvReportNotFound": "הדיווח הזה כבר לא קיים.",
+  "errSrvSolutionNotFound": "הפתרון הזה כבר לא קיים.",
+  "errSrvPeriodNotFound": "השיעור הזה כבר לא קיים.",
+  "errSrvNotFound": "הפריט הזה כבר לא קיים.",
+  "errSrvMessageYourself": "אי אפשר לשלוח הודעה לעצמך.",
+  "errSrvReportOwnMessage": "אי אפשר לדווח על הודעה של עצמך.",
+  "errSrvGroupNeedsMembers": "קבוצה צריכה לפחות שני אנשים נוספים.",
+  "errSrvRequestNotApproved": "הבקשה הזו עדיין לא אושרה.",
+  "errSrvEditMediaMessage": "אי אפשר לערוך הודעות מדיה.",
+  "errSrvOnlyDirectBlock": "אפשר לחסום רק שיחות אישיות.",
+  "errSrvOnlyGroupAdminsPin": "רק מנהלי הקבוצה יכולים לנעוץ הודעות.",
+  "errSrvOnlyGroupsLeave": "אפשר לעזוב רק קבוצות.",
+  "errSrvOnlyGroupsRename": "אפשר לשנות שם רק לקבוצות.",
+  "errSrvOnlyGroupsInvite": "רק לקבוצות יש קודי הזמנה.",
+  "errSrvOnlyReceiverBlock": "רק מי שקיבל את הבקשה יכול לחסום אותה.",
+  "errSrvOnlySenderDelete": "רק השולח יכול למחוק הודעה עבור כולם.",
+  "errSrvOnlySenderEdit": "רק השולח יכול לערוך את ההודעה.",
+  "errSrvOnlySenderRecipients": "רק השולח יכול לראות את הנמענים.",
+  "errSrvOnlyOwnDmPin": "אפשר לנעוץ רק שיחות אישיות שלך.",
+  "errSrvBlockedFromGroup": "האדם הזה חסום מהקבוצה.",
+  "errSrvThreadBlocked": "השיחה הזו חסומה.",
+  "errSrvNotPendingRequest": "השיחה הזו אינה בקשה ממתינה.",
+  "errSrvRemovedFromGroup": "הוסרת מהקבוצה הזו.",
+  "errSrvNoThreadAccess": "אינך חלק מהשיחה הזו.",
+  "errSrvNotClassroomMember": "אינך חבר בכיתה הזו.",
+  "errSrvParentsOwnChildren": "הורים יכולים לשלוח הודעות רק לילדיהם.",
+  "errSrvStudentsOwnParents": "תלמידים יכולים לשלוח הודעות רק להוריהם.",
+  "errSrvFormAlreadySubmitted": "כבר שלחת את הטופס הזה.",
+  "errSrvPickRecipients": "יש לבחור לפחות נמען אחד.",
+  "errSrvNoRecipients": "אין נמענים שתואמים את הקהל הזה.",
+  "errSrvExpiryBeforePublish": "זמן התפוגה חייב להיות אחרי זמן הפרסום.",
+  "errSrvInvalidDate": "יש להזין תאריך תקין.",
+  "errSrvGradeNegative": "ציון לא יכול להיות שלילי.",
+  "errSrvInvalidGradeLabel": "„{label}” אינו תווית בסולם הציונים הזה.",
+  "@errSrvInvalidGradeLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvInvalidGradeRange": "השכבות חייבות להיות בין 1 ל-20, מהנמוכה לגבוהה.",
+  "errSrvInvalidSemester": "חודשי הסמסטר חייבים להיות בין 1 ל-12.",
+  "errSrvSemesterWeights": "משקלי הסמסטרים חייבים להסתכם ב-100.",
+  "errSrvAddSemester": "יש להוסיף לפחות סמסטר אחד.",
+  "errSrvAddTwoLabels": "יש להוסיף לפחות שתי תוויות (למשל A, B).",
+  "errSrvAddGradeRange": "יש להוסיף לפחות טווח שכבות אחד.",
+  "errSrvVariantIncomplete": "כל גרסה צריכה לפחות רכיב אחד.",
+  "errSrvNothingToUpdate": "אין מה לעדכן.",
+  "errSrvNoStudents": "יש לבחור לפחות תלמיד אחד.",
+  "errSrvHomeroomTaken": "לכיתה הזו כבר יש מחנך.",
+  "errSrvClassroomNotTeachers": "הכיתה הזו לא שייכת למורה שנבחר.",
+  "errSrvInvalidUrl": "יש להזין קישור מלא שמתחיל ב-https://.",
+  "errSrvLinkOrAttachment": "יש להוסיף קישור או לפחות קובץ אחד.",
+  "errSrvFileRequired": "יש להוסיף לפחות קובץ אחד.",
+  "errSrvImagesOnly": "אפשר להעלות כאן רק תמונות.",
+  "errSrvImagesOrPdfOnly": "אפשר להעלות כאן רק תמונות וקובצי PDF.",
+  "errSrvFileTypeNotAllowed": "סוג הקובץ הזה אינו מותר.",
+  "errSrvCsvEmpty": "קובץ ה-CSV ריק.",
+  "errSrvBookHasSolutions": "{count, plural, one{לספר הזה עדיין יש פתרון אחד. יש למחוק אותו קודם.} other{לספר הזה עדיין יש {count} פתרונות. יש למחוק אותם קודם.}}",
+  "@errSrvBookHasSolutions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvBookNotFound": "הספר הזה לא במקצוע הזה.",
+  "errSrvPagesPositive": "מספרי העמודים חייבים להיות חיוביים.",
+  "errSrvEmailRegistered": "כתובת האימייל הזו כבר רשומה.",
+  "errSrvEmailOtherSchool": "‎{email} כבר שייך לחשבון בבית ספר אחר. השתמשו באימייל אחר.",
+  "@errSrvEmailOtherSchool": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvUsernameTaken": "שם המשתמש „{username}” תפוס על ידי משתמש בבית ספר אחר. בחרו שם אחר.",
+  "@errSrvUsernameTaken": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "errSrvPasswordTooShort": "{n, plural, one{הסיסמה חייבת להכיל לפחות תו אחד.} other{הסיסמה חייבת להכיל לפחות {n} תווים.}}",
+  "@errSrvPasswordTooShort": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "errSrvWrongPassword": "הסיסמה לא נכונה.",
+  "errSrvWrongCredentials": "אימייל, שם משתמש או סיסמה שגויים.",
+  "errSrvStudentGradeRequired": "לתלמידים צריך להגדיר שכבה.",
+  "errSrvNameRequired": "יש להזין שם.",
+  "errSrvIdentifierRequired": "יש להזין אימייל או שם משתמש.",
+  "errSrvPasswordRequired": "יש להזין סיסמה.",
+  "errSrvOwnerImmutable": "אי אפשר להסיר את בעל הפלטפורמה מניהול.",
+  "errSrvTitleRequired": "יש להזין כותרת.",
+  "errSrvSubjectRequired": "יש לבחור מקצוע.",
+  "errSrvTextRequired": "קודם יש לכתוב משהו.",
+  "errSrvYearRequired": "יש להזין שנה תקינה.",
+  "errSrvPeriodInvalid": "יש לבחור שיעור בין 1 ל-20.",
+  "errSrvResetLinkExpired": "קישור האיפוס פג תוקף או שכבר נעשה בו שימוש.",
+  "errSrvNovaBadReply": "לא ניתן היה לקרוא את התשובה של NOVA. נסו שוב.",
+  "errSrvNovaUnavailable": "NOVA לא זמינה כרגע. נסו שוב בעוד רגע.",
+  "errSrvMinistrySignIn": "ההתחברות דרך משרד החינוך לא הצליחה. נסו שוב.",
+  "errSrvMinistryDisabled": "ההתחברות דרך משרד החינוך לא מופעלת."
 }

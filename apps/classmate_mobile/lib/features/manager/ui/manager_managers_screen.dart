@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/cm_tokens.dart';
+import '../../../core/http/server_messages.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
@@ -80,7 +81,8 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
         _snack(res['created'] == true ? l.managerCreated : l.managerAccessGranted);
         _reload();
       } else {
-        _snack(l.commonFailedWith('${res['message'] ?? res}'));
+        _snack(l.commonFailedWith(
+            localizeServerMessage('${res['message'] ?? ''}', l) ?? '${res['message'] ?? res}'));
       }
     } catch (e) {
       _snack('$e');

@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../config/env.dart';
 import '../../l10n/app_localizations.dart';
+import 'server_messages.dart';
 
 class CMApiException implements Exception {
   CMApiException({
@@ -44,7 +45,14 @@ class CMApiException implements Exception {
       final decoded = jsonDecode(body);
       if (decoded is Map) {
         final msg = decoded['message'];
-        if (msg is String && msg.isNotEmpty && !_isTechnical(msg)) return msg;
+        if (msg is String && msg.isNotEmpty && !_isTechnical(msg)) {
+          final known = localizeServerMessage(msg, _l10n());
+          if (known != null) return known;
+          // Unknown text is English developer wording ("studentId is
+          // required"). Only an English UI shows it as is; everywhere else
+          // the status-based message below is the better answer.
+          if ((uiLocale?.languageCode ?? 'en') == 'en') return msg;
+        }
       }
     } catch (_) {}
     final l = _l10n();

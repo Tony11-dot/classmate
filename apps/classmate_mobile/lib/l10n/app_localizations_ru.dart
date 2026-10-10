@@ -11241,4 +11241,398 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsThemeCustomSection => 'Пользовательские';
+
+  @override
+  String get errSrvNoSchool =>
+      'Ваш аккаунт ещё не привязан к школе. Обратитесь к администратору школы.';
+
+  @override
+  String get errSrvNotAllowed => 'У вас нет прав для этого действия.';
+
+  @override
+  String get errSrvOtherSchool => 'Это относится к другой школе.';
+
+  @override
+  String get errSrvUserOtherSchool => 'Этот пользователь из другой школы.';
+
+  @override
+  String get errSrvSignInRequired => 'Войдите в систему ещё раз.';
+
+  @override
+  String get errSrvNotOnboarded =>
+      'Профиль ученика ещё не настроен. Присоединитесь к классу по коду от учителя.';
+
+  @override
+  String get errSrvInvalidCode => 'Код недействителен или его срок истёк.';
+
+  @override
+  String get errSrvIncorrectCode =>
+      'Код неверный. Проверьте и попробуйте снова.';
+
+  @override
+  String get errSrvTooManyAttempts =>
+      'Слишком много неверных попыток. Запросите новый код.';
+
+  @override
+  String get errSrvNoActiveCode => 'Нет активного кода. Запросите новый.';
+
+  @override
+  String errSrvWaitBeforeCode(int seconds) {
+    String _temp0 = intl.Intl.pluralLogic(
+      seconds,
+      locale: localeName,
+      other: 'Подождите $seconds секунды, прежде чем запросить новый код.',
+      many: 'Подождите $seconds секунд, прежде чем запросить новый код.',
+      few: 'Подождите $seconds секунды, прежде чем запросить новый код.',
+      one: 'Подождите $seconds секунду, прежде чем запросить новый код.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get errSrvSameValue => 'Это и так ваше текущее значение.';
+
+  @override
+  String get errSrvEmailInUse =>
+      'Этот адрес эл. почты уже используется другим аккаунтом.';
+
+  @override
+  String get errSrvCodeMismatch =>
+      'Этот код выдан для другого значения. Запросите новый.';
+
+  @override
+  String get errSrvInvalidEmail => 'Введите корректный адрес эл. почты.';
+
+  @override
+  String get errSrvInvalidPhone =>
+      'Введите номер в международном формате, например +972 50 123 4567.';
+
+  @override
+  String get errSrvAssignmentNotFound => 'Этого задания больше нет.';
+
+  @override
+  String get errSrvExamNotFound => 'Этого экзамена больше нет.';
+
+  @override
+  String get errSrvFormNotFound => 'Этой формы больше нет.';
+
+  @override
+  String get errSrvMailNotFound => 'Этого письма больше нет.';
+
+  @override
+  String get errSrvMaterialNotFound => 'Этого материала больше нет.';
+
+  @override
+  String get errSrvMeetingNotFound => 'Этой встречи больше нет.';
+
+  @override
+  String get errSrvMessageNotFound => 'Этого сообщения больше нет.';
+
+  @override
+  String get errSrvThreadNotFound => 'Этой беседы больше нет.';
+
+  @override
+  String get errSrvClassroomNotFound => 'Этого класса больше нет.';
+
+  @override
+  String get errSrvCohortNotFound => 'Этой группы больше нет.';
+
+  @override
+  String get errSrvStudentNotFound => 'Ученик не найден.';
+
+  @override
+  String get errSrvStudentNotInCohort => 'Этот ученик не входит в эту группу.';
+
+  @override
+  String get errSrvUserNotFound => 'Пользователь не найден.';
+
+  @override
+  String get errSrvSchoolNotFound => 'Школа не найдена.';
+
+  @override
+  String get errSrvCertificateNotFound => 'Этого табеля больше нет.';
+
+  @override
+  String get errSrvNoteNotFound => 'Этой заметки больше нет.';
+
+  @override
+  String get errSrvReportNotFound => 'Этой жалобы больше нет.';
+
+  @override
+  String get errSrvSolutionNotFound => 'Этого решения больше нет.';
+
+  @override
+  String get errSrvPeriodNotFound => 'Этого урока больше нет.';
+
+  @override
+  String get errSrvNotFound => 'Этого элемента больше нет.';
+
+  @override
+  String get errSrvMessageYourself => 'Нельзя написать самому себе.';
+
+  @override
+  String get errSrvReportOwnMessage =>
+      'Нельзя пожаловаться на собственное сообщение.';
+
+  @override
+  String get errSrvGroupNeedsMembers =>
+      'В группе должно быть ещё минимум два человека.';
+
+  @override
+  String get errSrvRequestNotApproved => 'Этот запрос ещё не принят.';
+
+  @override
+  String get errSrvEditMediaMessage => 'Медиасообщения нельзя редактировать.';
+
+  @override
+  String get errSrvOnlyDirectBlock => 'Блокировать можно только личные чаты.';
+
+  @override
+  String get errSrvOnlyGroupAdminsPin =>
+      'Закреплять сообщения могут только администраторы группы.';
+
+  @override
+  String get errSrvOnlyGroupsLeave => 'Выйти можно только из группы.';
+
+  @override
+  String get errSrvOnlyGroupsRename => 'Переименовать можно только группу.';
+
+  @override
+  String get errSrvOnlyGroupsInvite => 'Коды приглашения есть только у групп.';
+
+  @override
+  String get errSrvOnlyReceiverBlock =>
+      'Заблокировать запрос может только его получатель.';
+
+  @override
+  String get errSrvOnlySenderDelete =>
+      'Удалить сообщение у всех может только отправитель.';
+
+  @override
+  String get errSrvOnlySenderEdit =>
+      'Редактировать сообщение может только отправитель.';
+
+  @override
+  String get errSrvOnlySenderRecipients =>
+      'Список получателей видит только отправитель.';
+
+  @override
+  String get errSrvOnlyOwnDmPin => 'Закреплять можно только свои личные чаты.';
+
+  @override
+  String get errSrvBlockedFromGroup => 'Этот человек заблокирован в группе.';
+
+  @override
+  String get errSrvThreadBlocked => 'Этот чат заблокирован.';
+
+  @override
+  String get errSrvNotPendingRequest =>
+      'Этот чат не является ожидающим запросом.';
+
+  @override
+  String get errSrvRemovedFromGroup => 'Вас удалили из этой группы.';
+
+  @override
+  String get errSrvNoThreadAccess => 'Вы не участник этого чата.';
+
+  @override
+  String get errSrvNotClassroomMember => 'Вы не участник этого класса.';
+
+  @override
+  String get errSrvParentsOwnChildren =>
+      'Родители могут писать только своим детям.';
+
+  @override
+  String get errSrvStudentsOwnParents =>
+      'Ученики могут писать только своим родителям.';
+
+  @override
+  String get errSrvFormAlreadySubmitted => 'Вы уже отправили эту форму.';
+
+  @override
+  String get errSrvPickRecipients => 'Выберите хотя бы одного получателя.';
+
+  @override
+  String get errSrvNoRecipients => 'Под эту аудиторию никто не подходит.';
+
+  @override
+  String get errSrvExpiryBeforePublish =>
+      'Время окончания должно быть позже времени публикации.';
+
+  @override
+  String get errSrvInvalidDate => 'Введите корректную дату.';
+
+  @override
+  String get errSrvGradeNegative => 'Оценка не может быть отрицательной.';
+
+  @override
+  String errSrvInvalidGradeLabel(String label) {
+    return '«$label» нет в этой шкале оценок.';
+  }
+
+  @override
+  String get errSrvInvalidGradeRange =>
+      'Классы должны быть от 1 до 20, сначала младший.';
+
+  @override
+  String get errSrvInvalidSemester => 'Месяцы семестра должны быть от 1 до 12.';
+
+  @override
+  String get errSrvSemesterWeights => 'Сумма весов семестров должна быть 100.';
+
+  @override
+  String get errSrvAddSemester => 'Добавьте хотя бы один семестр.';
+
+  @override
+  String get errSrvAddTwoLabels =>
+      'Добавьте хотя бы две метки (например, A, B).';
+
+  @override
+  String get errSrvAddGradeRange => 'Добавьте хотя бы один диапазон классов.';
+
+  @override
+  String get errSrvVariantIncomplete =>
+      'В каждом варианте должен быть хотя бы один компонент.';
+
+  @override
+  String get errSrvNothingToUpdate => 'Нечего обновлять.';
+
+  @override
+  String get errSrvNoStudents => 'Выберите хотя бы одного ученика.';
+
+  @override
+  String get errSrvHomeroomTaken =>
+      'У этого класса уже есть классный руководитель.';
+
+  @override
+  String get errSrvClassroomNotTeachers =>
+      'Этот класс не принадлежит выбранному учителю.';
+
+  @override
+  String get errSrvInvalidUrl =>
+      'Введите полную ссылку, начинающуюся с https://.';
+
+  @override
+  String get errSrvLinkOrAttachment => 'Добавьте ссылку или хотя бы один файл.';
+
+  @override
+  String get errSrvFileRequired => 'Добавьте хотя бы один файл.';
+
+  @override
+  String get errSrvImagesOnly => 'Здесь можно загружать только изображения.';
+
+  @override
+  String get errSrvImagesOrPdfOnly =>
+      'Здесь можно загружать только изображения и PDF.';
+
+  @override
+  String get errSrvFileTypeNotAllowed => 'Этот тип файла не поддерживается.';
+
+  @override
+  String get errSrvCsvEmpty => 'CSV-файл пуст.';
+
+  @override
+  String errSrvBookHasSolutions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'В этой книге ещё $count решения. Сначала удалите их.',
+      many: 'В этой книге ещё $count решений. Сначала удалите их.',
+      few: 'В этой книге ещё $count решения. Сначала удалите их.',
+      one: 'В этой книге ещё $count решение. Сначала удалите его.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get errSrvBookNotFound => 'Этой книги нет в этом предмете.';
+
+  @override
+  String get errSrvPagesPositive =>
+      'Номера страниц должны быть положительными.';
+
+  @override
+  String get errSrvEmailRegistered =>
+      'Этот адрес эл. почты уже зарегистрирован.';
+
+  @override
+  String errSrvEmailOtherSchool(String email) {
+    return '$email уже принадлежит аккаунту в другой школе. Используйте другой адрес.';
+  }
+
+  @override
+  String errSrvUsernameTaken(String username) {
+    return 'Имя пользователя «$username» занято пользователем из другой школы. Выберите другое.';
+  }
+
+  @override
+  String errSrvPasswordTooShort(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Пароль должен содержать не менее $n символа.',
+      many: 'Пароль должен содержать не менее $n символов.',
+      few: 'Пароль должен содержать не менее $n символов.',
+      one: 'Пароль должен содержать не менее $n символа.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get errSrvWrongPassword => 'Неверный пароль.';
+
+  @override
+  String get errSrvWrongCredentials =>
+      'Неверный адрес эл. почты, имя пользователя или пароль.';
+
+  @override
+  String get errSrvStudentGradeRequired => 'Для учеников нужно указать класс.';
+
+  @override
+  String get errSrvNameRequired => 'Введите имя.';
+
+  @override
+  String get errSrvIdentifierRequired =>
+      'Введите эл. почту или имя пользователя.';
+
+  @override
+  String get errSrvPasswordRequired => 'Введите пароль.';
+
+  @override
+  String get errSrvOwnerImmutable =>
+      'Владельца платформы нельзя удалить из менеджеров.';
+
+  @override
+  String get errSrvTitleRequired => 'Введите название.';
+
+  @override
+  String get errSrvSubjectRequired => 'Выберите предмет.';
+
+  @override
+  String get errSrvTextRequired => 'Сначала напишите что-нибудь.';
+
+  @override
+  String get errSrvYearRequired => 'Введите корректный год.';
+
+  @override
+  String get errSrvPeriodInvalid => 'Выберите урок от 1 до 20.';
+
+  @override
+  String get errSrvResetLinkExpired =>
+      'Ссылка для сброса устарела или уже использована.';
+
+  @override
+  String get errSrvNovaBadReply =>
+      'Не удалось прочитать ответ NOVA. Попробуйте снова.';
+
+  @override
+  String get errSrvNovaUnavailable =>
+      'NOVA сейчас недоступна. Попробуйте чуть позже.';
+
+  @override
+  String get errSrvMinistrySignIn =>
+      'Вход через министерство не удался. Попробуйте снова.';
+
+  @override
+  String get errSrvMinistryDisabled => 'Вход через министерство не включён.';
 }

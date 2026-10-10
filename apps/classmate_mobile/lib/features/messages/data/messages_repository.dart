@@ -965,14 +965,7 @@ class ApiMessagesRepository implements MessagesRepository {
 
   Future<String?> joinGroupByCode({required String code}) async {
     final r = await _post('/messages/groups/join', {'code': code.trim()});
-    if (!_ok(r)) {
-      // Parse error message
-      try {
-        final body = jsonDecode(r.body);
-        if (body is Map && body['message'] != null) throw Exception(body['message'].toString());
-      } catch (_) {}
-      _fail('messages.joinGroupByCode', r);
-    }
+    if (!_ok(r)) _fail('messages.joinGroupByCode', r);
     final body = jsonDecode(r.body);
     return body is Map ? body['threadId']?.toString() : null;
   }

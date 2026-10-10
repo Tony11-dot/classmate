@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/http/server_messages.dart';
 import '../../l10n/app_localizations.dart';
 import 'lifedoc_labels.dart';
 import 'data/forms_repository.dart';
@@ -272,11 +273,7 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              (result['message'] ??
-                      AppLocalizations.of(context)!.formDetailScreenSubmitted)
-                  .toString(),
-            ),
+            content: Text(AppLocalizations.of(context)!.formDetailScreenSubmitted),
           ),
         );
       } else {
@@ -296,9 +293,10 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
           }
           // No snackbar — button is already locked, user sees "Already submitted" UI.
         } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(error)));
+          final l = AppLocalizations.of(context)!;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(localizeServerMessage(error, l) ?? error)),
+          );
         }
       }
     } catch (e) {
