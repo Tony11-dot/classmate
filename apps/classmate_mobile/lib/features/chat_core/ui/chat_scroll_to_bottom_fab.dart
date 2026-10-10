@@ -84,7 +84,9 @@ class _ChatScrollToBottomFabState extends State<ChatScrollToBottomFab>
               child: Semantics(
                 button: true,
                 label: AppLocalizations.of(context)!.a11yJumpToLatest,
-                child: GestureDetector(
+                child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                   onTap: widget.onPressed,
                   child: Stack(
                     clipBehavior: Clip.none,
@@ -116,7 +118,7 @@ class _ChatScrollToBottomFabState extends State<ChatScrollToBottomFab>
                         ),
                     ],
                   ),
-                ),
+                )),
               ),
             ),
           ),

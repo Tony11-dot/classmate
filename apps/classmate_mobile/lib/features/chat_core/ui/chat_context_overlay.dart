@@ -93,6 +93,8 @@ class ChatContextOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: Colors.transparent,
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         // Tap empty background → dismiss
         behavior: HitTestBehavior.opaque,
@@ -170,7 +172,7 @@ class ChatContextOverlay extends StatelessWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 }
@@ -205,15 +207,19 @@ class _ReactionStrip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             for (final r in _reactions)
-              GestureDetector(
+              MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                 onTap: () => onReact(r),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 7),
                   child: Text(r, style: const TextStyle(fontSize: 26)),
                 ),
-              ),
+              )),
             const SizedBox(width: 2),
-            GestureDetector(
+            MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
               onTap: onOpenPicker,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -228,7 +234,7 @@ class _ReactionStrip extends StatelessWidget {
                   color: cs.onSurface,
                 ),
               ),
-            ),
+            )),
           ],
         ),
       ),

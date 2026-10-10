@@ -109,6 +109,8 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
 
     return CmRefreshIndicator(
       onRefresh: () => _retryWeek(weekOf),
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onHorizontalDragEnd: (details) {
           final v = details.primaryVelocity ?? 0;
@@ -206,7 +208,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 

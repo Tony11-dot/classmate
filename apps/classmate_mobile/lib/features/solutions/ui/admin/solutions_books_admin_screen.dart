@@ -416,7 +416,9 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
+              MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                 onTap: _pickCover,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
@@ -441,7 +443,7 @@ class _BookEditorSheetState extends ConsumerState<_BookEditorSheet> {
                               ),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(

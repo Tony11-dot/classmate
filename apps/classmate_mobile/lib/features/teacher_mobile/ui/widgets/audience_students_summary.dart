@@ -286,10 +286,12 @@ class _StudentPill extends StatelessWidget {
           Semantics(
             button: true,
             label: l.a11yRemove,
-            child: GestureDetector(
+            child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
               onTap: onRemove,
               child: Icon(Icons.close_rounded, size: 15, color: cs.onPrimaryContainer),
-            ),
+            )),
           ),
         ],
       ),

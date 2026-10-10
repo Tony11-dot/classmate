@@ -701,12 +701,12 @@ class _Section extends StatelessWidget {
             children: [
               Icon(icon, size: 18, color: cs.primary),
               const SizedBox(width: 8),
-              Text(
+              Semantics(header: true, child: Text(
                 title,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
-              ),
+              )),
             ],
           ),
           const SizedBox(height: 6),

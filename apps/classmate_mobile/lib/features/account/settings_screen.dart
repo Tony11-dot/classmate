@@ -463,14 +463,14 @@ class _Section extends StatelessWidget {
             children: [
               Icon(icon, size: 18, color: cs.primary),
               const SizedBox(width: 8),
-              Text(
+              Semantics(header: true, child: Text(
                 title,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: cs.primary,
                   letterSpacing: 0.2,
                 ),
-              ),
+              )),
             ],
           ),
           const SizedBox(height: 12),
@@ -701,13 +701,16 @@ class _GalleryHeader extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(2, 22, 0, 12),
-      child: Text(
-        title.toUpperCase(),
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: cs.primary,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.8,
-            ),
+      child: Semantics(
+        header: true,
+        child: Text(
+          title.toUpperCase(),
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: cs.primary,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.8,
+              ),
+        ),
       ),
     );
   }
@@ -802,7 +805,9 @@ class _ThemeTile extends StatelessWidget {
             button: true,
             selected: selected,
             label: label,
-            child: GestureDetector(
+            child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
             onTap: onTap,
             onLongPress: (onEdit != null || onDelete != null)
                 ? () => _openMenu(context)
@@ -851,7 +856,7 @@ class _ThemeTile extends StatelessWidget {
                   ),
               ],
             ),
-            ),
+            )),
           ),
           const SizedBox(height: 6),
           // The tile above already announces the name — don't read it twice.
@@ -1069,7 +1074,9 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
             runSpacing: 12,
             children: [
               for (final c in _seeds)
-                GestureDetector(
+                MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                   onTap: () => setState(() => _seed = c),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 120),
@@ -1091,7 +1098,7 @@ class _AddThemeSheetState extends ConsumerState<_AddThemeSheet> {
                           : null,
                     ),
                   ),
-                ),
+                )),
             ],
           ),
           const SizedBox(height: 18),

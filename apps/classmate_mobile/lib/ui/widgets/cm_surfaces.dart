@@ -497,14 +497,14 @@ class CmSectionHeader extends StatelessWidget {
             Icon(icon, size: 17, color: tone),
             const SizedBox(width: 6),
           ],
-          Text(
+          Semantics(header: true, child: Text(
             label,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               fontWeight: FontWeight.w800,
               color: tone,
               letterSpacing: 0.3,
             ),
-          ),
+          )),
           if (count != null) ...[
             const SizedBox(width: 8),
             CmPill(label: '$count', color: tone),
@@ -593,12 +593,12 @@ class CmFormSectionHeader extends StatelessWidget {
           const SizedBox(width: 10),
         ],
         Expanded(
-          child: Text(
+          child: Semantics(header: true, child: Text(
             title,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w900,
             ),
-          ),
+          )),
         ),
         ?trailing,
       ],

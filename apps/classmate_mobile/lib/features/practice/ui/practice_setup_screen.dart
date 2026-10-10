@@ -570,7 +570,9 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
               trailing: Semantics(
                 button: true,
                 label: l.a11yInfo,
-                child: GestureDetector(
+                child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _showModeInfoSheet(context),
                   // 44 wide × the header's 30 tall — the icon keeps its spot
@@ -587,7 +589,7 @@ class _PracticeSetupScreenState extends ConsumerState<PracticeSetupScreen> {
                       ),
                     ),
                   ),
-                ),
+                )),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1241,13 +1243,13 @@ class _HeroCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    Semantics(header: true, child: Text(
                       title,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.w800,
                             color: cs.onPrimaryContainer,
                           ),
-                    ),
+                    )),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
@@ -1316,12 +1318,12 @@ class _SectionCard extends StatelessWidget {
                 const SizedBox(width: 10),
               ],
               Expanded(
-                child: Text(
+                child: Semantics(header: true, child: Text(
                   title,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
-                ),
+                )),
               ),
               ..._maybeTrailing(trailing),
             ],

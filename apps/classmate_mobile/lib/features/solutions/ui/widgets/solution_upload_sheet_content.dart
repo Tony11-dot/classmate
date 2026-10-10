@@ -432,7 +432,9 @@ class _SolutionUploadSheetBodyState
     // widget, destroying the TextEditingController and closing the sheet.
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return GestureDetector(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       // Absorb all taps within the sheet so they never reach the barrier.
       behavior: HitTestBehavior.opaque,
       onTap: () {},  // swallow stray taps
@@ -664,6 +666,6 @@ class _SolutionUploadSheetBodyState
       ],
         ), // ListView
       ), // Padding
-    ); // GestureDetector
+    )); // GestureDetector
   }
 }

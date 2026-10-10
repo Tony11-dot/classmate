@@ -771,6 +771,8 @@ class ChatComposer extends StatelessWidget {
       // Claim horizontal drags that start on the pill so a host TabBarView
       // (classroom tabs) can't turn a stray swipe into a page change while a
       // take is open.
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onHorizontalDragUpdate: (_) {},
@@ -821,7 +823,7 @@ class ChatComposer extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 
@@ -856,6 +858,8 @@ class ChatComposer extends StatelessWidget {
       button: true,
       enabled: onTap != null,
       label: label,
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
@@ -869,7 +873,7 @@ class ChatComposer extends StatelessWidget {
           alignment: Alignment.center,
           child: Icon(icon, size: 18, color: color),
         ),
-      ),
+      )),
     );
   }
 
@@ -983,7 +987,9 @@ class _AttachTray extends StatelessWidget {
               child: Semantics(
                 button: true,
                 label: a.label,
-                child: GestureDetector(
+                child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => onSelect(a),
                   child: Column(
@@ -1012,7 +1018,7 @@ class _AttachTray extends StatelessWidget {
                       ),
                     ],
                   ),
-                ),
+                )),
               ),
             ),
         ],

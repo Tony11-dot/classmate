@@ -194,7 +194,9 @@ class _CmCodeFieldState extends State<CmCodeField>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        GestureDetector(
+        MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
             if (!widget.enabled) return;
@@ -216,7 +218,7 @@ class _CmCodeFieldState extends State<CmCodeField>
             },
             child: boxes,
           ),
-        ),
+        )),
         field,
         AnimatedSwitcher(
           duration: CmTokens.medium,

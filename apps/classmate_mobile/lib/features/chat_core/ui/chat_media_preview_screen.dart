@@ -611,7 +611,9 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                   itemBuilder: (context, i) {
                     final item = _media[i];
                     final active = i == _index;
-                    return GestureDetector(
+                    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                       onTap: () async {
                         setState(() => _index = i);
                         await _syncVideo();
@@ -630,7 +632,7 @@ class _ChatMediaPreviewScreenState extends State<ChatMediaPreviewScreen> {
                         ),
                         child: _buildThumb(item, i),
                       ),
-                    );
+                    ));
                   },
                 ),
               ),

@@ -1580,7 +1580,9 @@ class _AttachmentPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1605,7 +1607,7 @@ class _AttachmentPill extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 

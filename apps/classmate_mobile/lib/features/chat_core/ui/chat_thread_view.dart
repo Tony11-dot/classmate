@@ -2187,10 +2187,12 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
           Semantics(
             button: true,
             label: l.a11yCancel,
-            child: GestureDetector(
+            child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
               onTap: _cancelEdit,
               child: Icon(Icons.close_rounded, size: 16, color: scheme.primary),
-            ),
+            )),
           ),
         ],
       ),
@@ -2509,7 +2511,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                       curve: Curves.easeOutCubic,
                       alignment: AlignmentDirectional.centerStart,
                       child: _inSelectionMode
-                          ? GestureDetector(
+                          ? MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () {
                                 if (_isForwardSelectionMode) {
@@ -2523,7 +2527,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                                     start: 2, end: 10),
                                 child: _SelectionCheck(selected: isSelected),
                               ),
-                            )
+                            ))
                           : const SizedBox.shrink(),
                     ),
                     Expanded(
@@ -2564,7 +2568,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                       const SizedBox(width: 6),
                     ],
                     Flexible(
-                      child: GestureDetector(
+                      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: _inSelectionMode
                             ? () {
@@ -2652,7 +2658,7 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                             ],
                           ),
                         ),
-                      ),
+                      )),
                     ),
                     if (row.isOwn) const SizedBox(width: 6),
                   ],

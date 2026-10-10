@@ -357,7 +357,9 @@ class MainDrawer extends ConsumerWidget {
                   // Avatar + name — tap to open the account switcher (add /
                   // switch / sign out this account). Instagram-style.
                   Expanded(
-                    child: GestureDetector(
+                    child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => _openAccountSwitcher(navContext, ref),
                       child: Row(
@@ -418,7 +420,7 @@ class MainDrawer extends ConsumerWidget {
                           ),
                         ],
                       ),
-                    ),
+                    )),
                   ),
                   // Close button — always shows the CM mark. The school logo
                   // already appears in the dedicated branding row above, so
@@ -427,7 +429,9 @@ class MainDrawer extends ConsumerWidget {
                     Semantics(
                       button: true,
                       label: l.a11yClose,
-                      child: GestureDetector(
+                      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                         onTap: () => Navigator.of(context).pop(),
                         child: Container(
                           width: 48,
@@ -438,7 +442,7 @@ class MainDrawer extends ConsumerWidget {
                           ),
                           child: const Center(child: ClassMateIcon(size: 32)),
                         ),
-                      ),
+                      )),
                     ),
                 ],
               ),

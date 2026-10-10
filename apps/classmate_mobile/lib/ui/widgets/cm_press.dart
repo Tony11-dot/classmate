@@ -42,7 +42,11 @@ class _CmPressState extends State<CmPress> {
     final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     final target = (_down && _interactive && !reduceMotion) ? widget.scale : 1.0;
 
-    return GestureDetector(
+    // Web / desktop: a pointer that says "tappable" (InkWell does this for
+    // free; custom surfaces have to ask for it).
+    return MouseRegion(
+      cursor: _interactive ? SystemMouseCursors.click : MouseCursor.defer,
+      child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown: _interactive ? (_) => _set(true) : null,
       onTapUp: _interactive ? (_) => _set(false) : null,
@@ -54,6 +58,7 @@ class _CmPressState extends State<CmPress> {
         duration: const Duration(milliseconds: 110),
         curve: Curves.easeOut,
         child: widget.child,
+      ),
       ),
     );
   }

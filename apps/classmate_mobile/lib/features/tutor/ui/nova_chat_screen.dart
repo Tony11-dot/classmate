@@ -2470,7 +2470,9 @@ class _PersistentDisclaimer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return GestureDetector(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       onTap: onInfo,
       behavior: HitTestBehavior.opaque,
       child: Padding(
@@ -2496,7 +2498,7 @@ class _PersistentDisclaimer extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 }
 

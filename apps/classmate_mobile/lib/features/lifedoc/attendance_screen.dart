@@ -814,14 +814,14 @@ class _HeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          Semantics(header: true, child: Text(
             title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w900,
                   letterSpacing: -0.4,
                   color: cs.onPrimaryContainer,
                 ),
-          ),
+          )),
           const SizedBox(height: 8),
           Text(
             subtitle,
@@ -857,7 +857,7 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17)),
+          Semantics(header: true, child: Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17))),
           const SizedBox(height: 4),
           Text(
             subtitle,

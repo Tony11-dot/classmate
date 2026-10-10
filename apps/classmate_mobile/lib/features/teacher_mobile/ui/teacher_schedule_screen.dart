@@ -122,6 +122,8 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
     return CmRefreshIndicator(
       onRefresh: () => _refresh(weekOf),
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onHorizontalDragEnd: (details) {
           final v = details.primaryVelocity ?? 0;
@@ -201,7 +203,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 

@@ -748,7 +748,9 @@ class ChatMessageBubble extends StatelessWidget {
       if (isImage) {
         mediaWidget = Stack(
           children: [
-            GestureDetector(
+            MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
               onTap: () => _openAttachment(
                 contextForNavigation,
                 resolvedMediaUrl,
@@ -766,7 +768,7 @@ class ChatMessageBubble extends StatelessWidget {
                   child: _buildImageWidget(resolvedMediaUrl, previewMode: previewMode),
                 ),
               ),
-            ),
+            )),
             PositionedDirectional(bottom: 7, end: 10, child: timeOverlay),
           ],
         );
@@ -1007,7 +1009,9 @@ class ChatMessageBubble extends StatelessWidget {
                 if (resolvedReplySender.isNotEmpty ||
                     resolvedReplySnippet.isNotEmpty ||
                     inlineReplyPrefix.isNotEmpty) ...[
-                  GestureDetector(
+                  MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: onReplyTap,
                     child: Container(
@@ -1071,7 +1075,7 @@ class ChatMessageBubble extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
+                  )),
                 ],
                 if (isDeletedForEveryone) ...[
                   Row(
@@ -1093,7 +1097,9 @@ class ChatMessageBubble extends StatelessWidget {
                     ],
                   ),
                 ] else if (isImage) ...[
-                  GestureDetector(
+                  MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                     onTap: () => _openAttachment(
                       contextForNavigation,
                       resolvedMediaUrl,
@@ -1111,7 +1117,7 @@ class ChatMessageBubble extends StatelessWidget {
                         child: _buildImageWidget(resolvedMediaUrl, previewMode: previewMode),
                       ),
                     ),
-                  ),
+                  )),
                   if (showRealUserCaption &&
                       !lowerBody.startsWith('[image]')) ...[
                     const SizedBox(height: 2),
@@ -1163,7 +1169,9 @@ class ChatMessageBubble extends StatelessWidget {
                     ),
                   ],
                 ] else if (isPdf || isFileLike) ...[
-                  GestureDetector(
+                  MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                     onTap: () => _openAttachment(
                       contextForNavigation,
                       resolvedMediaUrl,
@@ -1210,7 +1218,7 @@ class ChatMessageBubble extends StatelessWidget {
                         ],
                       ),
                     ),
-                  ),
+                  )),
                 ] else if (showRealUserCaption) ...[
                   // WhatsApp layout: a short message and its time share one
                   // line; a long one pushes the time to the trailing edge of
@@ -1410,7 +1418,9 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
         WidgetSpan(
           alignment: PlaceholderAlignment.baseline,
           baseline: TextBaseline.alphabetic,
-          child: GestureDetector(
+          child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
             onTap: () async {
               final uri = Uri.tryParse(href);
               if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -1423,7 +1433,7 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
                 decorationColor: Colors.white70,
               ),
             ),
-          ),
+          )),
         ),
       );
       last = m.end;
@@ -1474,7 +1484,9 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
                   ),
             if (exceeds && !widget.previewMode) ...[
               const SizedBox(height: 3),
-              GestureDetector(
+              MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () => setState(() => _expanded = !_expanded),
                 child: Text(
@@ -1486,7 +1498,7 @@ class _CollapsibleMessageTextState extends State<_CollapsibleMessageText> {
                     shadows: [Shadow(color: Colors.white, blurRadius: 10)],
                   ),
                 ),
-              ),
+              )),
             ],
           ],
         );
@@ -1540,7 +1552,9 @@ class _InlineVideoBubbleState extends State<_InlineVideoBubble> {
 
     final double fixedHeight = widget.previewMode ? 132 : 200;
 
-    return GestureDetector(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       onTap: widget.onTap,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
@@ -1583,7 +1597,7 @@ class _InlineVideoBubbleState extends State<_InlineVideoBubble> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -1646,7 +1660,9 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: GestureDetector(
+      body: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: _toggleControls,
         child: Stack(
@@ -1756,7 +1772,7 @@ class _InlineVideoViewerScreenState extends State<_InlineVideoViewerScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

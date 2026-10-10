@@ -235,6 +235,8 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
     final playBtn = Semantics(
       button: true,
       label: _isPlaying ? l.a11yPause : l.a11yPlay,
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: _loading ? null : _togglePlay,
         behavior: HitTestBehavior.opaque,
@@ -251,7 +253,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
                   ),
           ),
         ),
-      ),
+      )),
     );
 
     // ── Seekable waveform + scrubber dot ───────────────────────────────────
@@ -359,7 +361,9 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
       ),
     );
 
-    final speedPill = GestureDetector(
+    final speedPill = MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       onTap: () => _setSpeed(speeds[(currentSpeed + 1) % speeds.length]),
       behavior: HitTestBehavior.opaque,
       child: Container(
@@ -383,7 +387,7 @@ class _ChatAudioBubbleState extends State<ChatAudioBubble> {
           ),
         ),
       ),
-    );
+    ));
 
     final trailing = AnimatedSwitcher(
       duration: const Duration(milliseconds: 160),

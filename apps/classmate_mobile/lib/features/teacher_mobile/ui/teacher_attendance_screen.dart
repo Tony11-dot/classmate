@@ -406,10 +406,12 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                     Semantics(
                       button: true,
                       label: l.a11yBack,
-                      child: GestureDetector(
+                      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                         onTap: () { if (context.canPop()) context.pop(); },
                         child: Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: cs.onSurface),
-                      ),
+                      )),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -423,7 +425,9 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                       ),
                     ),
                     // Date picker button
-                    GestureDetector(
+                    MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                       onTap: _pickDate,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -442,7 +446,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                           ],
                         ),
                       ),
-                    ),
+                    )),
                   ],
                 ),
                 if (session != null && markedCount > 0) ...[
@@ -625,7 +629,9 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                               style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
                             ),
                           ),
-                          GestureDetector(
+                          MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                             onTap: () => _cycleStatus(student.studentId),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 120),
@@ -643,7 +649,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
                                 ),
                               ]),
                             ),
-                          ),
+                          )),
                         ],
                       ),
                     ),),

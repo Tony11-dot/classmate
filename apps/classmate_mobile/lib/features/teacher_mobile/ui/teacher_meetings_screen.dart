@@ -232,7 +232,9 @@ class _MeetingCard extends StatelessWidget {
             ],
             if (link.isNotEmpty) ...[
               const SizedBox(height: 6),
-              GestureDetector(
+              MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                 onTap: () async {
                   final uri = Uri.tryParse(link);
                   if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -253,7 +255,7 @@ class _MeetingCard extends StatelessWidget {
                     ),
                   ]),
                 ),
-              ),
+              )),
             ],
           ])),
           Column(mainAxisSize: MainAxisSize.min, children: [
@@ -819,7 +821,7 @@ class _SectionCard extends StatelessWidget {
       color: cs.surfaceContainerLow,
       border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+        Semantics(header: true, child: Text(title, style: const TextStyle(fontWeight: FontWeight.w800))),
         const SizedBox(height: 14),
         child,
       ]));
@@ -836,7 +838,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
       Icon(icon, size: 16, color: color), const SizedBox(width: 6),
-      Text(label, style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800, color: color, letterSpacing: 0.3)),
+      Semantics(header: true, child: Text(label, style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w800, color: color, letterSpacing: 0.3))),
       const SizedBox(width: 8),
       Expanded(child: Divider(color: color)),
     ]);

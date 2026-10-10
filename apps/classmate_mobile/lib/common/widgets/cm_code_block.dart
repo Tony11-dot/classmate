@@ -196,7 +196,9 @@ class _CopyButtonState extends State<_CopyButton> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    return GestureDetector(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       onTap: _copied ? null : _copy,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
@@ -236,7 +238,7 @@ class _CopyButtonState extends State<_CopyButton> {
                 ],
               ),
       ),
-    );
+    ));
   }
 }
 

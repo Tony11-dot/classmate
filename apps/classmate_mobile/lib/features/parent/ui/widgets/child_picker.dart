@@ -29,7 +29,9 @@ class ChildPicker extends ConsumerWidget {
 
     Widget chip(ParentChild c) {
       final isSelected = c.studentId == selected;
-      return GestureDetector(
+      return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
         onTap: () => ref.read(selectedChildProvider.notifier).select(c.studentId),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
@@ -83,7 +85,7 @@ class ChildPicker extends ConsumerWidget {
             ],
           ),
         ),
-      );
+      ));
     }
 
     // At least the original 88 pt, taller when large system text needs it;

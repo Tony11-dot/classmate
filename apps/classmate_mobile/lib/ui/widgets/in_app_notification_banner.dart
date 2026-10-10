@@ -134,7 +134,9 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
       position: _slide,
       child: FadeTransition(
         opacity: _fade,
-        child: GestureDetector(
+        child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
           onTap: _handleTap,
           onHorizontalDragEnd: (d) {
             if ((d.primaryVelocity ?? 0).abs() > 200) _dismiss();
@@ -221,7 +223,7 @@ class _InAppNotificationBannerState extends State<InAppNotificationBanner>
               ),
             ),
           ),
-        ),
+        )),
       ),
     );
   }

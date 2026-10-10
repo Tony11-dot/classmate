@@ -685,12 +685,12 @@ class _Section extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
+                child: Semantics(header: true, child: Text(
                   title,
                   style: Theme.of(
                     context,
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900),
-                ),
+                )),
               ),
               ?trailing,
             ],

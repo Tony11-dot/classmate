@@ -95,6 +95,8 @@ class AttachmentPill extends StatelessWidget {
     return Semantics(
       button: true,
       link: !isFile,
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => _open(context),
@@ -139,7 +141,7 @@ class AttachmentPill extends StatelessWidget {
         ),
         ),
       ),
-      ),
+      )),
     );
   }
 }

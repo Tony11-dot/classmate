@@ -305,7 +305,9 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                   Row(
                     children: [
                       // Logo preview or placeholder
-                      GestureDetector(
+                      MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                         onTap: _uploading ? null : _pickLogo,
                         child: Container(
                           width: 72,
@@ -331,7 +333,7 @@ class _SchoolInfoTabState extends ConsumerState<_SchoolInfoTab> {
                                     )
                                   : Icon(Icons.add_photo_alternate_rounded, size: 32, color: cs.onPrimaryContainer),
                         ),
-                      ),
+                      )),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(

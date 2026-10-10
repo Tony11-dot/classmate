@@ -633,12 +633,12 @@ class _SectionHeader extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(
+            child: Semantics(header: true, child: Text(
               title,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-            ),
+            )),
           ),
           Text(
             subtitle,

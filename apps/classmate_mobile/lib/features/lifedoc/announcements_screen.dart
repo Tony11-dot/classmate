@@ -1008,7 +1008,9 @@ class _ViewToggle extends StatelessWidget {
         child: Semantics(
           button: true,
           selected: selected,
-          child: GestureDetector(
+          child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
           onTap: () => onChanged(v),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 180),
@@ -1033,7 +1035,7 @@ class _ViewToggle extends StatelessWidget {
               ],
             ),
           ),
-          ),
+          )),
         ),
       );
     }
@@ -1075,13 +1077,13 @@ class _HeroCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          Semantics(header: true, child: Text(
             title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w900,
               color: cs.onPrimaryContainer,
             ),
-          ),
+          )),
           const SizedBox(height: 8),
           Text(
             subtitle,
@@ -1116,7 +1118,7 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+          Semantics(header: true, child: Text(title, style: const TextStyle(fontWeight: FontWeight.w900))),
           if (subtitle.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(

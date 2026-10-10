@@ -180,12 +180,12 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Text(
+      child: Semantics(header: true, child: Text(
         title,
         style: Theme.of(
           context,
         ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-      ),
+      )),
     );
   }
 }

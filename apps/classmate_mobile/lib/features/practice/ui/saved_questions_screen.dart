@@ -446,12 +446,12 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          Semantics(header: true, child: Text(
             title,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
-          ),
+          )),
           const SizedBox(height: 4),
           Text(
             subtitle,

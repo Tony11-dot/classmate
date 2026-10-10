@@ -1710,7 +1710,9 @@ class _ParentChildSwitcherBar extends ConsumerWidget {
                 style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
               ),
               Expanded(
-                child: GestureDetector(
+                child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                   onTap: children.length <= 1
                       ? null
                       : () => _openSwitcher(context, ref, children, selected.studentId),
@@ -1737,7 +1739,7 @@ class _ParentChildSwitcherBar extends ConsumerWidget {
                       ],
                     ],
                   ),
-                ),
+                )),
               ),
             ],
           ),

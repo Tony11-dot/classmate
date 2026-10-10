@@ -239,7 +239,9 @@ class _SolutionMediaStripState extends State<SolutionMediaStrip> {
             onPageChanged: (i) => setState(() => _currentVisible = i),
             itemBuilder: (ctx, i) {
               final asset = assets[i];
-              return GestureDetector(
+              return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                 onTap: () => openSolutionGallery(ctx, assets: assets, initialIndex: i),
                 child: Padding(
                   padding: EdgeInsetsDirectional.only(end: i < total - 1 ? 10 : 0),
@@ -248,7 +250,7 @@ class _SolutionMediaStripState extends State<SolutionMediaStrip> {
                     child: _Thumb(asset: asset),
                   ),
                 ),
-              );
+              ));
             },
           ),
         ),

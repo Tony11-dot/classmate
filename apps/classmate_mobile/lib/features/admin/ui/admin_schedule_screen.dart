@@ -842,6 +842,8 @@ class _GridCell extends StatelessWidget {
     return Semantics(
       button: true,
       label: cellLabel,
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
       onTap: onTap,
       child: Container(
@@ -862,7 +864,7 @@ class _GridCell extends StatelessWidget {
               )
             : null,
       ),
-      ),
+      )),
     );
   }
 }
@@ -979,6 +981,8 @@ class _FilterChipItem extends StatelessWidget {
       button: true,
       enabled: !disabled,
       selected: selected,
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
       onTap: disabled ? null : onTap,
       child: Container(
@@ -1011,7 +1015,7 @@ class _FilterChipItem extends StatelessWidget {
           ],
         ),
       ),
-      ),
+      )),
     );
   }
 }
@@ -2409,10 +2413,12 @@ class _DayPeriodRowState extends State<_DayPeriodRow> {
                 Semantics(
                   button: true,
                   label: l.a11yClose,
-                  child: GestureDetector(
+                  child: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                     onTap: widget.onRemove,
                     child: Icon(Icons.close_rounded, size: 18, color: cs.onSurfaceVariant),
-                  ),
+                  )),
                 ),
             ],
           ),
@@ -2561,6 +2567,8 @@ class _FreqChip extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
+      child: MouseRegion(
+      cursor: SystemMouseCursors.click,
       child: GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -2580,7 +2588,7 @@ class _FreqChip extends StatelessWidget {
           ),
         ),
       ),
-      ),
+      )),
     );
   }
 }
@@ -3621,7 +3629,9 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
                       // The whole row is the expand toggle; isolate it from
                       // the parent InkWell with a separate GestureDetector
                       // so tapping it doesn't fall through to "edit period."
-                      GestureDetector(
+                      MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => _toggleExpand(cohortRows),
                         child: Padding(
@@ -3651,7 +3661,7 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
                             ],
                           ),
                         ),
-                      ),
+                      )),
                       if (_expanded) ...[
                         const SizedBox(height: 4),
                         if (expandedNames.isEmpty)

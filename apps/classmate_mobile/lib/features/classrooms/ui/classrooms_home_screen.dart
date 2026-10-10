@@ -173,7 +173,9 @@ class _ClassroomsHomeScreenState extends ConsumerState<ClassroomsHomeScreen> {
 
     return Scaffold(
 backgroundColor: cs.surface,
-      body: GestureDetector(
+      body: MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusScope.of(context).unfocus(),
         onVerticalDragStart: (_) => FocusScope.of(context).unfocus(),
@@ -304,7 +306,7 @@ backgroundColor: cs.surface,
           ),
           ),
         ),
-      ),
+      )),
     );
   }
 }

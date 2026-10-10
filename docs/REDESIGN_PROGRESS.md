@@ -629,6 +629,19 @@ image viewer, video trimmer, NOVA chat and chat threads (message bars).
   surfaces (chat thread, NOVA chat, media preview, image viewer, video trimmer)
 - Checked: analyzer 50 (baseline); tests +73 −5 (baseline)
 
+## Round 32 (2026-10-10) — web pointer + headings for screen readers
+- **The hand cursor on web/desktop.** `InkWell` and the Material buttons show it; the app's own
+  tappables didn't — not one `MouseRegion` existed. `CmPress` (100 sites) asks for it when
+  interactive, and every tap-handling `GestureDetector` (53 more: chips, pills, grid cells, theme
+  tiles, attachment pills, chat bubbles, composer, drawer rows…) is wrapped. A `CURSOR=true` rig
+  pass over all 95 screens reports only framework internals now (Cupertino picker wheel, text
+  fields, the login's keyboard-dismiss layer)
+- **Headings.** VoiceOver's Headings rotor was empty — no `Semantics(header: true)` anywhere. The
+  shared section header, the form-section header, the lifedoc / practice hero titles and 20 per-
+  screen section headers, plus every `CmSubBar` title, are headings now (24 sites); invisible,
+  nothing moves
+- Checked: analyzer 50 (baseline); tests +73 −5 (baseline); rig: all 95 screens render, no overflow
+
 ## Up next (in order)
 1. On-device QA pass of build 322 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
