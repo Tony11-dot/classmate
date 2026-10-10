@@ -12,6 +12,7 @@ import '../../../ui/widgets/cm_surfaces.dart';
 import '../domain/message_thread_models.dart';
 import '../providers/messages_repository_provider.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class NewGroupScreen extends ConsumerStatefulWidget {
   const NewGroupScreen({super.key, required this.people});
 
@@ -63,7 +64,7 @@ class _NewGroupScreenState extends ConsumerState<NewGroupScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.messagesNewGroupTitle)),
+      appBar: CmSubBar(title: l.messagesNewGroupTitle),
       body: SafeArea(
         child: Column(
           children: [

@@ -8,6 +8,7 @@ import '../providers/messages_repository_provider.dart';
 import 'components/message_request_banner.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class MessageRequestScreen extends ConsumerWidget {
   const MessageRequestScreen({
     super.key,
@@ -23,7 +24,7 @@ class MessageRequestScreen extends ConsumerWidget {
     final repo = ref.read(messagesRepositoryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.messagesRequestTitle)),
+      appBar: CmSubBar(title: l.messagesRequestTitle),
       body: request.when(
         loading: () => const Center(child: CmLoading()),
         error: (error, stackTrace) => Center(

@@ -10,6 +10,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_press.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/cmail_api.dart';
+import '../../../ui/widgets/cm_sub_bar.dart';
 import 'cmail_screen.dart' show cmailAudienceLabel;
 
 /// Full mail view: subject, sender, audience, body, attachments. Opening it
@@ -165,9 +166,8 @@ class CMailDetailScreen extends ConsumerWidget {
     final detail = ref.watch(cmailDetailProvider(mailId));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.cmailTitle,
-            style: const TextStyle(fontWeight: FontWeight.w800)),
+      appBar: CmSubBar(
+        title: l.cmailTitle,
         actions: [
           detail.maybeWhen(
             data: (mail) => IconButton(

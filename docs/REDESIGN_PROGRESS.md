@@ -513,8 +513,64 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
 - Checked: analyzer 50 (baseline); tests +73 −5 (baseline); rig re-audit over the 23 touched
   screens: 0 unlabeled, no overflow; before/after pixdiff shows only the intended deltas
 
+## Phase 2 (started 2026-10-10) — role by role, tab by tab
+Tony's brief: every role (6), every tab of each role, every button / text / div made better, with
+the **chrome rule**:
+1. **Navbar tabs** (the role's bottom nav) — shell top bar + navbar.
+2. **Drawer tabs** (Core / School Tools / Account entries) — shell top bar (☰ · logo · pill), navbar
+   hidden.
+3. **Sub-screens** (anything entered from another screen: a detail, an editor, a picker) — no shell
+   at all: no logo, no pill, no navbar. The screen's own bar only — the glass back button + bold title
+   that assignment / announcement / meeting detail already use. No stock Material `AppBar`.
+
+Measured 2026-10-10: 61 screens still use a stock `AppBar` (3 use the glass detail bar); 7 shell
+routes are sub-screens but keep the shell bar (`/admin/periods`, `/teacher/averages`, …). Rig: the
+text-scale 1.5×/2.0× and phone-landscape sweeps over all 81 locale-aware screens are clean (0
+overflows), so the per-screen work is chrome + polish, not layout rescue.
+
+**Foundation (Round 26):** `CmSubBar` in `lib/ui/widgets/cm_sub_bar.dart` — a `PreferredSizeWidget`
+drop-in for `Scaffold.appBar` (glass 44 pt back button, titleLarge w900 title, optional subtitle,
+actions, optional `bottom`), transparent, no elevation; `_hideTopBarForRoute` extended for in-shell
+sub-screens. Then each role below is one round: chrome check per route → sub-screen bars → polish.
+
+| Role | Navbar tabs | Drawer tabs | Sub-screens (own bar) | Status |
+|---|---|---|---|---|
+| Student | Schedule · Classrooms · Practice · Insights · NOVA | Messages, Attendance, Grades, Assignments, Materials, Solutions, Bagrut, Meetings, Announcements, Notifications, Exams, Forms, Saved questions, Certificates, CMail · Profile, Plans, Settings, Support, About | assignment ✓ · meeting ✓ · announcement ✓ · exam · form · notification · classroom · chat · message request · new group · practice session/history/review · solutions subjects/books/pages/questions · bagrut list/exam/file · certificate · cmail compose/detail · note editor · reorder tools · classroom order · theme gallery · forgot password | ☑ R26 (build 320) |
+| Teacher | Schedule · Classrooms · Announcements · Insights · NOVA | Messages, Workspace, Cohorts, Attendance, Grades, Notifications, Assignments, Materials, Meetings, Solutions, Bagrut, Students, Exams, Certificates, Forms, CMail · Account | classroom detail/analytics · new announcement · create form · form responses · create/edit exam · exam grades · add grade · slot attachments · add material/meeting/assignment (+ classroom variants) · assignment detail · attendance mark · student detail · averages · create classroom · student grade detail | ☐ R27 |
+| Parent | Home · Schedule · Overview · Messages · Announcements | Attendance, Grades, Exams, Certificates, Assignments, Meetings, Materials, Notifications, CMail · Account | child picker · the shared lifedoc details · chat | ☐ R28 |
+| Admin | — (drawer only) | Dashboard, People, Cohorts, Schedule, School, Grade scales, Permissions, Reports, Certificates, Export, Students, Settings, CMail · Messages, Announcements, Notifications · Account | periods · import users · cohort detail · add period · edit user · subject detail · school form · certificates per student | ☐ R29 |
+| Secretary | — (drawer only) | Home, Schedule, People, Cohorts, Certificates, Announcements, Messages, Export, CMail · Account | student editor · cohort detail · export sheet | ☐ R30 |
+| Manager | — (console) | Home: Schools · Managers · Bagrut exams | school form · exam form · bagrut manage | ☐ R31 |
+
+Kept as specialised full-screen surfaces (own dark/overlay bars, not converted): chat media preview,
+image viewer, video trimmer, NOVA chat and chat threads (message bars).
+
+## Round 26 (2026-10-10) — Phase 2 foundation + the Student role
+- **`CmSubBar`** (`lib/ui/widgets/cm_sub_bar.dart`): the one bar for sub-screens — 44 pt glass back
+  button, titleLarge w900 title (a heading for screen readers), optional subtitle, the screen's
+  actions, optional bottom strip; transparent, no elevation, its own Material, drop-in for
+  `Scaffold.appBar`. It is the bar assignment / announcement / meeting detail already had, shared
+- **Student sub-screens on it (29 bars in 25 screens):** exam detail (3 states), form detail (3),
+  notification detail, message request, new group, practice history + session review, solutions
+  books / filters / questions / manage books, Bagrut exams + exam + file viewer, certificates editor
+  + per-student page, CMail compose + detail, note editor, reorder tools, reorder classrooms, theme
+  gallery, forgot password — plus New chat and Blocked people, which had hand-made chevron rows.
+  Titles, actions (Send, Save, Reset, delete, open-externally…), close-vs-back and custom back
+  handlers all carried over by a transformer (`scratchpad/subbar.py`) that refuses anything it
+  can't map, so nothing was dropped silently
+- Solutions questions title no longer ends in a dangling "•" before a book is chosen
+- Rig: 12 Student sub-screens added to `corners_test` (exam/form/notification detail, message
+  request, new group, 4 solutions screens, Bagrut exams, CMail detail, note editor); `sheet.py`
+  builds a contact sheet per role (25 tabs / 23 sub-screens reviewed in two images)
+- Chrome check, Student: 5 navbar tabs and 20 drawer tabs keep the shell; every sub-screen is now
+  shell-free with the shared bar. Nothing in-shell needed hiding for this role
+- Measured and left: at 2.0× text the hero stat tiles on Schedule / Classrooms / Grades break
+  words mid-way ("Selecte d day") — no clipping, but worth a stacked layout later
+- Checked: analyzer 50 (baseline); tests +73 −5 (baseline); rig: all converted screens render,
+  no overflow
+
 ## Up next (in order)
-1. On-device QA pass of build 319 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 320 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

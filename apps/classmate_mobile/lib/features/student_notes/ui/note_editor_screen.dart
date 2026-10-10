@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/notes_api.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Apple-Notes-style editor: a big borderless title field over a borderless
 /// body field. Saves on back (autosave) and on the check button; renaming IS
 /// editing the title. Read-only when the viewer can't edit someone else's
@@ -128,7 +129,7 @@ class _NoteEditorScreenState extends ConsumerState<NoteEditorScreen> {
         if (saved && mounted) Navigator.of(context).pop();
       },
       child: Scaffold(
-        appBar: AppBar(
+        appBar: CmSubBar(
           actions: [
             if (_canEdit && _noteId != null)
               IconButton(

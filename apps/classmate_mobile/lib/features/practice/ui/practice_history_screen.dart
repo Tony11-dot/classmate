@@ -16,6 +16,7 @@ import '../../../ui/widgets/cm_press.dart';
 import '../../../core/theme/cm_tokens.dart';
 import 'practice_review_widgets.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 String _practiceModeLabel(BuildContext context, PracticeMode mode) {
   final l = AppLocalizations.of(context)!;
   switch (mode) {
@@ -63,13 +64,9 @@ class PracticeHistoryScreen extends ConsumerWidget {
     final history = ref.watch(practiceHistoryProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-        title: Text(l.practiceHistoryTitle),
+      appBar: CmSubBar(
+        onBack: () => Navigator.of(context).maybePop(),
+        title: l.practiceHistoryTitle,
         actions: [
           IconButton(
             tooltip: l.practiceHistoryClearTooltip,

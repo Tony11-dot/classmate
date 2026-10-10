@@ -14,6 +14,7 @@ import '../../core/theme/cm_tokens.dart';
 import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 
+import '../../ui/widgets/cm_sub_bar.dart';
 // ── Persisted submission tracking ─────────────────────────────────────────────
 // Key: 'form_submitted:$formId' → JSON-encoded map of questionId → answer.
 // Only written for once-per-student forms.
@@ -88,9 +89,8 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
     return asyncForms.when(
       loading: () => const Scaffold(body: Center(child: CmLoading())),
       error: (error, stackTrace) => Scaffold(
-        appBar: AppBar(
-          leading: const BackButton(),
-          title: Text(AppLocalizations.of(context)!.formTitle),
+        appBar: CmSubBar(
+          title: AppLocalizations.of(context)!.formTitle,
         ),
         body: Center(
           child: Padding(
@@ -112,9 +112,8 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
         );
         if (form == null) {
           return Scaffold(
-            appBar: AppBar(
-              leading: const BackButton(),
-              title: Text(AppLocalizations.of(context)!.formTitle),
+            appBar: CmSubBar(
+              title: AppLocalizations.of(context)!.formTitle,
             ),
             body: Center(
               child: Text(AppLocalizations.of(context)!.formNotFound),
@@ -133,23 +132,13 @@ class _FormDetailScreenState extends ConsumerState<FormDetailScreen> {
     // Students see only the Questions tab (no Responses).
     // The form is always shown as a single-tab view for students.
     return Scaffold(
-      appBar: AppBar(
-        // Explicit back/chevron button so students can leave without submitting
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left_rounded, size: 28),
-          tooltip: AppLocalizations.of(context)!.commonBack,
-          onPressed: () {
+      appBar: CmSubBar(
+        onBack: () {
             if (Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
           },
-        ),
-        title: Text(
-          formTitleLabel(l, form.title),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
-        ),
+        title: formTitleLabel(l, form.title),
       ),
       body: ListView(
         physics: const AlwaysScrollableScrollPhysics(),

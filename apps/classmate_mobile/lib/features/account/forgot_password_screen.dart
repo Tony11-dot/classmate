@@ -9,6 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../../ui/widgets/cm_surfaces.dart';
 import '../../core/theme/cm_tokens.dart';
 
+import '../../ui/widgets/cm_sub_bar.dart';
 enum _ResetMode { email, sms }
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
@@ -96,14 +97,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          tooltip: AppLocalizations.of(context)!.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/login'),
-        ),
+      appBar: CmSubBar(
+        onBack: () => context.canPop() ? context.pop() : context.go('/login'),
       ),
       body: SafeArea(
         child: Align(

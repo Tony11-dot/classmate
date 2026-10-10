@@ -9,6 +9,7 @@ import 'practice_display_text.dart';
 import 'practice_mode_specs.dart';
 import 'practice_review_widgets.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class PracticeHistoryReviewScreen extends StatefulWidget {
   final PracticeHistorySession session;
 
@@ -74,7 +75,7 @@ class _PracticeHistoryReviewScreenState
         : questions;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.practiceSessionReviewTitle)),
+      appBar: CmSubBar(title: l.practiceSessionReviewTitle),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
         children: [

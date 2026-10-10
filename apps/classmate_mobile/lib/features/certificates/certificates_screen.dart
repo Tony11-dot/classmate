@@ -13,6 +13,7 @@ import '../../ui/widgets/liquid_glass_dropdown.dart';
 import 'certificate_pdf.dart';
 import 'data/certificates_repository.dart';
 
+import '../../ui/widgets/cm_sub_bar.dart';
 /// Full-screen wrapper (Scaffold + app bar) for pushing the create/edit form
 /// as its own route from the certificates list.
 class CertificatesFormPage extends StatelessWidget {
@@ -32,7 +33,7 @@ class CertificatesFormPage extends StatelessWidget {
     // Full-screen: its own Scaffold + plain AppBar (back arrow, no shell logo
     // top bar) — pushed on the root navigator over the shell.
     return Scaffold(
-      appBar: AppBar(title: Text(certId == null ? l.navCertificates : l.certEditTitle)),
+      appBar: CmSubBar(title: certId == null ? l.navCertificates : l.certEditTitle),
       body: SafeArea(
         child: CertificatesScreen(
           certId: certId,

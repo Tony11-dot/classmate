@@ -7,6 +7,7 @@ import '../providers/classrooms_providers.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class ClassroomOrderScreen extends ConsumerStatefulWidget {
   const ClassroomOrderScreen({super.key});
 
@@ -62,9 +63,8 @@ class _ClassroomOrderScreenState extends ConsumerState<ClassroomOrderScreen> {
     final async = ref.watch(orderedStudentClassroomsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: CmBarTitle(AppLocalizations.of(context)!.classroomsReorderTitle),
+      appBar: CmSubBar(
+        title: AppLocalizations.of(context)!.classroomsReorderTitle,
         actions: [
           TextButton(
             onPressed: _saving ? null : _save,

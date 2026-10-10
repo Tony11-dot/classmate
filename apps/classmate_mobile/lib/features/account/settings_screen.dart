@@ -13,6 +13,7 @@ import '../../ui/dialogs/confirm_logout.dart';
 import '../../ui/glass/liquid_glass_card.dart';
 import '../../ui/widgets/liquid_glass_dropdown.dart';
 
+import '../../ui/widgets/cm_sub_bar.dart';
 // ── Language catalogue ──────────────────────────────────────────────────────
 
 class _Lang {
@@ -621,10 +622,8 @@ class ThemeGalleryScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        title: Text(l.settingsTheme),
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
+      appBar: CmSubBar(
+        title: l.settingsTheme,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),

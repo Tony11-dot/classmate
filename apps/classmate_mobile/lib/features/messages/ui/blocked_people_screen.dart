@@ -8,6 +8,7 @@ import '../../../ui/widgets/cm_error_state.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class BlockedPeopleScreen extends ConsumerStatefulWidget {
   const BlockedPeopleScreen({super.key});
 
@@ -78,11 +79,14 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
     final l = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Scaffold(
-      // Full-screen — no AppBar. A small floating back chevron + heading sits
-      // inside SafeArea; the screen is pushed as a CupertinoPage so the
-      // left-edge swipe-back works too. The GestureDetector adds a
-      // swipe-from-anywhere "swipe to leave": a rightward fling pops the
-      // page (the list only scrolls vertically, so there's no conflict).
+      appBar: CmSubBar(
+        title: l.messagesBlockedPeopleTitle,
+        onBack: () => Navigator.of(context).maybePop(),
+      ),
+      // The screen is pushed as a CupertinoPage so the left-edge swipe-back
+      // works; the GestureDetector adds a swipe-from-anywhere "swipe to
+      // leave": a rightward fling pops the page (the list only scrolls
+      // vertically, so there's no conflict).
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onHorizontalDragEnd: (details) {
@@ -94,26 +98,6 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 16, 4),
-              child: Row(
-                children: [
-                  IconButton(
-                    tooltip: l.a11yBack,
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                    onPressed: () => Navigator.of(context).maybePop(),
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      l.messagesBlockedPeopleTitle,
-                      style: theme.textTheme.titleLarge
-                          ?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
         future: _future,

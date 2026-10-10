@@ -21,6 +21,7 @@ import 'certificates_screen.dart';
 import 'data/certificates_repository.dart';
 import '../../ui/widgets/cm_refresh_indicator.dart';
 
+import '../../ui/widgets/cm_sub_bar.dart';
 /// Staff-facing certificates hub. It is **student-first**: pick a class, see
 /// its students, tap a student to see (and create) all of THEIR certificates.
 /// Teachers (their homeroom) + admins can create/edit; secretaries stay
@@ -462,7 +463,7 @@ class _StudentCertificatesStaffPageState extends ConsumerState<StudentCertificat
     final theme = Theme.of(context);
 
     return Scaffold(
-        appBar: AppBar(title: Text(widget.student.name)),
+        appBar: CmSubBar(title: widget.student.name),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () => _openForm(),
           icon: const Icon(Icons.add_rounded),

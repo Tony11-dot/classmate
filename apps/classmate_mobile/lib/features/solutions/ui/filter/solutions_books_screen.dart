@@ -12,6 +12,7 @@ import '../../data/solutions_api.dart';
 import '../../domain/solutions_models.dart';
 import '../../domain/solution_subjects.dart';
 import '../../providers/solutions_flow_provider.dart';
+import '../../../../ui/widgets/cm_sub_bar.dart';
 import '../admin/solutions_books_admin_screen.dart' show showSolutionBookEditor;
 
 class SolutionsBooksScreen extends ConsumerStatefulWidget {
@@ -102,13 +103,9 @@ class _SolutionsBooksScreenState extends ConsumerState<SolutionsBooksScreen> {
         subject == null ? l.solutionsBooksTitle : solutionSubjectTitle(l, subject.id);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(subjectTitle),
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
+      appBar: CmSubBar(
+        title: subjectTitle,
+        onBack: () => context.pop(),
       ),
       floatingActionButton: (canManage && subject != null)
           ? FloatingActionButton.extended(

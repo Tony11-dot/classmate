@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Opens a bagrut file. On web (where flutter_pdfview is unsupported) the file
 /// opens in a new browser tab; on mobile PDFs render inline and images open in
 /// a zoomable viewer.
@@ -91,8 +92,8 @@ class _BagrutFileScreenState extends State<_BagrutFileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text(widget.title, overflow: TextOverflow.ellipsis),
+      appBar: CmSubBar(
+        title: widget.title,
         actions: [
           IconButton(
             tooltip: AppLocalizations.of(context)!.mediaOpenExternally,

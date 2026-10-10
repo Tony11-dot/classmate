@@ -12,6 +12,7 @@ import '../../../ui/widgets/cm_surfaces.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/student_multi_select_sheet.dart';
 import '../data/cmail_api.dart';
+import '../../../ui/widgets/cm_sub_bar.dart';
 import 'cmail_screen.dart' show cmailAudienceLabel;
 
 /// Compose a CMail: liquid-glass audience DDL (+ glass multi-select sheets
@@ -241,9 +242,8 @@ class _CMailComposeScreenState extends ConsumerState<CMailComposeScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        title: Text(l.cmailCompose,
-            style: const TextStyle(fontWeight: FontWeight.w800)),
+      appBar: CmSubBar(
+        title: l.cmailCompose,
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 8),

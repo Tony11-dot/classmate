@@ -11,6 +11,7 @@ import '../domain/bagrut_subjects.dart';
 import 'bagrut_exam_screen.dart';
 import 'bagrut_widgets.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class BagrutExamsScreen extends ConsumerStatefulWidget {
   const BagrutExamsScreen({super.key, required this.subjectKey});
 
@@ -36,7 +37,7 @@ class _BagrutExamsScreenState extends ConsumerState<BagrutExamsScreen> {
     final subjectTitle = bagrutSubjectTitle(widget.subjectKey, locale);
 
     return Scaffold(
-      appBar: AppBar(title: Text(subjectTitle)),
+      appBar: CmSubBar(title: subjectTitle),
       body: FutureBuilder<List<BagrutExam>>(
         future: _future,
         builder: (context, snap) {

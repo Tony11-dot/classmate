@@ -17,6 +17,7 @@ import '../../data/solutions_api.dart';
 import '../../domain/solution_subjects.dart';
 import '../../providers/solutions_flow_provider.dart';
 
+import '../../../../ui/widgets/cm_sub_bar.dart';
 /// Opens the add/edit book sheet (title + pages + cover). Returns true if a
 /// book was saved. Reusable so the per-subject books screen can host the same
 /// editor via a FAB (teachers/admins) without a separate management tab.
@@ -126,13 +127,9 @@ class _SolutionsBooksAdminScreenState extends ConsumerState<SolutionsBooksAdminS
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.solutionsManageBooksTitle),
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
+      appBar: CmSubBar(
+        title: l.solutionsManageBooksTitle,
+        onBack: () => context.pop(),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEditor(),

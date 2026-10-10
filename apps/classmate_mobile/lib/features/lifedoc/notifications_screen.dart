@@ -18,6 +18,7 @@ import '../../ui/widgets/cm_loading.dart';
 import '../../ui/widgets/cm_refresh_indicator.dart';
 import 'notification_text.dart';
 
+import '../../ui/widgets/cm_sub_bar.dart';
 String _friendlyNotificationDateTime(BuildContext context, DateTime value) {
   return FriendlyDate.dateTime(value);
 }
@@ -575,7 +576,7 @@ class _NotificationDetailScreenState
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: const CmSubBar(),
       body: async.when(
         loading: () {
           final initial = widget.initialNotification;

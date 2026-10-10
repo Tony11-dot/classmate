@@ -7,6 +7,7 @@ import '../domain/bagrut_models.dart';
 import '../domain/bagrut_subjects.dart';
 import 'bagrut_file_view.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Shows one exam's files grouped by kind (questions / answers / solution /
 /// advanced), each tappable to open.
 class BagrutExamScreen extends StatelessWidget {
@@ -75,7 +76,7 @@ class BagrutExamScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(exam.title)),
+      appBar: CmSubBar(title: exam.title),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [

@@ -17,6 +17,7 @@ import '../../../common/widgets/role_badge.dart';
 import '../../../ui/widgets/cm_error_state.dart';
 import '../../../ui/widgets/cm_loading.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 final sameSchoolPeopleProvider =
     FutureProvider.autoDispose<List<MessageDirectoryPerson>>((ref) {
       return ref.read(messagesRepositoryProvider).fetchSameSchoolPeople();
@@ -115,7 +116,10 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
     return PopScope(
       canPop: true,
       child: Scaffold(
-        extendBodyBehindAppBar: true,
+        appBar: CmSubBar(
+          title: l.tutorNewChat,
+          onBack: () => Navigator.of(context).pop(),
+        ),
         body: Column(
           children: [
             // Header
@@ -124,36 +128,11 @@ class _NewChatScreenState extends ConsumerState<NewChatScreen> {
               // have equal blank space on both sides (QA #13). The back button
               // keeps its own internal padding, so the arrow still sits close
               // to the edge.
-              padding: EdgeInsets.fromLTRB(
-                8,
-                MediaQuery.of(context).padding.top + 4,
-                8,
-                0,
-              ),
+              padding: const EdgeInsets.fromLTRB(8, 2, 8, 0),
               decoration: const BoxDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        tooltip: l.a11yBack,
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                        style: IconButton.styleFrom(
-                          padding: const EdgeInsets.all(8),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        l.tutorNewChat,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
                   // Search bar + chips line up with the 16px list gutter
                   // below; the back button keeps the tighter 8px inset.
                   Padding(

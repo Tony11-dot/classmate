@@ -8,6 +8,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../ui/widgets/cm_surfaces.dart';
 import '../../providers/solutions_flow_provider.dart';
 
+import '../../../../ui/widgets/cm_sub_bar.dart';
 /// Special sentinel for "all questions on this page".
 const String _kAllQuestions = 'all';
 /// Displayed label for the sentinel.
@@ -79,13 +80,9 @@ class _SolutionsPagesScreenState extends ConsumerState<SolutionsPagesScreen> {
     final pageCount = state.selectedBook?.pageCount ?? 500;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.filters),
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
+      appBar: CmSubBar(
+        title: l.filters,
+        onBack: () => context.pop(),
       ),
       body: SafeArea(
         child: Column(

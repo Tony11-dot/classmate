@@ -17,6 +17,7 @@ import '../common/media/image_viewer_screen.dart';
 import '../common/media/pdf_viewer_screen.dart';
 import '../../ui/widgets/cm_loading.dart';
 
+import '../../ui/widgets/cm_sub_bar.dart';
 // ─── helpers (duplicated locally so the detail screen is self-contained) ─────
 
 DateTime? _parseDate(String? raw) {
@@ -176,7 +177,7 @@ class ExamDetailScreen extends ConsumerWidget {
     return asyncExam.when(
       loading: () => const Scaffold(body: Center(child: CmLoading())),
       error: (error, stackTrace) => Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.examTitle)),
+        appBar: CmSubBar(title: AppLocalizations.of(context)!.examTitle),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -197,9 +198,7 @@ class ExamDetailScreen extends ConsumerWidget {
         );
         if (exam == null || exam.id.isEmpty) {
           return Scaffold(
-            appBar: AppBar(
-              title: Text(AppLocalizations.of(context)!.examTitle),
-            ),
+            appBar: CmSubBar(title: AppLocalizations.of(context)!.examTitle),
             body: Center(
               child: Text(AppLocalizations.of(context)!.examNotFound),
             ),
@@ -221,7 +220,7 @@ class _ExamDetailBody extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     if (exam.id.isEmpty) {
       return Scaffold(
-        appBar: AppBar(title: Text(l.examTitle)),
+        appBar: CmSubBar(title: l.examTitle),
         body: Center(child: Text(l.examNotFound)),
       );
     }

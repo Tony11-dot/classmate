@@ -14,6 +14,7 @@ import '../../providers/solutions_flow_provider.dart';
 import '../widgets/solution_upload_sheet_content.dart';
 import '../../../../ui/widgets/cm_loading.dart';
 
+import '../../../../ui/widgets/cm_sub_bar.dart';
 final liveExactSolutionsPageProvider =
     FutureProvider.family<LiveSolutionsPage, int>((ref, page) async {
       final state = ref.watch(solutionsFlowProvider);
@@ -189,16 +190,11 @@ class _SolutionsQuestionsScreenState
         : solutionSubjectTitle(l, state.selectedSubject!.id);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '$subjectLabel • ${state.selectedBook?.title ?? ''}',
-          overflow: TextOverflow.ellipsis,
-        ),
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
+      appBar: CmSubBar(
+        title: (state.selectedBook?.title ?? '').isEmpty
+            ? subjectLabel
+            : '$subjectLabel • ${state.selectedBook!.title}',
+        onBack: () => context.pop(),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: openUploadSheet,

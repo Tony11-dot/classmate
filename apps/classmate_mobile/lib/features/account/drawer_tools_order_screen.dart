@@ -8,6 +8,7 @@ import '../../core/auth/auth_controller.dart';
 import '../../l10n/app_localizations.dart';
 import '../../ui/nav/drawer_tools_order.dart';
 
+import '../../ui/widgets/cm_sub_bar.dart';
 /// Lets the user drag-reorder the drawer's "School Tools" section.
 /// Same flow as the classroom reorder screen: view them ordered, drag to change.
 class DrawerToolsOrderScreen extends ConsumerStatefulWidget {
@@ -58,13 +59,9 @@ class _DrawerToolsOrderScreenState extends ConsumerState<DrawerToolsOrderScreen>
     }
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: l.a11yBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: CmBarTitle(l.reorderToolsTitle),
+      appBar: CmSubBar(
+        onBack: () => context.pop(),
+        title: l.reorderToolsTitle,
         actions: [
           TextButton(
             onPressed: reset,
