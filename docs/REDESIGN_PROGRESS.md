@@ -250,9 +250,9 @@ Update this file in the same commit as each screen's redesign.
     Manager Bagrut tiles grow with text size, teacher "Join meeting" pill wraps (ar 2×)
   - Phone-number hint read "4567 123 50 972+" in Hebrew/Arabic → left-to-right
   - Theme names in the gallery ("Par défaut du système", "ברירת מחדל של המערכת") get two lines
-- Known, left as is: the Manager console (platform owner only) is English-only; English demo
-  text inside Hebrew/Arabic screens keeps RTL punctuation placement (real content is in the
-  school's language)
+- Known, left as is: the Manager console (platform owner only) is English-only (fixed in round 17);
+  English demo text inside Hebrew/Arabic screens keeps RTL punctuation placement (real content is
+  in the school's language)
 
 ## Round 15 (2026-10-10) — every letter: the strings themselves
 Audited all 2,820 strings in the five languages, plus the website and the account emails.
@@ -293,9 +293,9 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
     toggles on top of the fresh values
   - #3 "Restore defaults" under the header puts every switch back to its catalog default; the Save
     bar then confirms. Disabled when nothing deviates
-  - iOS note: builds 304–309 sat on TestFlight with no tester group, so the external "QA testers"
-    group never received them. Build 310 is assigned to that group and submitted for beta review
-    (`scratchpad/asc.rb distribute`) as soon as it finishes processing
+  - iOS note: builds 303–309 reached only the internal "Devs" group on TestFlight, so the external
+    "QA testers" group never received them. Build 310 is in that group and submitted for beta review
+    (`asc.rb distribute`, 2026-10-10)
 - **English that could still reach the screen from the data layer** (round 15 covered the strings;
   this covers what the API or an empty field puts in their place): the forms API sent the literal
   words "Teacher" and "Class" for every form → it now sends the author's real name, and the client
@@ -307,9 +307,24 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
 - Checked: analyzer 50 (baseline), tests 66/5 (baseline), all 103 rig screens pass in en/he/ar/fr/ru
   and at 2× text (en, ar); API type-check clean; permissions + mail tests 29 pass
 
+## Round 17 (2026-10-10) — the last English screens + the last unlabeled buttons
+- **Manager console in the app's language.** The platform-owner screens (Schools, Managers, Bagrut
+  library, New school, New/Edit exam, sign-out) were the only screens still written in English:
+  59 new strings in he/ar/fr/ru, and the dialogs reuse the app's own Cancel / Save / Delete / Log out
+  terms. User counts per role show the role name, not the API code ("STUDENT"); "3 users" and
+  "2 cohorts" are real plurals; "Min/Max grade" → "Lowest/Highest grade"; the Bagrut file slots use
+  the student library's names (Questions / Answers / Solution / Full solution). Two small fixes on the
+  way: the "School created" toast now shows (it fired after the screen closed), and the logo button
+  turns into a check mark once a logo is uploaded
+- **Every icon button has a name** for screen readers and long-press: the schedule day arrows
+  (student + teacher), Bagrut "Open externally", the support assistant's Close, the Manager
+  add-subject, show/hide password and clear-file buttons were the last 7 of 148 without one
+- Checked: analyzer 50 (baseline); tests and rig below
+
 ## Up next (in order)
-1. On-device QA pass of build 310 (TestFlight / Play internal). Natan retests Permissions on
-   Android and, once beta review clears, on iOS via the external group.
+1. On-device QA pass of build 311 (TestFlight / Play internal). Natan retests Permissions on
+   Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
+   Apple's beta review).
 
 ## Known open items (not redesign)
 - Anthropic key: the second new key is live and NOVA answers (confirmed by Tony 2026-10-09). Still

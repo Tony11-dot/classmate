@@ -10195,4 +10195,221 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get announcementsNoDetails =>
       'Aucun détail supplémentaire n’a été joint.';
+
+  @override
+  String get managerAddManager => 'Ajouter un gestionnaire';
+
+  @override
+  String get managerAddManagerHint =>
+      'Accordez l’accès gestionnaire à un compte existant par e-mail ou nom d’utilisateur, ou remplissez tous les champs pour créer un nouveau gestionnaire.';
+
+  @override
+  String get managerFullNameNewAccount => 'Nom complet (nouveau compte)';
+
+  @override
+  String get managerPasswordNewAccount => 'Mot de passe (nouveau compte)';
+
+  @override
+  String get managerCreated => 'Gestionnaire créé.';
+
+  @override
+  String get managerAccessGranted => 'Accès gestionnaire accordé.';
+
+  @override
+  String get managerThisManager => 'ce gestionnaire';
+
+  @override
+  String get managerRemoveManager => 'Retirer le gestionnaire';
+
+  @override
+  String managerRemoveManagerConfirm(String name) {
+    return 'Retirer l’accès gestionnaire à $name ?';
+  }
+
+  @override
+  String get managerNoManagers => 'Aucun gestionnaire pour l’instant';
+
+  @override
+  String get managerOwner => 'Propriétaire';
+
+  @override
+  String get managerGradesLabel => 'Niveaux';
+
+  @override
+  String get managerEditSchool => 'Modifier l’école';
+
+  @override
+  String get managerSchoolName => 'Nom de l’école';
+
+  @override
+  String get managerMinGrade => 'Niveau le plus bas';
+
+  @override
+  String get managerMaxGrade => 'Niveau le plus haut';
+
+  @override
+  String get managerDeleteSchool => 'Supprimer l’école';
+
+  @override
+  String managerDeleteSchoolBody(String name) {
+    return 'Cette action supprime définitivement « $name » ainsi que tous ses utilisateurs, cohortes, classes et données. Elle est irréversible.';
+  }
+
+  @override
+  String managerTypeToConfirm(String name) {
+    return 'Saisissez « $name » pour confirmer';
+  }
+
+  @override
+  String get managerDeleteForever => 'Supprimer définitivement';
+
+  @override
+  String get managerNewSchool => 'Nouvelle école';
+
+  @override
+  String get managerNoSchoolsTitle => 'Aucune école pour l’instant';
+
+  @override
+  String get managerNoSchoolsBody =>
+      'Touchez « Nouvelle école » pour en créer une.';
+
+  @override
+  String managerGradesRange(String range) {
+    return 'Niveaux $range';
+  }
+
+  @override
+  String managerUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count utilisateurs',
+      one: '$count utilisateur',
+      zero: 'Aucun utilisateur',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String managerCohortsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cohortes',
+      one: '$count cohorte',
+      zero: 'Aucune cohorte',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get managerView => 'Voir';
+
+  @override
+  String get managerDeleteExam => 'Supprimer l’examen';
+
+  @override
+  String managerDeleteExamBody(String title) {
+    return 'Supprimer « $title » et ses fichiers ? Cette action est irréversible.';
+  }
+
+  @override
+  String get managerNewExam => 'Nouvel examen';
+
+  @override
+  String get managerEditExam => 'Modifier l’examen';
+
+  @override
+  String get managerNoExamsTitle => 'Aucun examen pour l’instant';
+
+  @override
+  String get managerNoExamsBody =>
+      'Touchez « Nouvel examen » pour en ajouter un.';
+
+  @override
+  String managerLogoUploadFailed(String error) {
+    return 'Échec de l’envoi du logo : $error';
+  }
+
+  @override
+  String get managerSchoolNameRequired => 'Le nom de l’école est requis.';
+
+  @override
+  String get managerAdminNameRequired =>
+      'Le nom complet de l’administrateur est requis.';
+
+  @override
+  String get managerAdminContactRequired =>
+      'L’e-mail ou le nom d’utilisateur de l’administrateur est requis.';
+
+  @override
+  String get managerPasswordTooShort =>
+      'Le mot de passe doit contenir au moins 6 caractères.';
+
+  @override
+  String managerSchoolCreated(String name) {
+    return 'École « $name » créée.';
+  }
+
+  @override
+  String get managerGradeRanges => 'Plages de niveaux';
+
+  @override
+  String get managerGradeRangesHelper =>
+      'Par exemple 7-12, ou 4-6,9-12 pour sauter des niveaux';
+
+  @override
+  String get managerSemestersOptional => 'Semestres (facultatif)';
+
+  @override
+  String get managerSemestersHelper => 'Mois de début–fin, par exemple 9-1,2-6';
+
+  @override
+  String get managerUploadLogo => 'Envoyer un logo';
+
+  @override
+  String get managerLogoUploaded => 'Logo envoyé';
+
+  @override
+  String get managerSubjectsOptional => 'Matières (facultatif)';
+
+  @override
+  String get managerSubjectEnglish => 'Matière (en anglais)';
+
+  @override
+  String get managerAdminAccount => 'Compte administrateur';
+
+  @override
+  String get managerPasswordHelper => 'Au moins 6 caractères';
+
+  @override
+  String get managerCreateSchool => 'Créer l’école';
+
+  @override
+  String get managerYearRequired => 'Une année valide est requise.';
+
+  @override
+  String get managerAttachOneFile => 'Joignez au moins un fichier.';
+
+  @override
+  String get managerExamTitleHelper => 'Par exemple Été 2019 · Moed A';
+
+  @override
+  String get managerYear => 'Année';
+
+  @override
+  String get managerTerm => 'Session';
+
+  @override
+  String get managerTermHelper => 'summer_a, winter…';
+
+  @override
+  String get managerFilesHelper =>
+      'Le fichier Questions est le principal ; les autres sont facultatifs.';
+
+  @override
+  String get managerCreateExam => 'Créer l’examen';
+
+  @override
+  String get managerAttached => 'Joint';
 }

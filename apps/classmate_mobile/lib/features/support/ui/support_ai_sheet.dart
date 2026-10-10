@@ -242,6 +242,7 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
                   ),
                 ),
                 IconButton(
+                  tooltip: l.commonClose,
                   style: IconButton.styleFrom(
                     backgroundColor: cs.surfaceContainerHigh,
                   ),

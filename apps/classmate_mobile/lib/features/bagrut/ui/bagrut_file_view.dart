@@ -95,6 +95,7 @@ class _BagrutFileScreenState extends State<_BagrutFileScreen> {
         title: Text(widget.title, overflow: TextOverflow.ellipsis),
         actions: [
           IconButton(
+            tooltip: AppLocalizations.of(context)!.mediaOpenExternally,
             icon: const Icon(Icons.open_in_new_rounded),
             onPressed: _openExternally,
           ),

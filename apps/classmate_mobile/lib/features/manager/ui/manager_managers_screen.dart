@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/cm_tokens.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/manager_api.dart';
@@ -39,32 +40,32 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
     final email = TextEditingController();
     final username = TextEditingController();
     final password = TextEditingController();
+    final l = AppLocalizations.of(context)!;
     try {
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Add manager'),
+          title: Text(l.managerAddManager),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Grant manager access to an existing account by email or username, '
-                  'or fill everything to create a brand-new manager.',
-                  style: TextStyle(fontSize: 12),
+                Text(
+                  l.managerAddManagerHint,
+                  style: const TextStyle(fontSize: 12),
                 ),
                 const SizedBox(height: 12),
-                TextField(controller: email, decoration: const InputDecoration(labelText: 'Email')),
-                TextField(controller: username, decoration: const InputDecoration(labelText: 'Username')),
+                TextField(controller: email, decoration: InputDecoration(labelText: l.commonEmail)),
+                TextField(controller: username, decoration: InputDecoration(labelText: l.profileUsername)),
                 const Divider(height: 24),
-                TextField(controller: name, decoration: const InputDecoration(labelText: 'Full name (new account)')),
-                TextField(controller: password, decoration: const InputDecoration(labelText: 'Password (new account)')),
+                TextField(controller: name, decoration: InputDecoration(labelText: l.managerFullNameNewAccount)),
+                TextField(controller: password, decoration: InputDecoration(labelText: l.managerPasswordNewAccount)),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Add')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.commonAdd)),
           ],
         ),
       );
@@ -76,10 +77,10 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
         password: password.text,
       );
       if (res['ok'] == true) {
-        _snack(res['created'] == true ? 'Manager created.' : 'Manager access granted.');
+        _snack(res['created'] == true ? l.managerCreated : l.managerAccessGranted);
         _reload();
       } else {
-        _snack('Failed: ${res['message'] ?? res}');
+        _snack(l.commonFailedWith('${res['message'] ?? res}'));
       }
     } catch (e) {
       _snack('$e');
@@ -92,18 +93,19 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
   }
 
   Future<void> _revoke(Map<String, dynamic> m) async {
-    final label = m['name']?.toString() ?? m['email']?.toString() ?? m['username']?.toString() ?? 'this manager';
+    final l = AppLocalizations.of(context)!;
+    final label = m['name']?.toString() ?? m['email']?.toString() ?? m['username']?.toString() ?? l.managerThisManager;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove manager'),
-        content: Text('Remove manager access from $label?'),
+        title: Text(l.managerRemoveManager),
+        content: Text(l.managerRemoveManagerConfirm(label)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Remove'),
+            child: Text(l.commonRemove),
           ),
         ],
       ),
@@ -119,12 +121,13 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Managers')),
+      appBar: AppBar(title: Text(l.navManagers)),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _add,
         icon: const Icon(Icons.person_add_rounded),
-        label: const Text('Add manager'),
+        label: Text(l.managerAddManager),
       ),
       body: CmRefreshIndicator(
         onRefresh: () async => _reload(),
@@ -136,8 +139,8 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
             }
             final managers = snap.data ?? const [];
             if (managers.isEmpty) {
-              return ListView(children: const [
-                CmEmptyState(icon: Icons.manage_accounts_rounded, title: 'No managers.'),
+              return ListView(children: [
+                CmEmptyState(icon: Icons.manage_accounts_rounded, title: l.managerNoManagers),
               ]);
             }
             return ListView.separated(
@@ -184,13 +187,13 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
                           padding: const EdgeInsets.only(right: 6),
                           child: CmPill(
                             icon: Icons.star_rounded,
-                            label: 'Owner',
+                            label: l.managerOwner,
                             color: CmTokens.of(context).warn,
                           ),
                         )
                       else
                         IconButton(
-                          tooltip: 'Remove manager',
+                          tooltip: l.managerRemoveManager,
                           icon: Icon(Icons.remove_circle_outline_rounded, color: cs.error),
                           onPressed: () => _revoke(m),
                         ),

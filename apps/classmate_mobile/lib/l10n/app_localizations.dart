@@ -17122,6 +17122,360 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No additional details were attached.'**
   String get announcementsNoDetails;
+
+  /// No description provided for @managerAddManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Add manager'**
+  String get managerAddManager;
+
+  /// No description provided for @managerAddManagerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant manager access to an existing account by email or username, or fill in everything to create a new manager.'**
+  String get managerAddManagerHint;
+
+  /// No description provided for @managerFullNameNewAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name (new account)'**
+  String get managerFullNameNewAccount;
+
+  /// No description provided for @managerPasswordNewAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Password (new account)'**
+  String get managerPasswordNewAccount;
+
+  /// No description provided for @managerCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager created.'**
+  String get managerCreated;
+
+  /// No description provided for @managerAccessGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Manager access granted.'**
+  String get managerAccessGranted;
+
+  /// No description provided for @managerThisManager.
+  ///
+  /// In en, this message translates to:
+  /// **'this manager'**
+  String get managerThisManager;
+
+  /// No description provided for @managerRemoveManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove manager'**
+  String get managerRemoveManager;
+
+  /// No description provided for @managerRemoveManagerConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove manager access from {name}?'**
+  String managerRemoveManagerConfirm(String name);
+
+  /// No description provided for @managerNoManagers.
+  ///
+  /// In en, this message translates to:
+  /// **'No managers yet'**
+  String get managerNoManagers;
+
+  /// No description provided for @managerOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get managerOwner;
+
+  /// No description provided for @managerGradesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades'**
+  String get managerGradesLabel;
+
+  /// No description provided for @managerEditSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit school'**
+  String get managerEditSchool;
+
+  /// No description provided for @managerSchoolName.
+  ///
+  /// In en, this message translates to:
+  /// **'School name'**
+  String get managerSchoolName;
+
+  /// No description provided for @managerMinGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest grade'**
+  String get managerMinGrade;
+
+  /// No description provided for @managerMaxGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest grade'**
+  String get managerMaxGrade;
+
+  /// No description provided for @managerDeleteSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete school'**
+  String get managerDeleteSchool;
+
+  /// No description provided for @managerDeleteSchoolBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes “{name}” with every user, cohort, classroom and record in it. This cannot be undone.'**
+  String managerDeleteSchoolBody(String name);
+
+  /// No description provided for @managerTypeToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Type “{name}” to confirm'**
+  String managerTypeToConfirm(String name);
+
+  /// No description provided for @managerDeleteForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete forever'**
+  String get managerDeleteForever;
+
+  /// No description provided for @managerNewSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'New school'**
+  String get managerNewSchool;
+
+  /// No description provided for @managerNoSchoolsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No schools yet'**
+  String get managerNoSchoolsTitle;
+
+  /// No description provided for @managerNoSchoolsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap “New school” to create one.'**
+  String get managerNoSchoolsBody;
+
+  /// No description provided for @managerGradesRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Grades {range}'**
+  String managerGradesRange(String range);
+
+  /// No description provided for @managerUsersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No users} =1{1 user} other{{count} users}}'**
+  String managerUsersCount(int count);
+
+  /// No description provided for @managerCohortsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No cohorts} =1{1 cohort} other{{count} cohorts}}'**
+  String managerCohortsCount(int count);
+
+  /// No description provided for @managerView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get managerView;
+
+  /// No description provided for @managerDeleteExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete exam'**
+  String get managerDeleteExam;
+
+  /// No description provided for @managerDeleteExamBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete “{title}” and its files? This cannot be undone.'**
+  String managerDeleteExamBody(String title);
+
+  /// No description provided for @managerNewExam.
+  ///
+  /// In en, this message translates to:
+  /// **'New exam'**
+  String get managerNewExam;
+
+  /// No description provided for @managerEditExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit exam'**
+  String get managerEditExam;
+
+  /// No description provided for @managerNoExamsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No exams yet'**
+  String get managerNoExamsTitle;
+
+  /// No description provided for @managerNoExamsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap “New exam” to add one.'**
+  String get managerNoExamsBody;
+
+  /// No description provided for @managerLogoUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo upload failed: {error}'**
+  String managerLogoUploadFailed(String error);
+
+  /// No description provided for @managerSchoolNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The school name is required.'**
+  String get managerSchoolNameRequired;
+
+  /// No description provided for @managerAdminNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The admin’s full name is required.'**
+  String get managerAdminNameRequired;
+
+  /// No description provided for @managerAdminContactRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'The admin’s email or username is required.'**
+  String get managerAdminContactRequired;
+
+  /// No description provided for @managerPasswordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'The password must be at least 6 characters.'**
+  String get managerPasswordTooShort;
+
+  /// No description provided for @managerSchoolCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'School “{name}” created.'**
+  String managerSchoolCreated(String name);
+
+  /// No description provided for @managerGradeRanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade ranges'**
+  String get managerGradeRanges;
+
+  /// No description provided for @managerGradeRangesHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'For example 7-12, or 4-6,9-12 to skip grades'**
+  String get managerGradeRangesHelper;
+
+  /// No description provided for @managerSemestersOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Semesters (optional)'**
+  String get managerSemestersOptional;
+
+  /// No description provided for @managerSemestersHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Start–end months, for example 9-1,2-6'**
+  String get managerSemestersHelper;
+
+  /// No description provided for @managerUploadLogo.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload logo'**
+  String get managerUploadLogo;
+
+  /// No description provided for @managerLogoUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Logo uploaded'**
+  String get managerLogoUploaded;
+
+  /// No description provided for @managerSubjectsOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Subjects (optional)'**
+  String get managerSubjectsOptional;
+
+  /// No description provided for @managerSubjectEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject (in English)'**
+  String get managerSubjectEnglish;
+
+  /// No description provided for @managerAdminAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin account'**
+  String get managerAdminAccount;
+
+  /// No description provided for @managerPasswordHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 6 characters'**
+  String get managerPasswordHelper;
+
+  /// No description provided for @managerCreateSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Create school'**
+  String get managerCreateSchool;
+
+  /// No description provided for @managerYearRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A valid year is required.'**
+  String get managerYearRequired;
+
+  /// No description provided for @managerAttachOneFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach at least one file.'**
+  String get managerAttachOneFile;
+
+  /// No description provided for @managerExamTitleHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'For example 2019 Summer · Moed A'**
+  String get managerExamTitleHelper;
+
+  /// No description provided for @managerYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get managerYear;
+
+  /// No description provided for @managerTerm.
+  ///
+  /// In en, this message translates to:
+  /// **'Term'**
+  String get managerTerm;
+
+  /// No description provided for @managerTermHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'summer_a, winter…'**
+  String get managerTermHelper;
+
+  /// No description provided for @managerFilesHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions is the main file; the rest are optional.'**
+  String get managerFilesHelper;
+
+  /// No description provided for @managerCreateExam.
+  ///
+  /// In en, this message translates to:
+  /// **'Create exam'**
+  String get managerCreateExam;
+
+  /// No description provided for @managerAttached.
+  ///
+  /// In en, this message translates to:
+  /// **'Attached'**
+  String get managerAttached;
 }
 
 class _AppLocalizationsDelegate

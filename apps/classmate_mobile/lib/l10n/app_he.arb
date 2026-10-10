@@ -3368,5 +3368,127 @@
   "teacherLibraryAddMeeting": "הוספת פגישה",
   "teacherLibraryCreateNewMeeting": "יצירת פגישה חדשה",
   "solutionsAllQuestions": "כל השאלות",
-  "announcementsNoDetails": "לא צורפו פרטים נוספים."
+  "announcementsNoDetails": "לא צורפו פרטים נוספים.",
+  "managerAddManager": "הוספת מנהל מערכת",
+  "managerAddManagerHint": "אפשר להעניק הרשאת מנהל מערכת לחשבון קיים לפי דוא\"ל או שם משתמש, או למלא את כל השדות כדי ליצור מנהל מערכת חדש.",
+  "managerFullNameNewAccount": "שם מלא (חשבון חדש)",
+  "managerPasswordNewAccount": "סיסמה (חשבון חדש)",
+  "managerCreated": "מנהל המערכת נוצר.",
+  "managerAccessGranted": "הרשאת מנהל המערכת הוענקה.",
+  "managerThisManager": "מנהל מערכת זה",
+  "managerRemoveManager": "הסרת מנהל מערכת",
+  "managerRemoveManagerConfirm": "להסיר את הרשאת מנהל המערכת מ{name}?",
+  "@managerRemoveManagerConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNoManagers": "אין מנהלי מערכת עדיין",
+  "managerOwner": "בעלים",
+  "managerGradesLabel": "שכבות",
+  "managerEditSchool": "עריכת בית ספר",
+  "managerSchoolName": "שם בית הספר",
+  "managerMinGrade": "שכבה נמוכה",
+  "managerMaxGrade": "שכבה גבוהה",
+  "managerDeleteSchool": "מחיקת בית ספר",
+  "managerDeleteSchoolBody": "פעולה זו מוחקת לצמיתות את „{name}” עם כל המשתמשים, הקבוצות, הכיתות והרשומות שבו. אי אפשר לבטל אותה.",
+  "@managerDeleteSchoolBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerTypeToConfirm": "יש להקליד „{name}” לאישור",
+  "@managerTypeToConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerDeleteForever": "מחיקה לצמיתות",
+  "managerNewSchool": "בית ספר חדש",
+  "managerNoSchoolsTitle": "אין בתי ספר עדיין",
+  "managerNoSchoolsBody": "יש להקיש על „בית ספר חדש” כדי ליצור אחד.",
+  "managerGradesRange": "שכבות {range}",
+  "@managerGradesRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "managerUsersCount": "{count, plural, =0{אין משתמשים} =1{משתמש אחד} two{2 משתמשים} many{{count} משתמשים} other{{count} משתמשים}}",
+  "@managerUsersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerCohortsCount": "{count, plural, =0{אין קבוצות} =1{קבוצה אחת} two{2 קבוצות} many{{count} קבוצות} other{{count} קבוצות}}",
+  "@managerCohortsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerView": "צפייה",
+  "managerDeleteExam": "מחיקת בחינה",
+  "managerDeleteExamBody": "למחוק את „{title}” ואת הקבצים שלה? אי אפשר לבטל את הפעולה.",
+  "@managerDeleteExamBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNewExam": "בחינה חדשה",
+  "managerEditExam": "עריכת בחינה",
+  "managerNoExamsTitle": "אין בחינות עדיין",
+  "managerNoExamsBody": "יש להקיש על „בחינה חדשה” כדי להוסיף אחת.",
+  "managerLogoUploadFailed": "העלאת הלוגו נכשלה: {error}",
+  "@managerLogoUploadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "managerSchoolNameRequired": "יש להזין שם בית ספר.",
+  "managerAdminNameRequired": "יש להזין את השם המלא של המנהל.",
+  "managerAdminContactRequired": "יש להזין דוא\"ל או שם משתמש של המנהל.",
+  "managerPasswordTooShort": "הסיסמה חייבת להכיל 6 תווים לפחות.",
+  "managerSchoolCreated": "בית הספר „{name}” נוצר.",
+  "@managerSchoolCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerGradeRanges": "טווחי שכבות",
+  "managerGradeRangesHelper": "לדוגמה 7-12, או 4-6,9-12 כדי לדלג על שכבות",
+  "managerSemestersOptional": "סמסטרים (אופציונלי)",
+  "managerSemestersHelper": "חודשי התחלה–סיום, לדוגמה 9-1,2-6",
+  "managerUploadLogo": "העלאת לוגו",
+  "managerLogoUploaded": "הלוגו הועלה",
+  "managerSubjectsOptional": "מקצועות (אופציונלי)",
+  "managerSubjectEnglish": "מקצוע (באנגלית)",
+  "managerAdminAccount": "חשבון מנהל",
+  "managerPasswordHelper": "6 תווים לפחות",
+  "managerCreateSchool": "יצירת בית ספר",
+  "managerYearRequired": "יש להזין שנה תקינה.",
+  "managerAttachOneFile": "יש לצרף קובץ אחד לפחות.",
+  "managerExamTitleHelper": "לדוגמה קיץ 2019 · מועד א׳",
+  "managerYear": "שנה",
+  "managerTerm": "מועד",
+  "managerTermHelper": "summer_a, winter…",
+  "managerFilesHelper": "קובץ השאלות הוא הקובץ הראשי; השאר אופציונליים.",
+  "managerCreateExam": "יצירת בחינה",
+  "managerAttached": "מצורף"
 }

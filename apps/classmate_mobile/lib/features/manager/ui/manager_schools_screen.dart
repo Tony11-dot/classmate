@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_error_state.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../data/manager_api.dart';
@@ -40,6 +41,7 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
   }
 
   Future<void> _view(String id) async {
+    final l = AppLocalizations.of(context)!;
     showDialog<void>(
       context: context,
       builder: (ctx) => FutureBuilder<Map<String, dynamic>>(
@@ -47,7 +49,7 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
         builder: (context, snap) {
           final s = snap.data;
           return AlertDialog(
-            title: Text(s?['name']?.toString() ?? 'School'),
+            title: Text(s?['name']?.toString() ?? l.navSchool),
             content: snap.connectionState != ConnectionState.done
                 ? const SizedBox(height: 80, child: Center(child: CmLoading()))
                 : SingleChildScrollView(
@@ -55,27 +57,47 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _kv('Grades', '${s?['minGrade'] ?? '?'}–${s?['maxGrade'] ?? '?'}'),
-                        _kv('Cohorts', '${s?['cohortCount'] ?? 0}'),
-                        _kv('Classrooms', '${s?['classroomCount'] ?? 0}'),
+                        _kv(l.managerGradesLabel, '${s?['minGrade'] ?? '?'}–${s?['maxGrade'] ?? '?'}'),
+                        _kv(l.navCohorts, '${s?['cohortCount'] ?? 0}'),
+                        _kv(l.navClassrooms, '${s?['classroomCount'] ?? 0}'),
                         const SizedBox(height: 8),
-                        const Text('Users', style: TextStyle(fontWeight: FontWeight.w700)),
-                        ..._userCounts(s?['userCounts']),
+                        Text(l.navPeople, style: const TextStyle(fontWeight: FontWeight.w700)),
+                        ..._userCounts(l, s?['userCounts']),
                       ],
                     ),
                   ),
-            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close'))],
+            actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: Text(l.commonClose))],
           );
         },
       ),
     );
   }
 
-  List<Widget> _userCounts(dynamic counts) {
+  List<Widget> _userCounts(AppLocalizations l, dynamic counts) {
     if (counts is! Map) return const [Text('—')];
     final entries = counts.entries.toList();
     if (entries.isEmpty) return const [Text('—')];
-    return entries.map((e) => _kv(e.key.toString(), '${e.value}')).toList();
+    return entries.map((e) => _kv(_roleLabel(l, e.key.toString()), '${e.value}')).toList();
+  }
+
+  /// The API keys user counts by role code; show the role in the app's language.
+  String _roleLabel(AppLocalizations l, String role) {
+    switch (role.toUpperCase()) {
+      case 'STUDENT':
+        return l.roleStudent;
+      case 'TEACHER':
+        return l.roleTeacher;
+      case 'ADMIN':
+        return l.roleAdmin;
+      case 'SECRETARY':
+        return l.roleSecretary;
+      case 'PARENT':
+        return l.roleParent;
+      case 'MANAGER':
+        return l.navManagers;
+      default:
+        return role;
+    }
   }
 
   Widget _kv(String k, String v) => Padding(
@@ -90,24 +112,25 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
     final nameCtl = TextEditingController(text: school['name']?.toString() ?? '');
     final minCtl = TextEditingController(text: '${school['minGrade'] ?? ''}');
     final maxCtl = TextEditingController(text: '${school['maxGrade'] ?? ''}');
+    final l = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit school'),
+        title: Text(l.managerEditSchool),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameCtl, decoration: const InputDecoration(labelText: 'Name')),
+            TextField(controller: nameCtl, decoration: InputDecoration(labelText: l.managerSchoolName)),
             Row(children: [
-              Expanded(child: TextField(controller: minCtl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Min grade'))),
+              Expanded(child: TextField(controller: minCtl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: l.managerMinGrade))),
               const SizedBox(width: 12),
-              Expanded(child: TextField(controller: maxCtl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Max grade'))),
+              Expanded(child: TextField(controller: maxCtl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: l.managerMaxGrade))),
             ]),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Save')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.commonSave)),
         ],
       ),
     );
@@ -131,30 +154,31 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
   Future<void> _delete(Map<String, dynamic> school) async {
     final name = school['name']?.toString() ?? '';
     final ctl = TextEditingController();
+    final l = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSt) => AlertDialog(
-          title: const Text('Delete school'),
+          title: Text(l.managerDeleteSchool),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('This permanently deletes "$name" and every user, cohort, classroom, and record in it. This cannot be undone.'),
+              Text(l.managerDeleteSchoolBody(name)),
               const SizedBox(height: 12),
               TextField(
                 controller: ctl,
-                decoration: InputDecoration(labelText: 'Type "$name" to confirm'),
+                decoration: InputDecoration(labelText: l.managerTypeToConfirm(name)),
                 onChanged: (_) => setSt(() {}),
               ),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
               onPressed: ctl.text.trim() == name ? () => Navigator.pop(ctx, true) : null,
-              child: const Text('Delete forever'),
+              child: Text(l.managerDeleteForever),
             ),
           ],
         ),
@@ -178,15 +202,16 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Schools'),
+        title: Text(l.navSchools),
         actions: const [ManagerLogoutAction()],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openCreate,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('New school'),
+        label: Text(l.managerNewSchool),
       ),
       body: CmRefreshIndicator(
         onRefresh: () async => _reload(),
@@ -201,11 +226,11 @@ class _ManagerSchoolsScreenState extends ConsumerState<ManagerSchoolsScreen> {
             }
             final schools = snap.data ?? const [];
             if (schools.isEmpty) {
-              return ListView(children: const [
+              return ListView(children: [
                 CmEmptyState(
                   icon: Icons.apartment_rounded,
-                  title: 'No schools yet',
-                  message: 'Tap "New school" to create one.',
+                  title: l.managerNoSchoolsTitle,
+                  message: l.managerNoSchoolsBody,
                 ),
               ]);
             }
@@ -259,6 +284,8 @@ class _SchoolCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    final cohortCount = cohorts is int ? cohorts as int : int.tryParse('$cohorts') ?? 0;
     return CmCard(
       onTap: onView,
       padding: const EdgeInsets.fromLTRB(16, 16, 12, 10),
@@ -284,21 +311,21 @@ class _SchoolCard extends StatelessWidget {
             spacing: 6,
             runSpacing: 6,
             children: [
-              CmPill(icon: Icons.stairs_rounded, label: 'Grades $grades'),
-              CmPill(icon: Icons.people_alt_rounded, label: '$users users'),
-              CmPill(icon: Icons.groups_rounded, label: '$cohorts cohorts'),
+              CmPill(icon: Icons.stairs_rounded, label: l.managerGradesRange(grades)),
+              CmPill(icon: Icons.people_alt_rounded, label: l.managerUsersCount(users)),
+              CmPill(icon: Icons.groups_rounded, label: l.managerCohortsCount(cohortCount)),
             ],
           ),
           const SizedBox(height: 6),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              TextButton(onPressed: onView, child: const Text('View')),
-              TextButton(onPressed: onEdit, child: const Text('Edit')),
+              TextButton(onPressed: onView, child: Text(l.managerView)),
+              TextButton(onPressed: onEdit, child: Text(l.commonEdit)),
               TextButton(
                 onPressed: onDelete,
                 style: TextButton.styleFrom(foregroundColor: cs.error),
-                child: const Text('Delete'),
+                child: Text(l.commonDelete),
               ),
             ],
           ),

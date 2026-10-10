@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/cm_tokens.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../../bagrut/domain/bagrut_subjects.dart';
 import 'manager_bagrut_exams_screen.dart';
@@ -18,7 +19,7 @@ class ManagerBagrutManageScreen extends StatelessWidget {
     // name (same rule as the student Bagrut grid).
     final scale = MediaQuery.textScalerOf(context).scale(1);
     return Scaffold(
-      appBar: AppBar(title: const Text('Bagrut')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.navBagrut)),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(

@@ -150,6 +150,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                       _navBtn(
                         context,
                         icon: Icons.chevron_left_rounded,
+                        tooltip: AppLocalizations.of(context)!.a11yPrevious,
                         onTap: () => _shiftDay(-1),
                       ),
                       Expanded(
@@ -182,6 +183,7 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
                       _navBtn(
                         context,
                         icon: Icons.chevron_right_rounded,
+                        tooltip: AppLocalizations.of(context)!.a11yNext,
                         onTap: () => _shiftDay(1),
                       ),
                     ],
@@ -490,10 +492,12 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   Widget _navBtn(
     BuildContext context, {
     required IconData icon,
+    required String tooltip,
     required VoidCallback onTap,
   }) {
     final cs = Theme.of(context).colorScheme;
     return IconButton(
+      tooltip: tooltip,
       onPressed: onTap,
       style: IconButton.styleFrom(
         backgroundColor: cs.surfaceContainerHigh,

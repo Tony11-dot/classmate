@@ -10118,4 +10118,223 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get announcementsNoDetails => 'لم تُرفق تفاصيل إضافية.';
+
+  @override
+  String get managerAddManager => 'إضافة مدير';
+
+  @override
+  String get managerAddManagerHint =>
+      'امنح صلاحية المدير لحساب موجود عبر البريد الإلكتروني أو اسم المستخدم، أو املأ كل الحقول لإنشاء مدير جديد.';
+
+  @override
+  String get managerFullNameNewAccount => 'الاسم الكامل (حساب جديد)';
+
+  @override
+  String get managerPasswordNewAccount => 'كلمة المرور (حساب جديد)';
+
+  @override
+  String get managerCreated => 'تم إنشاء المدير.';
+
+  @override
+  String get managerAccessGranted => 'تم منح صلاحية المدير.';
+
+  @override
+  String get managerThisManager => 'هذا المدير';
+
+  @override
+  String get managerRemoveManager => 'إزالة المدير';
+
+  @override
+  String managerRemoveManagerConfirm(String name) {
+    return 'هل تريد إزالة صلاحية المدير من $name؟';
+  }
+
+  @override
+  String get managerNoManagers => 'لا يوجد مديرون بعد';
+
+  @override
+  String get managerOwner => 'المالك';
+
+  @override
+  String get managerGradesLabel => 'الصفوف الدراسية';
+
+  @override
+  String get managerEditSchool => 'تعديل المدرسة';
+
+  @override
+  String get managerSchoolName => 'اسم المدرسة';
+
+  @override
+  String get managerMinGrade => 'أدنى صف';
+
+  @override
+  String get managerMaxGrade => 'أعلى صف';
+
+  @override
+  String get managerDeleteSchool => 'حذف المدرسة';
+
+  @override
+  String managerDeleteSchoolBody(String name) {
+    return 'سيؤدي هذا إلى حذف «$name» نهائيًا مع كل المستخدمين والمجموعات والصفوف والسجلات فيها. لا يمكن التراجع عن ذلك.';
+  }
+
+  @override
+  String managerTypeToConfirm(String name) {
+    return 'اكتب «$name» للتأكيد';
+  }
+
+  @override
+  String get managerDeleteForever => 'حذف نهائي';
+
+  @override
+  String get managerNewSchool => 'مدرسة جديدة';
+
+  @override
+  String get managerNoSchoolsTitle => 'لا توجد مدارس بعد';
+
+  @override
+  String get managerNoSchoolsBody => 'اضغط على «مدرسة جديدة» لإنشاء واحدة.';
+
+  @override
+  String managerGradesRange(String range) {
+    return 'الصفوف $range';
+  }
+
+  @override
+  String managerUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مستخدم',
+      many: '$count مستخدمًا',
+      few: '$count مستخدمين',
+      two: 'مستخدمان',
+      one: 'مستخدم واحد',
+      zero: 'لا يوجد مستخدمون',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String managerCohortsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مجموعة',
+      many: '$count مجموعة',
+      few: '$count مجموعات',
+      two: 'مجموعتان',
+      one: 'مجموعة واحدة',
+      zero: 'لا توجد مجموعات',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get managerView => 'عرض';
+
+  @override
+  String get managerDeleteExam => 'حذف الامتحان';
+
+  @override
+  String managerDeleteExamBody(String title) {
+    return 'هل تريد حذف «$title» وملفاته؟ لا يمكن التراجع عن ذلك.';
+  }
+
+  @override
+  String get managerNewExam => 'امتحان جديد';
+
+  @override
+  String get managerEditExam => 'تعديل الامتحان';
+
+  @override
+  String get managerNoExamsTitle => 'لا توجد امتحانات بعد';
+
+  @override
+  String get managerNoExamsBody => 'اضغط على «امتحان جديد» لإضافة واحد.';
+
+  @override
+  String managerLogoUploadFailed(String error) {
+    return 'فشل رفع الشعار: $error';
+  }
+
+  @override
+  String get managerSchoolNameRequired => 'اسم المدرسة مطلوب.';
+
+  @override
+  String get managerAdminNameRequired => 'الاسم الكامل لحساب الإدارة مطلوب.';
+
+  @override
+  String get managerAdminContactRequired =>
+      'البريد الإلكتروني أو اسم المستخدم لحساب الإدارة مطلوب.';
+
+  @override
+  String get managerPasswordTooShort =>
+      'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.';
+
+  @override
+  String managerSchoolCreated(String name) {
+    return 'تم إنشاء المدرسة «$name».';
+  }
+
+  @override
+  String get managerGradeRanges => 'نطاقات الصفوف';
+
+  @override
+  String get managerGradeRangesHelper => 'مثلًا 7-12، أو 4-6,9-12 لتخطي صفوف';
+
+  @override
+  String get managerSemestersOptional => 'الفصول الدراسية (اختياري)';
+
+  @override
+  String get managerSemestersHelper => 'أشهر البداية–النهاية، مثلًا 9-1,2-6';
+
+  @override
+  String get managerUploadLogo => 'رفع الشعار';
+
+  @override
+  String get managerLogoUploaded => 'تم رفع الشعار';
+
+  @override
+  String get managerSubjectsOptional => 'المواد (اختياري)';
+
+  @override
+  String get managerSubjectEnglish => 'المادة (بالإنجليزية)';
+
+  @override
+  String get managerAdminAccount => 'حساب الإدارة';
+
+  @override
+  String get managerPasswordHelper => '6 أحرف على الأقل';
+
+  @override
+  String get managerCreateSchool => 'إنشاء المدرسة';
+
+  @override
+  String get managerYearRequired => 'يجب إدخال سنة صالحة.';
+
+  @override
+  String get managerAttachOneFile => 'أرفق ملفًا واحدًا على الأقل.';
+
+  @override
+  String get managerExamTitleHelper => 'مثلًا صيف 2019 · موعد أ';
+
+  @override
+  String get managerYear => 'السنة';
+
+  @override
+  String get managerTerm => 'الموعد';
+
+  @override
+  String get managerTermHelper => 'summer_a, winter…';
+
+  @override
+  String get managerFilesHelper =>
+      'ملف الأسئلة هو الملف الرئيسي؛ البقية اختيارية.';
+
+  @override
+  String get managerCreateExam => 'إنشاء الامتحان';
+
+  @override
+  String get managerAttached => 'مرفق';
 }

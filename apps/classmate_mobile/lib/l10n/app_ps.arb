@@ -5125,5 +5125,127 @@
   "teacherLibraryCreateNewMeeting": "‹‹Create new meeting››",
   "solutionsAllQuestions": "‹‹All questions››",
   "announcementsNoDetails": "‹‹No additional details were attached.››",
-  "teacherLibraryAddMeeting": "‹‹Add meeting››"
+  "teacherLibraryAddMeeting": "‹‹Add meeting››",
+  "managerAddManager": "‹‹Add manager››",
+  "managerAddManagerHint": "‹‹Grant manager access to an existing account by email or username, or fill in everything to create a new manager.››",
+  "managerFullNameNewAccount": "‹‹Full name (new account)››",
+  "managerPasswordNewAccount": "‹‹Password (new account)››",
+  "managerCreated": "‹‹Manager created.››",
+  "managerAccessGranted": "‹‹Manager access granted.››",
+  "managerThisManager": "‹‹this manager››",
+  "managerRemoveManager": "‹‹Remove manager››",
+  "managerRemoveManagerConfirm": "‹‹Remove manager access from {name}?››",
+  "@managerRemoveManagerConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNoManagers": "‹‹No managers yet››",
+  "managerOwner": "‹‹Owner››",
+  "managerGradesLabel": "‹‹Grades››",
+  "managerEditSchool": "‹‹Edit school››",
+  "managerSchoolName": "‹‹School name››",
+  "managerMinGrade": "‹‹Lowest grade››",
+  "managerMaxGrade": "‹‹Highest grade››",
+  "managerDeleteSchool": "‹‹Delete school››",
+  "managerDeleteSchoolBody": "‹‹This permanently deletes “{name}” with every user, cohort, classroom and record in it. This cannot be undone.››",
+  "@managerDeleteSchoolBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerTypeToConfirm": "‹‹Type “{name}” to confirm››",
+  "@managerTypeToConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerDeleteForever": "‹‹Delete forever››",
+  "managerNewSchool": "‹‹New school››",
+  "managerNoSchoolsTitle": "‹‹No schools yet››",
+  "managerNoSchoolsBody": "‹‹Tap “New school” to create one.››",
+  "managerGradesRange": "‹‹Grades {range}››",
+  "@managerGradesRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "managerUsersCount": "‹‹{count, plural, =0{No users} =1{1 user} other{{count} users}}››",
+  "@managerUsersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerCohortsCount": "‹‹{count, plural, =0{No cohorts} =1{1 cohort} other{{count} cohorts}}››",
+  "@managerCohortsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerView": "‹‹View››",
+  "managerDeleteExam": "‹‹Delete exam››",
+  "managerDeleteExamBody": "‹‹Delete “{title}” and its files? This cannot be undone.››",
+  "@managerDeleteExamBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNewExam": "‹‹New exam››",
+  "managerEditExam": "‹‹Edit exam››",
+  "managerNoExamsTitle": "‹‹No exams yet››",
+  "managerNoExamsBody": "‹‹Tap “New exam” to add one.››",
+  "managerLogoUploadFailed": "‹‹Logo upload failed: {error}››",
+  "@managerLogoUploadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "managerSchoolNameRequired": "‹‹The school name is required.››",
+  "managerAdminNameRequired": "‹‹The admin’s full name is required.››",
+  "managerAdminContactRequired": "‹‹The admin’s email or username is required.››",
+  "managerPasswordTooShort": "‹‹The password must be at least 6 characters.››",
+  "managerSchoolCreated": "‹‹School “{name}” created.››",
+  "@managerSchoolCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerGradeRanges": "‹‹Grade ranges››",
+  "managerGradeRangesHelper": "‹‹For example 7-12, or 4-6,9-12 to skip grades››",
+  "managerSemestersOptional": "‹‹Semesters (optional)››",
+  "managerSemestersHelper": "‹‹Start–end months, for example 9-1,2-6››",
+  "managerUploadLogo": "‹‹Upload logo››",
+  "managerLogoUploaded": "‹‹Logo uploaded››",
+  "managerSubjectsOptional": "‹‹Subjects (optional)››",
+  "managerSubjectEnglish": "‹‹Subject (in English)››",
+  "managerAdminAccount": "‹‹Admin account››",
+  "managerPasswordHelper": "‹‹At least 6 characters››",
+  "managerCreateSchool": "‹‹Create school››",
+  "managerYearRequired": "‹‹A valid year is required.››",
+  "managerAttachOneFile": "‹‹Attach at least one file.››",
+  "managerExamTitleHelper": "‹‹For example 2019 Summer · Moed A››",
+  "managerYear": "‹‹Year››",
+  "managerTerm": "‹‹Term››",
+  "managerTermHelper": "‹‹summer_a, winter…››",
+  "managerFilesHelper": "‹‹Questions is the main file; the rest are optional.››",
+  "managerCreateExam": "‹‹Create exam››",
+  "managerAttached": "‹‹Attached››"
 }

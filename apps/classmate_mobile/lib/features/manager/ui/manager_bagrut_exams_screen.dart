@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/cm_tokens.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/cm_surfaces.dart';
 import '../../bagrut/data/bagrut_api.dart';
@@ -47,17 +48,18 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
   }
 
   Future<void> _delete(BagrutExam e) async {
+    final l = AppLocalizations.of(context)!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete exam'),
-        content: Text('Delete "${e.title}" and its files? This cannot be undone.'),
+        title: Text(l.managerDeleteExam),
+        content: Text(l.managerDeleteExamBody(e.title)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Theme.of(ctx).colorScheme.error, foregroundColor: Theme.of(ctx).colorScheme.onError),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text(l.commonDelete),
           ),
         ],
       ),
@@ -74,12 +76,13 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(title: Text(bagrutSubjectTitle(widget.subjectKey, locale))),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addOrEdit(),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('New exam'),
+        label: Text(l.managerNewExam),
       ),
       body: FutureBuilder<List<BagrutExam>>(
         future: _future,
@@ -89,11 +92,11 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
           }
           final exams = snap.data ?? const <BagrutExam>[];
           if (exams.isEmpty) {
-            return ListView(children: const [
+            return ListView(children: [
               CmEmptyState(
                 icon: Icons.description_outlined,
-                title: 'No exams yet',
-                message: 'Tap "New exam".',
+                title: l.managerNoExamsTitle,
+                message: l.managerNoExamsBody,
               ),
             ]);
           }
@@ -126,7 +129,7 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
                               if (e.term.trim().isNotEmpty) CmPill(label: e.term.replaceAll('_', ' ')),
                               CmPill(
                                 icon: Icons.attach_file_rounded,
-                                label: '${e.files.length} files',
+                                label: l.bagrutFilesCount(e.files.length),
                                 color: e.files.isEmpty ? null : CmTokens.of(context).good,
                               ),
                             ],
@@ -135,12 +138,12 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Edit',
+                      tooltip: l.commonEdit,
                       icon: const Icon(Icons.edit_rounded),
                       onPressed: () => _addOrEdit(e),
                     ),
                     IconButton(
-                      tooltip: 'Delete',
+                      tooltip: l.commonDelete,
                       icon: Icon(Icons.delete_outline_rounded, color: cs.error),
                       onPressed: () => _delete(e),
                     ),

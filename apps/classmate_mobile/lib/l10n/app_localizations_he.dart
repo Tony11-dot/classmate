@@ -9955,4 +9955,221 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get announcementsNoDetails => 'לא צורפו פרטים נוספים.';
+
+  @override
+  String get managerAddManager => 'הוספת מנהל מערכת';
+
+  @override
+  String get managerAddManagerHint =>
+      'אפשר להעניק הרשאת מנהל מערכת לחשבון קיים לפי דוא\"ל או שם משתמש, או למלא את כל השדות כדי ליצור מנהל מערכת חדש.';
+
+  @override
+  String get managerFullNameNewAccount => 'שם מלא (חשבון חדש)';
+
+  @override
+  String get managerPasswordNewAccount => 'סיסמה (חשבון חדש)';
+
+  @override
+  String get managerCreated => 'מנהל המערכת נוצר.';
+
+  @override
+  String get managerAccessGranted => 'הרשאת מנהל המערכת הוענקה.';
+
+  @override
+  String get managerThisManager => 'מנהל מערכת זה';
+
+  @override
+  String get managerRemoveManager => 'הסרת מנהל מערכת';
+
+  @override
+  String managerRemoveManagerConfirm(String name) {
+    return 'להסיר את הרשאת מנהל המערכת מ$name?';
+  }
+
+  @override
+  String get managerNoManagers => 'אין מנהלי מערכת עדיין';
+
+  @override
+  String get managerOwner => 'בעלים';
+
+  @override
+  String get managerGradesLabel => 'שכבות';
+
+  @override
+  String get managerEditSchool => 'עריכת בית ספר';
+
+  @override
+  String get managerSchoolName => 'שם בית הספר';
+
+  @override
+  String get managerMinGrade => 'שכבה נמוכה';
+
+  @override
+  String get managerMaxGrade => 'שכבה גבוהה';
+
+  @override
+  String get managerDeleteSchool => 'מחיקת בית ספר';
+
+  @override
+  String managerDeleteSchoolBody(String name) {
+    return 'פעולה זו מוחקת לצמיתות את „$name” עם כל המשתמשים, הקבוצות, הכיתות והרשומות שבו. אי אפשר לבטל אותה.';
+  }
+
+  @override
+  String managerTypeToConfirm(String name) {
+    return 'יש להקליד „$name” לאישור';
+  }
+
+  @override
+  String get managerDeleteForever => 'מחיקה לצמיתות';
+
+  @override
+  String get managerNewSchool => 'בית ספר חדש';
+
+  @override
+  String get managerNoSchoolsTitle => 'אין בתי ספר עדיין';
+
+  @override
+  String get managerNoSchoolsBody => 'יש להקיש על „בית ספר חדש” כדי ליצור אחד.';
+
+  @override
+  String managerGradesRange(String range) {
+    return 'שכבות $range';
+  }
+
+  @override
+  String managerUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count משתמשים',
+      many: '$count משתמשים',
+      two: '2 משתמשים',
+      one: 'משתמש אחד',
+      zero: 'אין משתמשים',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String managerCohortsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count קבוצות',
+      many: '$count קבוצות',
+      two: '2 קבוצות',
+      one: 'קבוצה אחת',
+      zero: 'אין קבוצות',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get managerView => 'צפייה';
+
+  @override
+  String get managerDeleteExam => 'מחיקת בחינה';
+
+  @override
+  String managerDeleteExamBody(String title) {
+    return 'למחוק את „$title” ואת הקבצים שלה? אי אפשר לבטל את הפעולה.';
+  }
+
+  @override
+  String get managerNewExam => 'בחינה חדשה';
+
+  @override
+  String get managerEditExam => 'עריכת בחינה';
+
+  @override
+  String get managerNoExamsTitle => 'אין בחינות עדיין';
+
+  @override
+  String get managerNoExamsBody => 'יש להקיש על „בחינה חדשה” כדי להוסיף אחת.';
+
+  @override
+  String managerLogoUploadFailed(String error) {
+    return 'העלאת הלוגו נכשלה: $error';
+  }
+
+  @override
+  String get managerSchoolNameRequired => 'יש להזין שם בית ספר.';
+
+  @override
+  String get managerAdminNameRequired => 'יש להזין את השם המלא של המנהל.';
+
+  @override
+  String get managerAdminContactRequired =>
+      'יש להזין דוא\"ל או שם משתמש של המנהל.';
+
+  @override
+  String get managerPasswordTooShort => 'הסיסמה חייבת להכיל 6 תווים לפחות.';
+
+  @override
+  String managerSchoolCreated(String name) {
+    return 'בית הספר „$name” נוצר.';
+  }
+
+  @override
+  String get managerGradeRanges => 'טווחי שכבות';
+
+  @override
+  String get managerGradeRangesHelper =>
+      'לדוגמה 7-12, או 4-6,9-12 כדי לדלג על שכבות';
+
+  @override
+  String get managerSemestersOptional => 'סמסטרים (אופציונלי)';
+
+  @override
+  String get managerSemestersHelper => 'חודשי התחלה–סיום, לדוגמה 9-1,2-6';
+
+  @override
+  String get managerUploadLogo => 'העלאת לוגו';
+
+  @override
+  String get managerLogoUploaded => 'הלוגו הועלה';
+
+  @override
+  String get managerSubjectsOptional => 'מקצועות (אופציונלי)';
+
+  @override
+  String get managerSubjectEnglish => 'מקצוע (באנגלית)';
+
+  @override
+  String get managerAdminAccount => 'חשבון מנהל';
+
+  @override
+  String get managerPasswordHelper => '6 תווים לפחות';
+
+  @override
+  String get managerCreateSchool => 'יצירת בית ספר';
+
+  @override
+  String get managerYearRequired => 'יש להזין שנה תקינה.';
+
+  @override
+  String get managerAttachOneFile => 'יש לצרף קובץ אחד לפחות.';
+
+  @override
+  String get managerExamTitleHelper => 'לדוגמה קיץ 2019 · מועד א׳';
+
+  @override
+  String get managerYear => 'שנה';
+
+  @override
+  String get managerTerm => 'מועד';
+
+  @override
+  String get managerTermHelper => 'summer_a, winter…';
+
+  @override
+  String get managerFilesHelper =>
+      'קובץ השאלות הוא הקובץ הראשי; השאר אופציונליים.';
+
+  @override
+  String get managerCreateExam => 'יצירת בחינה';
+
+  @override
+  String get managerAttached => 'מצורף';
 }

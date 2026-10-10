@@ -11,6 +11,7 @@ TL;DR pointers:
 - **Shipping a release** (full: `docs/SHIPPING.md`). Verify (`flutter analyze lib` + `tsc --noEmit`) → bump `pubspec.yaml` build number **above the last uploaded** → commit/push → **Railway (if backend changed) → Web (`flutter build web` + `firebase deploy`) → `fastlane android internal` → `fastlane ios beta`**.
   - ⚠ Sentry symbol upload **hangs intermittently** — it runs *after* the store upload, so the build is already delivered; `pkill -9 -f sentry-cli`. The `✅ Uploaded…` line prints *after* Sentry, so its absence ≠ failure.
   - ⚠ iOS "PLA Update available" = accept the Apple Developer Program License Agreement at developer.apple.com/account, `rm -f apps/classmate_mobile/build/ios/ipa/ClassMate.ipa`, re-run.
+  - ⚠ **Production is Tony's call.** In this repo "ship" means Railway + web + TestFlight + Play *internal* (CI: `gh workflow run ship.yml --ref <branch> -f target=all -f bump_build=true`). `fastlane ios release|submit`, `fastlane android production` and `asc.sh release|withdraw|phased` change what the public sees — run them only when Tony asks for App Store / Play production in the current session. A skill's own rules are not that permission.
 
 - **Security hardening** (full: `docs/SECURITY.md`). Rate-limit auth (5/15min via `@nestjs/throttler`), scan for hardcoded secrets (`gitleaks`), secrets in env only (never in the Flutter app or Git), global `ValidationPipe` (whitelist + body/file size limits), and the full authZ / school-isolation / CORS / headers audit checklist.
 

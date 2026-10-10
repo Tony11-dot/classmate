@@ -10174,4 +10174,222 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get announcementsNoDetails =>
       'Дополнительные сведения не прикреплены.';
+
+  @override
+  String get managerAddManager => 'Добавить менеджера';
+
+  @override
+  String get managerAddManagerHint =>
+      'Выдайте права менеджера существующему аккаунту по эл. почте или имени пользователя либо заполните все поля, чтобы создать нового менеджера.';
+
+  @override
+  String get managerFullNameNewAccount => 'Полное имя (новый аккаунт)';
+
+  @override
+  String get managerPasswordNewAccount => 'Пароль (новый аккаунт)';
+
+  @override
+  String get managerCreated => 'Менеджер создан.';
+
+  @override
+  String get managerAccessGranted => 'Права менеджера выданы.';
+
+  @override
+  String get managerThisManager => 'этого менеджера';
+
+  @override
+  String get managerRemoveManager => 'Убрать менеджера';
+
+  @override
+  String managerRemoveManagerConfirm(String name) {
+    return 'Отозвать права менеджера у $name?';
+  }
+
+  @override
+  String get managerNoManagers => 'Менеджеров пока нет';
+
+  @override
+  String get managerOwner => 'Владелец';
+
+  @override
+  String get managerGradesLabel => 'Классы';
+
+  @override
+  String get managerEditSchool => 'Изменить школу';
+
+  @override
+  String get managerSchoolName => 'Название школы';
+
+  @override
+  String get managerMinGrade => 'Младший класс';
+
+  @override
+  String get managerMaxGrade => 'Старший класс';
+
+  @override
+  String get managerDeleteSchool => 'Удалить школу';
+
+  @override
+  String managerDeleteSchoolBody(String name) {
+    return 'Школа «$name» будет удалена навсегда вместе со всеми пользователями, группами, классами и записями. Это действие нельзя отменить.';
+  }
+
+  @override
+  String managerTypeToConfirm(String name) {
+    return 'Введите «$name» для подтверждения';
+  }
+
+  @override
+  String get managerDeleteForever => 'Удалить навсегда';
+
+  @override
+  String get managerNewSchool => 'Новая школа';
+
+  @override
+  String get managerNoSchoolsTitle => 'Школ пока нет';
+
+  @override
+  String get managerNoSchoolsBody => 'Нажмите «Новая школа», чтобы создать её.';
+
+  @override
+  String managerGradesRange(String range) {
+    return 'Классы $range';
+  }
+
+  @override
+  String managerUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count пользователя',
+      many: '$count пользователей',
+      few: '$count пользователя',
+      one: '$count пользователь',
+      zero: 'Нет пользователей',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String managerCohortsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count группы',
+      many: '$count групп',
+      few: '$count группы',
+      one: '$count группа',
+      zero: 'Нет групп',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get managerView => 'Открыть';
+
+  @override
+  String get managerDeleteExam => 'Удалить экзамен';
+
+  @override
+  String managerDeleteExamBody(String title) {
+    return 'Удалить «$title» и его файлы? Это действие нельзя отменить.';
+  }
+
+  @override
+  String get managerNewExam => 'Новый экзамен';
+
+  @override
+  String get managerEditExam => 'Изменить экзамен';
+
+  @override
+  String get managerNoExamsTitle => 'Экзаменов пока нет';
+
+  @override
+  String get managerNoExamsBody => 'Нажмите «Новый экзамен», чтобы добавить.';
+
+  @override
+  String managerLogoUploadFailed(String error) {
+    return 'Не удалось загрузить логотип: $error';
+  }
+
+  @override
+  String get managerSchoolNameRequired => 'Укажите название школы.';
+
+  @override
+  String get managerAdminNameRequired => 'Укажите полное имя администратора.';
+
+  @override
+  String get managerAdminContactRequired =>
+      'Укажите эл. почту или имя пользователя администратора.';
+
+  @override
+  String get managerPasswordTooShort =>
+      'Пароль должен содержать не менее 6 символов.';
+
+  @override
+  String managerSchoolCreated(String name) {
+    return 'Школа «$name» создана.';
+  }
+
+  @override
+  String get managerGradeRanges => 'Диапазоны классов';
+
+  @override
+  String get managerGradeRangesHelper =>
+      'Например 7-12 или 4-6,9-12, чтобы пропустить классы';
+
+  @override
+  String get managerSemestersOptional => 'Семестры (необязательно)';
+
+  @override
+  String get managerSemestersHelper => 'Месяцы начала–конца, например 9-1,2-6';
+
+  @override
+  String get managerUploadLogo => 'Загрузить логотип';
+
+  @override
+  String get managerLogoUploaded => 'Логотип загружен';
+
+  @override
+  String get managerSubjectsOptional => 'Предметы (необязательно)';
+
+  @override
+  String get managerSubjectEnglish => 'Предмет (на английском)';
+
+  @override
+  String get managerAdminAccount => 'Аккаунт администратора';
+
+  @override
+  String get managerPasswordHelper => 'Не менее 6 символов';
+
+  @override
+  String get managerCreateSchool => 'Создать школу';
+
+  @override
+  String get managerYearRequired => 'Укажите корректный год.';
+
+  @override
+  String get managerAttachOneFile => 'Прикрепите хотя бы один файл.';
+
+  @override
+  String get managerExamTitleHelper => 'Например Лето 2019 · Моэд А';
+
+  @override
+  String get managerYear => 'Год';
+
+  @override
+  String get managerTerm => 'Сессия';
+
+  @override
+  String get managerTermHelper => 'summer_a, winter…';
+
+  @override
+  String get managerFilesHelper =>
+      'Файл «Вопросы» — основной; остальные необязательны.';
+
+  @override
+  String get managerCreateExam => 'Создать экзамен';
+
+  @override
+  String get managerAttached => 'Прикреплён';
 }

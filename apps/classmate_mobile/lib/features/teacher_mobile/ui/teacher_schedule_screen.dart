@@ -156,7 +156,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                 children: [
                   Row(
                     children: [
-                      Semantics(button: true, label: l.a11yPrevious, child: _navBtn(context, icon: Icons.chevron_left_rounded, onTap: () => _shiftDay(-1))),
+                      _navBtn(context, icon: Icons.chevron_left_rounded, tooltip: l.a11yPrevious, onTap: () => _shiftDay(-1)),
                       Expanded(
                         child: InkWell(
                           borderRadius: BorderRadius.circular(14),
@@ -181,7 +181,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
                           ),
                         ),
                       ),
-                      Semantics(button: true, label: l.a11yNext, child: _navBtn(context, icon: Icons.chevron_right_rounded, onTap: () => _shiftDay(1))),
+                      _navBtn(context, icon: Icons.chevron_right_rounded, tooltip: l.a11yNext, onTap: () => _shiftDay(1)),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -1088,9 +1088,10 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
 
 // ── Nav button ──────────────────────────────────────────────────────────────
 
-Widget _navBtn(BuildContext context, {required IconData icon, required VoidCallback onTap}) {
+Widget _navBtn(BuildContext context, {required IconData icon, required String tooltip, required VoidCallback onTap}) {
   final cs = Theme.of(context).colorScheme;
   return IconButton(
+    tooltip: tooltip,
     onPressed: onTap,
     style: IconButton.styleFrom(
       backgroundColor: cs.surfaceContainerHigh,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../bagrut/data/bagrut_api.dart';
 import '../../bagrut/domain/bagrut_models.dart';
 import '../../bagrut/domain/bagrut_subjects.dart';
@@ -75,16 +76,16 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
   }
 
-  String _kindLabel(String k) {
+  String _kindLabel(AppLocalizations l, String k) {
     switch (k) {
       case BagrutFileKind.questions:
-        return 'Questions';
+        return l.bagrutFileQuestions;
       case BagrutFileKind.answers:
-        return 'Answers';
+        return l.bagrutFileAnswers;
       case BagrutFileKind.solution:
-        return 'Solution';
+        return l.bagrutFileSolution;
       case BagrutFileKind.advanced:
-        return 'Full solution (פתרון מלא)';
+        return l.bagrutFileAdvanced;
       default:
         return k;
     }
@@ -106,12 +107,13 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
   }
 
   Future<void> _submit() async {
+    final l = AppLocalizations.of(context)!;
     final title = _title.text.trim();
     final year = int.tryParse(_year.text.trim());
-    if (title.isEmpty) return _snack('Title is required.');
-    if (year == null) return _snack('A valid year is required.');
+    if (title.isEmpty) return _snack(l.commonTitleRequired);
+    if (year == null) return _snack(l.managerYearRequired);
     final hasAny = _slots.values.any((s) => s.hasFile);
-    if (!hasAny) return _snack('Attach at least one file.');
+    if (!hasAny) return _snack(l.managerAttachOneFile);
 
     setState(() => _submitting = true);
     try {
@@ -171,8 +173,9 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
     final subjectTitle = bagrutSubjectTitle(widget.subjectKey, locale);
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.existing == null ? 'New exam · $subjectTitle' : 'Edit exam')),
+      appBar: AppBar(title: Text(widget.existing == null ? '${l.managerNewExam} · $subjectTitle' : l.managerEditExam)),
       body: AbsorbPointer(
         absorbing: _submitting,
         child: ListView(
@@ -180,7 +183,7 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
           children: [
             TextField(
               controller: _title,
-              decoration: const InputDecoration(labelText: 'Title *', helperText: 'e.g. 2019 Summer · Moed A'),
+              decoration: InputDecoration(labelText: '${l.commonTitle} *', helperText: l.managerExamTitleHelper),
             ),
             const SizedBox(height: 12),
             Row(
@@ -189,22 +192,22 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
                   child: TextField(
                     controller: _year,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Year *'),
+                    decoration: InputDecoration(labelText: '${l.managerYear} *'),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
                     controller: _term,
-                    decoration: const InputDecoration(labelText: 'Term', helperText: 'summer_a, winter…'),
+                    decoration: InputDecoration(labelText: l.managerTerm, helperText: l.managerTermHelper),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 24),
-            Text('Files', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900)),
+            Text(l.commonFiles, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900)),
             const SizedBox(height: 2),
-            Text('Questions is the main file; the rest are optional.',
+            Text(l.managerFilesHelper,
                 style: TextStyle(fontSize: 12.5, color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: 10),
             for (final kind in BagrutFileKind.all) _fileRow(kind),
@@ -214,7 +217,7 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
               onPressed: _submitting ? null : _submit,
               child: _submitting
                   ? const SizedBox(height: 20, width: 20, child: CmLoading(size: 20, color: Colors.white))
-                  : Text(widget.existing == null ? 'Create exam' : 'Save changes'),
+                  : Text(widget.existing == null ? l.managerCreateExam : l.permissionsSave),
             ),
           ],
         ),
@@ -224,6 +227,7 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
 
   Widget _fileRow(String kind) {
     final slot = _slots[kind]!;
+    final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final good = CmTokens.of(context).good;
     final dark = cs.brightness == Brightness.dark;
@@ -253,13 +257,14 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
             color: slot.hasFile ? good : cs.onSurfaceVariant,
           ),
         ),
-        title: Text(_kindLabel(kind)),
-        subtitle: slot.hasFile ? Text(slot.displayName ?? 'Attached', maxLines: 1, overflow: TextOverflow.ellipsis) : null,
+        title: Text(_kindLabel(l, kind)),
+        subtitle: slot.hasFile ? Text(slot.displayName ?? l.managerAttached, maxLines: 1, overflow: TextOverflow.ellipsis) : null,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (slot.hasFile)
               IconButton(
+                tooltip: l.commonRemove,
                 icon: const Icon(Icons.clear_rounded),
                 onPressed: () => setState(() {
                   slot.pickedBytes = null;
@@ -267,7 +272,7 @@ class _ManagerExamFormScreenState extends ConsumerState<ManagerExamFormScreen> {
                   slot.existingUrl = null;
                 }),
               ),
-            TextButton(onPressed: () => _pick(kind), child: Text(slot.hasFile ? 'Replace' : 'Pick')),
+            TextButton(onPressed: () => _pick(kind), child: Text(slot.hasFile ? l.commonReplaceFile : l.commonAttachFile)),
           ],
         ),
       ),

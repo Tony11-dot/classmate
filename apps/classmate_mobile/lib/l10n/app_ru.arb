@@ -3517,5 +3517,127 @@
   "teacherLibraryAddMeeting": "Добавить встречу",
   "teacherLibraryCreateNewMeeting": "Создать новую встречу",
   "solutionsAllQuestions": "Все вопросы",
-  "announcementsNoDetails": "Дополнительные сведения не прикреплены."
+  "announcementsNoDetails": "Дополнительные сведения не прикреплены.",
+  "managerAddManager": "Добавить менеджера",
+  "managerAddManagerHint": "Выдайте права менеджера существующему аккаунту по эл. почте или имени пользователя либо заполните все поля, чтобы создать нового менеджера.",
+  "managerFullNameNewAccount": "Полное имя (новый аккаунт)",
+  "managerPasswordNewAccount": "Пароль (новый аккаунт)",
+  "managerCreated": "Менеджер создан.",
+  "managerAccessGranted": "Права менеджера выданы.",
+  "managerThisManager": "этого менеджера",
+  "managerRemoveManager": "Убрать менеджера",
+  "managerRemoveManagerConfirm": "Отозвать права менеджера у {name}?",
+  "@managerRemoveManagerConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNoManagers": "Менеджеров пока нет",
+  "managerOwner": "Владелец",
+  "managerGradesLabel": "Классы",
+  "managerEditSchool": "Изменить школу",
+  "managerSchoolName": "Название школы",
+  "managerMinGrade": "Младший класс",
+  "managerMaxGrade": "Старший класс",
+  "managerDeleteSchool": "Удалить школу",
+  "managerDeleteSchoolBody": "Школа «{name}» будет удалена навсегда вместе со всеми пользователями, группами, классами и записями. Это действие нельзя отменить.",
+  "@managerDeleteSchoolBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerTypeToConfirm": "Введите «{name}» для подтверждения",
+  "@managerTypeToConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerDeleteForever": "Удалить навсегда",
+  "managerNewSchool": "Новая школа",
+  "managerNoSchoolsTitle": "Школ пока нет",
+  "managerNoSchoolsBody": "Нажмите «Новая школа», чтобы создать её.",
+  "managerGradesRange": "Классы {range}",
+  "@managerGradesRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "managerUsersCount": "{count, plural, =0{Нет пользователей} one{{count} пользователь} few{{count} пользователя} many{{count} пользователей} other{{count} пользователя}}",
+  "@managerUsersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerCohortsCount": "{count, plural, =0{Нет групп} one{{count} группа} few{{count} группы} many{{count} групп} other{{count} группы}}",
+  "@managerCohortsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerView": "Открыть",
+  "managerDeleteExam": "Удалить экзамен",
+  "managerDeleteExamBody": "Удалить «{title}» и его файлы? Это действие нельзя отменить.",
+  "@managerDeleteExamBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNewExam": "Новый экзамен",
+  "managerEditExam": "Изменить экзамен",
+  "managerNoExamsTitle": "Экзаменов пока нет",
+  "managerNoExamsBody": "Нажмите «Новый экзамен», чтобы добавить.",
+  "managerLogoUploadFailed": "Не удалось загрузить логотип: {error}",
+  "@managerLogoUploadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "managerSchoolNameRequired": "Укажите название школы.",
+  "managerAdminNameRequired": "Укажите полное имя администратора.",
+  "managerAdminContactRequired": "Укажите эл. почту или имя пользователя администратора.",
+  "managerPasswordTooShort": "Пароль должен содержать не менее 6 символов.",
+  "managerSchoolCreated": "Школа «{name}» создана.",
+  "@managerSchoolCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerGradeRanges": "Диапазоны классов",
+  "managerGradeRangesHelper": "Например 7-12 или 4-6,9-12, чтобы пропустить классы",
+  "managerSemestersOptional": "Семестры (необязательно)",
+  "managerSemestersHelper": "Месяцы начала–конца, например 9-1,2-6",
+  "managerUploadLogo": "Загрузить логотип",
+  "managerLogoUploaded": "Логотип загружен",
+  "managerSubjectsOptional": "Предметы (необязательно)",
+  "managerSubjectEnglish": "Предмет (на английском)",
+  "managerAdminAccount": "Аккаунт администратора",
+  "managerPasswordHelper": "Не менее 6 символов",
+  "managerCreateSchool": "Создать школу",
+  "managerYearRequired": "Укажите корректный год.",
+  "managerAttachOneFile": "Прикрепите хотя бы один файл.",
+  "managerExamTitleHelper": "Например Лето 2019 · Моэд А",
+  "managerYear": "Год",
+  "managerTerm": "Сессия",
+  "managerTermHelper": "summer_a, winter…",
+  "managerFilesHelper": "Файл «Вопросы» — основной; остальные необязательны.",
+  "managerCreateExam": "Создать экзамен",
+  "managerAttached": "Прикреплён"
 }

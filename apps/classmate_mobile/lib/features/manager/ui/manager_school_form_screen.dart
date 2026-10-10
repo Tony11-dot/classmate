@@ -5,6 +5,7 @@ import '../../../core/theme/cm_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../ui/widgets/cm_loading.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/manager_api.dart';
 
 /// Create-school form — the in-app replacement for the old /cms "Create" tab.
@@ -69,7 +70,7 @@ class _ManagerSchoolFormScreenState
       final url = await _api.uploadLogoBytes(f.bytes!, f.name);
       setState(() => _logoUrl = url);
     } catch (e) {
-      _snack('Logo upload failed: $e');
+      if (mounted) _snack(AppLocalizations.of(context)!.managerLogoUploadFailed('$e'));
     } finally {
       if (mounted) setState(() => _uploadingLogo = false);
     }
@@ -85,15 +86,16 @@ class _ManagerSchoolFormScreenState
   }
 
   Future<void> _submit() async {
-    if (_name.text.trim().isEmpty) return _snack('School name is required.');
+    final l = AppLocalizations.of(context)!;
+    if (_name.text.trim().isEmpty) return _snack(l.managerSchoolNameRequired);
     if (_adminName.text.trim().isEmpty) {
-      return _snack('Admin full name is required.');
+      return _snack(l.managerAdminNameRequired);
     }
     if (_adminEmail.text.trim().isEmpty && _adminUsername.text.trim().isEmpty) {
-      return _snack('Admin email or username is required.');
+      return _snack(l.managerAdminContactRequired);
     }
     if (_adminPassword.text.trim().length < 6) {
-      return _snack('Password must be at least 6 characters.');
+      return _snack(l.managerPasswordTooShort);
     }
 
     setState(() => _submitting = true);
@@ -116,10 +118,11 @@ class _ManagerSchoolFormScreenState
       final res = await _api.createSchool(body);
       if (res['ok'] == true) {
         if (!mounted) return;
+        // Toast first: the root messenger keeps it visible on the list after the pop.
+        _snack(l.managerSchoolCreated(_name.text.trim()));
         Navigator.pop(context, true);
-        _snack('School "${_name.text.trim()}" created.');
       } else {
-        _snack('Failed: ${res['message'] ?? res}');
+        _snack(l.commonFailedWith('${res['message'] ?? res}'));
       }
     } catch (e) {
       _snack('$e');
@@ -130,8 +133,9 @@ class _ManagerSchoolFormScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('New school')),
+      appBar: AppBar(title: Text(l.managerNewSchool)),
       body: AbsorbPointer(
         absorbing: _submitting,
         child: ListView(
@@ -139,27 +143,27 @@ class _ManagerSchoolFormScreenState
           children: [
             _card(
               context,
-              title: 'School',
+              title: l.navSchool,
               icon: Icons.apartment_rounded,
               children: [
                 TextField(
                   controller: _name,
-                  decoration: const InputDecoration(labelText: 'School name *'),
+                  decoration: InputDecoration(labelText: '${l.managerSchoolName} *'),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _gradeRanges,
-                  decoration: const InputDecoration(
-                    labelText: 'Grade ranges *',
-                    helperText: 'e.g. 7-12, or 4-6,9-12 for gaps',
+                  decoration: InputDecoration(
+                    labelText: '${l.managerGradeRanges} *',
+                    helperText: l.managerGradeRangesHelper,
                   ),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _semesters,
-                  decoration: const InputDecoration(
-                    labelText: 'Semesters (optional)',
-                    helperText: 'Start-end months, e.g. 9-1,2-6',
+                  decoration: InputDecoration(
+                    labelText: l.managerSemestersOptional,
+                    helperText: l.managerSemestersHelper,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -173,9 +177,9 @@ class _ManagerSchoolFormScreenState
                               height: 16,
                               child: CmLoading(size: 16),
                             )
-                          : const Icon(Icons.image_rounded),
+                          : Icon(_logoUrl == null ? Icons.image_rounded : Icons.check_rounded),
                       label: Text(
-                        _logoUrl == null ? 'Upload logo' : 'Logo uploaded ✓',
+                        _logoUrl == null ? l.managerUploadLogo : l.managerLogoUploaded,
                       ),
                     ),
                   ],
@@ -185,7 +189,7 @@ class _ManagerSchoolFormScreenState
             const SizedBox(height: 14),
             _card(
               context,
-              title: 'Subjects (optional)',
+              title: l.managerSubjectsOptional,
               icon: Icons.menu_book_rounded,
               children: [
                 Row(
@@ -193,14 +197,15 @@ class _ManagerSchoolFormScreenState
                     Expanded(
                       child: TextField(
                         controller: _subjectInput,
-                        decoration: const InputDecoration(
-                          labelText: 'Subject (English)',
+                        decoration: InputDecoration(
+                          labelText: l.managerSubjectEnglish,
                         ),
                         onSubmitted: (_) => _addSubject(),
                       ),
                     ),
                     const SizedBox(width: 8),
                     IconButton.filled(
+                      tooltip: l.commonAdd,
                       onPressed: _addSubject,
                       icon: const Icon(Icons.add_rounded),
                     ),
@@ -228,32 +233,33 @@ class _ManagerSchoolFormScreenState
             const SizedBox(height: 14),
             _card(
               context,
-              title: 'Admin account',
+              title: l.managerAdminAccount,
               icon: Icons.admin_panel_settings_rounded,
               children: [
                 TextField(
                   controller: _adminName,
-                  decoration: const InputDecoration(labelText: 'Full name *'),
+                  decoration: InputDecoration(labelText: '${l.adminFullNameLabel} *'),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _adminUsername,
-                  decoration: const InputDecoration(labelText: 'Username'),
+                  decoration: InputDecoration(labelText: l.profileUsername),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _adminEmail,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email'),
+                  decoration: InputDecoration(labelText: l.commonEmail),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   controller: _adminPassword,
                   obscureText: !_showPassword,
                   decoration: InputDecoration(
-                    labelText: 'Password *',
-                    helperText: 'Min 6 characters',
+                    labelText: '${l.commonPassword} *',
+                    helperText: l.managerPasswordHelper,
                     suffixIcon: IconButton(
+                      tooltip: _showPassword ? l.commonHidePassword : l.commonShowPassword,
                       icon: Icon(
                         _showPassword
                             ? Icons.visibility_off_rounded
@@ -278,7 +284,7 @@ class _ManagerSchoolFormScreenState
                       width: 20,
                       child: CmLoading(size: 20, color: Colors.white),
                     )
-                  : const Text('Create school'),
+                  : Text(l.managerCreateSchool),
             ),
           ],
         ),

@@ -3368,5 +3368,127 @@
   "teacherLibraryAddMeeting": "إضافة اجتماع",
   "teacherLibraryCreateNewMeeting": "إنشاء اجتماع جديد",
   "solutionsAllQuestions": "كل الأسئلة",
-  "announcementsNoDetails": "لم تُرفق تفاصيل إضافية."
+  "announcementsNoDetails": "لم تُرفق تفاصيل إضافية.",
+  "managerAddManager": "إضافة مدير",
+  "managerAddManagerHint": "امنح صلاحية المدير لحساب موجود عبر البريد الإلكتروني أو اسم المستخدم، أو املأ كل الحقول لإنشاء مدير جديد.",
+  "managerFullNameNewAccount": "الاسم الكامل (حساب جديد)",
+  "managerPasswordNewAccount": "كلمة المرور (حساب جديد)",
+  "managerCreated": "تم إنشاء المدير.",
+  "managerAccessGranted": "تم منح صلاحية المدير.",
+  "managerThisManager": "هذا المدير",
+  "managerRemoveManager": "إزالة المدير",
+  "managerRemoveManagerConfirm": "هل تريد إزالة صلاحية المدير من {name}؟",
+  "@managerRemoveManagerConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNoManagers": "لا يوجد مديرون بعد",
+  "managerOwner": "المالك",
+  "managerGradesLabel": "الصفوف الدراسية",
+  "managerEditSchool": "تعديل المدرسة",
+  "managerSchoolName": "اسم المدرسة",
+  "managerMinGrade": "أدنى صف",
+  "managerMaxGrade": "أعلى صف",
+  "managerDeleteSchool": "حذف المدرسة",
+  "managerDeleteSchoolBody": "سيؤدي هذا إلى حذف «{name}» نهائيًا مع كل المستخدمين والمجموعات والصفوف والسجلات فيها. لا يمكن التراجع عن ذلك.",
+  "@managerDeleteSchoolBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerTypeToConfirm": "اكتب «{name}» للتأكيد",
+  "@managerTypeToConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerDeleteForever": "حذف نهائي",
+  "managerNewSchool": "مدرسة جديدة",
+  "managerNoSchoolsTitle": "لا توجد مدارس بعد",
+  "managerNoSchoolsBody": "اضغط على «مدرسة جديدة» لإنشاء واحدة.",
+  "managerGradesRange": "الصفوف {range}",
+  "@managerGradesRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "managerUsersCount": "{count, plural, =0{لا يوجد مستخدمون} =1{مستخدم واحد} two{مستخدمان} few{{count} مستخدمين} many{{count} مستخدمًا} other{{count} مستخدم}}",
+  "@managerUsersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerCohortsCount": "{count, plural, =0{لا توجد مجموعات} =1{مجموعة واحدة} two{مجموعتان} few{{count} مجموعات} many{{count} مجموعة} other{{count} مجموعة}}",
+  "@managerCohortsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerView": "عرض",
+  "managerDeleteExam": "حذف الامتحان",
+  "managerDeleteExamBody": "هل تريد حذف «{title}» وملفاته؟ لا يمكن التراجع عن ذلك.",
+  "@managerDeleteExamBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNewExam": "امتحان جديد",
+  "managerEditExam": "تعديل الامتحان",
+  "managerNoExamsTitle": "لا توجد امتحانات بعد",
+  "managerNoExamsBody": "اضغط على «امتحان جديد» لإضافة واحد.",
+  "managerLogoUploadFailed": "فشل رفع الشعار: {error}",
+  "@managerLogoUploadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "managerSchoolNameRequired": "اسم المدرسة مطلوب.",
+  "managerAdminNameRequired": "الاسم الكامل لحساب الإدارة مطلوب.",
+  "managerAdminContactRequired": "البريد الإلكتروني أو اسم المستخدم لحساب الإدارة مطلوب.",
+  "managerPasswordTooShort": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+  "managerSchoolCreated": "تم إنشاء المدرسة «{name}».",
+  "@managerSchoolCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerGradeRanges": "نطاقات الصفوف",
+  "managerGradeRangesHelper": "مثلًا 7-12، أو 4-6,9-12 لتخطي صفوف",
+  "managerSemestersOptional": "الفصول الدراسية (اختياري)",
+  "managerSemestersHelper": "أشهر البداية–النهاية، مثلًا 9-1,2-6",
+  "managerUploadLogo": "رفع الشعار",
+  "managerLogoUploaded": "تم رفع الشعار",
+  "managerSubjectsOptional": "المواد (اختياري)",
+  "managerSubjectEnglish": "المادة (بالإنجليزية)",
+  "managerAdminAccount": "حساب الإدارة",
+  "managerPasswordHelper": "6 أحرف على الأقل",
+  "managerCreateSchool": "إنشاء المدرسة",
+  "managerYearRequired": "يجب إدخال سنة صالحة.",
+  "managerAttachOneFile": "أرفق ملفًا واحدًا على الأقل.",
+  "managerExamTitleHelper": "مثلًا صيف 2019 · موعد أ",
+  "managerYear": "السنة",
+  "managerTerm": "الموعد",
+  "managerTermHelper": "summer_a, winter…",
+  "managerFilesHelper": "ملف الأسئلة هو الملف الرئيسي؛ البقية اختيارية.",
+  "managerCreateExam": "إنشاء الامتحان",
+  "managerAttached": "مرفق"
 }

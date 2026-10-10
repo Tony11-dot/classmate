@@ -3368,5 +3368,127 @@
   "teacherLibraryAddMeeting": "Ajouter une réunion",
   "teacherLibraryCreateNewMeeting": "Créer une nouvelle réunion",
   "solutionsAllQuestions": "Toutes les questions",
-  "announcementsNoDetails": "Aucun détail supplémentaire n’a été joint."
+  "announcementsNoDetails": "Aucun détail supplémentaire n’a été joint.",
+  "managerAddManager": "Ajouter un gestionnaire",
+  "managerAddManagerHint": "Accordez l’accès gestionnaire à un compte existant par e-mail ou nom d’utilisateur, ou remplissez tous les champs pour créer un nouveau gestionnaire.",
+  "managerFullNameNewAccount": "Nom complet (nouveau compte)",
+  "managerPasswordNewAccount": "Mot de passe (nouveau compte)",
+  "managerCreated": "Gestionnaire créé.",
+  "managerAccessGranted": "Accès gestionnaire accordé.",
+  "managerThisManager": "ce gestionnaire",
+  "managerRemoveManager": "Retirer le gestionnaire",
+  "managerRemoveManagerConfirm": "Retirer l’accès gestionnaire à {name} ?",
+  "@managerRemoveManagerConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNoManagers": "Aucun gestionnaire pour l’instant",
+  "managerOwner": "Propriétaire",
+  "managerGradesLabel": "Niveaux",
+  "managerEditSchool": "Modifier l’école",
+  "managerSchoolName": "Nom de l’école",
+  "managerMinGrade": "Niveau le plus bas",
+  "managerMaxGrade": "Niveau le plus haut",
+  "managerDeleteSchool": "Supprimer l’école",
+  "managerDeleteSchoolBody": "Cette action supprime définitivement « {name} » ainsi que tous ses utilisateurs, cohortes, classes et données. Elle est irréversible.",
+  "@managerDeleteSchoolBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerTypeToConfirm": "Saisissez « {name} » pour confirmer",
+  "@managerTypeToConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerDeleteForever": "Supprimer définitivement",
+  "managerNewSchool": "Nouvelle école",
+  "managerNoSchoolsTitle": "Aucune école pour l’instant",
+  "managerNoSchoolsBody": "Touchez « Nouvelle école » pour en créer une.",
+  "managerGradesRange": "Niveaux {range}",
+  "@managerGradesRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "managerUsersCount": "{count, plural, =0{Aucun utilisateur} one{{count} utilisateur} other{{count} utilisateurs}}",
+  "@managerUsersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerCohortsCount": "{count, plural, =0{Aucune cohorte} one{{count} cohorte} other{{count} cohortes}}",
+  "@managerCohortsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "managerView": "Voir",
+  "managerDeleteExam": "Supprimer l’examen",
+  "managerDeleteExamBody": "Supprimer « {title} » et ses fichiers ? Cette action est irréversible.",
+  "@managerDeleteExamBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "managerNewExam": "Nouvel examen",
+  "managerEditExam": "Modifier l’examen",
+  "managerNoExamsTitle": "Aucun examen pour l’instant",
+  "managerNoExamsBody": "Touchez « Nouvel examen » pour en ajouter un.",
+  "managerLogoUploadFailed": "Échec de l’envoi du logo : {error}",
+  "@managerLogoUploadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "managerSchoolNameRequired": "Le nom de l’école est requis.",
+  "managerAdminNameRequired": "Le nom complet de l’administrateur est requis.",
+  "managerAdminContactRequired": "L’e-mail ou le nom d’utilisateur de l’administrateur est requis.",
+  "managerPasswordTooShort": "Le mot de passe doit contenir au moins 6 caractères.",
+  "managerSchoolCreated": "École « {name} » créée.",
+  "@managerSchoolCreated": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "managerGradeRanges": "Plages de niveaux",
+  "managerGradeRangesHelper": "Par exemple 7-12, ou 4-6,9-12 pour sauter des niveaux",
+  "managerSemestersOptional": "Semestres (facultatif)",
+  "managerSemestersHelper": "Mois de début–fin, par exemple 9-1,2-6",
+  "managerUploadLogo": "Envoyer un logo",
+  "managerLogoUploaded": "Logo envoyé",
+  "managerSubjectsOptional": "Matières (facultatif)",
+  "managerSubjectEnglish": "Matière (en anglais)",
+  "managerAdminAccount": "Compte administrateur",
+  "managerPasswordHelper": "Au moins 6 caractères",
+  "managerCreateSchool": "Créer l’école",
+  "managerYearRequired": "Une année valide est requise.",
+  "managerAttachOneFile": "Joignez au moins un fichier.",
+  "managerExamTitleHelper": "Par exemple Été 2019 · Moed A",
+  "managerYear": "Année",
+  "managerTerm": "Session",
+  "managerTermHelper": "summer_a, winter…",
+  "managerFilesHelper": "Le fichier Questions est le principal ; les autres sont facultatifs.",
+  "managerCreateExam": "Créer l’examen",
+  "managerAttached": "Joint"
 }

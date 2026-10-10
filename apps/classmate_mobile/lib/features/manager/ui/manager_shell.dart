@@ -54,18 +54,19 @@ class ManagerLogoutAction extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context)!;
     return IconButton(
-      tooltip: 'Sign out',
+      tooltip: l.navLogout,
       icon: const Icon(Icons.logout_rounded),
       onPressed: () async {
         final confirm = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Sign out?'),
-            content: const Text('You will return to the login screen.'),
+            title: Text(l.logoutConfirmTitle),
+            content: Text(l.logoutConfirmBody),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Sign out')),
+              TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.commonCancel)),
+              FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.navLogout)),
             ],
           ),
         );

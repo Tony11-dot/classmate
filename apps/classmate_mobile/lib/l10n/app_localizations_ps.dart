@@ -10123,4 +10123,220 @@ class AppLocalizationsPs extends AppLocalizations {
   @override
   String get announcementsNoDetails =>
       '‹‹No additional details were attached.››';
+
+  @override
+  String get managerAddManager => '‹‹Add manager››';
+
+  @override
+  String get managerAddManagerHint =>
+      '‹‹Grant manager access to an existing account by email or username, or fill in everything to create a new manager.››';
+
+  @override
+  String get managerFullNameNewAccount => '‹‹Full name (new account)››';
+
+  @override
+  String get managerPasswordNewAccount => '‹‹Password (new account)››';
+
+  @override
+  String get managerCreated => '‹‹Manager created.››';
+
+  @override
+  String get managerAccessGranted => '‹‹Manager access granted.››';
+
+  @override
+  String get managerThisManager => '‹‹this manager››';
+
+  @override
+  String get managerRemoveManager => '‹‹Remove manager››';
+
+  @override
+  String managerRemoveManagerConfirm(String name) {
+    return '‹‹Remove manager access from $name?››';
+  }
+
+  @override
+  String get managerNoManagers => '‹‹No managers yet››';
+
+  @override
+  String get managerOwner => '‹‹Owner››';
+
+  @override
+  String get managerGradesLabel => '‹‹Grades››';
+
+  @override
+  String get managerEditSchool => '‹‹Edit school››';
+
+  @override
+  String get managerSchoolName => '‹‹School name››';
+
+  @override
+  String get managerMinGrade => '‹‹Lowest grade››';
+
+  @override
+  String get managerMaxGrade => '‹‹Highest grade››';
+
+  @override
+  String get managerDeleteSchool => '‹‹Delete school››';
+
+  @override
+  String managerDeleteSchoolBody(String name) {
+    return '‹‹This permanently deletes “$name” with every user, cohort, classroom and record in it. This cannot be undone.››';
+  }
+
+  @override
+  String managerTypeToConfirm(String name) {
+    return '‹‹Type “$name” to confirm››';
+  }
+
+  @override
+  String get managerDeleteForever => '‹‹Delete forever››';
+
+  @override
+  String get managerNewSchool => '‹‹New school››';
+
+  @override
+  String get managerNoSchoolsTitle => '‹‹No schools yet››';
+
+  @override
+  String get managerNoSchoolsBody => '‹‹Tap “New school” to create one.››';
+
+  @override
+  String managerGradesRange(String range) {
+    return '‹‹Grades $range››';
+  }
+
+  @override
+  String managerUsersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count users',
+      one: '1 user',
+      zero: 'No users',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String managerCohortsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cohorts',
+      one: '1 cohort',
+      zero: 'No cohorts',
+    );
+    return '‹‹$_temp0››';
+  }
+
+  @override
+  String get managerView => '‹‹View››';
+
+  @override
+  String get managerDeleteExam => '‹‹Delete exam››';
+
+  @override
+  String managerDeleteExamBody(String title) {
+    return '‹‹Delete “$title” and its files? This cannot be undone.››';
+  }
+
+  @override
+  String get managerNewExam => '‹‹New exam››';
+
+  @override
+  String get managerEditExam => '‹‹Edit exam››';
+
+  @override
+  String get managerNoExamsTitle => '‹‹No exams yet››';
+
+  @override
+  String get managerNoExamsBody => '‹‹Tap “New exam” to add one.››';
+
+  @override
+  String managerLogoUploadFailed(String error) {
+    return '‹‹Logo upload failed: $error››';
+  }
+
+  @override
+  String get managerSchoolNameRequired => '‹‹The school name is required.››';
+
+  @override
+  String get managerAdminNameRequired =>
+      '‹‹The admin’s full name is required.››';
+
+  @override
+  String get managerAdminContactRequired =>
+      '‹‹The admin’s email or username is required.››';
+
+  @override
+  String get managerPasswordTooShort =>
+      '‹‹The password must be at least 6 characters.››';
+
+  @override
+  String managerSchoolCreated(String name) {
+    return '‹‹School “$name” created.››';
+  }
+
+  @override
+  String get managerGradeRanges => '‹‹Grade ranges››';
+
+  @override
+  String get managerGradeRangesHelper =>
+      '‹‹For example 7-12, or 4-6,9-12 to skip grades››';
+
+  @override
+  String get managerSemestersOptional => '‹‹Semesters (optional)››';
+
+  @override
+  String get managerSemestersHelper =>
+      '‹‹Start–end months, for example 9-1,2-6››';
+
+  @override
+  String get managerUploadLogo => '‹‹Upload logo››';
+
+  @override
+  String get managerLogoUploaded => '‹‹Logo uploaded››';
+
+  @override
+  String get managerSubjectsOptional => '‹‹Subjects (optional)››';
+
+  @override
+  String get managerSubjectEnglish => '‹‹Subject (in English)››';
+
+  @override
+  String get managerAdminAccount => '‹‹Admin account››';
+
+  @override
+  String get managerPasswordHelper => '‹‹At least 6 characters››';
+
+  @override
+  String get managerCreateSchool => '‹‹Create school››';
+
+  @override
+  String get managerYearRequired => '‹‹A valid year is required.››';
+
+  @override
+  String get managerAttachOneFile => '‹‹Attach at least one file.››';
+
+  @override
+  String get managerExamTitleHelper => '‹‹For example 2019 Summer · Moed A››';
+
+  @override
+  String get managerYear => '‹‹Year››';
+
+  @override
+  String get managerTerm => '‹‹Term››';
+
+  @override
+  String get managerTermHelper => '‹‹summer_a, winter…››';
+
+  @override
+  String get managerFilesHelper =>
+      '‹‹Questions is the main file; the rest are optional.››';
+
+  @override
+  String get managerCreateExam => '‹‹Create exam››';
+
+  @override
+  String get managerAttached => '‹‹Attached››';
 }
