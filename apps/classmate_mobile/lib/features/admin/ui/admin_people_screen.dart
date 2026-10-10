@@ -18,6 +18,7 @@ import '../data/admin_repository.dart';
 import 'admin_edit_user_screen.dart';
 import 'admin_import_users_screen.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 // ── Providers ─────────────────────────────────────────────────────────────────
 
 final _usersProvider = FutureProvider.autoDispose.family<AdminUserList, String>((ref, role) {
@@ -920,6 +921,7 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
+      appBar: CmSubBar(title: _roleTitleOf(l)),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_add_user_screen',
         onPressed: _saving ? null : _save,
@@ -936,26 +938,6 @@ class _AdminAddUserScreenState extends ConsumerState<AdminAddUserScreen> {
               child: ListView(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 100 + MediaQuery.paddingOf(context).bottom),
                 children: [
-                  // ── Back chevron + title — no AppBar, so this header is
-                  // the only visual entry point back to the previous screen.
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                        tooltip: l.a11yBack,
-                        onPressed: () => Navigator.maybePop(context),
-                        visualDensity: VisualDensity.compact,
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints.tightFor(width: 36, height: 36),
-                      ),
-                  const SizedBox(width: 4),
-                      Text(
-                        _roleTitleOf(l),
-                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
                   // ── Login credentials ──────────────────────────────────────
                   TextField(
                     controller: _usernameCtrl,

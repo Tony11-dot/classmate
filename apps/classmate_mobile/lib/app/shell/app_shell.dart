@@ -72,6 +72,7 @@ bool _hideTopBarForRoute(String loc) {
   final l = _routePathOnly(loc);
   return l == '/admin/import-users' ||
       l == '/teacher/averages' ||
+      l == '/admin/periods' ||
       l.startsWith('/messages/') ||
       l.startsWith('/messages/request/') ||
       l.startsWith('/tutor/chat/') ||

@@ -17,6 +17,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Bulk "Add many" — fast multi-user entry that feeds the SAME backend the
 /// single Add User screen uses. Two ways in, one editable grid:
 ///  • Grid: paste a list of names or fill rows by hand (all 5 roles), set role
@@ -366,8 +367,8 @@ class _AdminImportUsersScreenState extends ConsumerState<AdminImportUsersScreen>
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l.adminImportUsersScreenTitle),
+      appBar: CmSubBar(
+        title: l.adminImportUsersScreenTitle,
         bottom: TabBar(controller: _tabs, tabs: [
           Tab(icon: const Icon(Icons.grid_on_rounded), text: l.adminImportUsersScreenTabGrid),
           Tab(icon: const Icon(Icons.upload_file_rounded), text: l.adminImportUsersScreenTabCsv),

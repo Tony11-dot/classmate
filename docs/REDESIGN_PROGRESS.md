@@ -541,7 +541,7 @@ sub-screens. Then each role below is one round: chrome check per route → sub-s
 | Student | Schedule · Classrooms · Practice · Insights · NOVA | Messages, Attendance, Grades, Assignments, Materials, Solutions, Bagrut, Meetings, Announcements, Notifications, Exams, Forms, Saved questions, Certificates, CMail · Profile, Plans, Settings, Support, About | assignment ✓ · meeting ✓ · announcement ✓ · exam · form · notification · classroom · chat · message request · new group · practice session/history/review · solutions subjects/books/pages/questions · bagrut list/exam/file · certificate · cmail compose/detail · note editor · reorder tools · classroom order · theme gallery · forgot password | ☑ R26 (build 320) |
 | Teacher | Schedule · Classrooms · Announcements · Insights · NOVA | Messages, Workspace, Cohorts, Attendance, Grades, Notifications, Assignments, Materials, Meetings, Solutions, Bagrut, Students, Exams, Certificates, Forms, CMail · Account | classroom detail/analytics · new announcement · create form · form responses · create/edit exam · exam grades · add grade · slot attachments · add material/meeting/assignment (+ classroom variants) · assignment detail · attendance mark · student detail · averages · create classroom · student grade detail | ☑ R27 (build 321) |
 | Parent | Home · Schedule · Overview · Messages · Announcements | Attendance, Grades, Exams, Certificates, Assignments, Meetings, Materials, Notifications, CMail · Account | child picker · the shared lifedoc details · chat | ☑ R28 (build 322) |
-| Admin | — (drawer only) | Dashboard, People, Cohorts, Schedule, School, Grade scales, Permissions, Reports, Certificates, Export, Students, Settings, CMail · Messages, Announcements, Notifications · Account | periods · import users · cohort detail · add period · edit user · subject detail · school form · certificates per student | ☐ R29 |
+| Admin | — (drawer only) | Dashboard, People, Cohorts, Schedule, School, Grade scales, Permissions, Reports, Certificates, Export, Students, Settings, CMail · Messages, Announcements, Notifications · Account | periods · import users · cohort detail · add period · edit user · subject detail · school form · certificates per student | ☑ R29 (build 322) |
 | Secretary | — (drawer only) | Home, Schedule, People, Cohorts, Certificates, Announcements, Messages, Export, CMail · Account | student editor · cohort detail · export sheet | ☐ R30 |
 | Manager | — (console) | Home: Schools · Managers · Bagrut exams | school form · exam form · bagrut manage | ☐ R31 |
 
@@ -596,8 +596,22 @@ image viewer, video trimmer, NOVA chat and chat threads (message bars).
   locales)
 - Checked: analyzer 50 (baseline); rig: 13 parent shots, no overflow
 
+## Round 29 (2026-10-10) — the Admin role
+- **The example Tony gave:** Import users (Admin settings → Import people) had a stock Material
+  bar with a tab strip. It is on `CmSubBar` now, the Grid | CSV tabs riding as its bottom strip
+- **Hand-made chevron rows → the bar:** Edit user (monogram + name as the title), Add user (role
+  as the title), Add students to a cohort (cohort name as subtitle, the Add/Skip action in the
+  bar), Add / edit period, Subject detail (subject as title, "School settings" as subtitle — the
+  breadcrumb pill is retired, the back button is the way back), Cohort detail and Periods (stock
+  bars). Each of these pages had drawn its own back arrow because it had no bar
+- **Chrome:** Periods is a sub-screen in the shell (pushed from Admin settings) and showed the
+  shell bar above its own — hidden there now. Admin has no navbar; the 16 drawer tabs keep the
+  shell bar (Admin contact sheet: 11 tabs, 8 sub-screens)
+- Secretary and Manager stock bars were converted in the same pass and land in their own rounds
+- Checked: analyzer 50 (baseline); rig: all admin sub-screens render on the bar, no overflow
+
 ## Up next (in order)
-1. On-device QA pass of build 321 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 322 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

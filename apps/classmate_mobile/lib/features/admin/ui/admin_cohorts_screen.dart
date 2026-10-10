@@ -12,6 +12,7 @@ import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 // ── Providers ─────────────────────────────────────────────────────────────────
 
 final _cohortsProvider = FutureProvider.autoDispose<List<AdminCohort>>((ref) {
@@ -226,6 +227,7 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
 
     return Scaffold(
       backgroundColor: cs.surface,
+      appBar: CmSubBar(title: AppLocalizations.of(context)!.adminAddCohort),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_create_cohort',
         onPressed: (_saving || _nameCtrl.text.trim().isEmpty || _grades.isEmpty) ? null : _save,
@@ -236,7 +238,7 @@ class _AdminCreateCohortScreenState extends ConsumerState<AdminCreateCohortScree
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
           children: [
             TextField(
               controller: _nameCtrl,
@@ -445,47 +447,27 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
 
     return Scaffold(
       backgroundColor: cs.surface,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(4, 8, 16, 8),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                    tooltip: l.a11yBack,
-                    onPressed: widget.onBack,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.adminAddStudentsTitle,
-                          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                        ),
-                        Text(
-                          widget.cohortName,
-                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (widget.selected.isNotEmpty)
-                    FilledButton.icon(
+      appBar: CmSubBar(
+        title: AppLocalizations.of(context)!.adminAddStudentsTitle,
+        subtitle: widget.cohortName,
+        onBack: widget.onBack,
+        actions: [
+          if (widget.selected.isNotEmpty)
+            FilledButton.icon(
                       onPressed: widget.saving ? null : widget.onSave,
                       icon: widget.saving
                           ? const CmLoading(size: 14, color: Colors.white)
                           : const Icon(Icons.check_rounded, size: 16),
                       label: Text(l.commonAddCount(widget.selected.length)),
                     )
-                  else
-                    TextButton(onPressed: widget.onBack, child: Text(AppLocalizations.of(context)!.adminSkipAdding)),
-                ],
-              ),
-            ),
+          else
+            TextButton(onPressed: widget.onBack, child: Text(AppLocalizations.of(context)!.adminSkipAdding)),
+          const SizedBox(width: 8),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
             const Divider(height: 1),
             // Search + grade filter
             Padding(
@@ -772,20 +754,9 @@ class _AdminCohortDetailScreenState extends ConsumerState<AdminCohortDetailScree
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          tooltip: AppLocalizations.of(context)!.a11yBack,
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-        title: Text(
-          _cohort.name,
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-          overflow: TextOverflow.ellipsis,
-        ),
+      appBar: CmSubBar(
+        onBack: () => Navigator.of(context).maybePop(),
+        title: _cohort.name,
         actions: [
           if (canManage)
             IconButton(

@@ -7,6 +7,7 @@ import '../../../core/contracts/school_subject.dart';
 import '../../../core/util/subject_color.dart';
 import '../../../l10n/app_localizations.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 /// Edits the 5-language names for a single school subject. Returns the
 /// updated [SchoolSubject] via Navigator.pop when the user taps save.
 class AdminSubjectDetailScreen extends StatefulWidget {
@@ -93,6 +94,12 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
+      appBar: CmSubBar(
+        title: isNew
+            ? AppLocalizations.of(context)!.adminSubjectDetailScreenNewSubject
+            : widget.initial.nameEn,
+        subtitle: AppLocalizations.of(context)!.adminSubjectDetailScreenSchoolSettings,
+      ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_subject_detail',
         onPressed: _save,
@@ -103,44 +110,6 @@ class _AdminSubjectDetailScreenState extends State<AdminSubjectDetailScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
           children: [
-            // ── Header row: back chevron + breadcrumb pill ───────────────
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                  tooltip: AppLocalizations.of(context)!.a11yBack,
-                  onPressed: () => Navigator.maybePop(context),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(width: 36, height: 36),
-                ),
-                const SizedBox(width: 4),
-                CmPress(
-                  onTap: () => Navigator.maybePop(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: cs.primaryContainer,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.school_rounded, size: 14, color: cs.onPrimaryContainer),
-                        const SizedBox(width: 6),
-                        Text(
-                          AppLocalizations.of(context)!.adminSubjectDetailScreenSchoolSettings,
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: cs.onPrimaryContainer,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),),
-              ],
-            ),
-            const SizedBox(height: 14),
             // Live preview: name + colour as they'll appear across the app.
             Builder(builder: (context) {
               final tone = parseSubjectColor(_colorHex) ?? subjectColorOrFallback(null, _en.text.trim());

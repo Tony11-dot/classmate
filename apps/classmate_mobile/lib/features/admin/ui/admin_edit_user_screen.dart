@@ -11,6 +11,7 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../../../ui/widgets/phone_field.dart';
 import '../data/admin_repository.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 class AdminEditUserScreen extends ConsumerStatefulWidget {
   const AdminEditUserScreen({
     super.key,
@@ -347,8 +348,24 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
     final isParent = _role == 'PARENT';
     final isStudent = _role == 'STUDENT';
 
+    final displayName = _nameEnCtrl.text.trim();
     return Scaffold(
       backgroundColor: cs.surface,
+      appBar: CmSubBar(
+        titleWidget: Row(
+          children: [
+            CmMonogram(name: displayName.isEmpty ? '?' : displayName, radius: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                displayName.isEmpty ? l.adminEditUser : displayName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_edit_user',
         onPressed: _saving ? null : _save,
@@ -364,40 +381,6 @@ class _AdminEditUserScreenState extends ConsumerState<AdminEditUserScreen> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                 children: [
-                  // ── Back chevron + title — no AppBar, so this header is
-                  // the only visual way back.
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
-                          size: 18,
-                        ),
-                        tooltip: l.a11yBack,
-                        onPressed: () => Navigator.maybePop(context),
-                      ),
-                      const SizedBox(width: 4),
-                      CmMonogram(
-                        name: _nameEnCtrl.text.trim().isEmpty
-                            ? '?'
-                            : _nameEnCtrl.text.trim(),
-                        radius: 22,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _nameEnCtrl.text.trim().isEmpty
-                              ? l.adminEditUser
-                              : _nameEnCtrl.text.trim(),
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
                   const SizedBox(height: 14),
                   // ── Login credentials ──────────────────────────────────────
                   CmFormSection(

@@ -15,6 +15,7 @@ import '../../../core/theme/cm_tokens.dart';
 import '../../../ui/widgets/cm_loading.dart';
 import '../../../ui/widgets/liquid_glass_dropdown.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 // ── Data helpers ─────────────────────────────────────────────────────────────
 
 class _AdminApi {
@@ -101,11 +102,8 @@ class AdminPeriodsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: cs.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        title: Text(AppLocalizations.of(context)!.adminPeriodsTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+      appBar: CmSubBar(
+        title: AppLocalizations.of(context)!.adminPeriodsTitle,
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_add_period',

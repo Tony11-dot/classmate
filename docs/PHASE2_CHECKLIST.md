@@ -139,32 +139,32 @@ Legend: ✅ done · ☐ pending · — not applicable · R## = round that did it
 | Shared details (assignment / meeting / announcement / exam / form / notification) | /…/:id | sub | ✅ R26 | ✅ | ✅ |
 | Chat thread | /messages/:id | sub | ✅ | — (chat bar) | ✅ |
 
-## Admin (R29)
+## Admin (R29 ✅ chrome + bar; polish reviewed R29)
 
 | Screen | Route | Kind | Chrome | Bar | Polish |
 |---|---|---|---|---|---|
-| Dashboard | /admin/dashboard | drawer | ☐ | — | ☐ |
-| People | /admin/people | drawer | ☐ | — | ☐ |
-| Cohorts | /admin/cohorts | drawer | ☐ | — | ☐ |
-| Schedule | /admin/schedule | drawer | ☐ | — | ☐ |
-| School settings (School · Subjects · Bell schedule) | /admin/school | drawer | ☐ | — | ☐ |
-| Grade scales | /admin/grade-scales | drawer | ☐ | — | ☐ |
-| Permissions | /admin/permissions | drawer | ☐ | — | ☐ |
-| Reports | /admin/reports | drawer | ☐ | — | ☐ |
-| Certificates | /admin/certificates | drawer | ☐ | — | ☐ |
-| Export | /admin/export | drawer | ☐ | — | ☐ |
-| Students | /teacher/students | drawer | ☐ | — | ☐ |
-| Settings | /admin/settings | drawer | ☐ | — | ☐ |
-| CMail · Messages · Announcements · Notifications | … | drawer | ☐ | — | ☐ |
-| Profile · Settings · Support · About | /profile … | drawer (Account) | ☐ | — | ☐ |
-| Periods | /admin/periods | sub (in shell) | ☐ hide shell bar | ☐ | ☐ |
-| Import users | /admin/import-users | sub (in shell) | ☐ | ☐ | ☐ |
-| Bell schedule (standalone) | /admin/bell-schedule | sub (in shell) | ☐ | ☐ | ☐ |
-| Cohort detail | (pushed) | sub | ☐ | ☐ | ☐ |
-| Add period | (pushed) | sub | ☐ | ☐ | ☐ |
-| Edit user | (pushed) | sub | ☐ | ☐ | ☐ |
-| Subject detail | (pushed) | sub | ☐ | ☐ | ☐ |
-| Export options sheet | (sheet) | sub | ☐ | — (sheet) | ☐ |
+| Dashboard | /admin/dashboard | drawer | ✅ | — | ✅ |
+| People | /admin/people | drawer | ✅ | — | ✅ |
+| Cohorts | /admin/cohorts | drawer | ✅ | — | ✅ |
+| Schedule | /admin/schedule | drawer | ✅ | — | ✅ |
+| School settings (School · Subjects · Bell schedule) | /admin/school | drawer | ✅ | — | ✅ |
+| Grade scales | /admin/grade-scales | drawer | ✅ | — | ✅ |
+| Permissions | /admin/permissions | drawer | ✅ | — | ✅ |
+| Reports | /admin/reports | drawer | ✅ | — | ✅ |
+| Certificates | /admin/certificates | drawer | ✅ | — | ✅ |
+| Export | /admin/export | drawer | ✅ | — | ✅ |
+| Students | /teacher/students | drawer | ✅ | — | ✅ |
+| Settings | /admin/settings | drawer | ✅ | — | ✅ |
+| CMail · Messages · Announcements · Notifications | … | drawer | ✅ | — | ✅ |
+| Profile · Settings · Support · About | /profile … | drawer (Account) | ✅ | — | ✅ |
+| Periods | /admin/periods | sub (in shell) | ✅ shell bar hidden R29 | ✅ R29 | ✅ |
+| Import users | /admin/import-users | sub (in shell) | ✅ | ✅ R29 | ✅ |
+| Bell schedule (standalone) | /admin/bell-schedule | sub (in shell) | ✅ | ✅ R29 | ✅ |
+| Cohort detail | (pushed) | sub | ✅ | ✅ R29 | ✅ |
+| Add period | (pushed) | sub | ✅ | ✅ R29 | ✅ |
+| Edit user | (pushed) | sub | ✅ | ✅ R29 | ✅ |
+| Subject detail | (pushed) | sub | ✅ | ✅ R29 | ✅ |
+| Export options sheet | (sheet) | sub | ✅ | — (sheet) | ✅ |
 
 ## Secretary (R30)
 

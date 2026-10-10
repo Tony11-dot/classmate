@@ -16,6 +16,7 @@ import '../../../ui/widgets/liquid_glass_dropdown.dart';
 import '../data/admin_repository.dart';
 import 'admin_subject_detail_screen.dart';
 
+import '../../../ui/widgets/cm_sub_bar.dart';
 // Returns a locale-aware day name for dayOfWeek 0..6 where 0=Sun.
 // `short=true` returns the abbreviated form ("Mon"), false the long one
 // ("Monday"). The Flutter app's current locale is read from the
@@ -1612,6 +1613,7 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
 
     return Scaffold(
       backgroundColor: cs.surface,
+      appBar: CmSubBar(title: _isEditing ? l.adminEditPeriod : l.adminScheduleAddPeriod),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_add_period',
         onPressed: _saving ? null : _save,
@@ -1625,25 +1627,6 @@ class _AdminAddPeriodScreenState extends ConsumerState<AdminAddPeriodScreen> {
         child: ListView(
           padding: EdgeInsets.fromLTRB(20, 8, 20, 100 + MediaQuery.paddingOf(context).bottom),
           children: [
-            // ── Back chevron — no AppBar, so this is the only way back ─────
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                  tooltip: l.a11yBack,
-                  onPressed: () => Navigator.maybePop(context),
-                  visualDensity: VisualDensity.compact,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints.tightFor(width: 36, height: 36),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  _isEditing ? l.adminEditPeriod : l.adminScheduleAddPeriod,
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
 
             // ── Day + Period slots ────────────────────────────────────────
             ..._slots.asMap().entries.map((entry) {
