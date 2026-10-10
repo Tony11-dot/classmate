@@ -345,7 +345,7 @@ class _ClassroomAppleCard extends ConsumerWidget {
     return CmPress(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 14, 12),
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(CmTokens.radiusLg),
@@ -574,7 +574,7 @@ class _ClassroomsHero extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tokens = CmTokens.of(context);
     return Container(
-      padding: const EdgeInsets.fromLTRB(18, 18, 12, 18),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 18, 12, 18),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(CmTokens.radiusXl),
         gradient: LinearGradient(

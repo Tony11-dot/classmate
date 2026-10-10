@@ -164,7 +164,7 @@ class _TeacherFormsScreenState extends ConsumerState<TeacherFormsScreen> {
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Container(
-                padding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
+                padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 6, 6),
                 decoration: BoxDecoration(
                   color: cs.errorContainer,
                   borderRadius: BorderRadius.circular(CmTokens.radiusMd),
@@ -263,7 +263,7 @@ class _FormCard extends StatelessWidget {
     final good = CmTokens.of(context).good;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 10, 10),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 10, 10),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(CmTokens.radiusLg),

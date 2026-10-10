@@ -450,7 +450,7 @@ class _AdminAddStudentsScreenImplState extends State<_AdminAddStudentsScreenImpl
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(4, 8, 16, 8),
+              padding: const EdgeInsetsDirectional.fromSTEB(4, 8, 16, 8),
               child: Row(
                 children: [
                   IconButton(

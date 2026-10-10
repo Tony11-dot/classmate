@@ -767,7 +767,7 @@ class ChatMessageBubble extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(bottom: 7, right: 10, child: timeOverlay),
+            PositionedDirectional(bottom: 7, end: 10, child: timeOverlay),
           ],
         );
       } else if (isVoice) {
@@ -826,7 +826,7 @@ class ChatMessageBubble extends StatelessWidget {
                 mime: resolvedMime,
               ),
             ),
-            Positioned(bottom: 7, right: 10, child: timeOverlay),
+            PositionedDirectional(bottom: 7, end: 10, child: timeOverlay),
           ],
         );
       }
@@ -936,7 +936,7 @@ class ChatMessageBubble extends StatelessWidget {
             : CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(11, 6, 9, 6),
+            padding: const EdgeInsetsDirectional.fromSTEB(11, 6, 9, 6),
             decoration: BoxDecoration(
               color: isMine ? outgoingBubbleColor : incomingBubbleColor,
               borderRadius: _bubbleRadius(context),
@@ -1026,9 +1026,9 @@ class ChatMessageBubble extends StatelessWidget {
                               width: 3,
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  bottomLeft: Radius.circular(10),
+                                borderRadius: const BorderRadiusDirectional.only(
+                                  topStart: Radius.circular(10),
+                                  bottomStart: Radius.circular(10),
                                 ),
                               ),
                             ),

@@ -262,7 +262,7 @@ class _StudentPill extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final l = AppLocalizations.of(context)!;
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 5, 6, 5),
+      padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 6, 5),
       decoration: BoxDecoration(
         color: cs.primaryContainer,
         borderRadius: BorderRadius.circular(20),

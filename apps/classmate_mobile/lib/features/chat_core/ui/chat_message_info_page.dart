@@ -490,11 +490,11 @@ class _ThreadPreviewBubbleState extends State<_ThreadPreviewBubble> {
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
       decoration: BoxDecoration(
         color: bubbleColor,
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(18),
-          topRight: const Radius.circular(18),
-          bottomLeft: Radius.circular(widget.isMine ? 18 : 6),
-          bottomRight: Radius.circular(widget.isMine ? 6 : 18),
+        borderRadius: BorderRadiusDirectional.only(
+          topStart: const Radius.circular(18),
+          topEnd: const Radius.circular(18),
+          bottomStart: Radius.circular(widget.isMine ? 18 : 6),
+          bottomEnd: Radius.circular(widget.isMine ? 6 : 18),
         ),
       ),
       child: Column(

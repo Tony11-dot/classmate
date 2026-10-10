@@ -170,7 +170,7 @@ class _CohortTile extends ConsumerWidget {
             // block look boxed-in — keep it clean.
             shape: const Border(),
             collapsedShape: const Border(),
-            tilePadding: const EdgeInsets.fromLTRB(14, 6, 6, 6),
+            tilePadding: const EdgeInsetsDirectional.fromSTEB(14, 6, 6, 6),
             leading: const CmIconTile(icon: Icons.groups_rounded),
             title: Text(name, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
             subtitle: Padding(

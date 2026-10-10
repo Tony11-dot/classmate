@@ -1692,7 +1692,7 @@ class _Chip extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 5, 6, 5),
+      padding: const EdgeInsetsDirectional.fromSTEB(10, 5, 6, 5),
       decoration: BoxDecoration(
         color: cs.primaryContainer,
         borderRadius: BorderRadius.circular(20),

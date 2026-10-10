@@ -1180,7 +1180,7 @@ class _ParentTileState extends State<_ParentTile> {
             onTap: widget.onToggle,
             borderRadius: BorderRadius.circular(14),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
+              padding: const EdgeInsetsDirectional.fromSTEB(10, 10, 4, 10),
               child: Row(
                 children: [
                   Checkbox(
@@ -1226,7 +1226,7 @@ class _ParentTileState extends State<_ParentTile> {
           if (_expanded && hasChildren) ...[
             const Divider(height: 1),
             Padding(
-              padding: const EdgeInsets.fromLTRB(54, 8, 16, 12),
+              padding: const EdgeInsetsDirectional.fromSTEB(54, 8, 16, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: widget.parent.children

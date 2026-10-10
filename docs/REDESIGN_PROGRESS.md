@@ -392,8 +392,38 @@ Audited all 2,820 strings in the five languages, plus the website and the accoun
   not strings to translate
 - Checked: analyzer 50 (baseline); tests and rig below
 
+## Round 21 (2026-10-10) — every pixel in Hebrew and Arabic: the RTL sweep
+- **New check.** Every physical `left` / `right` in the widget tree was listed (asymmetric
+  `EdgeInsets.fromLTRB`, `EdgeInsets.only(left|right)`, `Alignment.centerLeft`, `BorderRadius.only`,
+  `Border(left:)`, `Positioned(right:)`) and each one judged: does it mark a *side of the screen* or
+  the *start / end of reading*? 94 sites → 41 files changed, everything else intentional.
+- **38 card, header and pill insets** were written for English — wider on the left where the text
+  starts, tighter on the right where the chevron or action sits. In Hebrew and Arabic they came out
+  backwards: the chevron got the wide gap and the text was crowded against the edge. All are now
+  `EdgeInsetsDirectional`: teacher Attendance / Meetings / Cohorts / Forms / Classrooms / Classroom
+  detail / Create form / Announcement audience tree / Schedule rows / Grades header, admin Cohorts /
+  Schedule / Export chips, manager Schools / Managers / Bagrut exams, Bagrut exams, Classrooms list +
+  hero card, Blocked people, NOVA thinking row + suggestion chips, Support sheet, Settings theme
+  headers, drawer section headers, the student picker sheet, the exam countdown pill, the assignment
+  attachment chip, the chat bubble's own text inset
+- **Colour edges** on the admin schedule's period chips and NOVA's blockquote bar were drawn on the
+  physical left; they now sit on the start side (right in Hebrew)
+- **Corner radii that mark a side**: the drawer's rounded edge, the message-request "first message"
+  bubble, the chat info-page preview bubble and the reply quote bar now round start/end corners. The
+  chat bubbles themselves and the support sheet already mirrored (tails placed by `isMine != rtl`)
+- **Overlays**: the media bubble's timestamp, the theme tile's ✓ badge and its ⋯ affordance, the chat
+  scroll-to-bottom unread badge, the attachment-remove ✕ and the PDF badge pin to the end/start
+  corner instead of the physical right/left
+- **Alignment**: the schedule's attachment / attendance pills, the composer's switcher and the typing
+  bubble align to start (the typing bubble keeps its 64 px breathing room on the end side, and its
+  three dots keep their gap in RTL — the last dot used to touch the middle one)
+- Left as is: forced-LTR rows (time ranges, phone number, class codes, math, code blocks), gradients,
+  the bottom nav bar's indicator (physical by design), the composer's drag bubble (follows the finger)
+- Checked: 81 Hebrew shots before/after → 14 screens changed, every change a mirror shift (side-by-side
+  diffs reviewed); analyzer 50 (baseline); tests +66 −5 (baseline)
+
 ## Up next (in order)
-1. On-device QA pass of build 314 (TestFlight / Play internal). Natan retests Permissions on
+1. On-device QA pass of build 315 (TestFlight / Play internal). Natan retests Permissions on
    Android and, once beta review clears, on iOS via the external group (310 is in it, waiting for
    Apple's beta review).
 

@@ -242,7 +242,7 @@ class _ProseWidget extends StatelessWidget {
         fontStyle: FontStyle.italic,
       ),
       blockquoteDecoration: BoxDecoration(
-        border: Border(left: BorderSide(color: cs.primary, width: 3)),
+        border: BorderDirectional(start: BorderSide(color: cs.primary, width: 3)),
         // Subtle container fill (NOT solid primary, which made the
         // onSurface text unreadable on top of it).
         color: cs.surfaceContainerHigh,
@@ -277,7 +277,9 @@ class _ProseWidget extends StatelessWidget {
       h3Padding: EdgeInsets.only(top: compact ? 4 : 12, bottom: 4),
       pPadding: EdgeInsets.zero,
       listIndent: 20,
-      listBulletPadding: const EdgeInsets.only(right: 6),
+      listBulletPadding: textDirection == TextDirection.rtl
+          ? const EdgeInsets.only(left: 6)
+          : const EdgeInsets.only(right: 6),
       // Tighter paragraph spacing — prevents NOVA responses feeling too spaced out.
       blockSpacing: compact ? 4.0 : 8.0,
       // Tables: distribute column widths proportionally so text never gets

@@ -156,7 +156,7 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
                   if ((m['username'] ?? '').toString().isNotEmpty) '@${m['username']}',
                 ].join(' · ');
                 return CmCard(
-                  padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+                  padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 8, 12),
                   child: Row(
                     children: [
                       CmIconTile(
@@ -184,7 +184,7 @@ class _ManagerManagersScreenState extends ConsumerState<ManagerManagersScreen> {
                       ),
                       if (isOwner)
                         Padding(
-                          padding: const EdgeInsets.only(right: 6),
+                          padding: const EdgeInsetsDirectional.only(end: 6),
                           child: CmPill(
                             icon: Icons.star_rounded,
                             label: l.managerOwner,

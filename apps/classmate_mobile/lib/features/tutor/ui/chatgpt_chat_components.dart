@@ -130,12 +130,12 @@ class ChatGptBubble extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: LiquidGlassCard(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(18),
-                topRight: const Radius.circular(18),
-                bottomLeft: Radius.circular(isUser ? 18 : 6),
-                bottomRight: Radius.circular(isUser ? 6 : 18),
-              ),
+              borderRadius: BorderRadiusDirectional.only(
+                topStart: const Radius.circular(18),
+                topEnd: const Radius.circular(18),
+                bottomStart: Radius.circular(isUser ? 18 : 6),
+                bottomEnd: Radius.circular(isUser ? 6 : 18),
+              ).resolve(Directionality.of(context)),
               color: bg,
               border: Border.all(color: border, width: 1),
               child: Column(

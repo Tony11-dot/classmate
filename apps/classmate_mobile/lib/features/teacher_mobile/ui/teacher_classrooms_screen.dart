@@ -142,7 +142,7 @@ class _TeacherClassroomsScreenState
                 border: const Border.fromBorderSide(BorderSide.none),
                 boxShadow: CmTokens.of(context).shadowMd,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(2, 2, 0, 2),
+                  padding: const EdgeInsetsDirectional.fromSTEB(2, 2, 0, 2),
                   child: Row(
                     children: [
                       Container(
@@ -252,7 +252,7 @@ class _TeacherClassroomsScreenState
                       'grade': grade ?? 0,
                     }),
                     child: Container(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+                      padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 10, 12),
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(CmTokens.radiusLg),

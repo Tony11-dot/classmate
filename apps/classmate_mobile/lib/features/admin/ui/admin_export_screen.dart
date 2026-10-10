@@ -550,7 +550,7 @@ class _Pill extends StatelessWidget {
         onTap: onRemove,
         borderRadius: BorderRadius.circular(999),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 6, 6, 6),
+          padding: const EdgeInsetsDirectional.fromSTEB(10, 6, 6, 6),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

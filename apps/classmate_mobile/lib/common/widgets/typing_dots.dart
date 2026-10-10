@@ -69,8 +69,8 @@ class _TypingDotsState extends State<TypingDots>
               final bounce = (math.sin(t) + 1) / 2; // 0..1
               final translateY = -bounce * (widget.dotSize * 0.85);
               return Padding(
-                padding: EdgeInsets.only(
-                  right: i < 2 ? widget.gap : 0,
+                padding: EdgeInsetsDirectional.only(
+                  end: i < 2 ? widget.gap : 0,
                 ),
                 child: Transform.translate(
                   offset: Offset(0, translateY),
@@ -148,9 +148,9 @@ class TypingBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Container(
-        margin: const EdgeInsets.fromLTRB(12, 4, 64, 4),
+        margin: const EdgeInsetsDirectional.fromSTEB(12, 4, 64, 4),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Theme.of(context).brightness == Brightness.dark

@@ -62,7 +62,7 @@ class _BagrutExamsScreenState extends ConsumerState<BagrutExamsScreen> {
             itemBuilder: (context, i) {
               final e = exams[i];
               return CmCard(
-                padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+                padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 10, 12),
                 // Cupertino route → back chevron + edge-swipe to leave.
                 onTap: () => Navigator.of(context).push(
                   CupertinoPageRoute<void>(builder: (_) => BagrutExamScreen(exam: e)),

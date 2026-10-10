@@ -1992,9 +1992,9 @@ class _ChatThreadViewState extends ConsumerState<ChatThreadView>
                           ),
                         ),
                 ),
-                Positioned(
+                PositionedDirectional(
                   top: -6,
-                  right: -6,
+                  end: -6,
                   child: CmPress(
                     onTap: () => _removeDraftAttachment(index),
                     child: Container(

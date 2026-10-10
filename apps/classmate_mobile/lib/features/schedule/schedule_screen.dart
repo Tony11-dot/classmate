@@ -1167,7 +1167,7 @@ class _ScheduleTile extends StatelessWidget {
               : CmTokens.of(context).shadowSm,
         ),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+          padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 8, 12),
           child: Row(
             children: [
               if (isCurrent) ...[
@@ -1259,7 +1259,7 @@ class _ScheduleTile extends StatelessWidget {
                     if (attachmentCount > 0) ...[
                       const SizedBox(height: 6),
                       Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
@@ -1289,7 +1289,7 @@ class _ScheduleTile extends StatelessWidget {
                     if (hasStatus) ...[
                       const SizedBox(height: 6),
                       Align(
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),

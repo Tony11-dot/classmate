@@ -725,7 +725,7 @@ class _TeacherScheduleScreenState extends ConsumerState<TeacherScheduleScreen> {
           child: CmPress(
             onTap: () => _showSlotSheet(context, slot, l),
             child: LiquidGlassCard(
-              padding: const EdgeInsets.fromLTRB(0, 0, 8, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(0, 0, 8, 0),
               borderRadius: BorderRadius.circular(CmTokens.radiusLg),
               child: IntrinsicHeight(
                child: Row(

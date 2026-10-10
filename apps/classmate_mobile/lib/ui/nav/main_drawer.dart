@@ -88,7 +88,7 @@ class MainDrawer extends ConsumerWidget {
 
     Widget sectionHeader(String title) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 16, 6),
+        padding: const EdgeInsetsDirectional.fromSTEB(20, 20, 16, 6),
         child: Row(
           children: [
             Expanded(
@@ -658,9 +658,9 @@ class MainDrawer extends ConsumerWidget {
     }
 
     const drawerShape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.only(
-        topRight: Radius.circular(28),
-        bottomRight: Radius.circular(28),
+      borderRadius: BorderRadiusDirectional.only(
+        topEnd: Radius.circular(28),
+        bottomEnd: Radius.circular(28),
       ),
     );
     // Liquid glass: the modal drawer floats over the page, so a frosted

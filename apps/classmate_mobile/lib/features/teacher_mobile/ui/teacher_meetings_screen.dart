@@ -209,7 +209,7 @@ class _MeetingCard extends StatelessWidget {
       child: Opacity(
        opacity: isUpcoming ? 1 : 0.8,
        child: LiquidGlassCard(
-        padding: const EdgeInsets.fromLTRB(14, 14, 6, 14),
+        padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 6, 14),
         borderRadius: BorderRadius.circular(22),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(width: 48, height: 48,

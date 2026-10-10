@@ -524,7 +524,7 @@ class _SecretaryCohortDetailScreen extends ConsumerWidget {
         actions: [
           if (cohortAvgGrade != null)
             Padding(
-              padding: const EdgeInsets.only(right: 14),
+              padding: const EdgeInsetsDirectional.only(end: 14),
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

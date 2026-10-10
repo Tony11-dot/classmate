@@ -445,7 +445,7 @@ class _QuestionCardState extends State<_QuestionCard> {
     final q = widget.question;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 8, 10),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 8, 10),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
         borderRadius: BorderRadius.circular(CmTokens.radiusLg),
@@ -575,7 +575,7 @@ class _QuestionCardState extends State<_QuestionCard> {
                     onChanged: (v) => setState(() => q.options[oi] = v)))),
                 if (q.options.length > 1)
                   IconButton(tooltip: AppLocalizations.of(context)!.a11yRemove, icon: const Icon(Icons.close, size: 16), visualDensity: VisualDensity.compact,
-                    onPressed: () => setState(() => q.options.removeAt(oi)), padding: const EdgeInsets.only(left: 4)),
+                    onPressed: () => setState(() => q.options.removeAt(oi)), padding: const EdgeInsetsDirectional.only(start: 4)),
               ]),
             );
           }),

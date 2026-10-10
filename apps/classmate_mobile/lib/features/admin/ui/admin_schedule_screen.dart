@@ -882,7 +882,7 @@ class _SlotCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(10),
-        border: Border(left: BorderSide(color: base, width: 3)),
+        border: BorderDirectional(start: BorderSide(color: base, width: 3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3574,11 +3574,11 @@ class _SquareSlotTileState extends ConsumerState<_SquareSlotTile> {
       child: CmPress(
         onTap: widget.readOnly ? null : widget.onTap,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+          padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 8, 10),
           decoration: BoxDecoration(
             color: Color.alphaBlend(color.withValues(alpha: 0.12), cs.surface),
             borderRadius: BorderRadius.circular(14),
-            border: Border(left: BorderSide(color: color, width: 4)),
+            border: BorderDirectional(start: BorderSide(color: color, width: 4)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

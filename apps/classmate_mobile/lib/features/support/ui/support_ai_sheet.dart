@@ -199,7 +199,7 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 8, 10),
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 8, 10),
             child: Row(
               children: [
                 // NOVA's actual face + name — the support assistant IS NOVA.
@@ -313,7 +313,7 @@ class _SupportAiSheetState extends ConsumerState<_SupportAiSheet> {
                         constraints: BoxConstraints(
                           maxWidth: MediaQuery.of(context).size.width * 0.8,
                         ),
-                        padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
+                        padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 8, 10),
                         decoration: BoxDecoration(
                           color: cs.errorContainer,
                           borderRadius: BorderRadius.circular(18),

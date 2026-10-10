@@ -95,7 +95,7 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 16, 4),
+              padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 16, 4),
               child: Row(
                 children: [
                   IconButton(
@@ -148,7 +148,7 @@ class _BlockedPeopleScreenState extends ConsumerState<BlockedPeopleScreen> {
 
                 final cs = theme.colorScheme;
                 return CmCard(
-                  padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                  padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 10, 10),
                   child: Row(
                     children: [
                       CircleAvatar(

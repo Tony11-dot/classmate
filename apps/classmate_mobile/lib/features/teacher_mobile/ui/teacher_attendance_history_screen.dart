@@ -207,7 +207,7 @@ class _SessionCard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: CmCard(
         onTap: onTap,
-        padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 10, 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

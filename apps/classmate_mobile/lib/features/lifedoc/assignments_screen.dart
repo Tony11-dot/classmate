@@ -1763,7 +1763,7 @@ class _DraftChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return LiquidGlassCard(
-      padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 8, 8),
       borderRadius: BorderRadius.circular(18),
       border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       child: Row(

@@ -435,7 +435,7 @@ class _SubjectGradesScreenState extends ConsumerState<_SubjectGradesScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(4, 4, 12, 0),
+                padding: const EdgeInsetsDirectional.fromSTEB(4, 4, 12, 0),
                 child: Row(
                   children: [
                     IconButton(

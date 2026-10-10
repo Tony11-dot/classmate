@@ -362,7 +362,7 @@ class _ExamDetailBody extends StatelessWidget {
                 children: [
                   if (countdown.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.fromLTRB(8, 5, 12, 5),
+                      padding: const EdgeInsetsDirectional.fromSTEB(8, 5, 12, 5),
                       decoration: BoxDecoration(
                         color: status == _ExamStatus.past
                             ? cs.surfaceContainerHighest

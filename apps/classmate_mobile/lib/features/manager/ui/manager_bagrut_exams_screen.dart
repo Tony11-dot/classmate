@@ -108,7 +108,7 @@ class _ManagerBagrutExamsScreenState extends ConsumerState<ManagerBagrutExamsScr
             itemBuilder: (context, i) {
               final e = exams[i];
               return CmCard(
-                padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
+                padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 6, 12),
                 child: Row(
                   children: [
                     BagrutYearStub(year: e.year),

@@ -701,7 +701,7 @@ class _GalleryHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(2, 22, 0, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(2, 22, 0, 12),
       child: Text(
         title.toUpperCase(),
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -808,9 +808,9 @@ class _ThemeTile extends StatelessWidget {
               children: [
                 _ThemeSwatch(scheme: scheme, ringColor: selected ? cs.primary : null),
                 if (selected)
-                  Positioned(
+                  PositionedDirectional(
                     top: 4,
-                    right: 4,
+                    end: 4,
                     child: Container(
                       decoration: BoxDecoration(
                         color: cs.primary,
@@ -825,9 +825,9 @@ class _ThemeTile extends StatelessWidget {
                 // was undiscoverable so testers reported edit "not clickable"
                 // (QA #55). A tap-target in the corner opens the same menu.
                 if (onEdit != null || onDelete != null)
-                  Positioned(
+                  PositionedDirectional(
                     top: 2,
-                    left: 2,
+                    start: 2,
                     child: Material(
                       color: cs.surface.withValues(alpha: 0.85),
                       shape: const CircleBorder(),

@@ -196,7 +196,7 @@ class ChatComposer extends StatelessWidget {
                     // Size to the incoming child only, so the bar doesn't jump
                     // to the taller of the two mid-transition.
                     layoutBuilder: (current, previous) => Stack(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       children: [
                         ...previous.map(
                           (c) => Positioned.fill(child: IgnorePointer(child: c)),

@@ -1570,7 +1570,7 @@ class _NovaChatScreenState extends ConsumerState<NovaChatScreen> {
     // ── NOVA thinking: animated avatar + typing dots (Claude style) ──────────
     if (!mine && m.content == _thinkingSentinel) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(14, 6, 84, 4),
+        padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 84, 4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -2355,7 +2355,7 @@ class _PromptSuggestionChip extends StatelessWidget {
     return CmPress(
       onTap: onTap,
       child: LiquidGlassCard(
-        padding: const EdgeInsets.fromLTRB(10, 8, 12, 8),
+        padding: const EdgeInsetsDirectional.fromSTEB(10, 8, 12, 8),
         borderRadius: BorderRadius.circular(16),
         color: isDisabled ? cs.surfaceContainerLow : cs.primaryContainer,
         border: Border.all(

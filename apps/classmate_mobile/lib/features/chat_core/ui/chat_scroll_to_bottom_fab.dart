@@ -105,8 +105,8 @@ class _ChatScrollToBottomFabState extends State<ChatScrollToBottomFab>
                       ),
                       // ── Unread badge ──────────────────────────────
                       if (widget.hasUnreadBelow)
-                        Positioned(
-                          right: -2,
+                        PositionedDirectional(
+                          end: -2,
                           top: -2,
                           child: _UnreadBadge(
                             count: widget.unreadCount,

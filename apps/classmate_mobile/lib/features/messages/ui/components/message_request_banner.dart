@@ -82,11 +82,11 @@ class MessageRequestBanner extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               color: dark ? cs.surfaceContainerHigh : cs.surface,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(6),
-                topRight: Radius.circular(18),
-                bottomLeft: Radius.circular(18),
-                bottomRight: Radius.circular(18),
+              borderRadius: const BorderRadiusDirectional.only(
+                topStart: Radius.circular(6),
+                topEnd: Radius.circular(18),
+                bottomStart: Radius.circular(18),
+                bottomEnd: Radius.circular(18),
               ),
             ),
             child: Text(data.firstMessage, style: t.bodyMedium?.copyWith(height: 1.4)),

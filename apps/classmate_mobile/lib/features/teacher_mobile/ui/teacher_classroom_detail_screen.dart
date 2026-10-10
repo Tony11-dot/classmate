@@ -371,7 +371,7 @@ class _TeacherCard extends StatelessWidget {
     final l = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     final card = LiquidGlassCard(
-      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 12, 14),
       borderRadius: BorderRadius.circular(18),
       color: cs.surfaceContainerLow,
       child: Column(

@@ -288,7 +288,7 @@ class _SchoolCard extends StatelessWidget {
     final cohortCount = cohorts is int ? cohorts as int : int.tryParse('$cohorts') ?? 0;
     return CmCard(
       onTap: onView,
-      padding: const EdgeInsets.fromLTRB(16, 16, 12, 10),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 12, 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

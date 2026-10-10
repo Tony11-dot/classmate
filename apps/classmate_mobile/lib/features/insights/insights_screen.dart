@@ -522,7 +522,7 @@ class _Card extends StatelessWidget {
                   ?trailing,
                   if (onTap != null)
                     Padding(
-                      padding: const EdgeInsets.only(left: 6),
+                      padding: const EdgeInsetsDirectional.only(start: 6),
                       child: Icon(
                         Icons.chevron_right_rounded,
                         size: 20,
