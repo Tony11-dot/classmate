@@ -3936,9 +3936,6 @@ class AppLocalizationsPs extends AppLocalizations {
   String get teacherInsightsSearchHint => '‹‹Search students…››';
 
   @override
-  String get navDiplomas => '‹‹Diplomas››';
-
-  @override
   String get teacherExamsTitle => '‹‹Exams››';
 
   @override

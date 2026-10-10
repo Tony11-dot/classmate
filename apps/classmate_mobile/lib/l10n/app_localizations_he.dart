@@ -3866,9 +3866,6 @@ class AppLocalizationsHe extends AppLocalizations {
   String get teacherInsightsSearchHint => 'חיפוש תלמידים…';
 
   @override
-  String get navDiplomas => 'דיפלומות';
-
-  @override
   String get teacherExamsTitle => 'בחינות';
 
   @override

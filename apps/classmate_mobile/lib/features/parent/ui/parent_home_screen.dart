@@ -191,7 +191,7 @@ class _ToolsGrid extends ConsumerWidget {
       ),
       _ToolDef(
         icon: Icons.workspace_premium_outlined,
-        label: l.navDiplomas,
+        label: l.navCertificates,
         route: '/parent/certificates',
       ),
       _ToolDef(

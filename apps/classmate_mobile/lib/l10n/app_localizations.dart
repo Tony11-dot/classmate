@@ -6881,12 +6881,6 @@ abstract class AppLocalizations {
   /// **'Search students…'**
   String get teacherInsightsSearchHint;
 
-  /// No description provided for @navDiplomas.
-  ///
-  /// In en, this message translates to:
-  /// **'Diplomas'**
-  String get navDiplomas;
-
   /// No description provided for @teacherExamsTitle.
   ///
   /// In en, this message translates to:

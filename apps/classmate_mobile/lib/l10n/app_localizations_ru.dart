@@ -3896,9 +3896,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get teacherInsightsSearchHint => 'Поиск студентов…';
 
   @override
-  String get navDiplomas => 'Дипломы';
-
-  @override
   String get teacherExamsTitle => 'Экзамены';
 
   @override

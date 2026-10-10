@@ -124,20 +124,20 @@ Legend: ✅ done · ☐ pending · — not applicable · R## = round that did it
 | Certificate form | (pushed) | sub | ✅ | ✅ R27 | ✅ |
 | Certificates per student | (pushed) | sub | ✅ | ✅ R26 | ✅ |
 
-## Parent (R28)
+## Parent (R28 ✅ chrome; polish reviewed R28)
 
 | Screen | Route | Kind | Chrome | Bar | Polish |
 |---|---|---|---|---|---|
-| Home | /parent/home | navbar | ☐ | — | ☐ |
-| Schedule | /parent/schedule | navbar | ☐ | — | ☐ |
-| Overview | /parent/overview | navbar | ☐ | — | ☐ |
-| Messages | /messages | navbar | ☐ | — | ☐ |
-| Announcements | /announcements | navbar | ☐ | — | ☐ |
-| Attendance · Grades · Exams · Certificates · Assignments · Meetings · Materials · Notifications · CMail | /parent/… | drawer | ☐ | — | ☐ |
-| Profile · Settings · Support · About | /profile … | drawer (Account) | ☐ | — | ☐ |
-| Child picker | (sheet) | sub | ☐ | — (sheet) | ☐ |
-| Shared details (assignment / meeting / announcement / exam / form / notification) | /…/:id | sub | ✅ R26 | ✅ | ☐ |
-| Chat thread | /messages/:id | sub | ☐ | — (chat bar) | ☐ |
+| Home | /parent/home | navbar | ✅ | — | ✅ |
+| Schedule | /parent/schedule | navbar | ✅ | — | ✅ |
+| Overview | /parent/overview | navbar | ✅ | — | ✅ |
+| Messages | /messages | navbar | ✅ | — | ✅ |
+| Announcements | /announcements | navbar | ✅ | — | ✅ |
+| Attendance · Grades · Exams · Certificates · Assignments · Meetings · Materials · Notifications · CMail | /parent/… | drawer | ✅ | — | ✅ |
+| Profile · Settings · Support · About | /profile … | drawer (Account) | ✅ | — | ✅ |
+| Child picker | (sheet) | sub | ✅ | — (sheet) | ✅ |
+| Shared details (assignment / meeting / announcement / exam / form / notification) | /…/:id | sub | ✅ R26 | ✅ | ✅ |
+| Chat thread | /messages/:id | sub | ✅ | — (chat bar) | ✅ |
 
 ## Admin (R29)
 

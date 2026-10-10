@@ -540,7 +540,7 @@ sub-screens. Then each role below is one round: chrome check per route → sub-s
 |---|---|---|---|---|
 | Student | Schedule · Classrooms · Practice · Insights · NOVA | Messages, Attendance, Grades, Assignments, Materials, Solutions, Bagrut, Meetings, Announcements, Notifications, Exams, Forms, Saved questions, Certificates, CMail · Profile, Plans, Settings, Support, About | assignment ✓ · meeting ✓ · announcement ✓ · exam · form · notification · classroom · chat · message request · new group · practice session/history/review · solutions subjects/books/pages/questions · bagrut list/exam/file · certificate · cmail compose/detail · note editor · reorder tools · classroom order · theme gallery · forgot password | ☑ R26 (build 320) |
 | Teacher | Schedule · Classrooms · Announcements · Insights · NOVA | Messages, Workspace, Cohorts, Attendance, Grades, Notifications, Assignments, Materials, Meetings, Solutions, Bagrut, Students, Exams, Certificates, Forms, CMail · Account | classroom detail/analytics · new announcement · create form · form responses · create/edit exam · exam grades · add grade · slot attachments · add material/meeting/assignment (+ classroom variants) · assignment detail · attendance mark · student detail · averages · create classroom · student grade detail | ☑ R27 (build 321) |
-| Parent | Home · Schedule · Overview · Messages · Announcements | Attendance, Grades, Exams, Certificates, Assignments, Meetings, Materials, Notifications, CMail · Account | child picker · the shared lifedoc details · chat | ☐ R28 |
+| Parent | Home · Schedule · Overview · Messages · Announcements | Attendance, Grades, Exams, Certificates, Assignments, Meetings, Materials, Notifications, CMail · Account | child picker · the shared lifedoc details · chat | ☑ R28 (build 322) |
 | Admin | — (drawer only) | Dashboard, People, Cohorts, Schedule, School, Grade scales, Permissions, Reports, Certificates, Export, Students, Settings, CMail · Messages, Announcements, Notifications · Account | periods · import users · cohort detail · add period · edit user · subject detail · school form · certificates per student | ☐ R29 |
 | Secretary | — (drawer only) | Home, Schedule, People, Cohorts, Certificates, Announcements, Messages, Export, CMail · Account | student editor · cohort detail · export sheet | ☐ R30 |
 | Manager | — (console) | Home: Schools · Managers · Bagrut exams | school form · exam form · bagrut manage | ☐ R31 |
@@ -585,6 +585,16 @@ image viewer, video trimmer, NOVA chat and chat threads (message bars).
   stays whole beside Save draft · Publish
 - Checked: analyzer 50 (baseline); tests +73 −5 (baseline); rig: 10 sub-screens + 4 navbar tabs +
   teacher rig, no overflow
+
+## Round 28 (2026-10-10) — the Parent role
+- **Chrome verified** on a 14-screen Parent contact sheet (12 shared tabs rendered as PARENT were
+  added to the sweep rig): the navbar shows only on Home · Schedule · Insights · Messages ·
+  Announcements; every drawer tab keeps the shell bar with the "Viewing as ‹child›" strip; the
+  parent's sub-screens are the shared details, all on `CmSubBar` since R26; chat keeps its bar
+- **One term per concept:** the Parent home tool said "Diplomas" while the drawer, the screen and
+  every other role say "Certificates" — it is Certificates now (the stray key is gone from all six
+  locales)
+- Checked: analyzer 50 (baseline); rig: 13 parent shots, no overflow
 
 ## Up next (in order)
 1. On-device QA pass of build 321 (TestFlight / Play internal). Natan retests Permissions on

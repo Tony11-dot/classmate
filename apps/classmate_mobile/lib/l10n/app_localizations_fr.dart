@@ -3964,9 +3964,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get teacherInsightsSearchHint => 'Rechercher des élèves…';
 
   @override
-  String get navDiplomas => 'Diplômes';
-
-  @override
   String get teacherExamsTitle => 'Examens';
 
   @override
